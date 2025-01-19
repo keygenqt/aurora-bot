@@ -13,16 +13,21 @@ use ratatui::{
     Frame,
 };
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut terminal = ratatui::init();
+mod utils;
 
+// Check language, functions
+fn main() {
+    utils::run_tests();
+}
+
+// TUI
+#[allow(dead_code)]
+fn run_tui() -> Result<(), Box<dyn std::error::Error>> {
+    let mut terminal = ratatui::init();
     let picker = Picker::from_query_stdio().unwrap();
     let image_source = image::ImageReader::open("/home/keygenqt/Documents/Home/Projects/aurora-bot/assets/6048909d-cb71-4d59-964b-15e64d1bc9af.jpeg")?.decode()?;
     let image = picker.new_resize_protocol(image_source.clone());
-
-    // let image = picker.new_resize_protocol(dyn_img);
     let mut app = App { image, is_image: false, exit: false };
-
     let app_result = app.run(&mut terminal);
     ratatui::restore();
     app_result
@@ -128,7 +133,13 @@ impl Widget for &App {
         let post_title = Span::styled(" 🎞️ Картографические библиотеки MFW для ОС Аврора.", Style::default().green().add_modifier(Modifier::BOLD));
         let body = Span::styled(" Делимся с вами записью выступления Дмитрия Лапшина, старшего инженера-разработчика ОМП, в котором он рассказывает про картографические библиотеки MFW для ОС Аврора 🗺", Style::default());
         let link = Span::styled(" 🔗 Смотреть видео", Style::default().blue());
-        let author = Span::styled(" Виталий Зарубин, 17 января 2025.", Style::default().italic().gray());
+
+        let author_raw = match utils::format(" Виталий Зарубин, 17 января 2025.") {
+            Ok(it) => it,
+            Err(_) => "Error format",
+        };
+
+        let author = Span::styled(author_raw , Style::default().italic().gray());
 
         let post: Vec<Line<'_>> = vec![
             post_title.into(),

@@ -1,12 +1,15 @@
 [package]
 name = "aurora-bot"
-version = "0.1.0"
+version = "0.0.1"
 authors = ["Vitaliy Zarubin <keygenqt@yandex.ru"]
 license = "Apache-2.0"
 edition = "2021"
 
 [dependencies]
+anstyle = "1.0.10"
+clap = { version = "4.5.26", features = ["derive"] }
 color-eyre = "0.6.3"
+colored = "3.0.0"
 crossterm = "0.28.1"
 image = "0.25.5"
 ratatui = "0.29.0"

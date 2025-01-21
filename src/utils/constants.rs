@@ -1,5 +1,5 @@
-use colored::Colorize;
 use clap::builder::styling::Styles;
+use colored::Colorize;
 
 /**
  * See also `clap_cargo::style::CLAP_STYLING`
@@ -19,13 +19,14 @@ pub fn clap_style() -> Styles {
  * Main help app
  */
 pub fn app_about() -> String {
-format!(r#"
+    format!(
+        r#"
 
 {} | {} - приложение упрощающие работу с инфраструктурой ОС Аврора.
 
 {}"#,
-    "Aurora Bot".green(),
-    "Client".blue(),
-    "Это сторонний инструмент, написанный энтузиастами!".italic()
-)
+        "Aurora Bot".green(),
+        "Client".blue(),
+        "Это сторонний инструмент, написанный энтузиастами!".italic()
+    )
 }

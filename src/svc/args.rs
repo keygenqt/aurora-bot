@@ -13,7 +13,7 @@ pub struct SvcArgs {
     stop: bool,
 
     /// Авторизация с использованию токена
-    #[arg(short, long, value_name="hash")]
+    #[arg(short, long, value_name = "hash")]
     token: Option<String>,
 }
 

@@ -1,13 +1,17 @@
 use clap::{Parser, Subcommand};
 
-mod cmd;
 mod cli;
+mod cmd;
 mod svc;
 mod utils;
 
 #[derive(Debug, Parser)]
 #[command(version, long_about = None)]
-#[command(disable_help_flag = true, disable_help_subcommand = true, disable_version_flag = true)]
+#[command(
+    disable_help_flag = true,
+    disable_help_subcommand = true,
+    disable_version_flag = true
+)]
 #[command(arg_required_else_help = true)]
 #[command(styles=utils::constants::clap_style())]
 #[command(about=utils::constants::app_about())]

@@ -6,8 +6,8 @@ license = "Apache-2.0"
 edition = "2021"
 
 [dependencies]
-anstyle = "1.0.10"
 clap = { version = "4.5.26", features = ["derive"] }
+clap-cargo = "0.15.2"
 color-eyre = "0.6.3"
 colored = "3.0.0"
 crossterm = "0.28.1"

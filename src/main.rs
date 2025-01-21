@@ -5,8 +5,7 @@ mod cli;
 mod svc;
 mod utils;
 
-/// A fictional versioning CLI
-#[derive(Debug, Parser)] // requires `derive` feature
+#[derive(Debug, Parser)]
 #[command(version, long_about = None)]
 #[command(disable_help_flag = true, disable_help_subcommand = true, disable_version_flag = true)]
 #[command(arg_required_else_help = true)]

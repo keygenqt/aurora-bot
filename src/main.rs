@@ -39,10 +39,11 @@ enum Commands {
     Svc(svc::args::SvcArgs),
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     match App::parse().command.unwrap() {
         Commands::Cmd { command } => cmd::args::run(command),
-        Commands::Cli(arg) => cli::args::run(arg),
+        Commands::Cli(arg) => cli::args::run(arg).await,
         Commands::Svc(arg) => svc::args::run(arg),
     }
 }

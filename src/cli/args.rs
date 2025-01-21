@@ -1,5 +1,7 @@
 use clap::{Args, Subcommand};
 
+use crate::utils;
+
 /// Классическая командная строка
 #[derive(Debug, Args)]
 #[command(arg_required_else_help = true)]
@@ -55,11 +57,12 @@ pub struct AppsArgs {
 /**
  * Run module command
  */
-pub fn run(arg: CliArgs) {
+pub async fn run(arg: CliArgs) {
     match arg.command.unwrap() {
         CliCommands::Dataset(arg) => {
-            println!("{:?}", arg.search.unwrap_or(vec![]).join(" "));
-            println!("{:?}", arg.info)
+            if !arg.search.is_none() {
+                utils::requests::http_auth().await;
+            }
         }
         CliCommands::Apps(arg) => {
             if arg.available {

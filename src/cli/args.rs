@@ -64,7 +64,7 @@ pub async fn run(arg: CliArgs) {
             if !arg.search.is_none() {
                 let client = utils::requests::ClientRequest::new();
                 match client
-                    .auth(|link| println!("Перейдите по ссылки для авторизации: {}", link.blue()))
+                    .auth(|link| println!("Перейдите по ссылке для авторизации: {}", link.blue()))
                     .await
                 {
                     Ok(_) => {

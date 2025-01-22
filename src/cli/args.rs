@@ -1,4 +1,5 @@
 use clap::{Args, Subcommand};
+use color_eyre::owo_colors::OwoColorize;
 
 use crate::utils;
 
@@ -61,7 +62,22 @@ pub async fn run(arg: CliArgs) {
     match arg.command.unwrap() {
         CliCommands::Dataset(arg) => {
             if !arg.search.is_none() {
-                utils::requests::http_auth().await;
+                let client = utils::requests::ClientRequest::new();
+                match client
+                    .auth(|link| println!("Перейдите по ссылки для авторизации: {}", link.blue()))
+                    .await
+                {
+                    Ok(_) => {
+                        match client
+                            .get_search(arg.search.unwrap_or(vec![]).join(" "))
+                            .await
+                        {
+                            Ok(value) => println!("{}", value),
+                            Err(error) => println!("> Error: {}", error),
+                        }
+                    }
+                    Err(error) => println!("> Error: {}", error),
+                }
             }
         }
         CliCommands::Apps(arg) => {

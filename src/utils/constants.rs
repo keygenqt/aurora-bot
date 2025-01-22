@@ -25,7 +25,7 @@ pub fn app_about() -> String {
 {} | {} - приложение упрощающие работу с инфраструктурой ОС Аврора.
 
 {}"#,
-        "Aurora Bot".green(),
+        "Aurora Bot".bright_green().bold(),
         "Client".blue(),
         "Это сторонний инструмент, написанный энтузиастами!".italic()
     )

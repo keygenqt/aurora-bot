@@ -17,7 +17,7 @@ pub struct SvcArgs {
     token: Option<String>,
 }
 
-/// Run module command
+/// Handling interface events
 pub async fn run(arg: SvcArgs) {
     println!("{:?}", arg.run);
     println!("{:?}", arg.stop);

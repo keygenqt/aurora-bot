@@ -56,7 +56,7 @@ pub struct AppsArgs {
     install: bool,
 }
 
-/// Run module command
+/// Handling interface events
 pub async fn run(arg: CliArgs) {
     match arg.command.unwrap() {
         CliCommands::Dataset(arg) => {

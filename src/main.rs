@@ -1,10 +1,12 @@
+use crate::utils::macros::print_warning;
 use clap::{Parser, Subcommand};
+use colored::Colorize;
 
-mod cli;
-mod cmd;
-mod svc;
+mod feature;
+mod service;
 mod utils;
 
+/// Main clap
 #[derive(Debug, Parser)]
 #[command(version, long_about = None)]
 #[command(
@@ -13,8 +15,17 @@ mod utils;
     disable_version_flag = true
 )]
 #[command(arg_required_else_help = true)]
-#[command(styles=utils::constants::clap_style())]
-#[command(about=utils::constants::app_about())]
+#[command(styles=utils::constants::CLAP_STYLING)]
+#[command(about=format!(
+    r#"
+
+{} | {} - приложение упрощающие работу с инфраструктурой ОС Аврора.
+
+{}"#,
+    "Aurora Bot".bright_green().bold(),
+    "Client".blue(),
+    "Это сторонний инструмент, написанный энтузиастами!".italic()
+))]
 struct App {
     /// Показать версию и выйти
     #[clap(short='v', long, action = clap::ArgAction::Version)]
@@ -28,22 +39,26 @@ struct App {
     command: Option<Commands>,
 }
 
+/// Main groups clap
 #[derive(Subcommand, Debug)]
 enum Commands {
     /// Умная командная строка
     #[command(allow_external_subcommands = true)]
     Cmd { command: Option<Vec<String>> },
     /// Классическая командная строка
-    Cli(cli::args::CliArgs),
+    Cli(feature::cli::args::CliArgs),
     /// Работа с сервисом бота
-    Svc(svc::args::SvcArgs),
+    Svc(feature::svc::args::SvcArgs),
 }
 
 #[tokio::main]
 async fn main() {
+    if cfg!(debug_assertions) {
+        print_warning!("включен debug режим");
+    }
     match App::parse().command.unwrap() {
-        Commands::Cmd { command } => cmd::args::run(command),
-        Commands::Cli(arg) => cli::args::run(arg).await,
-        Commands::Svc(arg) => svc::args::run(arg),
+        Commands::Cmd { command } => feature::cmd::args::run(command).await,
+        Commands::Cli(arg) => feature::cli::args::run(arg).await,
+        Commands::Svc(arg) => feature::svc::args::run(arg).await,
     }
 }

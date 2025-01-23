@@ -17,10 +17,8 @@ pub struct SvcArgs {
     token: Option<String>,
 }
 
-/**
- * Run module command
- */
-pub fn run(arg: SvcArgs) {
+/// Run module command
+pub async fn run(arg: SvcArgs) {
     println!("{:?}", arg.run);
     println!("{:?}", arg.stop);
     println!("{:?}", arg.token);

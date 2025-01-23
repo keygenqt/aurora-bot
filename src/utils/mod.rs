@@ -1,2 +1,3 @@
 pub mod constants;
-pub mod requests;
+pub mod macros;
+pub mod single;

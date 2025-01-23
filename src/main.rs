@@ -1,6 +1,5 @@
-use crate::utils::macros::print_warning;
+use crate::utils::{macros::print_warning, methods, constants};
 use clap::{Parser, Subcommand};
-use colored::Colorize;
 
 mod feature;
 mod service;
@@ -15,17 +14,8 @@ mod utils;
     disable_version_flag = true
 )]
 #[command(arg_required_else_help = true)]
-#[command(styles=utils::constants::CLAP_STYLING)]
-#[command(about=format!(
-    r#"
-
-{} | {} - приложение упрощающие работу с инфраструктурой ОС Аврора.
-
-{}"#,
-    "Aurora Bot".bright_green().bold(),
-    "Client".blue(),
-    "Это сторонний инструмент, написанный энтузиастами!".italic()
-))]
+#[command(styles=constants::CLAP_STYLING)]
+#[command(about=methods::app_about())]
 struct App {
     /// Показать версию и выйти
     #[clap(short='v', long, action = clap::ArgAction::Version)]

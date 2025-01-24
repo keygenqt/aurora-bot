@@ -22,6 +22,14 @@ macro_rules! print_warning {
 }
 pub(crate) use print_warning;
 
+/// Pretty print success
+macro_rules! print_success {
+    ($arg:tt) => {
+        println!("\x1b[1m\x1b[32msuccess\x1b[0m: {}", $arg)
+    };
+}
+pub(crate) use print_success;
+
 /// Pretty print json
 macro_rules! print_serde {
     ($arg:ident) => {

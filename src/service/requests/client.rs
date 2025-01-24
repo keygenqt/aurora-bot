@@ -1,4 +1,5 @@
 use color_eyre::owo_colors::OwoColorize;
+use std::fs;
 use std::{path::Path, sync::Arc};
 
 use tokio::time::{sleep, Duration};
@@ -6,7 +7,7 @@ use tokio::time::{sleep, Duration};
 use reqwest::{Client, Response, StatusCode};
 use reqwest_cookie_store::{CookieStore, CookieStoreMutex};
 
-use crate::utils::macros::print_info;
+use crate::utils::macros::{print_info, print_success};
 
 use crate::service::requests::response::{ApiResponse, FaqResponse, UserResponse};
 use crate::utils::constants::{SESSION_FILE, URL_API};
@@ -104,6 +105,14 @@ impl ClientRequest {
         store.save(&mut writer, ::serde_json::to_string).unwrap();
     }
 
+    pub fn logout(&self) -> Result<(), Box<dyn std::error::Error>> {
+        // Get path
+        let home = std::env::var("HOME").unwrap();
+        let path = Path::new(&home).join(SESSION_FILE);
+        fs::remove_file(path)?;
+        Ok(())
+    }
+
     /// Auth by deeplink
     async fn auth(&self) -> Result<bool, Box<dyn std::error::Error>> {
         match self.auth_deeplink().await {
@@ -117,10 +126,9 @@ impl ClientRequest {
                         Some(value) => value,
                         None => Err("токен не найден")?,
                     };
-                    match self.auth_ping(token).await {
+                    match self.auth_ping_token(String::from(token)).await {
                         Ok(_) => {
-                            print_info!("авторизация выполнена успешно");
-                            self.save_cookie();
+                            print_success!("авторизация выполнена успешно");
                             Ok(true)
                         }
                         Err(error) => Err(error)?,
@@ -155,7 +163,15 @@ impl ClientRequest {
     }
 
     /// Waiting for authorization
-    async fn auth_ping(&self, token: &str) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn auth_ping_token(&self, token: String) -> Result<(), Box<dyn std::error::Error>> {
+        return self.auth_ping(token, 1).await
+    }
+
+    /// Waiting for authorization
+    async fn auth_ping(&self, token: String, counter: u64) -> Result<(), Box<dyn std::error::Error>> {
+        if counter >= 15 {
+            Err("тайм-аут подключения к серверу")?
+        }
         let response = match self
             .client
             .get(format!("{URL_API}/auth/token/{token}"))
@@ -170,13 +186,27 @@ impl ClientRequest {
             Err(error) => Err(error)?,
         };
         let result = match serde_json::from_str::<ApiResponse>(&body) {
-            Ok(value) => value.code == 200,
+            Ok(value) => {
+                if value.code == 200 {
+                    true
+                } else if value.code == 415 {
+                    Err("это не токен")?
+                } else if value.code == 400 {
+                    Err("токен устарел")?
+                } else {
+                    false
+                }
+            },
             Err(_) => false,
         };
         if !result {
-            sleep(Duration::from_secs(1)).await;
-            return Box::pin(self.auth_ping(token)).await;
+            if counter == 1 {
+                print_info!("ожидание соединения...");
+            }
+            sleep(Duration::from_secs(u64::from(counter / 2))).await;
+            return Box::pin(self.auth_ping(token, counter + 1)).await;
         }
+        self.save_cookie();
         Ok(())
     }
 

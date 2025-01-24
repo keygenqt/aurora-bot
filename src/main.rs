@@ -1,4 +1,4 @@
-use crate::utils::{macros::print_warning, methods, constants};
+use crate::utils::{constants, macros::print_warning, methods};
 use clap::{Parser, Subcommand};
 
 mod feature;

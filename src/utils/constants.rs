@@ -7,10 +7,10 @@ pub const URL_API: &str = "https://aurora-cos.keygenqt.com/api";
 
 #[allow(dead_code)]
 #[cfg(debug_assertions)]
-pub const WSS_API: &str = "wss://aurora-cos.keygenqt.com/api/connect";
+pub const WSS_API: &str = "ws://0.0.0.0:3024/api/connect";
 
 #[cfg(not(debug_assertions))]
-pub const WSS_API: &str = "ws://0.0.0.0:3024/api/connect";
+pub const WSS_API: &str = "wss://aurora-cos.keygenqt.com/api/connect";
 
 /// File name for save session cookie
 pub const SESSION_FILE: &str = ".aurora-bot.session";

@@ -75,7 +75,7 @@ impl ClientRequest {
     }
 
     /// Load an existing set of cookies, serialized as json
-    fn load_cookie() -> Arc<CookieStoreMutex> {
+    pub fn load_cookie() -> Arc<CookieStoreMutex> {
         // Get path
         let home = std::env::var("HOME").unwrap();
         let path = Path::new(&home).join(SESSION_FILE);
@@ -164,11 +164,15 @@ impl ClientRequest {
 
     /// Waiting for authorization
     pub async fn auth_ping_token(&self, token: String) -> Result<(), Box<dyn std::error::Error>> {
-        return self.auth_ping(token, 1).await
+        return self.auth_ping(token, 1).await;
     }
 
     /// Waiting for authorization
-    async fn auth_ping(&self, token: String, counter: u64) -> Result<(), Box<dyn std::error::Error>> {
+    async fn auth_ping(
+        &self,
+        token: String,
+        counter: u64,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         if counter >= 15 {
             Err("тайм-аут подключения к серверу")?
         }
@@ -196,7 +200,7 @@ impl ClientRequest {
                 } else {
                     false
                 }
-            },
+            }
             Err(_) => false,
         };
         if !result {

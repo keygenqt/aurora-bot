@@ -33,7 +33,7 @@ pub async fn get_user(
 pub async fn get_search(
     request: Option<std::sync::MutexGuard<'static, ClientRequest>>,
     value: String,
-) -> Result<FaqResponse, Box<dyn std::error::Error>> {
+) -> Result<Vec<FaqResponse>, Box<dyn std::error::Error>> {
     if request.is_none() {
         Err("Error load client.")?
     }
@@ -46,11 +46,21 @@ pub async fn get_search(
         Ok(value) => value,
         Err(error) => Err(error)?,
     };
-    match serde_json::from_str::<FaqResponse>(&body) {
-        Ok(value) => Ok(value),
-        Err(_) => match serde_json::from_str::<ApiResponse>(&body) {
-            Ok(value) => Err(value.message)?,
-            Err(error) => Err(error)?,
-        },
+    if body.chars().nth(0).unwrap() == '[' {
+        match serde_json::from_str::<Vec<FaqResponse>>(&body) {
+            Ok(value) => Ok(value),
+            Err(_) => match serde_json::from_str::<ApiResponse>(&body) {
+                Ok(value) => Err(value.message)?,
+                Err(error) => Err(error)?,
+            },
+        }
+    } else {
+        match serde_json::from_str::<FaqResponse>(&body) {
+            Ok(value) => Ok(vec![value]),
+            Err(_) => match serde_json::from_str::<ApiResponse>(&body) {
+                Ok(value) => Err(value.message)?,
+                Err(error) => Err(error)?,
+            },
+        }
     }
 }

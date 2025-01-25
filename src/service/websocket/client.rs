@@ -3,10 +3,7 @@ use reqwest::Client;
 use reqwest_websocket::{Message, RequestBuilderExt};
 use tokio::time::Duration;
 
-use crate::{
-    service::requests::client::ClientRequest,
-    utils::constants::WSS_API,
-};
+use crate::{service::requests::client::ClientRequest, utils::constants::WSS_API};
 
 use super::{enums::MessageKey, incoming::WebsocketIncoming, outgoing::WebsocketMessage};
 

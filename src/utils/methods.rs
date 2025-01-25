@@ -13,3 +13,10 @@ pub fn app_about() -> String {
         "Это сторонний инструмент, написанный энтузиастами!".italic()
     )
 }
+
+pub fn dataset_text_clear(text: String) -> String {
+    text
+        .replace("\n⌫\n", "\n")
+        .replace(">⌫\n", ">")
+        .replace("⌫\n", " ")
+}

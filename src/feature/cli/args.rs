@@ -67,7 +67,15 @@ pub async fn run(arg: CliArgs) {
                 )
                 .await
                 {
-                    Ok(value) => print_serde!(value),
+                    Ok(value) => {
+                        if value.len() == 1 {
+                            value.first().unwrap().print()
+                        } else {
+                            for item in value.iter() {
+                                print_serde!(item)
+                            }
+                        }
+                    },
                     Err(_) => print_error!("произошла ошибка получения данных"),
                 }
             }

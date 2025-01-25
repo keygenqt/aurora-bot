@@ -9,7 +9,7 @@ use reqwest_cookie_store::{CookieStore, CookieStoreMutex};
 
 use crate::utils::macros::{print_info, print_success};
 
-use crate::service::requests::response::{ApiResponse, FaqResponse, UserResponse};
+use crate::service::requests::response::ApiResponse;
 use crate::utils::constants::{SESSION_FILE, URL_API};
 
 pub struct ClientRequest {
@@ -27,51 +27,6 @@ impl ClientRequest {
             .build()
             .unwrap();
         return ClientRequest { client, cookie };
-    }
-
-    /// Get data user
-    #[allow(dead_code)]
-    pub async fn get_user(&self) -> Result<UserResponse, Box<dyn std::error::Error>> {
-        let url = format!("{URL_API}/user/info");
-        let response = match self.client.get(url).send().await {
-            Ok(value) => value,
-            Err(error) => Err(error)?,
-        };
-        let body = match response.text().await {
-            Ok(value) => value,
-            Err(error) => Err(error)?,
-        };
-        match serde_json::from_str::<UserResponse>(&body) {
-            Ok(value) => Ok(value),
-            Err(_) => match serde_json::from_str::<ApiResponse>(&body) {
-                Ok(value) => Err(value.message)?,
-                Err(error) => Err(error)?,
-            },
-        }
-    }
-
-    /// Get answer
-    #[allow(dead_code)]
-    pub async fn get_search(
-        &self,
-        value: String,
-    ) -> Result<FaqResponse, Box<dyn std::error::Error>> {
-        let url = format!("{URL_API}/aurora-dataset/search/data/{value}");
-        let response = match self.get_request(url).await {
-            Ok(response) => response,
-            Err(error) => Err(error)?,
-        };
-        let body = match response.text().await {
-            Ok(value) => value,
-            Err(error) => Err(error)?,
-        };
-        match serde_json::from_str::<FaqResponse>(&body) {
-            Ok(value) => Ok(value),
-            Err(_) => match serde_json::from_str::<ApiResponse>(&body) {
-                Ok(value) => Err(value.message)?,
-                Err(error) => Err(error)?,
-            },
-        }
     }
 
     /// Load an existing set of cookies, serialized as json

@@ -1,5 +1,6 @@
 use crate::service::requests::client::ClientRequest;
 use crate::service::requests::response::{ApiResponse, FaqResponse, UserResponse};
+use crate::service::websocket::incoming::WebsocketIncoming;
 use crate::utils::constants::URL_API;
 
 use super::response::FaqResponses;
@@ -22,6 +23,33 @@ pub async fn get_user(
         Err(error) => Err(error)?,
     };
     match serde_json::from_str::<UserResponse>(&body) {
+        Ok(value) => Ok(value),
+        Err(_) => match serde_json::from_str::<ApiResponse>(&body) {
+            Ok(value) => Err(value.message)?,
+            Err(error) => Err(error)?,
+        },
+    }
+}
+
+/// Get data user
+#[allow(dead_code)]
+pub async fn get_command(
+    request: Option<std::sync::MutexGuard<'static, ClientRequest>>,
+    value: String,
+) -> Result<WebsocketIncoming, Box<dyn std::error::Error>> {
+    if request.is_none() {
+        Err("Error load client.")?
+    }
+    let url = format!("{URL_API}/cli-dataset/command/{value}");
+    let response = match request.unwrap().get_request(url).await {
+        Ok(value) => value,
+        Err(error) => Err(error)?,
+    };
+    let body = match response.text().await {
+        Ok(value) => value,
+        Err(error) => Err(error)?,
+    };
+    match serde_json::from_str::<WebsocketIncoming>(&body) {
         Ok(value) => Ok(value),
         Err(_) => match serde_json::from_str::<ApiResponse>(&body) {
             Ok(value) => Err(value.message)?,

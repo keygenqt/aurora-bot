@@ -1,4 +1,5 @@
 use color_eyre::owo_colors::OwoColorize;
+use dialoguer::Select;
 use serde::{Deserialize, Serialize};
 
 use crate::utils::methods;
@@ -48,5 +49,28 @@ impl FaqResponse {
             self.lname.italic(),
             self.date.italic(),
         )
+    }
+}
+
+pub struct FaqResponses(pub Vec<FaqResponse>);
+
+impl FaqResponses {
+    pub fn print(&self) {
+        if self.0.len() == 1 {
+            self.0.first().unwrap().print();
+        } else {
+            let mut items: Vec<String> = vec![];
+            for (i, item) in self.0.iter().enumerate() {
+                items.push(format!("{}. {}", i + 1, item.title));
+            }
+            let index = Select::new()
+                .with_prompt("📚 Варианты ответа".blue().to_string())
+                .default(0)
+                .items(&items)
+                .interact()
+                .unwrap();
+            println!("");
+            self.0[index].print();
+        }
     }
 }

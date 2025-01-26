@@ -1,7 +1,7 @@
 use clap::{Args, Subcommand};
 
 use crate::service::requests::methods;
-use crate::utils::macros::{print_error, print_serde};
+use crate::utils::macros::print_error;
 use crate::utils::single;
 
 /// Классическая командная строка
@@ -67,15 +67,7 @@ pub async fn run(arg: CliArgs) {
                 )
                 .await
                 {
-                    Ok(value) => {
-                        if value.len() == 1 {
-                            value.first().unwrap().print()
-                        } else {
-                            for item in value.iter() {
-                                print_serde!(item)
-                            }
-                        }
-                    },
+                    Ok(value) => value.print(),
                     Err(_) => print_error!("произошла ошибка получения данных"),
                 }
             }

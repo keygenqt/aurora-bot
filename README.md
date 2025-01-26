@@ -4,7 +4,7 @@
 
 Fast, smart, lightweight, client of the Aurora Bot project.
 
-![preview](data/preview.png)
+![preview](data/preview2.png)
 
 ### Dependencies
 

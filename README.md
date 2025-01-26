@@ -1,4 +1,4 @@
-# Aurora Bot | Client
+# Aurora Bot
 
 > The application is under development, subscribe and like ⭐!
 

@@ -1,4 +1,7 @@
 /// Module services
+pub mod dbus {
+    pub mod server;
+}
 pub mod exec {
     pub mod base;
 }

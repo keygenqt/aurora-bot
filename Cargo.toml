@@ -1,5 +1,7 @@
 [package]
 name = "aurora-bot"
+description = "Fast, smart, lightweight, client of the Aurora Bot project."
+repository = "https://github.com/keygenqt/aurora-bot"
 version = "0.0.1"
 authors = ["Vitaliy Zarubin <keygenqt@yandex.ru"]
 license = "Apache-2.0"
@@ -21,3 +23,7 @@ erased-serde = "0.4.5"
 dialoguer = "0.11.0"
 nipper = "0.1.9"
 regex = "1.11.1"
+dbus = { version = "0.9", features=["futures"] }
+dbus-tokio = "0.7.6"
+dbus-crossroads = "0.5.2"
+futures = "0.3.31"

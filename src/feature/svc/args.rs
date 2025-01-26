@@ -1,6 +1,7 @@
 use clap::Args;
 
 use crate::{
+    service::dbus,
     service::websocket::{
         enums::{MessageKey, MessageState},
         outgoing::WebsocketMessage,
@@ -16,6 +17,10 @@ use crate::{
 #[command(arg_required_else_help = true)]
 #[group(multiple = false)]
 pub struct SvcArgs {
+    /// Запустить API D-Bus сервер
+    #[arg(short, long, default_value_t = false)]
+    dbus: bool,
+
     /// Подключиться к удаленному сервису
     #[arg(short, long, default_value_t = false)]
     connect: bool,
@@ -31,7 +36,12 @@ pub struct SvcArgs {
 
 /// Handling interface events
 pub async fn run(arg: SvcArgs) {
-    if arg.connect {
+    if arg.dbus {
+        match dbus::server::run().await {
+            Ok(_) => print_info!("соединение закрыто"),
+            Err(_) => print_error!("не удалось активировать сервер"),
+        }
+    } else if arg.connect {
         let websocket = single::get_websocket();
         if !websocket.is_none() {
             match websocket

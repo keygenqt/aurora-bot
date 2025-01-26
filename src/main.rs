@@ -35,10 +35,13 @@ enum Commands {
     /// Умная командная строка
     #[command(allow_external_subcommands = true)]
     Cmd { command: Option<Vec<String>> },
-    /// Классическая командная строка
-    Cli(feature::cli::args::CliArgs),
+    /// Работа с Aurora Dataset
+    #[command(allow_external_subcommands = true)]
+    Faq { search: Option<Vec<String>> },
     /// Работа с сервисом бота
     Svc(feature::svc::args::SvcArgs),
+    // /// Классическая командная строка
+    // Cli(feature::cli::args::CliArgs),
 }
 
 #[tokio::main]
@@ -48,7 +51,8 @@ async fn main() {
     }
     match App::parse().command.unwrap() {
         Commands::Cmd { command } => feature::cmd::args::run(command).await,
-        Commands::Cli(arg) => feature::cli::args::run(arg).await,
+        Commands::Faq { search } => feature::faq::args::run(search).await,
         Commands::Svc(arg) => feature::svc::args::run(arg).await,
+        // Commands::Cli(arg) => feature::cli::args::run(arg).await,
     }
 }

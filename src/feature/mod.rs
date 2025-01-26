@@ -5,6 +5,9 @@ pub mod cli {
 pub mod cmd {
     pub mod args;
 }
+pub mod faq {
+    pub mod args;
+}
 pub mod svc {
     pub mod args;
 }

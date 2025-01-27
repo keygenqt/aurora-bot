@@ -1,16 +1,24 @@
 use futures_util::{SinkExt, TryStreamExt};
 use reqwest::Client;
-use reqwest_websocket::{Message, RequestBuilderExt};
+use reqwest_websocket::{Message, RequestBuilderExt, WebSocket};
 use tokio::time::Duration;
 
-use crate::{service::requests::client::ClientRequest, utils::constants::WSS_API};
-
-use super::{enums::MessageKey, incoming::WebsocketIncoming, outgoing::WebsocketMessage};
+use crate::{
+    app::api::{
+        convert::{convert_incoming, convert_outgoing},
+        enums::{ClientKey, ClientState},
+        handler::handler_websocket,
+        outgoing::models::ConnectionOutgoing,
+    },
+    service::requests::client::ClientRequest,
+    utils::{constants::WSS_API, macros::print_error},
+};
 
 pub struct ClientWebsocket {
     client: Client,
 }
 
+// @todo Get execution status
 impl ClientWebsocket {
     /// Create instance
     pub fn new() -> ClientWebsocket {
@@ -25,7 +33,7 @@ impl ClientWebsocket {
 
     pub async fn connect(
         &self,
-        callback: fn(WebsocketIncoming) -> WebsocketMessage,
+        // callback: fn(Incoming) -> Option<Outgoing>,
     ) -> Result<(), Box<dyn std::error::Error>> {
         // Get response
         let response = match self.client.get(WSS_API).upgrade().send().await {
@@ -33,24 +41,35 @@ impl ClientWebsocket {
             Err(error) => Err(error)?,
         };
         // Get websocket
-        let mut websocket = match response.into_websocket().await {
+        let mut websocket: WebSocket = match response.into_websocket().await {
             Ok(value) => value,
             Err(error) => Err(error)?,
         };
         // Send connect message
-        let message = WebsocketMessage::connection().to_message();
+        let message = Message::Text(
+            serde_json::to_string(&ConnectionOutgoing {
+                key: ClientKey::Connection,
+                state: ClientState::Success,
+            })
+            .unwrap(),
+        );
         websocket.send(message).await?;
         // Listen response
         while let Some(message) = websocket.try_next().await? {
             if let Message::Text(text) = message {
-                match serde_json::from_str::<WebsocketIncoming>(&text) {
-                    Ok(value) => {
-                        let model = callback(value);
-                        if model.key != MessageKey::Empty {
-                            websocket.send(model.to_message()).await?
+                match convert_incoming(text) {
+                    Ok(incoming) => match handler_websocket(incoming, &mut websocket).await {
+                        Some(outgoing) => match convert_outgoing(&outgoing) {
+                            Ok(outgoing) => websocket.send(Message::Text(outgoing)).await?,
+                            Err(_) => {}
+                        },
+                        None => {}
+                    },
+                    Err(_) => {
+                        if cfg!(debug_assertions) {
+                            print_error!("ошибка отправки модели")
                         }
                     }
-                    Err(_) => {}
                 }
             }
         }

@@ -5,8 +5,7 @@ use crate::utils::single;
 /// Handling interface events
 pub async fn run(search: Option<Vec<String>>) {
     match search {
-        Some(search) => match methods::get_search(single::get_request(), search.join(" ")).await
-        {
+        Some(search) => match methods::get_search(single::get_request(), search.join(" ")).await {
             Ok(value) => value.print(),
             Err(error) => print_info!(error),
         },

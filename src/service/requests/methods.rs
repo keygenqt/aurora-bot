@@ -1,6 +1,7 @@
+use crate::app::api::convert::convert_incoming;
+use crate::app::api::incoming::models::Incoming;
 use crate::service::requests::client::ClientRequest;
 use crate::service::requests::response::{ApiResponse, FaqResponse, UserResponse};
-use crate::service::websocket::incoming::WebsocketIncoming;
 use crate::utils::constants::URL_API;
 
 use super::response::FaqResponses;
@@ -36,7 +37,7 @@ pub async fn get_user(
 pub async fn get_command(
     request: Option<std::sync::MutexGuard<'static, ClientRequest>>,
     value: String,
-) -> Result<WebsocketIncoming, Box<dyn std::error::Error>> {
+) -> Result<Incoming, Box<dyn std::error::Error>> {
     if request.is_none() {
         Err("Error load client.")?
     }
@@ -49,13 +50,7 @@ pub async fn get_command(
         Ok(value) => value,
         Err(error) => Err(error)?,
     };
-    match serde_json::from_str::<WebsocketIncoming>(&body) {
-        Ok(value) => Ok(value),
-        Err(_) => match serde_json::from_str::<ApiResponse>(&body) {
-            Ok(value) => Err(value.message)?,
-            Err(error) => Err(error)?,
-        },
-    }
+    convert_incoming(body)
 }
 
 /// Get answer

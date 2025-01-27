@@ -12,7 +12,4 @@ pub mod requests {
 }
 pub mod websocket {
     pub mod client;
-    pub mod enums;
-    pub mod incoming;
-    pub mod outgoing;
 }

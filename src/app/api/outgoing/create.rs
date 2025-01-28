@@ -1,10 +1,21 @@
-use super::{enums::{ClientKey, ClientState}, outgoing::models::{AppInfoOutgoing, ConnectionOutgoing, EmulatorStartOutgoing, EmulatorStartStateOutgoing, Outgoing}};
+use crate::app::api::enums::{ClientKey, ClientState};
+
+use super::models::{
+    AppInfoOutgoing, ConnectionOutgoing, EmulatorStartOutgoing, EmulatorStartStateOutgoing,
+    ErrorOutgoing, Outgoing,
+};
 
 impl Outgoing {
-    pub fn connection() -> Outgoing {
+    #[allow(dead_code)]
+    pub fn error(message: String) -> Outgoing {
+        Outgoing::Error(ErrorOutgoing { message })
+    }
+
+    pub fn connection(message: String) -> Outgoing {
         Outgoing::Connection(ConnectionOutgoing {
             key: ClientKey::Connection,
             state: ClientState::Success,
+            message,
         })
     }
 
@@ -27,7 +38,7 @@ impl Outgoing {
         Outgoing::EmulatorStartState(EmulatorStartStateOutgoing {
             key: ClientKey::EmulatorStartState,
             state: ClientState::Info,
-            code
+            code,
         })
     }
 }

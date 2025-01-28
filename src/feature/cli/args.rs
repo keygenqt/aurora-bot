@@ -1,5 +1,10 @@
 use clap::{Args, Subcommand};
 
+use crate::{
+    app::api::{enums::CommandType, handler::handler_incoming, incoming::models::Incoming},
+    utils::{macros::print_error, methods::print_outgoing},
+};
+
 /// Классическая командная строка
 #[derive(Debug, Args)]
 #[command(arg_required_else_help = true)]
@@ -10,20 +15,20 @@ pub struct CliArgs {
 
 #[derive(Subcommand, Debug)]
 pub enum CliCommands {
-    /// Приложения доступные для установки
-    Apps(AppsArgs),
-    /// Работа с устройством
-    Device {},
+    // /// Приложения доступные для установки
+    // Apps(AppsArgs),
+    // /// Работа с устройством
+    // Device{},
     /// Работа с эмулятором в virtualbox
-    Emulator {},
-    /// Работа с Аврора SDK
-    Sdk {},
-    /// Работа с Аврора Platform SDK
-    Psdk {},
-    /// Работа с Flutter для ОС Aurora
-    Flutter {},
-    /// Работа с Visual Studio Code
-    Vscode {},
+    Emulator(EmulatorArgs),
+    // /// Работа с Аврора SDK
+    // Sdk {},
+    // /// Работа с Аврора Platform SDK
+    // Psdk {},
+    // /// Работа с Flutter для ОС Aurora
+    // Flutter {},
+    // /// Работа с Visual Studio Code
+    // Vscode {},
 }
 
 #[derive(Debug, Args)]
@@ -38,35 +43,54 @@ pub struct AppsArgs {
     install: bool,
 }
 
+#[derive(Debug, Args)]
+#[command(arg_required_else_help = true)]
+pub struct EmulatorArgs {
+    /// Запустить эмулятор
+    #[arg(short, long, default_value_t = false)]
+    start: bool,
+}
+
 /// Handling interface events
 #[allow(dead_code)]
 pub async fn run(arg: CliArgs) {
     match arg.command.unwrap() {
-        CliCommands::Apps(arg) => {
-            if arg.available {
-                println!("Get available")
+        // CliCommands::Apps(arg) => {
+        //     if arg.available {
+        //         println!("Get available")
+        //     }
+        //     if arg.install {
+        //         println!("Install package")
+        //     }
+        // }
+        // CliCommands::Device {} => {
+        //     println!("Device")
+        // }
+        CliCommands::Emulator(arg) => {
+            if arg.start {
+                let incoming = Incoming::emulator_start();
+                match handler_incoming(
+                    &incoming,
+                    CommandType::Callback,
+                    Some(|outgoing| print_outgoing(outgoing)),
+                )
+                .await
+                {
+                    Ok(outgoing) => print_outgoing(&outgoing),
+                    Err(error) => print_error!(error),
+                }
             }
-            if arg.install {
-                println!("Install package")
-            }
-        }
-        CliCommands::Device {} => {
-            println!("Device")
-        }
-        CliCommands::Emulator {} => {
-            println!("Emulator")
-        }
-        CliCommands::Sdk {} => {
-            println!("Sdk")
-        }
-        CliCommands::Psdk {} => {
-            println!("Psdk")
-        }
-        CliCommands::Flutter {} => {
-            println!("Flutter")
-        }
-        CliCommands::Vscode {} => {
-            println!("Vscode")
-        }
+        } // CliCommands::Sdk {} => {
+          //     println!("Sdk")
+          // }
+          // CliCommands::Psdk {} => {
+          //     println!("Psdk")
+          // }
+          // CliCommands::Flutter {} => {
+          //     println!("Flutter")
+          // }
+          // CliCommands::Vscode {} => {
+          //     println!("Vscode")
+          // }
     }
 }

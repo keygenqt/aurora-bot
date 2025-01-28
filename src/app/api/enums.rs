@@ -22,3 +22,9 @@ impl fmt::Display for ClientKey {
         write!(f, "{:?}", self)
     }
 }
+
+pub enum CommandType {
+    Dbus,
+    Callback,
+    Websocket,
+}

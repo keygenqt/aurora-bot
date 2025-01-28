@@ -41,8 +41,8 @@ enum Commands {
     Faq { search: Option<Vec<String>> },
     /// Работа с сервисом бота
     Svc(feature::svc::args::SvcArgs),
-    // /// Классическая командная строка
-    // Cli(feature::cli::args::CliArgs),
+    /// Классическая командная строка
+    Cli(feature::cli::args::CliArgs),
 }
 
 #[tokio::main]
@@ -54,6 +54,6 @@ async fn main() {
         Commands::Cmd { command } => feature::cmd::args::run(command).await,
         Commands::Faq { search } => feature::faq::args::run(search).await,
         Commands::Svc(arg) => feature::svc::args::run(arg).await,
-        // Commands::Cli(arg) => feature::cli::args::run(arg).await,
+        Commands::Cli(arg) => feature::cli::args::run(arg).await,
     }
 }

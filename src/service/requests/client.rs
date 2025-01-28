@@ -13,7 +13,7 @@ use crate::service::requests::response::ApiResponse;
 use crate::utils::constants::{SESSION_FILE, URL_API};
 
 pub struct ClientRequest {
-    client: Client,
+    pub client: Client,
     cookie: Arc<CookieStoreMutex>,
 }
 

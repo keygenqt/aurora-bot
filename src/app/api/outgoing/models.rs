@@ -4,6 +4,7 @@ use crate::app::api::enums::{ClientKey, ClientState};
 
 #[allow(dead_code)]
 pub enum Outgoing {
+    Error(ErrorOutgoing),
     Connection(ConnectionOutgoing),
     AppInfo(AppInfoOutgoing),
     EmulatorStart(EmulatorStartOutgoing),
@@ -11,9 +12,15 @@ pub enum Outgoing {
 }
 
 #[derive(Serialize, Deserialize)]
+pub struct ErrorOutgoing {
+    pub message: String,
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct ConnectionOutgoing {
     pub key: ClientKey,
     pub state: ClientState,
+    pub message: String,
 }
 
 #[derive(Serialize, Deserialize)]

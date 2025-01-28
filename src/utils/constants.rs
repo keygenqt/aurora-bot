@@ -12,6 +12,9 @@ pub const WSS_API: &str = "ws://0.0.0.0:3024/api/connect";
 #[cfg(not(debug_assertions))]
 pub const WSS_API: &str = "wss://aurora-cos.keygenqt.com/api/connect";
 
+/// D-Bus API name
+pub const DBUS_NAME: &str = "com.keygenqt.aurora_bot";
+
 /// File name for save session cookie
 pub const SESSION_FILE: &str = ".aurora-bot.session";
 

@@ -1,10 +1,16 @@
-use futures::SinkExt;
-use reqwest_websocket::{Message, WebSocket};
 use colored::Colorize;
 use nipper::Document;
 use regex::Regex;
 
-use crate::app::api::{convert::convert_outgoing, outgoing::models::Outgoing};
+use crate::{
+    app::api::{
+        enums::{ClientState, CommandType},
+        outgoing::models::Outgoing,
+    },
+    service::{dbus::server::ClientDbus, websocket::client::ClientWebsocket},
+};
+
+use super::macros::{print_error, print_info, print_success};
 
 /// Main help app
 pub fn app_about() -> String {
@@ -96,22 +102,35 @@ pub fn html_nipper(html: String) -> String {
     document.select("body").text().trim().to_string()
 }
 
-pub fn send_state_callback(
-    outgoing: &Outgoing,
-    state: Option<fn(&Outgoing)>,
-) {
-    if state.is_some() {
-        state.unwrap()(outgoing)
+pub fn send_state(outgoing: &Outgoing, command: &CommandType, callback: Option<fn(&Outgoing)>) {
+    match command {
+        CommandType::Callback => callback.unwrap()(outgoing),
+        CommandType::Dbus => ClientDbus::send(&outgoing),
+        CommandType::Websocket => ClientWebsocket::send(&outgoing),
     }
 }
 
-pub async fn send_state_websocket(
-    outgoing: &Outgoing,
-    websocket: &mut WebSocket,
-) {
-    let outgoing = convert_outgoing(&outgoing);
-    if outgoing.is_ok() {
-        let outgoing = Message::Text(outgoing.unwrap());
-        let _ = websocket.send(outgoing).await;
+pub fn print_outgoing(outgoing: &Outgoing) {
+    match outgoing {
+        Outgoing::Error(outgoing) => {
+            let message = format!("{}", outgoing.message);
+            print_error!(message)
+        }
+        Outgoing::Connection(outgoing) => {
+            println!("{}", outgoing.message.green().bold())
+        }
+        Outgoing::AppInfo(outgoing) => {
+            println!("aurora-bot {}", outgoing.version)
+        }
+        Outgoing::EmulatorStart(outgoing) => match outgoing.state {
+            ClientState::Info => print_info!("Поиск эмулятора..."),
+            ClientState::Error => print_error!("Не удалось запустить эмулятор"),
+            ClientState::Success => print_success!("Эмулятор успешно запущен!"),
+        },
+        Outgoing::EmulatorStartState(outgoing) => match outgoing.code {
+            1 => print_info!("Поиск эмулятора..."),
+            2 => print_info!("Ожидаем запуска..."),
+            _ => {}
+        },
     }
 }

@@ -1,8 +1,9 @@
 use crate::{
-    app::api::{handler::handler_callback, outgoing::models::Outgoing},
+    app::api::{enums::CommandType, handler::handler_incoming},
     service::requests::methods,
     utils::{
-        macros::{print_error, print_info, print_serde},
+        macros::{print_error, print_info},
+        methods::print_outgoing,
         single,
     },
 };
@@ -12,27 +13,18 @@ pub async fn run(command: Option<Vec<String>>) {
     match command {
         Some(command) => match methods::get_command(single::get_request(), command.join(" ")).await
         {
-            Ok(value) => match handler_callback(value, |value| match value {
-                // State callback
-                Outgoing::EmulatorStartState(outgoing) => {
-                    print_serde!(outgoing);
+            Ok(incoming) => {
+                match handler_incoming(
+                    &incoming,
+                    CommandType::Callback,
+                    Some(|outgoing| print_outgoing(outgoing)),
+                )
+                .await
+                {
+                    Ok(outgoing) => print_outgoing(&outgoing),
+                    Err(error) => print_error!(error),
                 }
-                _ => {}
-            })
-            .await
-            {
-                // Done
-                Some(outgoing) => match outgoing {
-                    Outgoing::AppInfo(outgoing) => {
-                        println!("aurora-bot {}", outgoing.version)
-                    }
-                    Outgoing::EmulatorStart(outgoing) => {
-                        print_serde!(outgoing);
-                    }
-                    _ => {}
-                },
-                None => {}
-            },
+            }
             Err(error) => print_info!(error),
         },
         None => print_error!("введите команду в свободной форме"),

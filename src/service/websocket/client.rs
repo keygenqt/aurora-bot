@@ -1,17 +1,19 @@
+use std::time::Duration;
+
+use crate::app::api::enums::CommandType;
+use crate::utils::constants::URL_API;
 use futures_util::{SinkExt, TryStreamExt};
 use reqwest::Client;
 use reqwest_websocket::{Message, RequestBuilderExt, WebSocket};
-use tokio::time::Duration;
 
 use crate::{
     app::api::{
         convert::{convert_incoming, convert_outgoing},
-        enums::{ClientKey, ClientState},
-        handler::handler_websocket,
-        outgoing::models::ConnectionOutgoing,
+        handler::handler_incoming,
+        outgoing::models::Outgoing,
     },
     service::requests::client::ClientRequest,
-    utils::{constants::WSS_API, macros::print_error},
+    utils::{constants::WSS_API, macros::print_error, methods::print_outgoing},
 };
 
 pub struct ClientWebsocket {
@@ -31,6 +33,17 @@ impl ClientWebsocket {
         return ClientWebsocket { client };
     }
 
+    pub fn send(outgoing: &Outgoing) {
+        let message = convert_outgoing(&outgoing).unwrap();
+        tokio::spawn({
+            async move {
+                let request = ClientRequest::new();
+                let url = format!("{URL_API}/state/connect");
+                let _ = request.client.post(&url).body(message).send().await;
+            }
+        });
+    }
+
     pub async fn connect(
         &self,
         // callback: fn(Incoming) -> Option<Outgoing>,
@@ -46,30 +59,26 @@ impl ClientWebsocket {
             Err(error) => Err(error)?,
         };
         // Send connect message
-        let message = Message::Text(
-            serde_json::to_string(&ConnectionOutgoing {
-                key: ClientKey::Connection,
-                state: ClientState::Success,
-            })
-            .unwrap(),
-        );
+        let outgoing = Outgoing::connection("ping".into());
+        let message = Message::Text(convert_outgoing(&outgoing).unwrap());
         websocket.send(message).await?;
         // Listen response
         while let Some(message) = websocket.try_next().await? {
             if let Message::Text(text) = message {
                 match convert_incoming(text) {
-                    Ok(incoming) => match handler_websocket(incoming, &mut websocket).await {
-                        Some(outgoing) => match convert_outgoing(&outgoing) {
-                            Ok(outgoing) => websocket.send(Message::Text(outgoing)).await?,
-                            Err(_) => {}
-                        },
-                        None => {}
-                    },
-                    Err(_) => {
-                        if cfg!(debug_assertions) {
-                            print_error!("ошибка отправки модели")
+                    Ok(incoming) => {
+                        match handler_incoming(&incoming, CommandType::Websocket, None).await {
+                            Ok(outgoing) => match outgoing {
+                                Outgoing::Connection(_) => print_outgoing(&outgoing),
+                                _ => match convert_outgoing(&outgoing) {
+                                    Ok(outgoing) => websocket.send(Message::Text(outgoing)).await?,
+                                    Err(_) => print_error!("что-то пошло не так"),
+                                },
+                            },
+                            Err(_) => print_error!("что-то пошло не так"),
                         }
                     }
+                    Err(_) => print_error!("что-то пошло не так"),
                 }
             }
         }

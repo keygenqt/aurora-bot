@@ -1,6 +1,6 @@
 use std::sync::{LazyLock, Mutex};
 
-use crate::service::dbus::server::ClientDbus;
+use crate::service::dbus::server::ServerDbus;
 use crate::service::requests::client::ClientRequest;
 use crate::service::websocket::client::ClientWebsocket;
 
@@ -29,9 +29,9 @@ pub fn get_websocket() -> Option<std::sync::MutexGuard<'static, ClientWebsocket>
 }
 
 /// Singleton client dbus
-static CLIENT_D: LazyLock<Mutex<ClientDbus>> = LazyLock::new(|| Mutex::new(ClientDbus::new()));
+static CLIENT_D: LazyLock<Mutex<ServerDbus>> = LazyLock::new(|| Mutex::new(ServerDbus::new()));
 
-pub fn get_dbus() -> Option<std::sync::MutexGuard<'static, ClientDbus>> {
+pub fn get_dbus() -> Option<std::sync::MutexGuard<'static, ServerDbus>> {
     if let Ok(client) = CLIENT_D.lock() {
         Some(client)
     } else {

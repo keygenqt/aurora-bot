@@ -1,7 +1,7 @@
 use clap::{Args, Subcommand};
 
 use crate::{
-    app::api::{enums::CommandType, handler::handler_incoming, incoming::models::Incoming},
+    app::api::{enums::SendType, handler::handler_incoming, incoming::models::Incoming},
     utils::{macros::print_error, methods::print_outgoing},
 };
 
@@ -69,13 +69,7 @@ pub async fn run(arg: CliArgs) {
         CliCommands::Emulator(arg) => {
             if arg.start {
                 let incoming = Incoming::emulator_start();
-                match handler_incoming(
-                    &incoming,
-                    CommandType::Callback,
-                    Some(|outgoing| print_outgoing(outgoing)),
-                )
-                .await
-                {
+                match handler_incoming(&incoming, SendType::Callback).await {
                     Ok(outgoing) => print_outgoing(&outgoing),
                     Err(error) => print_error!(error),
                 }

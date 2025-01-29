@@ -4,10 +4,10 @@ use regex::Regex;
 
 use crate::{
     app::api::{
-        enums::{ClientState, CommandType},
+        enums::{ClientState, SendType},
         outgoing::models::Outgoing,
     },
-    service::{dbus::server::ClientDbus, websocket::client::ClientWebsocket},
+    service::{dbus::server::ServerDbus, websocket::client::ClientWebsocket},
 };
 
 use super::macros::{print_error, print_info, print_success};
@@ -102,11 +102,11 @@ pub fn html_nipper(html: String) -> String {
     document.select("body").text().trim().to_string()
 }
 
-pub fn send_state(outgoing: &Outgoing, command: &CommandType, callback: Option<fn(&Outgoing)>) {
-    match command {
-        CommandType::Callback => callback.unwrap()(outgoing),
-        CommandType::Dbus => ClientDbus::send(&outgoing),
-        CommandType::Websocket => ClientWebsocket::send(&outgoing),
+pub fn send_state(outgoing: &Outgoing, send_type: &SendType) {
+    match send_type {
+        SendType::Callback => print_outgoing(outgoing),
+        SendType::Dbus => ServerDbus::send(&outgoing),
+        SendType::Websocket => ClientWebsocket::send(&outgoing),
     }
 }
 

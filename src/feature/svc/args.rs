@@ -1,6 +1,6 @@
 use clap::Args;
 
-use crate::service::dbus::server::ClientDbus;
+use crate::service::dbus::server::ServerDbus;
 use crate::utils::{
     macros::{print_error, print_info, print_success},
     single,
@@ -30,7 +30,7 @@ pub struct SvcArgs {
 /// Handling interface events
 pub async fn run(arg: SvcArgs) {
     if arg.dbus {
-        match ClientDbus::run().await {
+        match ServerDbus::run().await {
             Ok(_) => print_info!("соединение закрыто"),
             Err(_) => print_error!("не удалось активировать сервер"),
         }

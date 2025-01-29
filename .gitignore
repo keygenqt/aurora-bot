@@ -2,3 +2,6 @@
 
 # temporarily
 /Cargo.lock
+
+# https://github.com/upx/upx
+/upx

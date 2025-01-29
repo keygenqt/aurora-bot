@@ -9,7 +9,7 @@ use dbus_crossroads::{Crossroads, IfaceBuilder};
 use dbus_tokio::connection;
 use futures::future;
 
-use crate::app::api::enums::CommandType;
+use crate::app::api::enums::SendType;
 use crate::utils::single::get_dbus;
 use crate::{
     app::api::{
@@ -37,7 +37,7 @@ fn add_method_app_info(builder: &mut IfaceBuilder<IfaceData>) {
         |mut ctx: dbus_crossroads::Context, _, _: ()| {
             let incoming = Incoming::app_info();
             async move {
-                let result = match handler_incoming(&incoming, CommandType::Dbus, None).await {
+                let result = match handler_incoming(&incoming, SendType::Dbus).await {
                     Ok(outgoing) => Ok((convert_outgoing(&outgoing).unwrap(),)),
                     Err(_) => Ok((String::from(""),)),
                 };
@@ -55,7 +55,7 @@ fn add_method_emulator_start(builder: &mut IfaceBuilder<IfaceData>) {
         |mut ctx: dbus_crossroads::Context, _, _: ()| {
             let incoming = Incoming::emulator_start();
             async move {
-                let result = match handler_incoming(&incoming, CommandType::Dbus, None).await {
+                let result = match handler_incoming(&incoming, SendType::Dbus).await {
                     Ok(outgoing) => Ok((convert_outgoing(&outgoing).unwrap(),)),
                     Err(_) => Ok((String::from(""),)),
                 };
@@ -65,13 +65,13 @@ fn add_method_emulator_start(builder: &mut IfaceBuilder<IfaceData>) {
     );
 }
 
-pub struct ClientDbus {
+pub struct ServerDbus {
     pub connection: Arc<SyncConnection>,
 }
 
-impl ClientDbus {
+impl ServerDbus {
     /// Create instance
-    pub fn new() -> ClientDbus {
+    pub fn new() -> ServerDbus {
         let mut cr = Crossroads::new();
         let (resource, connection) = connection::new_session_sync().unwrap();
 
@@ -106,7 +106,7 @@ impl ClientDbus {
             panic!("Lost connection to D-Bus: {}", err);
         });
 
-        return ClientDbus { connection };
+        return ServerDbus { connection };
     }
 
     pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
@@ -115,7 +115,7 @@ impl ClientDbus {
             .connection
             .request_name(DBUS_NAME, false, true, false)
             .await?;
-        println!("{}", "Сервис D-Bust успешно запущен!".green().bold());
+        println!("{}", "Сервис D-Bus успешно запущен!".green().bold());
         future::pending::<()>().await;
         unreachable!()
     }

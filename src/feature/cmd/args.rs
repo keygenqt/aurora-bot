@@ -1,5 +1,5 @@
 use crate::{
-    app::api::{enums::CommandType, handler::handler_incoming},
+    app::api::{enums::SendType, handler::handler_incoming},
     service::requests::methods,
     utils::{
         macros::{print_error, print_info},
@@ -13,18 +13,10 @@ pub async fn run(command: Option<Vec<String>>) {
     match command {
         Some(command) => match methods::get_command(single::get_request(), command.join(" ")).await
         {
-            Ok(incoming) => {
-                match handler_incoming(
-                    &incoming,
-                    CommandType::Callback,
-                    Some(|outgoing| print_outgoing(outgoing)),
-                )
-                .await
-                {
-                    Ok(outgoing) => print_outgoing(&outgoing),
-                    Err(error) => print_error!(error),
-                }
-            }
+            Ok(incoming) => match handler_incoming(&incoming, SendType::Callback).await {
+                Ok(outgoing) => print_outgoing(&outgoing),
+                Err(error) => print_error!(error),
+            },
             Err(error) => print_info!(error),
         },
         None => print_error!("введите команду в свободной форме"),

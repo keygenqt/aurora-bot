@@ -1,16 +1,17 @@
 /// Urls api
-#[cfg(debug_assertions)]
+// #[cfg(debug_assertions)]
 pub const URL_API: &str = "http://0.0.0.0:3024/api";
 
-#[cfg(not(debug_assertions))]
-pub const URL_API: &str = "https://aurora-cos.keygenqt.com/api";
+// @todo
+// #[cfg(not(debug_assertions))]
+// pub const URL_API: &str = "https://aurora-cos.keygenqt.com/api";
 
-#[allow(dead_code)]
-#[cfg(debug_assertions)]
+// #[cfg(debug_assertions)]
 pub const WSS_API: &str = "ws://0.0.0.0:3024/api/connect";
 
-#[cfg(not(debug_assertions))]
-pub const WSS_API: &str = "wss://aurora-cos.keygenqt.com/api/connect";
+// @todo
+// #[cfg(not(debug_assertions))]
+// pub const WSS_API: &str = "wss://aurora-cos.keygenqt.com/api/connect";
 
 /// D-Bus API name
 pub const DBUS_NAME: &str = "com.keygenqt.aurora_bot";

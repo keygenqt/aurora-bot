@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use crate::app::api::enums::CommandType;
+use crate::app::api::enums::SendType;
 use crate::utils::constants::URL_API;
 use futures_util::{SinkExt, TryStreamExt};
 use reqwest::Client;
@@ -66,18 +66,16 @@ impl ClientWebsocket {
         while let Some(message) = websocket.try_next().await? {
             if let Message::Text(text) = message {
                 match convert_incoming(text) {
-                    Ok(incoming) => {
-                        match handler_incoming(&incoming, CommandType::Websocket, None).await {
-                            Ok(outgoing) => match outgoing {
-                                Outgoing::Connection(_) => print_outgoing(&outgoing),
-                                _ => match convert_outgoing(&outgoing) {
-                                    Ok(outgoing) => websocket.send(Message::Text(outgoing)).await?,
-                                    Err(_) => print_error!("что-то пошло не так"),
-                                },
+                    Ok(incoming) => match handler_incoming(&incoming, SendType::Websocket).await {
+                        Ok(outgoing) => match outgoing {
+                            Outgoing::Connection(_) => print_outgoing(&outgoing),
+                            _ => match convert_outgoing(&outgoing) {
+                                Ok(outgoing) => websocket.send(Message::Text(outgoing)).await?,
+                                Err(_) => print_error!("что-то пошло не так"),
                             },
-                            Err(_) => print_error!("что-то пошло не так"),
-                        }
-                    }
+                        },
+                        Err(_) => print_error!("что-то пошло не так"),
+                    },
                     Err(_) => print_error!("что-то пошло не так"),
                 }
             }

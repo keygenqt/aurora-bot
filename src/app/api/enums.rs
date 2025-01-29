@@ -23,7 +23,7 @@ impl fmt::Display for ClientKey {
     }
 }
 
-pub enum CommandType {
+pub enum SendType {
     Dbus,
     Callback,
     Websocket,

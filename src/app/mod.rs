@@ -18,3 +18,6 @@ pub mod device {
 pub mod emulator {
     pub mod methods;
 }
+pub mod settings {
+    pub mod methods;
+}

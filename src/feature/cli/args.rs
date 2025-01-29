@@ -52,7 +52,6 @@ pub struct EmulatorArgs {
 }
 
 /// Handling interface events
-#[allow(dead_code)]
 pub async fn run(arg: CliArgs) {
     match arg.command.unwrap() {
         // CliCommands::Apps(arg) => {
@@ -69,7 +68,7 @@ pub async fn run(arg: CliArgs) {
         CliCommands::Emulator(arg) => {
             if arg.start {
                 let incoming = Incoming::emulator_start();
-                match handler_incoming(&incoming, SendType::Callback).await {
+                match handler_incoming(&incoming, SendType::Cli).await {
                     Ok(outgoing) => print_outgoing(&outgoing),
                     Err(error) => print_error!(error),
                 }

@@ -6,24 +6,6 @@ use crate::utils::constants::URL_API;
 
 use super::response::FaqResponses;
 
-/// AI Command line
-#[allow(dead_code)]
-pub async fn send_state(
-    request: ClientRequest,
-    value: String,
-) -> Result<Incoming, Box<dyn std::error::Error>> {
-    let url = format!("{URL_API}/connect/state/{value}");
-    let response = match request.get_request(url).await {
-        Ok(value) => value,
-        Err(error) => Err(error)?,
-    };
-    let body = match response.text().await {
-        Ok(value) => value,
-        Err(error) => Err(error)?,
-    };
-    convert_incoming(body)
-}
-
 /// Get data user
 #[allow(dead_code)]
 pub async fn get_user(
@@ -51,7 +33,6 @@ pub async fn get_user(
 }
 
 /// AI Command line
-#[allow(dead_code)]
 pub async fn get_command(
     request: Option<std::sync::MutexGuard<'static, ClientRequest>>,
     value: String,
@@ -72,7 +53,6 @@ pub async fn get_command(
 }
 
 /// Get answer
-#[allow(dead_code)]
 pub async fn get_search(
     request: Option<std::sync::MutexGuard<'static, ClientRequest>>,
     value: String,

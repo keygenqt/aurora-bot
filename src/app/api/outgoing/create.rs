@@ -2,15 +2,10 @@ use crate::app::api::enums::{ClientKey, ClientState};
 
 use super::models::{
     AppInfoOutgoing, ConnectionOutgoing, EmulatorStartOutgoing, EmulatorStartStateOutgoing,
-    ErrorOutgoing, Outgoing,
+    Outgoing,
 };
 
 impl Outgoing {
-    #[allow(dead_code)]
-    pub fn error(message: String) -> Outgoing {
-        Outgoing::Error(ErrorOutgoing { message })
-    }
-
     pub fn connection(message: String) -> Outgoing {
         Outgoing::Connection(ConnectionOutgoing {
             key: ClientKey::Connection,

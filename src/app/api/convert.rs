@@ -43,7 +43,6 @@ pub fn convert_incoming(value: String) -> Result<Incoming, Box<dyn std::error::E
 
 pub fn convert_outgoing(value: &Outgoing) -> Result<String, Box<dyn std::error::Error>> {
     match value {
-        Outgoing::Error(outgoing) => Ok(serde_json::to_string(&outgoing)?),
         Outgoing::Connection(outgoing) => Ok(serde_json::to_string(&outgoing)?),
         Outgoing::AppInfo(outgoing) => Ok(serde_json::to_string(&outgoing)?),
         Outgoing::EmulatorStart(outgoing) => Ok(serde_json::to_string(&outgoing)?),

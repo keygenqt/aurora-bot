@@ -20,11 +20,8 @@ pub struct ClientWebsocket {
     client: Client,
 }
 
-// @todo Get execution status
 impl ClientWebsocket {
-    /// Create instance
     pub fn new() -> ClientWebsocket {
-        // Creates a GET request with upgrades
         let client = Client::builder()
             .cookie_provider(std::sync::Arc::clone(&ClientRequest::load_cookie()))
             .timeout(Duration::from_secs(5))
@@ -44,10 +41,7 @@ impl ClientWebsocket {
         });
     }
 
-    pub async fn connect(
-        &self,
-        // callback: fn(Incoming) -> Option<Outgoing>,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn connect(&self) -> Result<(), Box<dyn std::error::Error>> {
         // Get response
         let response = match self.client.get(WSS_API).upgrade().send().await {
             Ok(value) => value,

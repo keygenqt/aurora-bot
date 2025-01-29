@@ -104,7 +104,7 @@ pub fn html_nipper(html: String) -> String {
 
 pub fn send_state(outgoing: &Outgoing, send_type: &SendType) {
     match send_type {
-        SendType::Callback => print_outgoing(outgoing),
+        SendType::Cli => print_outgoing(outgoing),
         SendType::Dbus => ServerDbus::send(&outgoing),
         SendType::Websocket => ClientWebsocket::send(&outgoing),
     }
@@ -112,10 +112,6 @@ pub fn send_state(outgoing: &Outgoing, send_type: &SendType) {
 
 pub fn print_outgoing(outgoing: &Outgoing) {
     match outgoing {
-        Outgoing::Error(outgoing) => {
-            let message = format!("{}", outgoing.message);
-            print_error!(message)
-        }
         Outgoing::Connection(outgoing) => {
             println!("{}", outgoing.message.green().bold())
         }

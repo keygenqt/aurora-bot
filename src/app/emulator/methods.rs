@@ -4,7 +4,7 @@ use tokio::time::sleep;
 
 use crate::{
     app::api::{
-        enums::SendType, incoming::{self, models::EmulatorStartIncoming}, outgoing::models::Outgoing,
+        enums::SendType, incoming::models::EmulatorStartIncoming, outgoing::models::Outgoing,
     },
     utils::{macros::print_serde, methods},
 };

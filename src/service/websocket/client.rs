@@ -1,7 +1,7 @@
 use std::time::Duration;
 
-use crate::{app::api::enums::SendType, print_warning};
 use crate::utils::constants::URL_API;
+use crate::{app::api::enums::SendType, print_warning};
 use futures_util::{SinkExt, TryStreamExt};
 use reqwest::Client;
 use reqwest_websocket::{Message, RequestBuilderExt, WebSocket};
@@ -49,9 +49,7 @@ impl ClientWebsocket {
         }
     }
 
-    pub async fn reconnect(
-        &self,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn reconnect(&self) -> Result<(), Box<dyn std::error::Error>> {
         print_warning!("соединение не установлено, попытка подключения через 10с...");
         sleep(Duration::from_secs(10)).await;
         match self.connect().await {

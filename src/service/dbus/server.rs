@@ -50,26 +50,11 @@ impl ServerDbus {
         // Init api
         let signal_state = cr.register(DBUS_NAME, |builder| {
             // Signals
-            ServerDbus::add_signal(
-                "listen",
-                builder
-            );
+            ServerDbus::add_signal("listen", builder);
             // Methods
-            ServerDbus::add_method(
-                "api_info",
-                Incoming::api_info(),
-                builder
-            );
-            ServerDbus::add_method(
-                "app_info",
-                Incoming::app_info(),
-                builder
-            );
-            ServerDbus::add_method(
-                "emulator_start",
-                Incoming::emulator_start(),
-                builder
-            );
+            ServerDbus::add_method("api_info", Incoming::api_info(), builder);
+            ServerDbus::add_method("app_info", Incoming::app_info(), builder);
+            ServerDbus::add_method("emulator_start", Incoming::emulator_start(), builder);
         });
 
         // Add api
@@ -112,18 +97,11 @@ impl ServerDbus {
         }
     }
 
-    fn add_signal(
-        name: &str,
-        builder: &mut IfaceBuilder<IfaceData>
-    ) {
+    fn add_signal(name: &str, builder: &mut IfaceBuilder<IfaceData>) {
         builder.signal::<(String,), _>(String::from(name), ("sender",));
     }
 
-    fn add_method(
-        name: &str,
-        incoming: Incoming,
-        builder: &mut IfaceBuilder<IfaceData>
-    ) {
+    fn add_method(name: &str, incoming: Incoming, builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             String::from(name),
             (),

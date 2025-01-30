@@ -9,8 +9,12 @@ pub async fn handler_incoming(
     send_type: SendType,
 ) -> Result<Outgoing, Box<dyn std::error::Error>> {
     match value {
-        Incoming::Connection(incoming) => Ok(Outgoing::connection(format!("{}", incoming.message))),
+        // Common
         Incoming::AppInfo(_) => Ok(Outgoing::app_info()),
         Incoming::EmulatorStart(incoming) => emulator_start(incoming, &send_type).await,
+        // Websocket
+        Incoming::Connection(incoming) => Ok(Outgoing::connection(format!("{}", incoming.message))),
+        // D-Bus
+        Incoming::ApiInfo(_) => Ok(Outgoing::api_info()),
     }
 }

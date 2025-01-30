@@ -19,51 +19,15 @@ use crate::{
     utils::constants::DBUS_NAME,
 };
 
-// gdbus call --session --dest com.keygenqt.aurora_bot --object-path /api --method com.keygenqt.aurora_bot.app_info
-// gdbus call --session --dest com.keygenqt.aurora_bot --object-path /api --method com.keygenqt.aurora_bot.emulator_start
-// gdbus monitor --session --dest com.keygenqt.aurora_bot --object-path /api com.keygenqt.aurora_bot.listen
+// gdbus call --session --dest com.keygenqt.aurora_bot --object-path /api --method
+// - com.keygenqt.aurora_bot.api_info
+// - com.keygenqt.aurora_bot.app_info
+// - com.keygenqt.aurora_bot.emulator_start
+
+// gdbus monitor --session --dest com.keygenqt.aurora_bot --object-path /api
+// - com.keygenqt.aurora_bot.listen
 
 struct IfaceData {}
-
-fn add_signal_state(builder: &mut IfaceBuilder<IfaceData>) {
-    builder.signal::<(String,), _>("listen", ("sender",));
-}
-
-fn add_method_app_info(builder: &mut IfaceBuilder<IfaceData>) {
-    builder.method_with_cr_async(
-        "app_info",
-        (),
-        ("result",),
-        |mut ctx: dbus_crossroads::Context, _, _: ()| {
-            let incoming = Incoming::app_info();
-            async move {
-                let result = match handler_incoming(&incoming, SendType::Dbus).await {
-                    Ok(outgoing) => Ok((convert_outgoing(&outgoing).unwrap(),)),
-                    Err(_) => Ok((String::from(""),)),
-                };
-                ctx.reply(result)
-            }
-        },
-    );
-}
-
-fn add_method_emulator_start(builder: &mut IfaceBuilder<IfaceData>) {
-    builder.method_with_cr_async(
-        "emulator_start",
-        (),
-        ("result",),
-        |mut ctx: dbus_crossroads::Context, _, _: ()| {
-            let incoming = Incoming::emulator_start();
-            async move {
-                let result = match handler_incoming(&incoming, SendType::Dbus).await {
-                    Ok(outgoing) => Ok((convert_outgoing(&outgoing).unwrap(),)),
-                    Err(_) => Ok((String::from(""),)),
-                };
-                ctx.reply(result)
-            }
-        },
-    );
-}
 
 pub struct ServerDbus {
     pub connection: Arc<SyncConnection>,
@@ -85,9 +49,27 @@ impl ServerDbus {
 
         // Init api
         let signal_state = cr.register(DBUS_NAME, |builder| {
-            add_signal_state(builder);
-            add_method_app_info(builder);
-            add_method_emulator_start(builder);
+            // Signals
+            ServerDbus::add_signal(
+                "listen",
+                builder
+            );
+            // Methods
+            ServerDbus::add_method(
+                "api_info",
+                Incoming::api_info(),
+                builder
+            );
+            ServerDbus::add_method(
+                "app_info",
+                Incoming::app_info(),
+                builder
+            );
+            ServerDbus::add_method(
+                "emulator_start",
+                Incoming::emulator_start(),
+                builder
+            );
         });
 
         // Add api
@@ -128,5 +110,37 @@ impl ServerDbus {
                 .append1(outgoing.unwrap());
             let _ = get_dbus().unwrap().connection.send(msg);
         }
+    }
+
+    fn add_signal(
+        name: &str,
+        builder: &mut IfaceBuilder<IfaceData>
+    ) {
+        builder.signal::<(String,), _>(String::from(name), ("sender",));
+    }
+
+    fn add_method(
+        name: &str,
+        incoming: Incoming,
+        builder: &mut IfaceBuilder<IfaceData>
+    ) {
+        builder.method_with_cr_async(
+            String::from(name),
+            (),
+            ("result",),
+            move |mut ctx: dbus_crossroads::Context, _, _: ()| {
+                let value = incoming.clone();
+                async move {
+                    let result = match handler_incoming(&value, SendType::Dbus).await {
+                        Ok(outgoing) => Ok((convert_outgoing(&outgoing).unwrap(),)),
+                        Err(_) => Ok((convert_outgoing(&Outgoing::error(
+                            "An error occurred while executing".into(),
+                        ))
+                        .unwrap(),)),
+                    };
+                    ctx.reply(result)
+                }
+            },
+        );
     }
 }

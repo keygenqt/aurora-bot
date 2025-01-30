@@ -4,9 +4,9 @@ use tokio::time::sleep;
 
 use crate::{
     app::api::{
-        enums::SendType, incoming::models::EmulatorStartIncoming, outgoing::models::Outgoing,
+        enums::SendType, incoming::{self, models::EmulatorStartIncoming}, outgoing::models::Outgoing,
     },
-    utils::methods,
+    utils::{macros::print_serde, methods},
 };
 
 /// Update settings emulator
@@ -23,9 +23,12 @@ async fn emulator_get() {
 
 /// Start emulator
 pub async fn emulator_start(
-    _: &EmulatorStartIncoming,
+    incoming: &EmulatorStartIncoming,
     send_type: &SendType,
 ) -> Result<Outgoing, Box<dyn std::error::Error>> {
+    ////////// Print incoming //////////
+    print_serde!(incoming);
+
     //////////// Send state ////////////
     methods::send_state(&Outgoing::emulator_start_state(1), send_type);
 

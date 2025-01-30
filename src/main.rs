@@ -47,9 +47,9 @@ enum Commands {
 
 #[tokio::main]
 async fn main() {
-    if cfg!(debug_assertions) {
-        print_warning!("включен debug режим");
-    }
+    // if cfg!(debug_assertions) {
+    //     print_warning!("включен debug режим");
+    // }
     match App::parse().command.unwrap() {
         Commands::Cmd { command } => feature::cmd::args::run(command).await,
         Commands::Faq { search } => feature::faq::args::run(search).await,

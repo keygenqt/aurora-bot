@@ -9,15 +9,20 @@ pub enum ClientState {
     Info,
 }
 
-#[derive(Deserialize, Serialize, PartialEq, Debug)]
-pub enum ClientKey {
-    Connection,
+#[derive(Deserialize, Serialize, PartialEq, Clone, Debug)]
+pub enum CommandKey {
+    // Common
+    Error,
     AppInfo,
     EmulatorStart,
     EmulatorStartState,
+    // Websocket
+    Connection,
+    // D-Bus
+    ApiInfo,
 }
 
-impl fmt::Display for ClientKey {
+impl fmt::Display for CommandKey {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{:?}", self)
     }

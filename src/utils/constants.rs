@@ -1,11 +1,11 @@
 /// Urls api
-// #[cfg(debug_assertions)]
+#[cfg(debug_assertions)]
 pub const URL_API: &str = "http://0.0.0.0:3024/api";
 
 #[cfg(not(debug_assertions))]
 pub const URL_API: &str = "https://aurora-cos.keygenqt.com/api";
 
-// #[cfg(debug_assertions)]
+#[cfg(debug_assertions)]
 pub const WSS_API: &str = "ws://0.0.0.0:3024/api/connect";
 
 #[cfg(not(debug_assertions))]

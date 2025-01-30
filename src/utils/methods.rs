@@ -112,8 +112,10 @@ pub fn send_state(outgoing: &Outgoing, send_type: &SendType) {
 
 pub fn print_outgoing(outgoing: &Outgoing) {
     match outgoing {
-        Outgoing::Connection(outgoing) => {
-            println!("{}", outgoing.message.green().bold())
+        // Common
+        Outgoing::Error(outgoing) => {
+            let message = &outgoing.message;
+            print_error!(message)
         }
         Outgoing::AppInfo(outgoing) => {
             println!("aurora-bot {}", outgoing.version)
@@ -128,5 +130,13 @@ pub fn print_outgoing(outgoing: &Outgoing) {
             2 => print_info!("Ожидаем запуска..."),
             _ => {}
         },
+        // Websocket
+        Outgoing::Connection(outgoing) => {
+            println!("{}", outgoing.message.green().bold())
+        }
+        // D-Bus
+        Outgoing::ApiInfo(outgoing) => {
+            println!("dbus-api {}", outgoing.version)
+        }
     }
 }

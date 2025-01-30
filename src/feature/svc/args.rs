@@ -37,7 +37,7 @@ pub async fn run(arg: SvcArgs) {
     } else if arg.connect {
         let websocket = single::get_websocket();
         if !websocket.is_none() {
-            match websocket.unwrap().connect().await {
+            match websocket.unwrap().run().await {
                 Ok(_) => print_info!("соединение закрыто"),
                 Err(_) => print_error!("соединение не установлено"),
             }

@@ -1,39 +1,55 @@
-use crate::app::api::enums::{ClientKey, ClientState};
+use crate::app::api::enums::{ClientState, CommandKey};
 
 use super::models::{
-    AppInfoOutgoing, ConnectionOutgoing, EmulatorStartOutgoing, EmulatorStartStateOutgoing,
-    Outgoing,
+    ApiInfoOutgoing, AppInfoOutgoing, ConnectionOutgoing, EmulatorStartOutgoing,
+    EmulatorStartStateOutgoing, ErrorOutgoing, Outgoing,
 };
 
 impl Outgoing {
-    pub fn connection(message: String) -> Outgoing {
-        Outgoing::Connection(ConnectionOutgoing {
-            key: ClientKey::Connection,
-            state: ClientState::Success,
+    pub fn error(message: String) -> Outgoing {
+        Outgoing::Error(ErrorOutgoing {
+            key: CommandKey::Error,
+            state: ClientState::Error,
             message,
         })
     }
 
     pub fn app_info() -> Outgoing {
         Outgoing::AppInfo(AppInfoOutgoing {
-            key: ClientKey::AppInfo,
+            key: CommandKey::AppInfo,
             state: ClientState::Success,
-            version: String::from("0.0.1"),
+            version: "0.0.1".into(),
         })
     }
 
     pub fn emulator_start() -> Outgoing {
         Outgoing::EmulatorStart(EmulatorStartOutgoing {
-            key: ClientKey::EmulatorStart,
+            key: CommandKey::EmulatorStart,
             state: ClientState::Success,
         })
     }
 
     pub fn emulator_start_state(code: u64) -> Outgoing {
         Outgoing::EmulatorStartState(EmulatorStartStateOutgoing {
-            key: ClientKey::EmulatorStartState,
+            key: CommandKey::EmulatorStartState,
             state: ClientState::Info,
             code,
+        })
+    }
+
+    pub fn connection(message: String) -> Outgoing {
+        Outgoing::Connection(ConnectionOutgoing {
+            key: CommandKey::Connection,
+            state: ClientState::Success,
+            message,
+        })
+    }
+
+    pub fn api_info() -> Outgoing {
+        Outgoing::ApiInfo(ApiInfoOutgoing {
+            key: CommandKey::ApiInfo,
+            state: ClientState::Success,
+            version: "0.0.1".into(),
         })
     }
 }

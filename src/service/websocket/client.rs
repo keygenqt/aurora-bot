@@ -1,10 +1,11 @@
 use std::time::Duration;
 
-use crate::app::api::enums::SendType;
+use crate::{app::api::enums::SendType, print_warning};
 use crate::utils::constants::URL_API;
 use futures_util::{SinkExt, TryStreamExt};
 use reqwest::Client;
 use reqwest_websocket::{Message, RequestBuilderExt, WebSocket};
+use tokio::time::sleep;
 
 use crate::{
     app::api::{
@@ -13,7 +14,7 @@ use crate::{
         outgoing::models::Outgoing,
     },
     service::requests::client::ClientRequest,
-    utils::{constants::WSS_API, macros::print_error, methods::print_outgoing},
+    utils::{constants::WSS_API, methods::print_outgoing},
 };
 
 pub struct ClientWebsocket {
@@ -41,7 +42,25 @@ impl ClientWebsocket {
         });
     }
 
-    pub async fn connect(&self) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn run(&self) -> Result<(), Box<dyn std::error::Error>> {
+        match self.connect().await {
+            Ok(_) => Ok(()),
+            Err(_) => Ok(self.reconnect().await?),
+        }
+    }
+
+    pub async fn reconnect(
+        &self,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        print_warning!("соединение не установлено, попытка подключения через 10с...");
+        sleep(Duration::from_secs(10)).await;
+        match self.connect().await {
+            Ok(_) => Ok(()),
+            Err(_) => Box::pin(self.reconnect()).await,
+        }
+    }
+
+    async fn connect(&self) -> Result<(), Box<dyn std::error::Error>> {
         // Get response
         let response = match self.client.get(WSS_API).upgrade().send().await {
             Ok(value) => value,
@@ -57,7 +76,7 @@ impl ClientWebsocket {
         let message = Message::Text(convert_outgoing(&outgoing).unwrap());
         websocket.send(message).await?;
         // Listen response
-        while let Some(message) = websocket.try_next().await? {
+        while let Ok(Some(message)) = websocket.try_next().await {
             if let Message::Text(text) = message {
                 match convert_incoming(text) {
                     Ok(incoming) => match handler_incoming(&incoming, SendType::Websocket).await {
@@ -65,15 +84,15 @@ impl ClientWebsocket {
                             Outgoing::Connection(_) => print_outgoing(&outgoing),
                             _ => match convert_outgoing(&outgoing) {
                                 Ok(outgoing) => websocket.send(Message::Text(outgoing)).await?,
-                                Err(_) => print_error!("что-то пошло не так"),
+                                Err(_) => Err("не удалось получить outgoing")?,
                             },
                         },
-                        Err(_) => print_error!("что-то пошло не так"),
+                        Err(_) => Err("ошибка выполнения задачи")?,
                     },
-                    Err(_) => print_error!("что-то пошло не так"),
+                    Err(_) => Err("не удалось получить incoming")?,
                 }
             }
         }
-        Ok(())
+        Err("соединение закрыто")?
     }
 }

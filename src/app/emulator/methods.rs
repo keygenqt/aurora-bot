@@ -17,9 +17,14 @@ pub async fn emulator_start(
     let emulators = EmulatorModel::search()?;
     // @todo multiselect
     if let Some(emulator) = emulators.iter().next() {
-        methods::send_state(&Outgoing::emulator_start_state(2), send_type);
-        let result = emulator.start().await?;
-        return Ok(result);
+        if emulator.is_running {
+            return Ok(Outgoing::emulator_start(ClientState::Info));
+        } else {
+            methods::send_state(&Outgoing::emulator_start_state(2), send_type);
+            let result = emulator.start().await?;
+            return Ok(result);
+        }
+
     }
     Ok(Outgoing::emulator_start(ClientState::Error))
 }

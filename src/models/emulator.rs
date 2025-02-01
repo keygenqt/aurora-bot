@@ -32,9 +32,6 @@ impl EmulatorModel {
     }
 
     pub async fn start(&self) -> Result<Outgoing, Box<dyn std::error::Error>> {
-        if self.is_running {
-            return Ok(Outgoing::emulator_start(ClientState::Info));
-        }
         let program = programs::get_vboxmanage()?;
         let _ = exec_wait_args(&program, ["startvm", self.uuid.as_str()])?;
         self.ping_connect().await?;

@@ -3,7 +3,9 @@ use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    app::api::{enums::ClientState, outgoing::Outgoing}, service::{exec::base::exec_wait_args, ssh::client::SshSession}, utils::programs
+    app::api::{enums::ClientState, outgoing::Outgoing},
+    service::{exec::base::exec_wait_args, ssh::client::SshSession},
+    utils::programs,
 };
 
 #[derive(Deserialize, Serialize)]
@@ -16,7 +18,7 @@ pub struct EmulatorModel {
     pub emulator_type: EmulatorType,
     pub uuid: String,
     pub name: String,
-    pub folder: String,
+    pub key: String,
     pub is_running: bool,
     pub is_recording: bool,
     pub port: u16,
@@ -41,17 +43,13 @@ impl EmulatorModel {
 
     async fn ping_connect(&self) -> Result<(), Box<dyn std::error::Error>> {
         let mut ssh = SshSession::connect(
-            self.get_path_ssh_key(),
+            PathBuf::from(&self.key),
             self.user.clone(),
             (self.host.clone(), self.port),
         )
         .await?;
         ssh.close().await?;
         Ok(())
-    }
-
-    fn get_path_ssh_key(&self) -> PathBuf {
-        PathBuf::from(format!("{}/vmshare/ssh/private_keys/sdk", self.folder))
     }
 
     fn search_vb() -> Result<Vec<EmulatorModel>, Box<dyn std::error::Error>> {
@@ -153,7 +151,7 @@ impl EmulatorModel {
                 emulator_type: EmulatorType::VirtualBox,
                 uuid: uuid.clone(),
                 name: name.clone(),
-                folder: folder.clone(),
+                key: format!("{}/vmshare/ssh/private_keys/sdk", folder),
                 is_running,
                 is_recording,
                 port: default_port,

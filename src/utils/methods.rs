@@ -6,7 +6,9 @@ use crate::{
     app::api::{
         enums::{ClientState, SendType},
         outgoing::Outgoing,
-    }, print_warning, service::{dbus::server::ServerDbus, websocket::client::ClientWebsocket}
+    },
+    print_warning,
+    service::{dbus::server::ServerDbus, websocket::client::ClientWebsocket},
 };
 
 use super::macros::{print_error, print_info, print_success};

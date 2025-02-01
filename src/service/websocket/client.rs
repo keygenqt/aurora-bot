@@ -1,21 +1,16 @@
 use std::time::Duration;
 
-use crate::utils::constants::URL_API;
+use crate::app::api::convert::{convert_incoming, convert_outgoing};
+use crate::app::api::handler::handler_incoming;
+use crate::app::api::outgoing::Outgoing;
+use crate::service::requests::client::ClientRequest;
+use crate::utils::constants::{URL_API, WSS_API};
+use crate::utils::methods::print_outgoing;
 use crate::{app::api::enums::SendType, print_warning};
 use futures_util::{SinkExt, TryStreamExt};
 use reqwest::Client;
 use reqwest_websocket::{Message, RequestBuilderExt, WebSocket};
 use tokio::time::sleep;
-
-use crate::{
-    app::api::{
-        convert::{convert_incoming, convert_outgoing},
-        handler::handler_incoming,
-        outgoing::models::Outgoing,
-    },
-    service::requests::client::ClientRequest,
-    utils::{constants::WSS_API, methods::print_outgoing},
-};
 
 pub struct ClientWebsocket {
     client: Client,

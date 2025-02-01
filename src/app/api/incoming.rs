@@ -1,6 +1,21 @@
-use crate::app::api::enums::CommandKey;
+use crate::{
+    app::api::enums::CommandKey,
+    models::incoming::{
+        ApiInfoIncoming, AppInfoIncoming, ConnectionIncoming, EmulatorStartIncoming,
+    },
+};
 
-use super::models::{ApiInfoIncoming, AppInfoIncoming, EmulatorStartIncoming, Incoming};
+#[allow(dead_code)]
+#[derive(Clone)]
+pub enum Incoming {
+    // Common
+    AppInfo(AppInfoIncoming),
+    EmulatorStart(EmulatorStartIncoming),
+    // Websocket
+    Connection(ConnectionIncoming),
+    // D-Bus
+    ApiInfo(ApiInfoIncoming),
+}
 
 impl Incoming {
     pub fn app_info() -> Incoming {

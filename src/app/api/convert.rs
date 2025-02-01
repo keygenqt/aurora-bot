@@ -1,12 +1,11 @@
-use crate::service::requests::response::ApiResponse;
-
-use super::{
-    enums::CommandKey,
-    incoming::models::{
-        ApiInfoIncoming, AppInfoIncoming, ConnectionIncoming, EmulatorStartIncoming, Incoming,
+use crate::{
+    models::incoming::{
+        ApiInfoIncoming, AppInfoIncoming, ConnectionIncoming, EmulatorStartIncoming,
     },
-    outgoing::models::Outgoing,
+    service::requests::response::ApiResponse,
 };
+
+use super::{enums::CommandKey, incoming::Incoming, outgoing::Outgoing};
 
 pub fn convert_incoming(value: String) -> Result<Incoming, Box<dyn std::error::Error>> {
     match value {

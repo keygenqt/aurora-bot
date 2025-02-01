@@ -1,8 +1,6 @@
 use crate::app::emulator::methods::emulator_start;
 
-use super::enums::SendType;
-use super::incoming::models::Incoming;
-use super::outgoing::models::Outgoing;
+use super::{enums::SendType, incoming::Incoming, outgoing::Outgoing};
 
 pub async fn handler_incoming(
     value: &Incoming,

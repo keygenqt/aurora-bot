@@ -1,5 +1,5 @@
 use crate::app::api::convert::convert_incoming;
-use crate::app::api::incoming::models::Incoming;
+use crate::app::api::incoming::Incoming;
 use crate::service::requests::client::ClientRequest;
 use crate::service::requests::response::{ApiResponse, FaqResponse, UserResponse};
 use crate::utils::constants::URL_API;

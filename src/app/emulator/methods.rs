@@ -1,47 +1,22 @@
-use std::time::Duration;
-
-use tokio::time::sleep;
-
 use crate::{
-    app::api::{
-        enums::SendType, incoming::models::EmulatorStartIncoming, outgoing::models::Outgoing,
-    },
-    utils::{macros::print_serde, methods},
+    app::api::{enums::{ClientState, SendType}, outgoing::Outgoing},
+    models::{emulator::EmulatorModel, incoming::EmulatorStartIncoming},
+    utils::methods,
 };
-
-/// Update settings emulator
-async fn emulator_refresh() {
-    // @todo demo sleep
-    sleep(Duration::from_millis(1000)).await;
-}
-
-/// Get emulator
-async fn emulator_get() {
-    // @todo demo sleep
-    sleep(Duration::from_millis(1000)).await;
-}
 
 /// Start emulator
 pub async fn emulator_start(
-    incoming: &EmulatorStartIncoming,
+    _: &EmulatorStartIncoming,
     send_type: &SendType,
 ) -> Result<Outgoing, Box<dyn std::error::Error>> {
-    ////////// Print incoming //////////
-    print_serde!(incoming);
-
-    //////////// Send state ////////////
+    // Search emulators
     methods::send_state(&Outgoing::emulator_start_state(1), send_type);
-
-    ////////// Run any methods /////////
-    emulator_refresh().await;
-    emulator_get().await;
-
-    //////////// Send state ////////////
-    methods::send_state(&Outgoing::emulator_start_state(2), send_type);
-
-    ////////// Run any methods /////////
-    sleep(Duration::from_millis(1000)).await;
-
-    //////////// Send done /////////////
-    Ok(Outgoing::emulator_start())
+    let emulators = EmulatorModel::search()?;
+    // @todo multiselect
+    if let Some(emulator) = emulators.iter().next() {
+        methods::send_state(&Outgoing::emulator_start_state(2), send_type);
+        let result = emulator.start().await?;
+        return Ok(result)
+    }
+    Ok(Outgoing::emulator_start(ClientState::Error))
 }

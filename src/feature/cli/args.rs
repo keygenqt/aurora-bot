@@ -1,7 +1,7 @@
 use clap::{Args, Subcommand};
 
 use crate::{
-    app::api::{enums::SendType, handler::handler_incoming, incoming::models::Incoming},
+    app::api::{enums::SendType, handler::handler_incoming, incoming::Incoming},
     utils::{macros::print_error, methods::print_outgoing},
 };
 

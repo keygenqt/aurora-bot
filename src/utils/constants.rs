@@ -17,6 +17,10 @@ pub const DBUS_NAME: &str = "com.keygenqt.aurora_bot";
 /// File name for save session cookie
 pub const SESSION_FILE: &str = ".aurora-bot.session";
 
+/// File name configuration
+/// @todo
+// pub const CONFIGURATION: &str = ".aurora-bot.config";
+
 /// See also `clap_cargo::style::CLAP_STYLING`
 pub const CLAP_STYLING: clap::builder::styling::Styles = clap::builder::styling::Styles::styled()
     .header(clap_cargo::style::HEADER)

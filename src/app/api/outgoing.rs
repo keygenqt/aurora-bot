@@ -1,9 +1,23 @@
-use crate::app::api::enums::{ClientState, CommandKey};
-
-use super::models::{
-    ApiInfoOutgoing, AppInfoOutgoing, ConnectionOutgoing, EmulatorStartOutgoing,
-    EmulatorStartStateOutgoing, ErrorOutgoing, Outgoing,
+use crate::{
+    app::api::enums::{ClientState, CommandKey},
+    models::outgoing::{
+        ApiInfoOutgoing, AppInfoOutgoing, ConnectionOutgoing, EmulatorStartOutgoing,
+        EmulatorStartStateOutgoing, ErrorOutgoing,
+    },
 };
+
+#[allow(dead_code)]
+pub enum Outgoing {
+    // Common
+    Error(ErrorOutgoing),
+    AppInfo(AppInfoOutgoing),
+    EmulatorStart(EmulatorStartOutgoing),
+    EmulatorStartState(EmulatorStartStateOutgoing),
+    // Websocket
+    Connection(ConnectionOutgoing),
+    // D-Bus
+    ApiInfo(ApiInfoOutgoing),
+}
 
 impl Outgoing {
     pub fn error(message: String) -> Outgoing {
@@ -22,10 +36,10 @@ impl Outgoing {
         })
     }
 
-    pub fn emulator_start() -> Outgoing {
+    pub fn emulator_start(state: ClientState) -> Outgoing {
         Outgoing::EmulatorStart(EmulatorStartOutgoing {
             key: CommandKey::EmulatorStart,
-            state: ClientState::Success,
+            state,
         })
     }
 

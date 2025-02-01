@@ -10,6 +10,9 @@ pub mod requests {
     pub mod methods;
     pub mod response;
 }
+pub mod ssh {
+    pub mod client;
+}
 pub mod websocket {
     pub mod client;
 }

@@ -3,6 +3,7 @@ use clap::{Parser, Subcommand};
 
 mod app;
 mod feature;
+mod models;
 mod service;
 mod utils;
 

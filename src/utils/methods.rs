@@ -5,9 +5,8 @@ use regex::Regex;
 use crate::{
     app::api::{
         enums::{ClientState, SendType},
-        outgoing::models::Outgoing,
-    },
-    service::{dbus::server::ServerDbus, websocket::client::ClientWebsocket},
+        outgoing::Outgoing,
+    }, print_warning, service::{dbus::server::ServerDbus, websocket::client::ClientWebsocket}
 };
 
 use super::macros::{print_error, print_info, print_success};
@@ -121,7 +120,7 @@ pub fn print_outgoing(outgoing: &Outgoing) {
             println!("aurora-bot {}", outgoing.version)
         }
         Outgoing::EmulatorStart(outgoing) => match outgoing.state {
-            ClientState::Info => print_info!("Поиск эмулятора..."),
+            ClientState::Info => print_warning!("Эмулятор уже запущен!"),
             ClientState::Error => print_error!("Не удалось запустить эмулятор"),
             ClientState::Success => print_success!("Эмулятор успешно запущен!"),
         },

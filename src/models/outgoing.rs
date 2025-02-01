@@ -2,19 +2,6 @@ use serde::{Deserialize, Serialize};
 
 use crate::app::api::enums::{ClientState, CommandKey};
 
-#[allow(dead_code)]
-pub enum Outgoing {
-    // Common
-    Error(ErrorOutgoing),
-    AppInfo(AppInfoOutgoing),
-    EmulatorStart(EmulatorStartOutgoing),
-    EmulatorStartState(EmulatorStartStateOutgoing),
-    // Websocket
-    Connection(ConnectionOutgoing),
-    // D-Bus
-    ApiInfo(ApiInfoOutgoing),
-}
-
 #[derive(Serialize, Deserialize)]
 pub struct AppInfoOutgoing {
     pub key: CommandKey,

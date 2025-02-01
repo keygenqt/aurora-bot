@@ -43,13 +43,13 @@ macro_rules! print_success {
 pub(crate) use print_success;
 
 // @todo - for debug
-/// Pretty print json
-macro_rules! print_serde {
-    ($arg:ident) => {
-        match serde_json::to_string_pretty(&$arg) {
-            Ok(value) => println!("{}", value),
-            Err(err) => println!("{}", err),
-        }
-    };
-}
-pub(crate) use print_serde;
+// /// Pretty print json
+// macro_rules! print_serde {
+//     ($arg:ident) => {
+//         match serde_json::to_string_pretty(&$arg) {
+//             Ok(value) => println!("{}", value),
+//             Err(err) => println!("{}", err),
+//         }
+//     };
+// }
+// pub(crate) use print_serde;

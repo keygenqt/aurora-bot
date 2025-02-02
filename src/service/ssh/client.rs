@@ -3,9 +3,9 @@ use std::path::Path;
 use std::sync::Arc;
 use std::time::Duration;
 
-use anyhow::Result;
 use russh::keys::*;
 use russh::*;
+use std::str;
 use tokio::net::ToSocketAddrs;
 
 struct SshClient {}
@@ -25,14 +25,12 @@ pub struct SshSession {
     session: client::Handle<SshClient>,
 }
 
-// @todo
-// https://github.com/Eugeny/russh/blob/main/russh/examples/client_exec_simple.rs
 impl SshSession {
     pub async fn connect<P: AsRef<Path>, A: ToSocketAddrs>(
         key_path: P,
         user: impl Into<String>,
         addrs: A,
-    ) -> Result<Self> {
+    ) -> Result<Self, Box<dyn std::error::Error>> {
         let key_pair = load_secret_key(key_path, None)?;
         let config = client::Config {
             inactivity_timeout: Some(Duration::from_secs(5)),
@@ -61,15 +59,45 @@ impl SshSession {
             .await?;
 
         if !auth_res.success() {
-            anyhow::bail!("Authentication failed: {auth_res:?}");
+            Err("ошибка подключения по ssh")?
         }
 
         Ok(Self { session })
     }
 
-    pub async fn close(&mut self) -> Result<()> {
+    pub async fn call(&self, command: &str) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        let mut code = None;
+        let mut response: Vec<String> = vec![];
+        let mut channel = self.session.channel_open_session().await?;
+
+        channel.exec(true, command).await?;
+
+        loop {
+            let Some(msg) = channel.wait().await else {
+                break;
+            };
+            match msg {
+                ChannelMsg::Data { ref data } => {
+                    match str::from_utf8(data.as_ref()) {
+                        Ok(out_line) => response.push(out_line.into()),
+                        Err(_) => Err("не удалось обработать данные ssh соединения")?,
+                    };
+                }
+                ChannelMsg::ExitStatus { exit_status } => {
+                    code = Some(exit_status);
+                }
+                _ => {}
+            }
+        }
+        if code.is_none() {
+            Err("произошла ошибка при выполнении команды")?
+        }
+        Ok(response)
+    }
+
+    pub async fn close(&self) -> Result<(), Box<dyn std::error::Error>> {
         self.session
-            .disconnect(Disconnect::ByApplication, "", "English")
+            .disconnect(Disconnect::ByApplication, "", "ru_RU")
             .await?;
         Ok(())
     }

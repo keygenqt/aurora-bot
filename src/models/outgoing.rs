@@ -13,6 +13,7 @@ pub struct AppInfoOutgoing {
 pub struct EmulatorStartOutgoing {
     pub key: CommandKey,
     pub state: ClientState,
+    pub message: String,
 }
 
 #[derive(Serialize, Deserialize)]

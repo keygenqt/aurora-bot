@@ -7,7 +7,6 @@ use crate::{
         enums::{ClientState, SendType},
         outgoing::Outgoing,
     },
-    print_warning,
     service::{dbus::server::ServerDbus, websocket::client::ClientWebsocket},
 };
 
@@ -122,13 +121,20 @@ pub fn print_outgoing(outgoing: &Outgoing) {
             println!("aurora-bot {}", outgoing.version)
         }
         Outgoing::EmulatorStart(outgoing) => match outgoing.state {
-            ClientState::Info => print_warning!("Эмулятор уже запущен!"),
-            ClientState::Error => print_error!("Не удалось запустить эмулятор"),
-            ClientState::Success => print_success!("Эмулятор успешно запущен!"),
+            ClientState::Error => print_error!("не удалось запустить эмулятор"),
+            ClientState::Info => {
+                let message = format!("эмулятор уже запущен: {}", outgoing.message);
+                print_info!(message)
+            },
+            ClientState::Success => {
+                let message = format!("эмулятор успешно запущен: {}", outgoing.message);
+                print_success!(message)
+            },
         },
         Outgoing::EmulatorStartState(outgoing) => match outgoing.code {
-            1 => print_info!("Поиск эмулятора..."),
-            2 => print_info!("Ожидаем запуска..."),
+            1 => print_info!("поиск эмулятора..."),
+            2 => print_info!("запуск эмулятора..."),
+            3 => print_info!("ожидаем подключение..."),
             _ => {}
         },
         // Websocket

@@ -3,7 +3,7 @@ macro_rules! print_error {
     ($arg:tt) => {
         println!(
             "{}",
-            format!("\x1b[1m\x1b[91merror\x1b[0m: {}", $arg).to_lowercase()
+            format!("\x1b[1m\x1b[91merror\x1b[0m: {}", $arg)
         )
     };
 }
@@ -14,7 +14,7 @@ macro_rules! print_info {
     ($arg:tt) => {
         println!(
             "{}",
-            format!("\x1b[1m\x1b[94minfo\x1b[0m: {}", $arg).to_lowercase()
+            format!("\x1b[1m\x1b[94minfo\x1b[0m: {}", $arg)
         )
     };
 }
@@ -25,7 +25,7 @@ macro_rules! print_warning {
     ($arg:tt) => {
         println!(
             "{}",
-            format!("\x1b[1m\x1b[93mwarning\x1b[0m: {}", $arg).to_lowercase()
+            format!("\x1b[1m\x1b[93mwarning\x1b[0m: {}", $arg)
         )
     };
 }
@@ -36,7 +36,7 @@ macro_rules! print_success {
     ($arg:tt) => {
         println!(
             "{}",
-            format!("\x1b[1m\x1b[32msuccess\x1b[0m: {}", $arg).to_lowercase()
+            format!("\x1b[1m\x1b[32msuccess\x1b[0m: {}", $arg)
         )
     };
 }

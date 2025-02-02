@@ -110,7 +110,7 @@ impl ServerDbus {
                     let result = match handler_incoming(&value, SendType::Dbus).await {
                         Ok(outgoing) => Ok((convert_outgoing(&outgoing).unwrap(),)),
                         Err(_) => Ok((convert_outgoing(&Outgoing::error(
-                            "An error occurred while executing".into(),
+                            "произошла ошибка при выполнении команды".into(),
                         ))
                         .unwrap(),)),
                     };

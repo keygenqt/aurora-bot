@@ -36,10 +36,14 @@ impl Outgoing {
         })
     }
 
-    pub fn emulator_start(state: ClientState) -> Outgoing {
+    pub fn emulator_start(
+        state: ClientState,
+        message: String,
+    ) -> Outgoing {
         Outgoing::EmulatorStart(EmulatorStartOutgoing {
             key: CommandKey::EmulatorStart,
             state,
+            message,
         })
     }
 

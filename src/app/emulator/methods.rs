@@ -19,7 +19,7 @@ pub async fn emulator_start(
     // Get first emulator, multiselect for the future
     if let Some(emulator) = emulators.iter().next() {
         if emulator.is_running {
-            // Get emulator with connection
+            // Get emulator connect session
             let emulator = emulator.session_user().await?;
             // Close connect
             emulator.close().await?;
@@ -35,7 +35,7 @@ pub async fn emulator_start(
             emulator.start().await?;
             // Send state about connect
             methods::send_state(&Outgoing::emulator_start_state(3), send_type);
-            // Get emulator with connection
+            // Get emulator connect session
             let emulator = emulator.session_user().await?;
             // Close connect
             emulator.close().await?;

@@ -1,6 +1,7 @@
 use colored::Colorize;
 use nipper::Document;
 use regex::Regex;
+use std::{ffi::OsStr, process::Output};
 
 use crate::{
     app::api::{
@@ -125,11 +126,11 @@ pub fn print_outgoing(outgoing: &Outgoing) {
             ClientState::Info => {
                 let message = format!("эмулятор уже запущен: {}", outgoing.message);
                 print_info!(message)
-            },
+            }
             ClientState::Success => {
                 let message = format!("эмулятор успешно запущен: {}", outgoing.message);
                 print_success!(message)
-            },
+            }
         },
         Outgoing::EmulatorStartState(outgoing) => match outgoing.code {
             1 => print_info!("поиск эмулятора..."),
@@ -145,5 +146,84 @@ pub fn print_outgoing(outgoing: &Outgoing) {
         Outgoing::ApiInfo(outgoing) => {
             println!("dbus-api {}", outgoing.version)
         }
+    }
+}
+
+pub fn config_output_filter_keys<I, S>(
+    output: Output,
+    keys: I,
+) -> Result<Vec<String>, Box<dyn std::error::Error>>
+where
+    I: IntoIterator<Item = S>,
+    S: AsRef<OsStr>,
+{
+    let args: Vec<String> = keys
+        .into_iter()
+        .map(|k| String::from(k.as_ref().to_str().unwrap()))
+        .collect();
+    let params = String::from_utf8(output.stdout)?
+        .split("\n")
+        .map(|e| {
+            if args.iter().any(|k| e.contains(k)) {
+                return Some(e);
+            } else {
+                None
+            }
+        })
+        .filter(|e| e.is_some())
+        .map(|e| String::from(e.unwrap()))
+        .collect();
+    Ok(params)
+}
+
+pub fn config_vec_filter_keys<I, S>(
+    output: Vec<String>,
+    keys: I,
+) -> Result<Vec<String>, Box<dyn std::error::Error>>
+where
+    I: IntoIterator<Item = S>,
+    S: AsRef<OsStr>,
+{
+    let mut full_vec: Vec<String> = vec![];
+    let args: Vec<String> = keys
+        .into_iter()
+        .map(|k| String::from(k.as_ref().to_str().unwrap()))
+        .collect();
+    for item in output.iter() {
+        let lines = item.split("\n").collect::<Vec<&str>>();
+        for line in lines.iter() {
+            if args.iter().any(|k| line.contains(k)) {
+                full_vec.push(line.to_string());
+            }
+        }
+    }
+    Ok(full_vec)
+}
+
+pub fn config_get_string(
+    params: &Vec<String>,
+    key: &str,
+    split: &str,
+) -> Result<String, Box<dyn std::error::Error>> {
+    match params.iter().filter(|e| e.contains(key)).next() {
+        Some(option) => Ok(option
+            .split(split)
+            .skip(1)
+            .collect::<String>()
+            .trim()
+            .trim_matches(&['"'] as &[_])
+            .to_string()),
+        None => Err("не удалось найти ключ")?,
+    }
+}
+
+pub fn config_get_bool(
+    params: &Vec<String>,
+    key: &str,
+    find: &str,
+) -> Result<bool, Box<dyn std::error::Error>> {
+    match params.iter().filter(|e| e.contains(key)).next() {
+        Some(option) => Ok(option.contains(find)),
+        None => Err("не удалось найти ключ")?,
     }
 }

@@ -1,8 +1,11 @@
 use clap::{Args, Subcommand};
 
 use crate::{
-    app::api::{enums::SendType, handler::handler_incoming, incoming::Incoming},
-    utils::{macros::print_error, methods::print_outgoing},
+    models::{
+        incoming::{emulator_start::IncomingEmulatorStart, Incoming},
+        outgoing::OutgoingType,
+    },
+    utils::macros::print_error,
 };
 
 /// Классическая командная строка
@@ -67,9 +70,8 @@ pub async fn run(arg: CliArgs) {
         // }
         CliCommands::Emulator(arg) => {
             if arg.start {
-                let incoming = Incoming::emulator_start();
-                match handler_incoming(&incoming, SendType::Cli).await {
-                    Ok(outgoing) => print_outgoing(&outgoing),
+                match Incoming::handler(IncomingEmulatorStart::new(), OutgoingType::Cli).await {
+                    Ok(outgoing) => outgoing.print(),
                     Err(error) => print_error!(error),
                 }
             }

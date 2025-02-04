@@ -7,9 +7,9 @@ use tokio::time::{sleep, Duration};
 use reqwest::{Client, Response, StatusCode};
 use reqwest_cookie_store::{CookieStore, CookieStoreMutex};
 
+use crate::service::responses::common::CommonResponse;
 use crate::utils::macros::{print_info, print_success};
 
-use crate::service::requests::response::ApiResponse;
 use crate::utils::constants::{SESSION_FILE, URL_API};
 
 pub struct ClientRequest {
@@ -97,7 +97,7 @@ impl ClientRequest {
     }
 
     /// Get deeplink
-    async fn auth_deeplink(&self) -> Result<ApiResponse, Box<dyn std::error::Error>> {
+    async fn auth_deeplink(&self) -> Result<CommonResponse, Box<dyn std::error::Error>> {
         let response = match self
             .client
             .get(format!("{URL_API}/auth/deeplink"))
@@ -111,7 +111,7 @@ impl ClientRequest {
             Ok(value) => value,
             Err(error) => Err(error)?,
         };
-        match serde_json::from_str::<ApiResponse>(&body) {
+        match serde_json::from_str::<CommonResponse>(&body) {
             Ok(value) => Ok(value),
             Err(error) => Err(error)?,
         }
@@ -144,7 +144,7 @@ impl ClientRequest {
             Ok(value) => value,
             Err(error) => Err(error)?,
         };
-        let result = match serde_json::from_str::<ApiResponse>(&body) {
+        let result = match serde_json::from_str::<CommonResponse>(&body) {
             Ok(value) => {
                 if value.code == 200 {
                     true

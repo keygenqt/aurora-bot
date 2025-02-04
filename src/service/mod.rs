@@ -1,14 +1,18 @@
 /// Module services
+pub mod command {
+    pub mod exec;
+}
 pub mod dbus {
     pub mod server;
-}
-pub mod exec {
-    pub mod base;
 }
 pub mod requests {
     pub mod client;
     pub mod methods;
-    pub mod response;
+}
+pub mod responses {
+    pub mod common;
+    pub mod faq;
+    pub mod user;
 }
 pub mod ssh {
     pub mod client;

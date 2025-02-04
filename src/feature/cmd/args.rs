@@ -1,9 +1,7 @@
 use crate::{
-    app::api::{enums::SendType, handler::handler_incoming},
-    service::requests::methods,
+    models::{incoming::Incoming, outgoing::OutgoingType},
     utils::{
         macros::{print_error, print_info},
-        methods::print_outgoing,
         single,
     },
 };
@@ -11,10 +9,9 @@ use crate::{
 /// Handling interface events
 pub async fn run(command: Option<Vec<String>>) {
     match command {
-        Some(command) => match methods::get_command(single::get_request(), command.join(" ")).await
-        {
-            Ok(incoming) => match handler_incoming(&incoming, SendType::Cli).await {
-                Ok(outgoing) => print_outgoing(&outgoing),
+        Some(command) => match single::get_request().get_command(command.join(" ")).await {
+            Ok(incoming) => match Incoming::handler(incoming, OutgoingType::Cli).await {
+                Ok(outgoing) => outgoing.print(),
                 Err(error) => print_error!(error),
             },
             Err(error) => print_info!(error),

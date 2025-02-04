@@ -4,15 +4,18 @@ use crate::service::dbus::server::ServerDbus;
 use crate::service::requests::client::ClientRequest;
 use crate::service::websocket::client::ClientWebsocket;
 
+use super::macros::print_error;
+
 /// Singleton client requests
 static CLIENT_H: LazyLock<Mutex<ClientRequest>> =
     LazyLock::new(|| Mutex::new(ClientRequest::new()));
 
-pub fn get_request() -> Option<std::sync::MutexGuard<'static, ClientRequest>> {
+pub fn get_request() -> std::sync::MutexGuard<'static, ClientRequest> {
     if let Ok(client) = CLIENT_H.lock() {
-        Some(client)
+        client
     } else {
-        None
+        print_error!("ошибка получения клиента");
+        panic!("error get client")
     }
 }
 
@@ -20,21 +23,23 @@ pub fn get_request() -> Option<std::sync::MutexGuard<'static, ClientRequest>> {
 static CLIENT_W: LazyLock<Mutex<ClientWebsocket>> =
     LazyLock::new(|| Mutex::new(ClientWebsocket::new()));
 
-pub fn get_websocket() -> Option<std::sync::MutexGuard<'static, ClientWebsocket>> {
+pub fn get_websocket() -> std::sync::MutexGuard<'static, ClientWebsocket> {
     if let Ok(client) = CLIENT_W.lock() {
-        Some(client)
+        client
     } else {
-        None
+        print_error!("ошибка получения websocket");
+        panic!("error get websocket")
     }
 }
 
 /// Singleton client dbus
 static CLIENT_D: LazyLock<Mutex<ServerDbus>> = LazyLock::new(|| Mutex::new(ServerDbus::new()));
 
-pub fn get_dbus() -> Option<std::sync::MutexGuard<'static, ServerDbus>> {
+pub fn get_dbus() -> std::sync::MutexGuard<'static, ServerDbus> {
     if let Ok(client) = CLIENT_D.lock() {
-        Some(client)
+        client
     } else {
-        None
+        print_error!("ошибка получения dbus");
+        panic!("error get dbus")
     }
 }

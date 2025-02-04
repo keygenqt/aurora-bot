@@ -9,21 +9,17 @@ use dbus_crossroads::{Crossroads, IfaceBuilder};
 use dbus_tokio::connection;
 use futures::future;
 
-use crate::app::api::convert::convert_outgoing;
-use crate::app::api::enums::SendType;
-use crate::app::api::handler::handler_incoming;
-use crate::app::api::incoming::Incoming;
-use crate::app::api::outgoing::Outgoing;
+use crate::models::incoming::app_info::IncomingAppInfo;
+use crate::models::incoming::dbus_info::IncomingDbusInfo;
+use crate::models::incoming::emulator_start::IncomingEmulatorStart;
+use crate::models::incoming::Incoming;
+use crate::models::outgoing::error::OutgoingError;
+use crate::models::outgoing::{Outgoing, OutgoingType};
 use crate::utils::constants::DBUS_NAME;
 use crate::utils::single::get_dbus;
 
-// gdbus call --session --dest com.keygenqt.aurora_bot --object-path /api --method
-// - com.keygenqt.aurora_bot.api_info
-// - com.keygenqt.aurora_bot.app_info
-// - com.keygenqt.aurora_bot.emulator_start
-
-// gdbus monitor --session --dest com.keygenqt.aurora_bot --object-path /api
-// - com.keygenqt.aurora_bot.listen
+// gdbus call --session --dest com.keygenqt.aurora_bot --object-path /api --method com.keygenqt.aurora_bot.{KEY}
+// gdbus monitor --session --dest com.keygenqt.aurora_bot --object-path /api com.keygenqt.aurora_bot.listen
 
 struct IfaceData {}
 
@@ -50,9 +46,10 @@ impl ServerDbus {
             // Signals
             ServerDbus::add_signal("listen", builder);
             // Methods
-            ServerDbus::add_method("api_info", Incoming::api_info(), builder);
-            ServerDbus::add_method("app_info", Incoming::app_info(), builder);
-            ServerDbus::add_method("emulator_start", Incoming::emulator_start(), builder);
+            // Incoming: step 6
+            ServerDbus::add_method(IncomingAppInfo::new(), builder);
+            ServerDbus::add_method(IncomingDbusInfo::new(), builder);
+            ServerDbus::add_method(IncomingEmulatorStart::new(), builder);
         });
 
         // Add api
@@ -76,7 +73,6 @@ impl ServerDbus {
 
     pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
         get_dbus()
-            .unwrap()
             .connection
             .request_name(DBUS_NAME, false, true, false)
             .await?;
@@ -86,12 +82,12 @@ impl ServerDbus {
     }
 
     pub fn send(outgoing: &Outgoing) {
-        let outgoing = convert_outgoing(&outgoing);
+        let outgoing = outgoing.to_string();
         if outgoing.is_ok() {
             let path: Path<'static> = format!("{}", "/api").into();
             let msg = Message::signal(&path, &DBUS_NAME.into(), &"listen".into())
                 .append1(outgoing.unwrap());
-            let _ = get_dbus().unwrap().connection.send(msg);
+            let _ = get_dbus().connection.send(msg);
         }
     }
 
@@ -99,19 +95,20 @@ impl ServerDbus {
         builder.signal::<(String,), _>(String::from(name), ("sender",));
     }
 
-    fn add_method(name: &str, incoming: Incoming, builder: &mut IfaceBuilder<IfaceData>) {
+    fn add_method(incoming: Incoming, builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
-            String::from(name),
+            incoming.name(),
             (),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, _: ()| {
                 let value = incoming.clone();
                 async move {
-                    let result = match handler_incoming(&value, SendType::Dbus).await {
-                        Ok(outgoing) => Ok((convert_outgoing(&outgoing).unwrap(),)),
-                        Err(_) => Ok((convert_outgoing(&Outgoing::error(
-                            "произошла ошибка при выполнении команды".into(),
-                        ))
+                    let result = match Incoming::handler(value, OutgoingType::Dbus).await {
+                        Ok(outgoing) => Ok((outgoing.to_string().unwrap(),)),
+                        Err(_) => Ok((OutgoingError::new(
+                            "выполнение команды завершилось не удачей".into(),
+                        )
+                        .to_string()
                         .unwrap(),)),
                     };
                     ctx.reply(result)

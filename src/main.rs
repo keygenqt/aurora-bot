@@ -1,7 +1,6 @@
 use crate::utils::{constants, macros::print_warning, methods};
 use clap::{Parser, Subcommand};
 
-mod app;
 mod feature;
 mod models;
 mod service;

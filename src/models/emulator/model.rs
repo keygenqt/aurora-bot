@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    service::exec::base,
+    service::command::exec,
     utils::{methods, programs},
 };
 
@@ -33,7 +33,7 @@ impl EmulatorModel {
 
     pub async fn start(&self) -> Result<(), Box<dyn std::error::Error>> {
         let program = programs::get_vboxmanage()?;
-        let output = base::exec_wait_args(&program, ["startvm", self.uuid.as_str()])?;
+        let output = exec::exec_wait_args(&program, ["startvm", self.uuid.as_str()])?;
         if output.status.success() {
             Ok(())
         } else {
@@ -44,7 +44,7 @@ impl EmulatorModel {
     pub fn search() -> Result<Vec<EmulatorModel>, Box<dyn std::error::Error>> {
         let mut emulators = vec![];
         let program = programs::get_vboxmanage()?;
-        let output = base::exec_wait_args(&program, ["list", "vms"])?;
+        let output = exec::exec_wait_args(&program, ["list", "vms"])?;
         let uuids: Vec<String> = String::from_utf8(output.stdout)?
             .split("\n")
             .map(|e| {
@@ -62,7 +62,7 @@ impl EmulatorModel {
 
         for uuid in uuids.iter() {
             // Get vm info
-            let output = base::exec_wait_args(&program, ["showvminfo", uuid])?;
+            let output = exec::exec_wait_args(&program, ["showvminfo", uuid])?;
 
             // Load config
             let key_folder = "Snapshot folder:";

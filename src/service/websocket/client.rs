@@ -1,12 +1,11 @@
 use std::time::Duration;
 
-use crate::app::api::convert::{convert_incoming, convert_outgoing};
-use crate::app::api::handler::handler_incoming;
-use crate::app::api::outgoing::Outgoing;
+use crate::models::incoming::Incoming;
+use crate::models::outgoing::ws_connect::OutgoingWsConnection;
+use crate::models::outgoing::{Outgoing, OutgoingType};
+use crate::print_warning;
 use crate::service::requests::client::ClientRequest;
 use crate::utils::constants::{URL_API, WSS_API};
-use crate::utils::methods::print_outgoing;
-use crate::{app::api::enums::SendType, print_warning};
 use futures_util::{SinkExt, TryStreamExt};
 use reqwest::Client;
 use reqwest_websocket::{Message, RequestBuilderExt, WebSocket};
@@ -27,7 +26,7 @@ impl ClientWebsocket {
     }
 
     pub fn send(outgoing: &Outgoing) {
-        let message = convert_outgoing(&outgoing).unwrap();
+        let message = outgoing.to_string().unwrap();
         tokio::spawn({
             async move {
                 let request = ClientRequest::new();
@@ -65,23 +64,25 @@ impl ClientWebsocket {
             Err(error) => Err(error)?,
         };
         // Send connect message
-        let outgoing = Outgoing::connection("ping".into());
-        let message = Message::Text(convert_outgoing(&outgoing).unwrap());
+        let outgoing = OutgoingWsConnection::new_ping();
+        let message = Message::Text(outgoing.to_string().unwrap());
         websocket.send(message).await?;
         // Listen response
         while let Ok(Some(message)) = websocket.try_next().await {
             if let Message::Text(text) = message {
-                match convert_incoming(text) {
-                    Ok(incoming) => match handler_incoming(&incoming, SendType::Websocket).await {
-                        Ok(outgoing) => match outgoing {
-                            Outgoing::Connection(_) => print_outgoing(&outgoing),
-                            _ => match convert_outgoing(&outgoing) {
-                                Ok(outgoing) => websocket.send(Message::Text(outgoing)).await?,
-                                Err(_) => Err("не удалось получить outgoing")?,
+                match Incoming::convert(text) {
+                    Ok(incoming) => {
+                        match Incoming::handler(incoming, OutgoingType::Websocket).await {
+                            Ok(outgoing) => match outgoing {
+                                Outgoing::WsConnection(_) => outgoing.print(),
+                                _ => match outgoing.to_string() {
+                                    Ok(outgoing) => websocket.send(Message::Text(outgoing)).await?,
+                                    Err(_) => Err("не удалось получить outgoing")?,
+                                },
                             },
-                        },
-                        Err(_) => Err("ошибка выполнения задачи")?,
-                    },
+                            Err(_) => Err("ошибка выполнения задачи")?,
+                        }
+                    }
                     Err(_) => Err("не удалось получить incoming")?,
                 }
             }

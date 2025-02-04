@@ -35,29 +35,23 @@ pub async fn run(arg: SvcArgs) {
             Err(_) => print_error!("не удалось активировать сервер"),
         }
     } else if arg.connect {
-        let websocket = single::get_websocket();
-        if !websocket.is_none() {
-            match websocket.unwrap().run().await {
-                Ok(_) => print_info!("соединение закрыто"),
-                Err(_) => print_error!("соединение не установлено"),
-            }
+        match single::get_websocket().run().await {
+            Ok(_) => print_info!("соединение закрыто"),
+            Err(_) => print_error!("соединение не установлено"),
         }
     } else if arg.logout {
-        let request = single::get_request();
-        if !request.is_none() {
-            match request.unwrap().logout() {
-                Ok(_) => print_success!("сессия удалена успешно"),
-                Err(_) => print_error!("сессия не найдена"),
-            }
+        match single::get_request().logout() {
+            Ok(_) => print_success!("сессия удалена успешно"),
+            Err(_) => print_error!("сессия не найдена"),
         }
     } else {
-        let request = single::get_request();
-        if !request.is_none() {
-            match request.unwrap().auth_ping_token(arg.auth.unwrap()).await {
-                Ok(_) => print_success!("авторизация выполнена успешно"),
-                Err(_) => print_error!(
-                    "не удалось подключиться, проверьте соединение и актуальность токена"
-                ),
+        match single::get_request()
+            .auth_ping_token(arg.auth.unwrap())
+            .await
+        {
+            Ok(_) => print_success!("авторизация выполнена успешно"),
+            Err(_) => {
+                print_error!("не удалось подключиться, проверьте соединение и актуальность токена")
             }
         }
     }

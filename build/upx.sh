@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Set root dir
+cd "$(dirname "$(realpath "$0")")"/../ || exit
+
+BUILD="$1"
+
 ### Optimized build
 # https://github.com/johnthagen/min-sized-rust#strip-symbols-from-binary
 
@@ -7,10 +12,8 @@ if [ ! -d "upx" ]; then
     curl -L "https://github.com/upx/upx/releases/download/v4.2.4/upx-4.2.4-amd64_linux.tar.xz" -o upx.tar.xz
     tar xf upx.tar.xz
     rm upx.tar.xz
-    name=$(ls | grep upx-*)
-    mv $name upx
+    # shellcheck disable=SC2010
+    mv "$(ls | grep "upx-*")" upx
 fi
 
-RUSTFLAGS="-Zlocation-detail=none" cargo +nightly build --release
-
-./upx/upx --best --lzma ./target/release/aurora-bot
+./upx/upx --best --lzma "$BUILD"

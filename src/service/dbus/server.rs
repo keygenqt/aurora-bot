@@ -11,9 +11,9 @@ use futures::future;
 
 use crate::models::incoming::app_info::IncomingAppInfo;
 use crate::models::incoming::dbus_info::IncomingDbusInfo;
+use crate::models::incoming::emulator_close::IncomingEmulatorClose;
 use crate::models::incoming::emulator_start::IncomingEmulatorStart;
 use crate::models::incoming::Incoming;
-use crate::models::outgoing::error::OutgoingError;
 use crate::models::outgoing::{Outgoing, OutgoingType};
 use crate::utils::constants::DBUS_NAME;
 use crate::utils::single::get_dbus;
@@ -46,9 +46,10 @@ impl ServerDbus {
             // Signals
             ServerDbus::add_signal("listen", builder);
             // Methods
-            // Incoming: step 6
+            // Incoming: step 7
             ServerDbus::add_method(IncomingAppInfo::new(), builder);
             ServerDbus::add_method(IncomingDbusInfo::new(), builder);
+            ServerDbus::add_method(IncomingEmulatorClose::new(), builder);
             ServerDbus::add_method(IncomingEmulatorStart::new(), builder);
         });
 
@@ -103,15 +104,8 @@ impl ServerDbus {
             move |mut ctx: dbus_crossroads::Context, _, _: ()| {
                 let value = incoming.clone();
                 async move {
-                    let result = match Incoming::handler(value, OutgoingType::Dbus).await {
-                        Ok(outgoing) => Ok((outgoing.to_string().unwrap(),)),
-                        Err(_) => Ok((OutgoingError::new(
-                            "выполнение команды завершилось не удачей".into(),
-                        )
-                        .to_string()
-                        .unwrap(),)),
-                    };
-                    ctx.reply(result)
+                    let outgoing = Incoming::handler(value, OutgoingType::Dbus).await;
+                    ctx.reply(Ok((outgoing.to_string().unwrap(),)))
                 }
             },
         );

@@ -5,11 +5,14 @@ use emulator_start_state::OutgoingEmulatorStartState;
 use error::OutgoingError;
 use serde::{Deserialize, Serialize};
 use ws_connect::OutgoingWsConnection;
-
+use crate::models::outgoing::emulator_close::OutgoingEmulatorClose;
+use crate::models::outgoing::emulator_close_state::OutgoingEmulatorCloseState;
 use crate::service::{dbus::server::ServerDbus, websocket::client::ClientWebsocket};
 
 pub mod app_info;
 pub mod dbus_info;
+pub mod emulator_close;
+pub mod emulator_close_state;
 pub mod emulator_start;
 pub mod emulator_start_state;
 pub mod error;
@@ -37,6 +40,8 @@ pub enum Outgoing {
     // Outgoing: step 4
     AppInfo(OutgoingAppInfo),
     DbusInfo(OutgoingDbusInfo),
+    EmulatorClose(OutgoingEmulatorClose),
+    EmulatorCloseState(OutgoingEmulatorCloseState),
     EmulatorStart(OutgoingEmulatorStart),
     EmulatorStartState(OutgoingEmulatorStartState),
     Error(OutgoingError),
@@ -46,8 +51,11 @@ pub enum Outgoing {
 impl Outgoing {
     pub fn print(&self) {
         match self {
+            // Outgoing: step 5
             Outgoing::AppInfo(model) => model.print(),
             Outgoing::DbusInfo(model) => model.print(),
+            Outgoing::EmulatorClose(model) => model.print(),
+            Outgoing::EmulatorCloseState(model) => model.print(),
             Outgoing::EmulatorStart(model) => model.print(),
             Outgoing::EmulatorStartState(model) => model.print(),
             Outgoing::Error(model) => model.print(),

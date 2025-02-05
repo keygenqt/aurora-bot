@@ -5,3 +5,7 @@
 
 # https://github.com/upx/upx
 /upx
+
+# IDE
+.vscode
+.idea

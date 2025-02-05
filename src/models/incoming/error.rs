@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::models::outgoing::{Outgoing, OutgoingType};
-
+use crate::models::outgoing::error::OutgoingError;
 use super::{Incoming, TraitIncoming};
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -22,7 +22,7 @@ impl TraitIncoming for IncomingError {
         "Error".into()
     }
 
-    async fn run(&self, _: OutgoingType) -> Result<Outgoing, Box<dyn std::error::Error>> {
-        Err("")?
+    async fn run(&self, _: OutgoingType) -> Outgoing {
+        OutgoingError::new("что-то пошло не так".into())
     }
 }

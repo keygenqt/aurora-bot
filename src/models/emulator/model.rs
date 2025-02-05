@@ -41,6 +41,16 @@ impl EmulatorModel {
         }
     }
 
+    pub async fn close(&self) -> Result<(), Box<dyn std::error::Error>> {
+        let program = programs::get_vboxmanage()?;
+        let output = exec::exec_wait_args(&program, ["controlvm", self.uuid.as_str(), "poweroff"])?;
+        if output.status.success() {
+            Ok(())
+        } else {
+            Err("не удалось остановить эмулятор")?
+        }
+    }
+
     pub fn search() -> Result<Vec<EmulatorModel>, Box<dyn std::error::Error>> {
         let mut emulators = vec![];
         let program = programs::get_vboxmanage()?;

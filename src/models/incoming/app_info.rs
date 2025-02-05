@@ -21,7 +21,7 @@ impl TraitIncoming for IncomingAppInfo {
         "AppInfo".into()
     }
 
-    async fn run(&self, _: OutgoingType) -> Result<Outgoing, Box<dyn std::error::Error>> {
-        Ok(OutgoingAppInfo::new())
+    async fn run(&self, _: OutgoingType) -> Outgoing {
+        OutgoingAppInfo::new()
     }
 }

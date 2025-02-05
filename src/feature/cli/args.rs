@@ -1,11 +1,9 @@
 use clap::{Args, Subcommand};
 
-use crate::{
-    models::{
-        incoming::{emulator_start::IncomingEmulatorStart, Incoming},
-        outgoing::OutgoingType,
-    },
-    utils::macros::print_error,
+use crate::models::incoming::emulator_close::IncomingEmulatorClose;
+use crate::models::{
+    incoming::{emulator_start::IncomingEmulatorStart, Incoming},
+    outgoing::OutgoingType,
 };
 
 /// Классическая командная строка
@@ -52,6 +50,9 @@ pub struct EmulatorArgs {
     /// Запустить эмулятор
     #[arg(short, long, default_value_t = false)]
     start: bool,
+    /// Закрыть эмулятор
+    #[arg(short, long, default_value_t = false)]
+    close: bool,
 }
 
 /// Handling interface events
@@ -70,10 +71,14 @@ pub async fn run(arg: CliArgs) {
         // }
         CliCommands::Emulator(arg) => {
             if arg.start {
-                match Incoming::handler(IncomingEmulatorStart::new(), OutgoingType::Cli).await {
-                    Ok(outgoing) => outgoing.print(),
-                    Err(error) => print_error!(error),
-                }
+                Incoming::handler(IncomingEmulatorStart::new(), OutgoingType::Cli)
+                    .await
+                    .print()
+            }
+            if arg.close {
+                Incoming::handler(IncomingEmulatorClose::new(), OutgoingType::Cli)
+                    .await
+                    .print()
             }
         } // CliCommands::Sdk {} => {
           //     println!("Sdk")

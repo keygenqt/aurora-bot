@@ -23,7 +23,7 @@ impl TraitIncoming for IncomingWsConnection {
         "WsConnection".into()
     }
 
-    async fn run(&self, _: OutgoingType) -> Result<Outgoing, Box<dyn std::error::Error>> {
-        Ok(OutgoingWsConnection::new(self.message.clone()))
+    async fn run(&self, _: OutgoingType) -> Outgoing {
+        OutgoingWsConnection::new(self.message.clone())
     }
 }

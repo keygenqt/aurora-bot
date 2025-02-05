@@ -18,7 +18,7 @@ impl TraitIncoming for IncomingDbusInfo {
         "DbusInfo".into()
     }
 
-    async fn run(&self, _: OutgoingType) -> Result<Outgoing, Box<dyn std::error::Error>> {
-        Ok(OutgoingDbusInfo::new())
+    async fn run(&self, _: OutgoingType) -> Outgoing {
+        OutgoingDbusInfo::new()
     }
 }

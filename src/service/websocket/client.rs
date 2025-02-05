@@ -72,15 +72,13 @@ impl ClientWebsocket {
             if let Message::Text(text) = message {
                 match Incoming::convert(text) {
                     Ok(incoming) => {
-                        match Incoming::handler(incoming, OutgoingType::Websocket).await {
-                            Ok(outgoing) => match outgoing {
-                                Outgoing::WsConnection(_) => outgoing.print(),
-                                _ => match outgoing.to_string() {
-                                    Ok(outgoing) => websocket.send(Message::Text(outgoing)).await?,
-                                    Err(_) => Err("не удалось получить outgoing")?,
-                                },
+                        let outgoing = Incoming::handler(incoming, OutgoingType::Websocket).await;
+                        match outgoing {
+                            Outgoing::WsConnection(_) => outgoing.print(),
+                            _ => match outgoing.to_string() {
+                                Ok(outgoing) => websocket.send(Message::Text(outgoing)).await?,
+                                Err(_) => Err("не удалось получить outgoing")?,
                             },
-                            Err(_) => Err("ошибка выполнения задачи")?,
                         }
                     }
                     Err(_) => Err("не удалось получить incoming")?,

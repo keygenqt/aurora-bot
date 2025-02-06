@@ -126,7 +126,7 @@ impl FaqResponses {
                 .items(&items)
                 .interact()
                 .unwrap();
-            println!("");
+            println!();
             self.0[index].print();
         }
     }

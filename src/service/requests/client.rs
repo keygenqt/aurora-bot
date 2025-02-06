@@ -40,9 +40,6 @@ impl ClientRequest {
     pub fn load_cookie(create: bool) -> Result<Arc<CookieStoreMutex>, Box<dyn std::error::Error>> {
         // Get path
         let path = get_folder_save(SESSION_FILE);
-
-        println!("{:?}", path);
-
         let buf = fs::File::open(path).map(std::io::BufReader::new);
         // Load cookie
         let cookie: CookieStore = if let Ok(file) = buf {

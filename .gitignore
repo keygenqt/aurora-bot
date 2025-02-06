@@ -6,6 +6,9 @@
 # https://github.com/upx/upx
 /upx
 
+# https://github.com/keygenqt/changeln
+.changeln
+
 # IDE
 .vscode
 .idea

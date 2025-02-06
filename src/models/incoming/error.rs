@@ -23,6 +23,10 @@ impl TraitIncoming for IncomingError {
     }
 
     async fn run(&self, _: OutgoingType) -> Outgoing {
-        OutgoingError::new("что-то пошло не так".into())
+        let message = self.message.clone();
+        match self.code {
+            404 => OutgoingError::new_info(message),
+            _ => OutgoingError::new_error(message),
+        }
     }
 }

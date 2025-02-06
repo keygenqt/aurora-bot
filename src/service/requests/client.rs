@@ -1,16 +1,17 @@
 use color_eyre::owo_colors::OwoColorize;
 use std::fs;
-use std::{path::Path, sync::Arc};
-
+use std::process::exit;
+use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
 use reqwest::{Client, Response, StatusCode};
 use reqwest_cookie_store::{CookieStore, CookieStoreMutex};
 
 use crate::service::responses::common::CommonResponse;
-use crate::utils::macros::{print_info, print_success};
+use crate::utils::macros::{print_error, print_info, print_success};
 
 use crate::utils::constants::{SESSION_FILE, URL_API};
+use crate::utils::methods::get_folder_save;
 
 pub struct ClientRequest {
     pub client: Client,
@@ -20,37 +21,48 @@ pub struct ClientRequest {
 impl ClientRequest {
     /// Create instance
     pub fn new() -> ClientRequest {
-        let cookie = ClientRequest::load_cookie();
+        let cookie = match ClientRequest::load_cookie(true) {
+            Ok(cookie) => std::sync::Arc::clone(&cookie),
+            Err(error) => {
+                print_error!(error);
+                exit(1)
+            }
+        };
         let client = Client::builder()
             .cookie_provider(std::sync::Arc::clone(&cookie))
             .timeout(Duration::from_secs(5))
             .build()
             .unwrap();
-        return ClientRequest { client, cookie };
+        ClientRequest { client, cookie }
     }
 
     /// Load an existing set of cookies, serialized as json
-    pub fn load_cookie() -> Arc<CookieStoreMutex> {
+    pub fn load_cookie(create: bool) -> Result<Arc<CookieStoreMutex>, Box<dyn std::error::Error>> {
         // Get path
-        let home = std::env::var("HOME").unwrap();
-        let path = Path::new(&home).join(SESSION_FILE);
-        let buf = std::fs::File::open(path).map(std::io::BufReader::new);
+        let path = get_folder_save(SESSION_FILE);
+
+        println!("{:?}", path);
+
+        let buf = fs::File::open(path).map(std::io::BufReader::new);
         // Load cookie
         let cookie: CookieStore = if let Ok(file) = buf {
             CookieStore::load(file, |cookie| ::serde_json::from_str(cookie)).unwrap()
         } else {
-            CookieStore::new(None)
+            if create {
+                CookieStore::new(None)
+            } else {
+                Err("требуется авторизация")?
+            }
         };
         let cookie = CookieStoreMutex::new(cookie);
         // Create Arc
-        return std::sync::Arc::new(cookie);
+        Ok(Arc::new(cookie))
     }
 
     /// Write store to disk
     fn save_cookie(&self) {
         // Get path
-        let home = std::env::var("HOME").unwrap();
-        let path = Path::new(&home).join(SESSION_FILE);
+        let path = get_folder_save(SESSION_FILE);
         // Load file
         let mut writer = std::fs::File::create(path)
             .map(std::io::BufWriter::new)
@@ -62,8 +74,7 @@ impl ClientRequest {
 
     pub fn logout(&self) -> Result<(), Box<dyn std::error::Error>> {
         // Get path
-        let home = std::env::var("HOME").unwrap();
-        let path = Path::new(&home).join(SESSION_FILE);
+        let path = get_folder_save(SESSION_FILE);
         fs::remove_file(path)?;
         Ok(())
     }

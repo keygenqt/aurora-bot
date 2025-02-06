@@ -4,11 +4,11 @@
 ## Build project
 ################
 
-read -rp "What kind of package build? (deb/rpm)? " choice
+read -rp "What kind of package build? (deb/tar)? " choice
 case "$choice" in
   deb ) echo "Let's start assembling...";;
-  rpm ) echo "Let's start assembling...";;
-  * ) echo "Required [deb/rpm]"; exit;;
+  tar ) echo "Let's start assembling...";;
+  * ) echo "Required [deb/tar]"; exit;;
 esac
 
 # Set root dir
@@ -28,8 +28,8 @@ if [ "$choice" = "deb" ]; then
   source build/deb.sh "$NAME" "$VERSION" "$BUILD"
 fi
 
-# Build rpm
-if [ "$choice" = "rpm" ]; then
-  source build/rpm.sh "$NAME" "$VERSION" "$BUILD"
+# Build tar
+if [ "$choice" = "tar" ]; then
+  source build/tar.sh "$NAME" "$VERSION" "$BUILD"
 fi
 

@@ -7,14 +7,14 @@ use crate::models::{
 };
 
 /// Классическая командная строка
-#[derive(Debug, Args)]
+#[derive(Args)]
 #[command(arg_required_else_help = true)]
 pub struct CliArgs {
     #[command(subcommand)]
     command: Option<CliCommands>,
 }
 
-#[derive(Subcommand, Debug)]
+#[derive(Subcommand)]
 pub enum CliCommands {
     // /// Приложения доступные для установки
     // Apps(AppsArgs),
@@ -32,7 +32,7 @@ pub enum CliCommands {
     // Vscode {},
 }
 
-#[derive(Debug, Args)]
+#[derive(Args)]
 #[command(arg_required_else_help = true)]
 pub struct AppsArgs {
     /// Получите список доступных приложений для ОС Аврора
@@ -44,7 +44,7 @@ pub struct AppsArgs {
     install: bool,
 }
 
-#[derive(Debug, Args)]
+#[derive(Args)]
 #[command(arg_required_else_help = true)]
 pub struct EmulatorArgs {
     /// Запустить эмулятор

@@ -18,6 +18,11 @@ mkdir -p "$DEB_FOLDER"
 mkdir -p "$DEB_FOLDER"/DEBIAN
 mkdir -p "$DEB_FOLDER"/usr/local
 mkdir -p "$DEB_FOLDER"/usr/local/bin
+mkdir -p "$DEB_FOLDER"/etc/systemd/user
+
+# Systemd
+cp build/systemd/aurora-bot.client.service "$DEB_FOLDER"/etc/systemd/user
+cp build/systemd/aurora-bot.dbus.service "$DEB_FOLDER"/etc/systemd/user
 
 # Bin
 chmod +x "$BUILD"
@@ -36,3 +41,9 @@ EOT
 dpkg-deb --build --root-owner-group "$DEB_FOLDER"
 
 rm -rf "$DEB_FOLDER"
+
+# DEB Install / Remove
+#sudo dpkg -r aurora-bot
+#sudo dpkg -i "$DEB_FOLDER".deb
+#systemctl --user enable aurora-bot.client.service
+#systemctl --user enable aurora-bot.dbus.service

@@ -32,7 +32,7 @@ where
     }
 }
 
-// #[derive(Deserialize, Serialize, Debug)]
+// #[derive(Deserialize, Serialize)]
 // struct AuroraCLI {
 //     code: u32,
 //     message: String,

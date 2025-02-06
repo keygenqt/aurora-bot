@@ -58,7 +58,7 @@ impl TraitIncoming for IncomingEmulatorStart {
                         OutgoingState::Success,
                         emulator.os_name,
                     ))
-                }
+                };
             }
             // Ok - but emulators non found
             Ok(OutgoingEmulatorStart::new(
@@ -66,9 +66,8 @@ impl TraitIncoming for IncomingEmulatorStart {
                 "эмуляторы не найдены".into(),
             ))
         }
-        exec(send_type).await.unwrap_or_else(|_| OutgoingEmulatorStart::new(
-            OutgoingState::Error,
-            "ошибка запуска эмулятора".into(),
-        ))
+        exec(send_type).await.unwrap_or_else(|_| {
+            OutgoingEmulatorStart::new(OutgoingState::Error, "ошибка запуска эмулятора".into())
+        })
     }
 }

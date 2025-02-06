@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::models::outgoing::{Outgoing, OutgoingType};
-use crate::models::outgoing::error::OutgoingError;
 use super::{Incoming, TraitIncoming};
+use crate::models::outgoing::error::OutgoingError;
+use crate::models::outgoing::{Outgoing, OutgoingType};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct IncomingError {

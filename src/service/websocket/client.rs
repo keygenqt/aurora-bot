@@ -1,3 +1,4 @@
+use std::process::exit;
 use std::time::Duration;
 
 use crate::models::incoming::Incoming;
@@ -6,6 +7,7 @@ use crate::models::outgoing::{Outgoing, OutgoingType};
 use crate::print_warning;
 use crate::service::requests::client::ClientRequest;
 use crate::utils::constants::{URL_API, WSS_API};
+use crate::utils::macros::print_error;
 use futures_util::{SinkExt, TryStreamExt};
 use reqwest::Client;
 use reqwest_websocket::{Message, RequestBuilderExt, WebSocket};
@@ -17,12 +19,19 @@ pub struct ClientWebsocket {
 
 impl ClientWebsocket {
     pub fn new() -> ClientWebsocket {
+        let cookie = match ClientRequest::load_cookie(false) {
+            Ok(cookie) => std::sync::Arc::clone(&cookie),
+            Err(error) => {
+                print_error!(error);
+                exit(1)
+            }
+        };
         let client = Client::builder()
-            .cookie_provider(std::sync::Arc::clone(&ClientRequest::load_cookie()))
+            .cookie_provider(std::sync::Arc::clone(&cookie))
             .timeout(Duration::from_secs(5))
             .build()
             .unwrap();
-        return ClientWebsocket { client };
+        ClientWebsocket { client }
     }
 
     pub fn send(outgoing: &Outgoing) {

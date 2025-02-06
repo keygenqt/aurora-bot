@@ -1,3 +1,6 @@
+use crate::models::outgoing::emulator_close::OutgoingEmulatorClose;
+use crate::models::outgoing::emulator_close_state::OutgoingEmulatorCloseState;
+use crate::service::{dbus::server::ServerDbus, websocket::client::ClientWebsocket};
 use app_info::OutgoingAppInfo;
 use dbus_info::OutgoingDbusInfo;
 use emulator_start::*;
@@ -5,9 +8,6 @@ use emulator_start_state::OutgoingEmulatorStartState;
 use error::OutgoingError;
 use serde::{Deserialize, Serialize};
 use ws_connect::OutgoingWsConnection;
-use crate::models::outgoing::emulator_close::OutgoingEmulatorClose;
-use crate::models::outgoing::emulator_close_state::OutgoingEmulatorCloseState;
-use crate::service::{dbus::server::ServerDbus, websocket::client::ClientWebsocket};
 
 pub mod app_info;
 pub mod dbus_info;

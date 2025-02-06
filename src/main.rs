@@ -7,7 +7,7 @@ mod service;
 mod utils;
 
 /// Main clap
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 #[command(version, long_about = None)]
 #[command(
     disable_help_flag = true,
@@ -31,7 +31,7 @@ struct App {
 }
 
 /// Main groups clap
-#[derive(Subcommand, Debug)]
+#[derive(Subcommand)]
 enum Commands {
     /// Умная командная строка
     #[command(allow_external_subcommands = true)]

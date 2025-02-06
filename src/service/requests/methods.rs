@@ -55,21 +55,26 @@ impl ClientRequest {
             Ok(value) => value,
             Err(error) => Err(error)?,
         };
-        if body.chars().nth(0).unwrap() == '[' {
-            match serde_json::from_str::<Vec<FaqResponse>>(&body) {
-                Ok(value) => Ok(FaqResponses(value)),
-                Err(_) => match serde_json::from_str::<CommonResponse>(&body) {
-                    Ok(value) => Err(value.message)?,
-                    Err(error) => Err(error)?,
-                },
-            }
-        } else {
-            match serde_json::from_str::<FaqResponse>(&body) {
-                Ok(value) => Ok(FaqResponses(vec![value])),
-                Err(_) => match serde_json::from_str::<CommonResponse>(&body) {
-                    Ok(value) => Err(value.message)?,
-                    Err(error) => Err(error)?,
-                },
+        match body.chars().nth(0) {
+            None => Err("нет соединения")?,
+            Some(char) => {
+                if char == '[' {
+                    match serde_json::from_str::<Vec<FaqResponse>>(&body) {
+                        Ok(value) => Ok(FaqResponses(value)),
+                        Err(_) => match serde_json::from_str::<CommonResponse>(&body) {
+                            Ok(value) => Err(value.message)?,
+                            Err(error) => Err(error)?,
+                        },
+                    }
+                } else {
+                    match serde_json::from_str::<FaqResponse>(&body) {
+                        Ok(value) => Ok(FaqResponses(vec![value])),
+                        Err(_) => match serde_json::from_str::<CommonResponse>(&body) {
+                            Ok(value) => Err(value.message)?,
+                            Err(error) => Err(error)?,
+                        },
+                    }
+                }
             }
         }
     }

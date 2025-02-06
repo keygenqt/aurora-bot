@@ -4,7 +4,7 @@ use nipper::Document;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize)]
 pub struct FaqResponse {
     hash: String,
     url: String,

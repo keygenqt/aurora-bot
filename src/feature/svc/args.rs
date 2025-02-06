@@ -6,7 +6,7 @@ use crate::utils::{
     single,
 };
 
-#[derive(Debug, Args)]
+#[derive(Args)]
 #[command()]
 #[command(arg_required_else_help = true)]
 #[group(multiple = false)]

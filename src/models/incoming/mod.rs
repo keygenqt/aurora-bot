@@ -1,6 +1,4 @@
-use super::outgoing::{
-    Outgoing, OutgoingType,
-};
+use super::outgoing::{Outgoing, OutgoingType};
 use crate::models::incoming::emulator_close::IncomingEmulatorClose;
 use app_info::IncomingAppInfo;
 use dbus_info::IncomingDbusInfo;

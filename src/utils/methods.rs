@@ -1,5 +1,8 @@
+use crate::utils::macros::print_error;
 use colored::Colorize;
-use std::{ffi::OsStr, process::Output};
+use std::path::{Path, PathBuf};
+use std::process::exit;
+use std::{env, ffi::OsStr, process::Output};
 
 /// Main help app
 pub fn app_about() -> String {
@@ -90,5 +93,18 @@ pub fn config_get_bool(
     match params.iter().filter(|e| e.contains(key)).next() {
         Some(option) => Ok(option.contains(find)),
         None => Err("не удалось найти ключ")?,
+    }
+}
+
+pub fn get_folder_save(file_name: &str) -> PathBuf {
+    match env::var("HOME") {
+        Ok(path_home) => Path::new(&path_home).join(file_name),
+        Err(_) => match env::current_dir() {
+            Ok(systemd_working_directory) => systemd_working_directory.join(file_name),
+            Err(_) => {
+                print_error!("директория конфгурации не найдена");
+                exit(1)
+            }
+        },
     }
 }

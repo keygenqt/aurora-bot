@@ -1,16 +1,16 @@
 use serde::{Deserialize, Serialize};
 
-use crate::models::outgoing::{ws_connect::OutgoingWsConnection, Outgoing, OutgoingType};
+use crate::models::outgoing::{ws_connect::WsConnectionOutgoing, Outgoing, OutgoingType};
 
 use super::{Incoming, TraitIncoming};
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct IncomingWsConnection {
+pub struct WsConnectionIncoming {
     pub message: String,
 }
 
 #[allow(dead_code)]
-impl IncomingWsConnection {
+impl WsConnectionIncoming {
     pub fn new() -> Incoming {
         Incoming::WsConnection(Self {
             message: "default".into(),
@@ -18,12 +18,12 @@ impl IncomingWsConnection {
     }
 }
 
-impl TraitIncoming for IncomingWsConnection {
+impl TraitIncoming for WsConnectionIncoming {
     fn name() -> String {
         "WsConnection".into()
     }
 
     async fn run(&self, _: OutgoingType) -> Outgoing {
-        OutgoingWsConnection::new(self.message.clone())
+        WsConnectionOutgoing::new(self.message.clone())
     }
 }

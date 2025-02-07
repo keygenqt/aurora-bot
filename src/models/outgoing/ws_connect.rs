@@ -4,11 +4,11 @@ use serde::{Deserialize, Serialize};
 use super::{Outgoing, TraitOutgoing};
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct OutgoingWsConnection {
+pub struct WsConnectionOutgoing {
     pub message: String,
 }
 
-impl OutgoingWsConnection {
+impl WsConnectionOutgoing {
     pub fn new(message: String) -> Outgoing {
         Outgoing::WsConnection(Self { message })
     }
@@ -20,7 +20,7 @@ impl OutgoingWsConnection {
     }
 }
 
-impl TraitOutgoing for OutgoingWsConnection {
+impl TraitOutgoing for WsConnectionOutgoing {
     fn print(&self) {
         println!("{}", self.message.green().bold())
     }

@@ -11,7 +11,7 @@ use crate::service::responses::common::CommonResponse;
 use crate::utils::macros::{print_error, print_info, print_success};
 
 use crate::utils::constants::{SESSION_FILE, URL_API};
-use crate::utils::methods::get_folder_save;
+use crate::utils::methods::get_file_save;
 
 pub struct ClientRequest {
     pub client: Client,
@@ -39,7 +39,7 @@ impl ClientRequest {
     /// Load an existing set of cookies, serialized as json
     pub fn load_cookie(create: bool) -> Result<Arc<CookieStoreMutex>, Box<dyn std::error::Error>> {
         // Get path
-        let path = get_folder_save(SESSION_FILE);
+        let path = get_file_save(SESSION_FILE);
         let buf = fs::File::open(path).map(std::io::BufReader::new);
         // Load cookie
         let cookie: CookieStore = if let Ok(file) = buf {
@@ -59,7 +59,7 @@ impl ClientRequest {
     /// Write store to disk
     fn save_cookie(&self) {
         // Get path
-        let path = get_folder_save(SESSION_FILE);
+        let path = get_file_save(SESSION_FILE);
         // Load file
         let mut writer = std::fs::File::create(path)
             .map(std::io::BufWriter::new)
@@ -71,7 +71,7 @@ impl ClientRequest {
 
     pub fn logout(&self) -> Result<(), Box<dyn std::error::Error>> {
         // Get path
-        let path = get_folder_save(SESSION_FILE);
+        let path = get_file_save(SESSION_FILE);
         fs::remove_file(path)?;
         Ok(())
     }

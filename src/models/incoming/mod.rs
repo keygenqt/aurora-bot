@@ -1,11 +1,11 @@
 use super::outgoing::{Outgoing, OutgoingType};
-use crate::models::incoming::emulator_close::IncomingEmulatorClose;
-use app_info::IncomingAppInfo;
-use dbus_info::IncomingDbusInfo;
-use emulator_start::IncomingEmulatorStart;
-use error::IncomingError;
+use crate::models::incoming::emulator_close::EmulatorCloseIncoming;
+use app_info::AppInfoIncoming;
+use dbus_info::DbusInfoIncoming;
+use emulator_start::EmulatorStartIncoming;
+use error::ErrorIncoming;
 use serde::{Deserialize, Serialize};
-use ws_connect::IncomingWsConnection;
+use ws_connect::WsConnectionIncoming;
 
 pub mod app_info;
 pub mod dbus_info;
@@ -22,24 +22,24 @@ pub trait TraitIncoming: Clone {
 #[derive(Serialize, Deserialize, Clone)]
 pub enum Incoming {
     // Incoming: step 4
-    AppInfo(IncomingAppInfo),
-    DbusInfo(IncomingDbusInfo),
-    EmulatorClose(IncomingEmulatorClose),
-    EmulatorStart(IncomingEmulatorStart),
-    Error(IncomingError),
-    WsConnection(IncomingWsConnection),
+    AppInfo(AppInfoIncoming),
+    DbusInfo(DbusInfoIncoming),
+    EmulatorClose(EmulatorCloseIncoming),
+    EmulatorStart(EmulatorStartIncoming),
+    Error(ErrorIncoming),
+    WsConnection(WsConnectionIncoming),
 }
 
 impl Incoming {
     pub fn name(&self) -> String {
         match self {
             // Incoming: step 5
-            Incoming::AppInfo(_) => IncomingAppInfo::name(),
-            Incoming::DbusInfo(_) => IncomingDbusInfo::name(),
-            Incoming::EmulatorClose(_) => IncomingEmulatorClose::name(),
-            Incoming::EmulatorStart(_) => IncomingEmulatorStart::name(),
-            Incoming::Error(_) => IncomingError::name(),
-            Incoming::WsConnection(_) => IncomingWsConnection::name(),
+            Incoming::AppInfo(_) => AppInfoIncoming::name(),
+            Incoming::DbusInfo(_) => DbusInfoIncoming::name(),
+            Incoming::EmulatorClose(_) => EmulatorCloseIncoming::name(),
+            Incoming::EmulatorStart(_) => EmulatorStartIncoming::name(),
+            Incoming::Error(_) => ErrorIncoming::name(),
+            Incoming::WsConnection(_) => WsConnectionIncoming::name(),
         }
     }
 

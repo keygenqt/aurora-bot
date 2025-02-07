@@ -1,13 +1,13 @@
-use crate::models::outgoing::emulator_close::OutgoingEmulatorClose;
-use crate::models::outgoing::emulator_close_state::OutgoingEmulatorCloseState;
+use crate::models::outgoing::emulator_close::EmulatorCloseOutgoing;
+use crate::models::outgoing::emulator_close_state::EmulatorCloseStateOutgoing;
 use crate::service::{dbus::server::ServerDbus, websocket::client::ClientWebsocket};
-use app_info::OutgoingAppInfo;
-use dbus_info::OutgoingDbusInfo;
+use app_info::AppInfoOutgoing;
+use dbus_info::DbusInfoOutgoing;
 use emulator_start::*;
-use emulator_start_state::OutgoingEmulatorStartState;
-use error::OutgoingError;
+use emulator_start_state::EmulatorStartStateOutgoing;
+use error::ErrorOutgoing;
 use serde::{Deserialize, Serialize};
-use ws_connect::OutgoingWsConnection;
+use ws_connect::WsConnectionOutgoing;
 
 pub mod app_info;
 pub mod dbus_info;
@@ -38,14 +38,14 @@ pub trait TraitOutgoing: Clone {
 #[derive(Serialize, Deserialize, Clone)]
 pub enum Outgoing {
     // Outgoing: step 4
-    AppInfo(OutgoingAppInfo),
-    DbusInfo(OutgoingDbusInfo),
-    EmulatorClose(OutgoingEmulatorClose),
-    EmulatorCloseState(OutgoingEmulatorCloseState),
-    EmulatorStart(OutgoingEmulatorStart),
-    EmulatorStartState(OutgoingEmulatorStartState),
-    Error(OutgoingError),
-    WsConnection(OutgoingWsConnection),
+    AppInfo(AppInfoOutgoing),
+    DbusInfo(DbusInfoOutgoing),
+    EmulatorClose(EmulatorCloseOutgoing),
+    EmulatorCloseState(EmulatorCloseStateOutgoing),
+    EmulatorStart(EmulatorStartOutgoing),
+    EmulatorStartState(EmulatorStartStateOutgoing),
+    Error(ErrorOutgoing),
+    WsConnection(WsConnectionOutgoing),
 }
 
 impl Outgoing {

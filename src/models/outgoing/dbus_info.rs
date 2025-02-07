@@ -3,11 +3,11 @@ use serde::{Deserialize, Serialize};
 use super::{Outgoing, TraitOutgoing};
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct OutgoingDbusInfo {
+pub struct DbusInfoOutgoing {
     version: String,
 }
 
-impl OutgoingDbusInfo {
+impl DbusInfoOutgoing {
     pub fn new() -> Outgoing {
         Outgoing::DbusInfo(Self {
             version: "0.0.1".into(),
@@ -15,7 +15,7 @@ impl OutgoingDbusInfo {
     }
 }
 
-impl TraitOutgoing for OutgoingDbusInfo {
+impl TraitOutgoing for DbusInfoOutgoing {
     fn print(&self) {
         println!("api-dbus {}", self.version)
     }

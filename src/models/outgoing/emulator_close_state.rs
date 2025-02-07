@@ -11,11 +11,11 @@ pub enum EmulatorCloseState {
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct OutgoingEmulatorCloseState {
+pub struct EmulatorCloseStateOutgoing {
     pub state: EmulatorCloseState,
 }
 
-impl OutgoingEmulatorCloseState {
+impl EmulatorCloseStateOutgoing {
     pub fn new_search() -> Outgoing {
         Outgoing::EmulatorCloseState(Self {
             state: EmulatorCloseState::Search,
@@ -29,7 +29,7 @@ impl OutgoingEmulatorCloseState {
     }
 }
 
-impl TraitOutgoing for OutgoingEmulatorCloseState {
+impl TraitOutgoing for EmulatorCloseStateOutgoing {
     fn print(&self) {
         match self.state {
             EmulatorCloseState::Search => print_info!("поиск эмулятора..."),

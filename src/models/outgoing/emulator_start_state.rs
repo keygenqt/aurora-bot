@@ -12,11 +12,11 @@ pub enum EmulatorStartState {
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct OutgoingEmulatorStartState {
+pub struct EmulatorStartStateOutgoing {
     pub state: EmulatorStartState,
 }
 
-impl OutgoingEmulatorStartState {
+impl EmulatorStartStateOutgoing {
     pub fn new_search() -> Outgoing {
         Outgoing::EmulatorStartState(Self {
             state: EmulatorStartState::Search,
@@ -36,7 +36,7 @@ impl OutgoingEmulatorStartState {
     }
 }
 
-impl TraitOutgoing for OutgoingEmulatorStartState {
+impl TraitOutgoing for EmulatorStartStateOutgoing {
     fn print(&self) {
         match self.state {
             EmulatorStartState::Search => print_info!("поиск эмулятора..."),

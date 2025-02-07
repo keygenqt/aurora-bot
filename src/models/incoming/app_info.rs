@@ -1,27 +1,27 @@
 use serde::{Deserialize, Serialize};
 
-use crate::models::outgoing::{app_info::OutgoingAppInfo, Outgoing, OutgoingType};
+use crate::models::outgoing::{app_info::AppInfoOutgoing, Outgoing, OutgoingType};
 
 use super::{Incoming, TraitIncoming};
 
 // Incoming: step 1
 #[derive(Serialize, Deserialize, Clone)]
-pub struct IncomingAppInfo {}
+pub struct AppInfoIncoming {}
 
 // Incoming: step 2
-impl IncomingAppInfo {
+impl AppInfoIncoming {
     pub fn new() -> Incoming {
         Incoming::AppInfo(Self {})
     }
 }
 
 // Incoming: step 3
-impl TraitIncoming for IncomingAppInfo {
+impl TraitIncoming for AppInfoIncoming {
     fn name() -> String {
         "AppInfo".into()
     }
 
     async fn run(&self, _: OutgoingType) -> Outgoing {
-        OutgoingAppInfo::new()
+        AppInfoOutgoing::new()
     }
 }

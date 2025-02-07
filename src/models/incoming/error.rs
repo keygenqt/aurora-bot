@@ -1,23 +1,23 @@
 use serde::{Deserialize, Serialize};
 
 use super::{Incoming, TraitIncoming};
-use crate::models::outgoing::error::OutgoingError;
+use crate::models::outgoing::error::ErrorOutgoing;
 use crate::models::outgoing::{Outgoing, OutgoingType};
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct IncomingError {
+pub struct ErrorIncoming {
     pub code: u64,
     pub message: String,
 }
 
 #[allow(dead_code)]
-impl IncomingError {
+impl ErrorIncoming {
     pub fn new(code: u64, message: String) -> Incoming {
         Incoming::Error(Self { code, message })
     }
 }
 
-impl TraitIncoming for IncomingError {
+impl TraitIncoming for ErrorIncoming {
     fn name() -> String {
         "Error".into()
     }
@@ -25,8 +25,8 @@ impl TraitIncoming for IncomingError {
     async fn run(&self, _: OutgoingType) -> Outgoing {
         let message = self.message.clone();
         match self.code {
-            404 => OutgoingError::new_info(message),
-            _ => OutgoingError::new_error(message),
+            404 => ErrorOutgoing::new_info(message),
+            _ => ErrorOutgoing::new_error(message),
         }
     }
 }

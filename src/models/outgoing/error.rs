@@ -12,12 +12,12 @@ pub enum ErrorState {
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct OutgoingError {
+pub struct ErrorOutgoing {
     pub state: ErrorState,
     pub message: String,
 }
 
-impl OutgoingError {
+impl ErrorOutgoing {
     pub fn new_info(message: String) -> Outgoing {
         Outgoing::Error(Self {
             state: ErrorState::Info,
@@ -41,7 +41,7 @@ impl OutgoingError {
     }
 }
 
-impl TraitOutgoing for OutgoingError {
+impl TraitOutgoing for ErrorOutgoing {
     fn print(&self) {
         let message = &self.message;
         match self.state {

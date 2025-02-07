@@ -2,7 +2,7 @@ use std::process::exit;
 use std::time::Duration;
 
 use crate::models::incoming::Incoming;
-use crate::models::outgoing::ws_connect::OutgoingWsConnection;
+use crate::models::outgoing::ws_connect::WsConnectionOutgoing;
 use crate::models::outgoing::{Outgoing, OutgoingType};
 use crate::print_warning;
 use crate::service::requests::client::ClientRequest;
@@ -73,7 +73,7 @@ impl ClientWebsocket {
             Err(error) => Err(error)?,
         };
         // Send connect message
-        let outgoing = OutgoingWsConnection::new_ping();
+        let outgoing = WsConnectionOutgoing::new_ping();
         let message = Message::Text(outgoing.to_string().unwrap());
         websocket.send(message).await?;
         // Listen response

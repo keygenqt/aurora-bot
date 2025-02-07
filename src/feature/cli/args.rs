@@ -1,8 +1,8 @@
 use clap::{Args, Subcommand};
 
-use crate::models::incoming::emulator_close::IncomingEmulatorClose;
+use crate::models::incoming::emulator_close::EmulatorCloseIncoming;
 use crate::models::{
-    incoming::{emulator_start::IncomingEmulatorStart, Incoming},
+    incoming::{emulator_start::EmulatorStartIncoming, Incoming},
     outgoing::OutgoingType,
 };
 
@@ -50,6 +50,7 @@ pub struct EmulatorArgs {
     /// Запустить эмулятор
     #[arg(short, long, default_value_t = false)]
     start: bool,
+
     /// Закрыть эмулятор
     #[arg(short, long, default_value_t = false)]
     close: bool,
@@ -71,12 +72,12 @@ pub async fn run(arg: CliArgs) {
         // }
         CliCommands::Emulator(arg) => {
             if arg.start {
-                Incoming::handler(IncomingEmulatorStart::new(), OutgoingType::Cli)
+                Incoming::handler(EmulatorStartIncoming::new(), OutgoingType::Cli)
                     .await
                     .print()
             }
             if arg.close {
-                Incoming::handler(IncomingEmulatorClose::new(), OutgoingType::Cli)
+                Incoming::handler(EmulatorCloseIncoming::new(), OutgoingType::Cli)
                     .await
                     .print()
             }

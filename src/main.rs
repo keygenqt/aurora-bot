@@ -39,7 +39,7 @@ enum Commands {
     /// Работа с Aurora Dataset
     #[command(allow_external_subcommands = true)]
     Faq { search: Option<Vec<String>> },
-    /// Работа с сервисом бота
+    /// Работа с сервисами бота
     Svc(feature::svc::args::SvcArgs),
     /// Классическая командная строка
     Cli(feature::cli::args::CliArgs),

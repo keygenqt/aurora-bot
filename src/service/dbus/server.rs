@@ -9,10 +9,10 @@ use dbus_crossroads::{Crossroads, IfaceBuilder};
 use dbus_tokio::connection;
 use futures::future;
 
-use crate::models::incoming::app_info::IncomingAppInfo;
-use crate::models::incoming::dbus_info::IncomingDbusInfo;
-use crate::models::incoming::emulator_close::IncomingEmulatorClose;
-use crate::models::incoming::emulator_start::IncomingEmulatorStart;
+use crate::models::incoming::app_info::AppInfoIncoming;
+use crate::models::incoming::dbus_info::DbusInfoIncoming;
+use crate::models::incoming::emulator_close::EmulatorCloseIncoming;
+use crate::models::incoming::emulator_start::EmulatorStartIncoming;
 use crate::models::incoming::Incoming;
 use crate::models::outgoing::{Outgoing, OutgoingType};
 use crate::utils::constants::DBUS_NAME;
@@ -47,10 +47,10 @@ impl ServerDbus {
             ServerDbus::add_signal("listen", builder);
             // Methods
             // Incoming: step 7
-            ServerDbus::add_method(IncomingAppInfo::new(), builder);
-            ServerDbus::add_method(IncomingDbusInfo::new(), builder);
-            ServerDbus::add_method(IncomingEmulatorClose::new(), builder);
-            ServerDbus::add_method(IncomingEmulatorStart::new(), builder);
+            ServerDbus::add_method(AppInfoIncoming::new(), builder);
+            ServerDbus::add_method(DbusInfoIncoming::new(), builder);
+            ServerDbus::add_method(EmulatorCloseIncoming::new(), builder);
+            ServerDbus::add_method(EmulatorStartIncoming::new(), builder);
         });
 
         // Add api

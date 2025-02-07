@@ -96,7 +96,7 @@ pub fn config_get_bool(
     }
 }
 
-pub fn get_folder_save(file_name: &str) -> PathBuf {
+pub fn get_file_save(file_name: &str) -> PathBuf {
     match env::var("HOME") {
         Ok(path_home) => Path::new(&path_home).join(file_name),
         Err(_) => match env::current_dir() {

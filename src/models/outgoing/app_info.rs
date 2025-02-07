@@ -4,12 +4,12 @@ use super::{Outgoing, TraitOutgoing};
 
 // Outgoing: step 1
 #[derive(Serialize, Deserialize, Clone)]
-pub struct OutgoingAppInfo {
+pub struct AppInfoOutgoing {
     version: String,
 }
 
 // Outgoing: step 2
-impl OutgoingAppInfo {
+impl AppInfoOutgoing {
     pub fn new() -> Outgoing {
         Outgoing::AppInfo(Self {
             version: "0.0.1".into(),
@@ -18,7 +18,7 @@ impl OutgoingAppInfo {
 }
 
 // Outgoing: step 3
-impl TraitOutgoing for OutgoingAppInfo {
+impl TraitOutgoing for AppInfoOutgoing {
     fn print(&self) {
         println!("aurora-bot {}", self.version)
     }

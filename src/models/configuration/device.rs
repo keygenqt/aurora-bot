@@ -1,7 +1,17 @@
+use crate::models::device::model::DeviceModel;
 use serde::{Deserialize, Serialize};
-use crate::models::emulator::model::EmulatorType;
 
-#[derive(Serialize, Deserialize, Clone)]
-pub struct EmulatorConfiguration {
-    pub emulator_type: EmulatorType,
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub struct DeviceConfiguration {
+    pub ip: String,
+    pub host: String,
+}
+
+impl DeviceConfiguration {
+    pub fn to_model(&self) -> DeviceModel {
+        DeviceModel {
+            ip: self.ip.clone(),
+            host: self.host.clone(),
+        }
+    }
 }

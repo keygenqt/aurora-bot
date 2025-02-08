@@ -120,7 +120,6 @@ impl Config {
                     } else {
                         update.push(Config::Devices(config))
                     }
-                    break;
                 }
                 _ => update.push(item),
             }
@@ -158,7 +157,6 @@ impl Config {
                     } else {
                         update.push(Config::Emulators(config))
                     }
-                    break;
                 }
                 _ => update.push(item),
             }
@@ -196,7 +194,6 @@ impl Config {
                     } else {
                         update.push(Config::Flutters(config))
                     }
-                    break;
                 }
                 _ => update.push(item),
             }
@@ -234,7 +231,6 @@ impl Config {
                     } else {
                         update.push(Config::Psdks(config))
                     }
-                    break;
                 }
                 _ => update.push(item),
             }
@@ -272,7 +268,6 @@ impl Config {
                     } else {
                         update.push(Config::Sdks(config))
                     }
-                    break;
                 }
                 _ => update.push(item),
             }

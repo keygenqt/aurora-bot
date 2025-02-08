@@ -4,8 +4,11 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct PsdkConfig {
-    pub path: String,
+    pub dir: String,
+    pub chroot: String,
     pub version: String,
+    pub version_id: String,
+    pub build: u8,
 }
 
 impl PsdkConfig {
@@ -15,8 +18,11 @@ impl PsdkConfig {
                 models
                     .iter()
                     .map(|e| PsdkConfig {
-                        path: e.path.clone(),
+                        dir: e.dir.clone(),
+                        chroot: e.chroot.clone(),
                         version: e.version.clone(),
+                        version_id: e.version_id.clone(),
+                        build: e.build,
                     })
                     .collect(),
             ),
@@ -26,8 +32,11 @@ impl PsdkConfig {
 
     pub fn to_model(&self) -> PsdkModel {
         PsdkModel {
-            path: self.path.clone(),
+            dir: self.dir.clone(),
+            chroot: self.chroot.clone(),
             version: self.version.clone(),
+            version_id: self.version_id.clone(),
+            build: self.build,
         }
     }
 }

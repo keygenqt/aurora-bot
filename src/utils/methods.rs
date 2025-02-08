@@ -3,7 +3,7 @@ use colored::Colorize;
 use regex::Regex;
 use std::path::{Path, PathBuf};
 use std::process::exit;
-use std::{env, ffi::OsStr, process::Output};
+use std::env;
 use walkdir::{DirEntry, WalkDir};
 
 /// Main help app
@@ -17,57 +17,6 @@ pub fn app_about() -> String {
         "Aurora Bot".bright_green().bold(),
         "Это сторонний инструмент, написанный энтузиастами!".italic()
     )
-}
-
-pub fn config_output_filter_keys<I, S>(
-    output: Output,
-    keys: I,
-) -> Result<Vec<String>, Box<dyn std::error::Error>>
-where
-    I: IntoIterator<Item = S>,
-    S: AsRef<OsStr>,
-{
-    let args: Vec<String> = keys
-        .into_iter()
-        .map(|k| String::from(k.as_ref().to_str().unwrap()))
-        .collect();
-    let params = String::from_utf8(output.stdout)?
-        .split("\n")
-        .map(|e| {
-            if args.iter().any(|k| e.contains(k)) {
-                return Some(e);
-            } else {
-                None
-            }
-        })
-        .filter(|e| e.is_some())
-        .map(|e| String::from(e.unwrap()))
-        .collect();
-    Ok(params)
-}
-
-pub fn config_vec_filter_keys<I, S>(
-    output: Vec<String>,
-    keys: I,
-) -> Result<Vec<String>, Box<dyn std::error::Error>>
-where
-    I: IntoIterator<Item = S>,
-    S: AsRef<OsStr>,
-{
-    let mut full_vec: Vec<String> = vec![];
-    let args: Vec<String> = keys
-        .into_iter()
-        .map(|k| String::from(k.as_ref().to_str().unwrap()))
-        .collect();
-    for item in output.iter() {
-        let lines = item.split("\n").collect::<Vec<&str>>();
-        for line in lines.iter() {
-            if args.iter().any(|k| line.contains(k)) {
-                full_vec.push(line.to_string());
-            }
-        }
-    }
-    Ok(full_vec)
 }
 
 pub fn config_get_string(
@@ -102,7 +51,7 @@ pub fn get_home_folder() -> PathBuf {
     match env::var("HOME") {
         Ok(path_home) => Path::new(&path_home).to_path_buf(),
         Err(_) => env::current_dir().unwrap_or_else(|_| {
-            print_error!("директория конфгурации не найдена");
+            print_error!("директория конфигурации не найдена");
             exit(1)
         }),
     }
@@ -131,7 +80,10 @@ pub fn search_files(path: &str) -> Vec<String> {
     {
         let file_path = entry.path().to_string_lossy();
         if file_path.contains(path) {
-            if !file_path.contains("/Trash/") && is_file(&entry) && re.is_match(entry.path().to_str().unwrap()) {
+            if !file_path.contains("/Trash/")
+                && is_file(&entry)
+                && re.is_match(entry.path().to_str().unwrap())
+            {
                 if let Some(path_str) = entry.path().to_str() {
                     result.push(path_str.to_string());
                 }
@@ -139,4 +91,15 @@ pub fn search_files(path: &str) -> Vec<String> {
         }
     }
     result
+}
+
+pub fn parse_output(out: Vec<u8>) -> Vec<String> {
+    if let Ok(value) = String::from_utf8(out) {
+        return value
+            .split("\n")
+            .filter(|e| !e.trim().is_empty())
+            .map(|e| e.to_string())
+            .collect();
+    }
+    vec![]
 }

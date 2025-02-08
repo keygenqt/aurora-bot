@@ -30,21 +30,25 @@ impl EmulatorSession {
             "defaultuser"
         };
         let port = 2223;
-        // Connect
         let session = SshSession::connect(
             PathBuf::from(format!("{}/vmshare/ssh/private_keys/sdk", vm_folder)),
             user,
             (host, port),
         )
         .await?;
-        // Get info emulator
         let output = session.call("cat /etc/os-release").await?;
-        let key_name = "PRETTY_NAME";
-        let key_version = "VERSION_ID";
-        let params = methods::config_vec_filter_keys(output, [key_name, key_version])?;
-        let os_name = methods::config_get_string(&params, key_name, "=")?;
-        let os_version = methods::config_get_string(&params, key_version, "=")?;
-        // Create emulator session
+        let lines = match output.first() {
+            Some(s) => s.split("\n").map(|e| e.to_string()).collect::<Vec<String>>(),
+            None => Err("ошибка при получении данных")?,
+        };
+        let os_name = match methods::config_get_string(&lines, "PRETTY_NAME", "=") {
+            Ok(s) => s,
+            Err(error) => Err(error)?,
+        };
+        let os_version = match methods::config_get_string(&lines, "VERSION_ID", "=") {
+            Ok(s) => s,
+            Err(error) => Err(error)?,
+        };
         Ok(EmulatorSession {
             host: host.to_string(),
             user: user.to_string(),

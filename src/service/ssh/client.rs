@@ -69,9 +69,7 @@ impl SshSession {
         let mut code = None;
         let mut response: Vec<String> = vec![];
         let mut channel = self.session.channel_open_session().await?;
-
         channel.exec(true, command).await?;
-
         loop {
             let Some(msg) = channel.wait().await else {
                 break;

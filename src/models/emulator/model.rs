@@ -15,19 +15,19 @@ pub enum EmulatorType {
 #[derive(Serialize, Deserialize, Clone)]
 pub struct EmulatorModel {
     pub emulator_type: EmulatorType,
+    pub dir: String,
     pub uuid: String,
-    pub folder: String,
     pub is_running: bool,
 }
 
 impl EmulatorModel {
     pub async fn session_user(&self) -> Result<EmulatorSession, Box<dyn std::error::Error>> {
-        Ok(EmulatorSession::new(EmulatorSessionType::User, &self.folder).await?)
+        Ok(EmulatorSession::new(EmulatorSessionType::User, &self.dir).await?)
     }
 
     #[allow(dead_code)]
     pub async fn session_root(&self) -> Result<EmulatorSession, Box<dyn std::error::Error>> {
-        Ok(EmulatorSession::new(EmulatorSessionType::Root, &self.folder).await?)
+        Ok(EmulatorSession::new(EmulatorSessionType::Root, &self.dir).await?)
     }
 
     pub async fn start(&self) -> Result<(), Box<dyn std::error::Error>> {
@@ -61,48 +61,34 @@ impl EmulatorModel {
         let mut emulators = vec![];
         let program = programs::get_vboxmanage()?;
         let output = exec::exec_wait_args(&program, ["list", "vms"])?;
-        let uuids: Vec<String> = String::from_utf8(output.stdout)?
-            .split("\n")
-            .map(|e| {
-                if !e.to_lowercase().contains("aurora") {
-                    return None;
-                }
-                if e.to_lowercase().contains("engine") {
-                    return None;
-                }
-                Some(e.split("{").skip(1).collect::<String>().replace("}", ""))
-            })
-            .filter(|e| e.is_some())
-            .map(|e| e.unwrap().into())
-            .collect();
-
-        for uuid in uuids.iter() {
-            // Get vm info
-            let output = exec::exec_wait_args(&program, ["showvminfo", uuid])?;
-
-            // Load config
-            let key_folder = "Snapshot folder:";
-            let key_running = "State:";
-            let key_recording = "Recording enabled:";
-            let params = methods::config_output_filter_keys(
-                output,
-                [key_folder, key_running, key_recording],
-            )?;
-            let is_running = methods::config_get_bool(&params, key_running, "running")?;
-            let folder = match methods::config_get_string(&params, key_folder, " ") {
+        let lines = methods::parse_output(output.stdout);
+        for line in lines {
+            if !line.to_lowercase().contains("aurora") {
+                continue;
+            }
+            if line.to_lowercase().contains("engine") {
+                continue;
+            }
+            let uuid = line.split("{").skip(1).collect::<String>().replace("}", "");
+            let output = exec::exec_wait_args(&program, ["showvminfo", &uuid])?;
+            let lines = methods::parse_output(output.stdout);
+            let is_running = match methods::config_get_bool(&lines, "State:", "running") {
+                Ok(value) => value,
+                Err(_) => continue,
+            };
+            let dir = match methods::config_get_string(&lines, "Snapshot folder:", " ") {
                 Ok(s) => s
                     .split("/")
                     .skip(1)
                     .take_while(|e| !e.contains("emulator"))
                     .map(|e| format!("/{e}"))
                     .collect::<String>(),
-                Err(_) => Err("не удалось найти ключ")?,
+                Err(_) => continue,
             };
-            // Create emulator
             emulators.push(EmulatorModel {
                 emulator_type: EmulatorType::VirtualBox,
+                dir,
                 uuid: uuid.clone(),
-                folder,
                 is_running,
             });
         }

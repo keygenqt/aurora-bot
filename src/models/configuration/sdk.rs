@@ -4,7 +4,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct SdkConfig {
-    pub path: String,
+    pub dir: String,
+    pub tools: String,
     pub version: String,
 }
 
@@ -15,7 +16,8 @@ impl SdkConfig {
                 models
                     .iter()
                     .map(|e| SdkConfig {
-                        path: e.path.clone(),
+                        dir: e.dir.clone(),
+                        tools: e.tools.clone(),
                         version: e.version.clone(),
                     })
                     .collect(),
@@ -26,7 +28,8 @@ impl SdkConfig {
 
     pub fn to_model(&self) -> SdkModel {
         SdkModel {
-            path: self.path.clone(),
+            dir: self.dir.clone(),
+            tools: self.tools.clone(),
             version: self.version.clone(),
         }
     }

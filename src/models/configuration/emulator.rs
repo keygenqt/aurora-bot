@@ -8,8 +8,8 @@ use std::error::Error;
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct EmulatorConfig {
     pub emulator_type: EmulatorType,
+    pub dir: String,
     pub uuid: String,
-    pub folder: String,
 }
 
 impl EmulatorConfig {
@@ -20,8 +20,8 @@ impl EmulatorConfig {
                     .iter()
                     .map(|e| EmulatorConfig {
                         emulator_type: e.emulator_type.clone(),
+                        dir: e.dir.clone(),
                         uuid: e.uuid.clone(),
-                        folder: e.folder.clone(),
                     })
                     .collect(),
             ),
@@ -38,8 +38,8 @@ impl EmulatorConfig {
         }
         EmulatorModel {
             emulator_type: self.emulator_type.clone(),
+            dir: self.dir.clone(),
             uuid: self.uuid.clone(),
-            folder: self.folder.clone(),
             is_running: _is_running(&self.uuid).unwrap_or_else(|_| false),
         }
     }

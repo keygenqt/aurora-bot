@@ -4,8 +4,11 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct FlutterConfig {
-    pub path: String,
-    pub version: String,
+    pub flutter: String,
+    pub dart: String,
+    pub flutter_version: String,
+    pub tools_version: String,
+    pub dart_version: String,
 }
 
 impl FlutterConfig {
@@ -15,8 +18,11 @@ impl FlutterConfig {
                 models
                     .iter()
                     .map(|e| FlutterConfig {
-                        path: e.path.clone(),
-                        version: e.version.clone(),
+                        flutter: e.flutter.clone(),
+                        dart: e.dart.clone(),
+                        flutter_version: e.flutter_version.clone(),
+                        tools_version: e.tools_version.clone(),
+                        dart_version: e.dart_version.clone(),
                     })
                     .collect(),
             ),
@@ -26,8 +32,11 @@ impl FlutterConfig {
 
     pub fn to_model(&self) -> FlutterModel {
         FlutterModel {
-            path: self.path.clone(),
-            version: self.version.clone(),
+            flutter: self.flutter.clone(),
+            dart: self.dart.clone(),
+            flutter_version: self.flutter_version.clone(),
+            tools_version: self.tools_version.clone(),
+            dart_version: self.dart_version.clone(),
         }
     }
 }

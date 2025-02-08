@@ -1,5 +1,7 @@
 use crate::models::configuration::Config;
+use crate::utils::methods;
 use serde::{Deserialize, Serialize};
+use std::time::{Instant};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct FlutterModel {
@@ -18,6 +20,11 @@ impl FlutterModel {
 
     pub async fn search_full() -> Result<Vec<FlutterModel>, Box<dyn std::error::Error>> {
         // @todo search flutter by system
+        let start = Instant::now();
+        let flutters_path = methods::search_files("bin/flutter");
+        println!("{:?}", flutters_path);
+        let duration = start.elapsed();
+        println!("Time elapsed is: {:?}", duration);
         Ok(vec![])
     }
 }

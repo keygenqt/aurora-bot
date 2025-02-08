@@ -35,3 +35,4 @@ tokio = { version = "1.0", features = ["macros", "rt-multi-thread", "io-std"] }
 clap = { version = "4.5.26", features = ["derive"] }
 clap-cargo = "0.15.2"
 russh = "0.50.0"
+walkdir = "2.5.0"

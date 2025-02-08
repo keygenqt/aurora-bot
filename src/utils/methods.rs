@@ -1,8 +1,10 @@
 use crate::utils::macros::print_error;
 use colored::Colorize;
+use regex::Regex;
 use std::path::{Path, PathBuf};
 use std::process::exit;
 use std::{env, ffi::OsStr, process::Output};
+use walkdir::{DirEntry, WalkDir};
 
 /// Main help app
 pub fn app_about() -> String {
@@ -96,15 +98,45 @@ pub fn config_get_bool(
     }
 }
 
-pub fn get_file_save(file_name: &str) -> PathBuf {
+pub fn get_home_folder() -> PathBuf {
     match env::var("HOME") {
-        Ok(path_home) => Path::new(&path_home).join(file_name),
-        Err(_) => match env::current_dir() {
-            Ok(systemd_working_directory) => systemd_working_directory.join(file_name),
-            Err(_) => {
-                print_error!("директория конфгурации не найдена");
-                exit(1)
-            }
-        },
+        Ok(path_home) => Path::new(&path_home).to_path_buf(),
+        Err(_) => env::current_dir().unwrap_or_else(|_| {
+            print_error!("директория конфгурации не найдена");
+            exit(1)
+        }),
     }
+}
+
+pub fn get_file_save(file_name: &str) -> PathBuf {
+    get_home_folder().join(file_name)
+}
+
+pub fn is_file(entry: &DirEntry) -> bool {
+    if let Ok(metadata) = entry.metadata() {
+        metadata.is_file()
+    } else {
+        false
+    }
+}
+
+pub fn search_files(path: &str) -> Vec<String> {
+    let reg = format!("^.*{}$", path);
+    let re = Regex::new(&reg).unwrap();
+    let mut result: Vec<String> = vec![];
+    for entry in WalkDir::new(get_home_folder())
+        .follow_links(false)
+        .into_iter()
+        .filter_map(|e| e.ok())
+    {
+        let file_path = entry.path().to_string_lossy();
+        if file_path.contains(path) {
+            if !file_path.contains("/Trash/") && is_file(&entry) && re.is_match(entry.path().to_str().unwrap()) {
+                if let Some(path_str) = entry.path().to_str() {
+                    result.push(path_str.to_string());
+                }
+            }
+        }
+    }
+    result
 }

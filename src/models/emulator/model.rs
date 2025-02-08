@@ -1,8 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use super::session::{EmulatorSession, EmulatorSessionType};
-use crate::models::configuration::emulator::EmulatorConfiguration;
-use crate::models::configuration::Configuration;
+use crate::models::configuration::Config;
 use crate::{
     service::command::exec,
     utils::{methods, programs},
@@ -52,13 +51,10 @@ impl EmulatorModel {
     }
 
     pub async fn search() -> Result<Vec<EmulatorModel>, Box<dyn std::error::Error>> {
-        let emulators = Configuration::load().emulator;
-        let models = if emulators.is_empty() {
-            Self::search_full().await?
-        } else {
-            emulators.iter().map(|e| e.to_model()).collect()
-        };
-        Ok(models)
+        match Config::load_emulators() {
+            None => Self::search_full().await,
+            Some(config) => Ok(config.iter().map(|e| e.to_model()).collect()),
+        }
     }
 
     pub async fn search_full() -> Result<Vec<EmulatorModel>, Box<dyn std::error::Error>> {
@@ -103,41 +99,14 @@ impl EmulatorModel {
                 Err(_) => Err("не удалось найти ключ")?,
             };
             // Create emulator
-            let model = EmulatorModel {
+            emulators.push(EmulatorModel {
                 emulator_type: EmulatorType::VirtualBox,
                 uuid: uuid.clone(),
                 folder,
                 is_running,
-            };
-            model.save();
-            emulators.push(model);
+            });
         }
+        // Result
         Ok(emulators)
-    }
-
-    fn save(&self) {
-        let mut list: Vec<EmulatorConfiguration> = vec![];
-        let mut config = Configuration::load();
-        if config.emulator.iter().any(|e| e.uuid == self.uuid) {
-            for item in config.emulator.iter() {
-                if item.uuid == self.uuid {
-                    list.push(self.to_config());
-                } else {
-                    list.push(item.clone());
-                }
-            }
-        } else {
-            list.push(self.to_config());
-        }
-        config.update_emulator(list);
-        config.save("эмулятора");
-    }
-
-    fn to_config(&self) -> EmulatorConfiguration {
-        EmulatorConfiguration {
-            emulator_type: self.emulator_type.clone(),
-            uuid: self.uuid.clone(),
-            folder: self.folder.clone(),
-        }
     }
 }

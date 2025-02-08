@@ -1,5 +1,7 @@
-use crate::models::configuration::device::DeviceConfiguration;
-use crate::models::configuration::emulator::EmulatorConfiguration;
+use crate::models::configuration::device::DeviceConfig;
+use crate::models::configuration::emulator::EmulatorConfig;
+use crate::models::configuration::psdk::PsdkConfig;
+use crate::models::configuration::sdk::SdkConfig;
 use crate::utils::constants::CONFIGURATION_FILE;
 use crate::utils::macros::{print_error, print_info, print_success};
 use crate::utils::methods::get_file_save;
@@ -9,75 +11,69 @@ use std::sync::Mutex;
 
 pub mod device;
 pub mod emulator;
+pub mod psdk;
+pub mod sdk;
 
 #[derive(Debug)]
-struct ConfigurationState {
+struct ConfigState {
     change: bool,
 }
 
 // State is change configuration
-static STATE: Mutex<ConfigurationState> = Mutex::new(ConfigurationState { change: false });
+static STATE: Mutex<ConfigState> = Mutex::new(ConfigState { change: false });
 
-#[derive(Serialize, Deserialize, Clone)]
-pub struct Configuration {
-    pub device: Vec<DeviceConfiguration>,
-    pub emulator: Vec<EmulatorConfiguration>,
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub enum Config {
+    Devices(Vec<DeviceConfig>),
+    Emulators(Vec<EmulatorConfig>),
+    Psdks(Vec<PsdkConfig>),
+    Sdks(Vec<SdkConfig>),
 }
 
-impl Configuration {
-    // Create default configuration
-    pub fn new() -> Configuration {
-        Configuration {
-            device: vec![],
-            emulator: vec![],
-        }
+impl Config {
+    pub fn new() -> Vec<Config> {
+        vec![
+            Self::Devices(vec![]),
+            Self::Emulators(vec![]),
+            Self::Psdks(vec![]),
+            Self::Sdks(vec![]),
+        ]
     }
 
-    // Update device list configuration
-    #[allow(dead_code)]
-    pub fn update_device(&mut self, value: Vec<DeviceConfiguration>) -> &mut Configuration {
-        if self.device != value {
-            STATE.lock().unwrap().change = true;
-            self.device = value;
-        }
-        self
-    }
-
-    // Update emulator list configuration
-    pub fn update_emulator(&mut self, value: Vec<EmulatorConfiguration>) -> &mut Configuration {
-        if self.emulator != value {
-            STATE.lock().unwrap().change = true;
-            self.emulator = value;
-        }
-        self
-    }
-
-    // Load configuration from file
-    pub fn load() -> Configuration {
-        fn _exec() -> Result<Configuration, Box<dyn std::error::Error>> {
+    pub fn load() -> Vec<Config> {
+        fn _exec() -> Result<Vec<Config>, Box<dyn std::error::Error>> {
             let path = get_file_save(CONFIGURATION_FILE);
             let data = match fs::read_to_string(path) {
                 Ok(value) => value,
-                Err(_) => Err("не удалось прочитать конфигурацию")?
+                Err(_) => Err("не удалось прочитать конфигурацию")?,
             };
-            match serde_json::from_str::<Configuration>(&data) {
+            match serde_json::from_str::<Vec<Config>>(&data) {
                 Ok(config) => Ok(config),
                 Err(_) => Err("не удалось получить конфигурацию")?,
             }
         }
-        _exec().unwrap_or_else(|_| Configuration::new())
+        _exec().unwrap_or_else(|_| Config::new())
     }
 
     // Save configuration to file
-    pub fn save(&self, message_type: &str) {
+    pub fn save(self) {
+        STATE.lock().unwrap().change = false;
+        // Get updated config
+        let data = match self {
+            Config::Devices(list) => (Self::update_devices(list), "устройств"),
+            Config::Emulators(list) => (Self::update_emulators(list), "эмуляторов"),
+            Config::Psdks(list) => (Self::update_psdks(list), "Platform SDK"),
+            Config::Sdks(list) => (Self::update_sdks(list), "SDK"),
+        };
+        // Check is not update
         if !STATE.lock().unwrap().change {
-            let message = format!("конфигурация {} актуальна", message_type);
+            let message = format!("конфигурация {} актуальна", data.1);
             print_info!(message);
             return;
         }
-        STATE.lock().unwrap().change = false;
-        fn _exec(config: &Configuration) -> Result<(), Box<dyn std::error::Error>> {
-            let value_for_save = match serde_json::to_string_pretty(config) {
+        // Save
+        fn _exec(config: Vec<Config>) -> Result<(), Box<dyn std::error::Error>> {
+            let value_for_save = match serde_json::to_string_pretty(&config) {
                 Ok(config) => config,
                 Err(_) => Err("не удалось получить конфигурацию")?,
             };
@@ -85,12 +81,164 @@ impl Configuration {
             fs::write(path, value_for_save).expect("не удалось записать файл");
             Ok(())
         }
-        match _exec(&self) {
+        match _exec(data.0) {
             Ok(_) => {
-                let message = format!("конфигурация {} обновлена", message_type);
+                let message = format!("конфигурация {} обновлена", data.1);
                 print_success!(message)
-            },
+            }
             Err(error) => print_error!(error),
         }
+    }
+
+    pub fn load_devices() -> Option<Vec<DeviceConfig>> {
+        for item in Self::load() {
+            match item {
+                Config::Devices(list) => return Some(list),
+                _ => {}
+            }
+        }
+        None
+    }
+
+    fn update_devices(data: Vec<DeviceConfig>) -> Vec<Config> {
+        let config = Config::load();
+        let mut empty = true;
+        let mut update: Vec<Config> = vec![];
+        for item in config {
+            match item {
+                Config::Devices(config) => {
+                    empty = false;
+                    if config != data {
+                        STATE.lock().unwrap().change = true;
+                        if !data.is_empty() {
+                            update.push(Config::Devices(data.clone()))
+                        }
+                    } else {
+                        update.push(Config::Devices(config))
+                    }
+                    break;
+                }
+                _ => update.push(item),
+            }
+        }
+        if empty && !data.is_empty() {
+            STATE.lock().unwrap().change = true;
+            update.push(Config::Devices(data))
+        }
+        update
+    }
+
+    pub fn load_emulators() -> Option<Vec<EmulatorConfig>> {
+        for item in Self::load() {
+            match item {
+                Config::Emulators(list) => return Some(list),
+                _ => {}
+            }
+        }
+        None
+    }
+
+    fn update_emulators(data: Vec<EmulatorConfig>) -> Vec<Config> {
+        let config = Config::load();
+        let mut empty = true;
+        let mut update: Vec<Config> = vec![];
+        for item in config {
+            match item {
+                Config::Emulators(config) => {
+                    empty = false;
+                    if config != data {
+                        STATE.lock().unwrap().change = true;
+                        if !data.is_empty() {
+                            update.push(Config::Emulators(data.clone()))
+                        }
+                    } else {
+                        update.push(Config::Emulators(config))
+                    }
+                    break;
+                }
+                _ => update.push(item),
+            }
+        }
+        if empty && !data.is_empty() {
+            STATE.lock().unwrap().change = true;
+            update.push(Config::Emulators(data))
+        }
+        update
+    }
+
+    pub fn load_psdks() -> Option<Vec<PsdkConfig>> {
+        for item in Self::load() {
+            match item {
+                Config::Psdks(list) => return Some(list),
+                _ => {}
+            }
+        }
+        None
+    }
+
+    fn update_psdks(data: Vec<PsdkConfig>) -> Vec<Config> {
+        let config = Config::load();
+        let mut empty = true;
+        let mut update: Vec<Config> = vec![];
+        for item in config {
+            match item {
+                Config::Psdks(config) => {
+                    empty = false;
+                    if config != data {
+                        STATE.lock().unwrap().change = true;
+                        if !data.is_empty() {
+                            update.push(Config::Psdks(data.clone()))
+                        }
+                    } else {
+                        update.push(Config::Psdks(config))
+                    }
+                    break;
+                }
+                _ => update.push(item),
+            }
+        }
+        if empty && !data.is_empty() {
+            STATE.lock().unwrap().change = true;
+            update.push(Config::Psdks(data))
+        }
+        update
+    }
+
+    pub fn load_sdks() -> Option<Vec<SdkConfig>> {
+        for item in Self::load() {
+            match item {
+                Config::Sdks(list) => return Some(list),
+                _ => {}
+            }
+        }
+        None
+    }
+
+    fn update_sdks(data: Vec<SdkConfig>) -> Vec<Config> {
+        let config = Config::load();
+        let mut empty = true;
+        let mut update: Vec<Config> = vec![];
+        for item in config {
+            match item {
+                Config::Sdks(config) => {
+                    empty = false;
+                    if config != data {
+                        STATE.lock().unwrap().change = true;
+                        if !data.is_empty() {
+                            update.push(Config::Sdks(data.clone()))
+                        }
+                    } else {
+                        update.push(Config::Sdks(config))
+                    }
+                    break;
+                }
+                _ => update.push(item),
+            }
+        }
+        if empty && !data.is_empty() {
+            STATE.lock().unwrap().change = true;
+            update.push(Config::Sdks(data))
+        }
+        update
     }
 }

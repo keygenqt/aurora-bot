@@ -1,11 +1,13 @@
-use crate::models::device::model::DeviceModel;
-use crate::models::emulator::model::EmulatorModel;
 use crate::service::dbus::server::ServerDbus;
 use crate::utils::{
     macros::{print_error, print_info, print_success},
     single,
 };
 use clap::{Args, Subcommand};
+use crate::models::configuration::device::DeviceConfig;
+use crate::models::configuration::emulator::EmulatorConfig;
+use crate::models::configuration::psdk::PsdkConfig;
+use crate::models::configuration::sdk::SdkConfig;
 
 #[derive(Args)]
 #[command()]
@@ -44,13 +46,25 @@ pub enum SyncCommands {
 #[command(arg_required_else_help = true)]
 #[group(multiple = false)]
 pub struct SyncArgs {
-    /// Синхронизировать все данные
-    #[arg(short, long, default_value_t = false)]
-    all: bool,
-
     /// Поиск и синхронизация эмуляторов
     #[arg(short, long, default_value_t = false)]
     emulator: bool,
+
+    /// Поиск и синхронизация устройств
+    #[arg(short, long, default_value_t = false)]
+    device: bool,
+
+    /// Поиск и синхронизация Аврора Platform SDK
+    #[arg(short, long, default_value_t = false)]
+    psdk: bool,
+
+    /// Поиск и синхронизация Аврора SDK
+    #[arg(short, long, default_value_t = false)]
+    sdk: bool,
+
+    /// Синхронизировать все
+    #[arg(short, long, default_value_t = false)]
+    all: bool,
 }
 
 /// Handling interface events
@@ -73,11 +87,19 @@ pub async fn run(arg: SvcArgs) {
     } else if let Some(sync) = arg.sync {
         match sync {
             SyncCommands::Sync(arg) => {
-                if arg.all {
-                    let _ = EmulatorModel::search_full().await;
-                    let _ = DeviceModel::search_full().await;
+                if arg.device {
+                    DeviceConfig::search().await.save();
                 } else if arg.emulator {
-                    let _ = EmulatorModel::search_full().await;
+                    EmulatorConfig::search().await.save();
+                } else if arg.psdk {
+                    PsdkConfig::search().await.save();
+                } else if arg.sdk {
+                    SdkConfig::search().await.save();
+                } else {
+                    DeviceConfig::search().await.save();
+                    EmulatorConfig::search().await.save();
+                    PsdkConfig::search().await.save();
+                    SdkConfig::search().await.save();
                 }
             }
         }

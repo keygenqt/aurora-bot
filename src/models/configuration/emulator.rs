@@ -1,3 +1,4 @@
+use crate::models::configuration::Config;
 use crate::models::emulator::model::{EmulatorModel, EmulatorType};
 use crate::service::command::exec;
 use crate::utils::programs;
@@ -5,13 +6,29 @@ use serde::{Deserialize, Serialize};
 use std::error::Error;
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
-pub struct EmulatorConfiguration {
+pub struct EmulatorConfig {
     pub emulator_type: EmulatorType,
     pub uuid: String,
     pub folder: String,
 }
 
-impl EmulatorConfiguration {
+impl EmulatorConfig {
+    pub async fn search() -> Config {
+        match EmulatorModel::search_full().await {
+            Ok(models) => Config::Emulators(
+                models
+                    .iter()
+                    .map(|e| EmulatorConfig {
+                        emulator_type: e.emulator_type.clone(),
+                        uuid: e.uuid.clone(),
+                        folder: e.folder.clone(),
+                    })
+                    .collect(),
+            ),
+            Err(_) => Config::Emulators(vec![]),
+        }
+    }
+
     pub fn to_model(&self) -> EmulatorModel {
         fn _is_running(uuid: &String) -> Result<bool, Box<dyn Error>> {
             let program = programs::get_vboxmanage()?;

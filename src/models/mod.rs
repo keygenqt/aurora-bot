@@ -10,6 +10,9 @@ pub mod emulator {
 pub mod device {
     pub mod model;
 }
+pub mod flutter {
+    pub mod model;
+}
 pub mod psdk {
     pub mod model;
 }

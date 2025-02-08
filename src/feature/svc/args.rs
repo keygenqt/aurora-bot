@@ -1,13 +1,14 @@
+use crate::models::configuration::device::DeviceConfig;
+use crate::models::configuration::emulator::EmulatorConfig;
+use crate::models::configuration::flutter::FlutterConfig;
+use crate::models::configuration::psdk::PsdkConfig;
+use crate::models::configuration::sdk::SdkConfig;
 use crate::service::dbus::server::ServerDbus;
 use crate::utils::{
     macros::{print_error, print_info, print_success},
     single,
 };
 use clap::{Args, Subcommand};
-use crate::models::configuration::device::DeviceConfig;
-use crate::models::configuration::emulator::EmulatorConfig;
-use crate::models::configuration::psdk::PsdkConfig;
-use crate::models::configuration::sdk::SdkConfig;
 
 #[derive(Args)]
 #[command()]
@@ -54,6 +55,10 @@ pub struct SyncArgs {
     #[arg(short, long, default_value_t = false)]
     device: bool,
 
+    /// Поиск и синхронизация Flutter SDK
+    #[arg(short, long, default_value_t = false)]
+    flutter: bool,
+
     /// Поиск и синхронизация Аврора Platform SDK
     #[arg(short, long, default_value_t = false)]
     psdk: bool,
@@ -91,6 +96,8 @@ pub async fn run(arg: SvcArgs) {
                     DeviceConfig::search().await.save();
                 } else if arg.emulator {
                     EmulatorConfig::search().await.save();
+                } else if arg.flutter {
+                    FlutterConfig::search().await.save();
                 } else if arg.psdk {
                     PsdkConfig::search().await.save();
                 } else if arg.sdk {

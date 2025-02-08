@@ -1,5 +1,6 @@
 use crate::models::configuration::device::DeviceConfig;
 use crate::models::configuration::emulator::EmulatorConfig;
+use crate::models::configuration::flutter::FlutterConfig;
 use crate::models::configuration::psdk::PsdkConfig;
 use crate::models::configuration::sdk::SdkConfig;
 use crate::utils::constants::CONFIGURATION_FILE;
@@ -11,6 +12,7 @@ use std::sync::Mutex;
 
 pub mod device;
 pub mod emulator;
+pub mod flutter;
 pub mod psdk;
 pub mod sdk;
 
@@ -26,6 +28,7 @@ static STATE: Mutex<ConfigState> = Mutex::new(ConfigState { change: false });
 pub enum Config {
     Devices(Vec<DeviceConfig>),
     Emulators(Vec<EmulatorConfig>),
+    Flutters(Vec<FlutterConfig>),
     Psdks(Vec<PsdkConfig>),
     Sdks(Vec<SdkConfig>),
 }
@@ -62,6 +65,7 @@ impl Config {
         let data = match self {
             Config::Devices(list) => (Self::update_devices(list), "устройств"),
             Config::Emulators(list) => (Self::update_emulators(list), "эмуляторов"),
+            Config::Flutters(list) => (Self::update_flutters(list), "Flutter"),
             Config::Psdks(list) => (Self::update_psdks(list), "Platform SDK"),
             Config::Sdks(list) => (Self::update_sdks(list), "SDK"),
         };
@@ -162,6 +166,44 @@ impl Config {
         if empty && !data.is_empty() {
             STATE.lock().unwrap().change = true;
             update.push(Config::Emulators(data))
+        }
+        update
+    }
+
+    pub fn load_flutters() -> Option<Vec<FlutterConfig>> {
+        for item in Self::load() {
+            match item {
+                Config::Flutters(list) => return Some(list),
+                _ => {}
+            }
+        }
+        None
+    }
+
+    fn update_flutters(data: Vec<FlutterConfig>) -> Vec<Config> {
+        let config = Config::load();
+        let mut empty = true;
+        let mut update: Vec<Config> = vec![];
+        for item in config {
+            match item {
+                Config::Flutters(config) => {
+                    empty = false;
+                    if config != data {
+                        STATE.lock().unwrap().change = true;
+                        if !data.is_empty() {
+                            update.push(Config::Flutters(data.clone()))
+                        }
+                    } else {
+                        update.push(Config::Flutters(config))
+                    }
+                    break;
+                }
+                _ => update.push(item),
+            }
+        }
+        if empty && !data.is_empty() {
+            STATE.lock().unwrap().change = true;
+            update.push(Config::Flutters(data))
         }
         update
     }

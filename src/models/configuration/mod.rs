@@ -112,7 +112,7 @@ impl Config {
                 Config::Version(version) => {
                     config_version = version.clone();
                     update.push(Config::Version(CONFIGURATION_VERSION.to_string()))
-                },
+                }
                 Config::Device(config_list) => match &data {
                     Config::Device(update_list) => {
                         empty = false;
@@ -178,8 +178,10 @@ impl Config {
         // check version config
         if config_version.is_empty() || config_version != CONFIGURATION_VERSION.to_string() {
             empty = true;
-            let key = to_variant_name(&data).unwrap();
-            update = Config::new().into_iter().filter(|e| to_variant_name(e).unwrap() != key).collect();
+            update = Config::new()
+                .into_iter()
+                .filter(|e| to_variant_name(e).unwrap() != to_variant_name(&data).unwrap())
+                .collect();
         }
         // set update if data config empty
         if empty {

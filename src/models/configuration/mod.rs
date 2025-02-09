@@ -6,6 +6,7 @@ use crate::models::configuration::sdk::SdkConfig;
 use crate::utils::constants::CONFIGURATION_FILE;
 use crate::utils::methods::get_file_save;
 use serde::{Deserialize, Serialize};
+use serde_variant::to_variant_name;
 use std::fs;
 use std::sync::Mutex;
 
@@ -37,6 +38,7 @@ impl Config {
         vec![
             Self::Devices(vec![]),
             Self::Emulators(vec![]),
+            Self::Flutters(vec![]),
             Self::Psdks(vec![]),
             Self::Sdks(vec![]),
         ]
@@ -49,29 +51,39 @@ impl Config {
                 Ok(value) => value,
                 Err(_) => Err("не удалось прочитать конфигурацию")?,
             };
-            match serde_json::from_str::<Vec<Config>>(&data) {
-                Ok(config) => Ok(config),
+            let config = match serde_json::from_str::<Vec<Config>>(&data) {
+                Ok(config) => config,
                 Err(_) => Err("не удалось получить конфигурацию")?,
+            };
+            // Remove duplicates
+            let mut names: Vec<&str> = vec![];
+            let mut clear: Vec<Config> = vec![];
+            for item in config {
+                let name = to_variant_name(&item).unwrap();
+                if names.contains(&name) {
+                    STATE.lock().unwrap().change = true;
+                    continue;
+                }
+                names.push(name);
+                clear.push(item);
             }
+            Ok(clear)
         }
-        _exec().unwrap_or_else(|_| Config::new())
+        _exec().unwrap_or_else(|_| {
+            STATE.lock().unwrap().change = true;
+            Config::new()
+        })
     }
 
     // Save configuration to file
     pub fn save(self) -> bool {
-        STATE.lock().unwrap().change = false;
         // Get updated config
-        let data = match self {
-            Config::Devices(list) => Self::update_devices(list),
-            Config::Emulators(list) => Self::update_emulators(list),
-            Config::Flutters(list) => Self::update_flutters(list),
-            Config::Psdks(list) => Self::update_psdks(list),
-            Config::Sdks(list) => Self::update_sdks(list),
-        };
+        let data = Self::update_models(self);
         // Check is not update
         if !STATE.lock().unwrap().change {
             return false;
         }
+        STATE.lock().unwrap().change = false;
         // Save
         fn _exec(config: Vec<Config>) -> Result<(), Box<dyn std::error::Error>> {
             let value_for_save = match serde_json::to_string_pretty(&config) {
@@ -86,6 +98,91 @@ impl Config {
             Ok(_) => true,
             Err(_) => false,
         }
+    }
+
+    fn update_models(data: Config) -> Vec<Config> {
+        let config = Config::load();
+        let mut empty = true;
+        let mut update: Vec<Config> = vec![];
+        for item in config {
+            match &item {
+                Config::Devices(config_list) => {
+                    match &data {
+                        Config::Devices(update_list) => {
+                            empty = false;
+                            if config_list != update_list {
+                                STATE.lock().unwrap().change = true;
+                                update.push(Config::Devices(update_list.clone()))
+                            } else {
+                                update.push(item.clone())
+                            }
+                        }
+                        _ => update.push(item.clone())
+                    }
+                },
+                Config::Emulators(config_list) => {
+                    match &data {
+                        Config::Emulators(update_list) => {
+                            empty = false;
+                            if config_list != update_list {
+                                STATE.lock().unwrap().change = true;
+                                update.push(Config::Emulators(update_list.clone()))
+                            } else {
+                                update.push(item.clone())
+                            }
+                        }
+                        _ => update.push(item.clone())
+                    }
+                },
+                Config::Flutters(config_list) => {
+                    match &data {
+                        Config::Flutters(update_list) => {
+                            empty = false;
+                            if config_list != update_list {
+                                STATE.lock().unwrap().change = true;
+                                update.push(Config::Flutters(update_list.clone()))
+                            } else {
+                                update.push(item.clone())
+                            }
+                        }
+                        _ => update.push(item.clone())
+                    }
+                },
+                Config::Psdks(config_list) => {
+                    match &data {
+                        Config::Psdks(update_list) => {
+                            empty = false;
+                            if config_list != update_list {
+                                STATE.lock().unwrap().change = true;
+                                update.push(Config::Psdks(update_list.clone()))
+                            } else {
+                                update.push(item.clone())
+                            }
+                        }
+                        _ => update.push(item.clone())
+                    }
+                },
+                Config::Sdks(config_list) => {
+                    match &data {
+                        Config::Sdks(update_list) => {
+                            empty = false;
+                            if config_list != update_list {
+                                STATE.lock().unwrap().change = true;
+                                update.push(Config::Sdks(update_list.clone()))
+                            } else {
+                                update.push(item.clone())
+                            }
+                        }
+                        _ => update.push(item.clone())
+                    }
+                },
+            }
+        }
+        if empty {
+            STATE.lock().unwrap().change = true;
+            update.push(data)
+        }
+        update
     }
 
     pub fn load_devices() -> Option<Vec<DeviceConfig>> {
@@ -104,33 +201,6 @@ impl Config {
         None
     }
 
-    fn update_devices(data: Vec<DeviceConfig>) -> Vec<Config> {
-        let config = Config::load();
-        let mut empty = true;
-        let mut update: Vec<Config> = vec![];
-        for item in config {
-            match item {
-                Config::Devices(config) => {
-                    empty = false;
-                    if config != data {
-                        STATE.lock().unwrap().change = true;
-                        if !data.is_empty() {
-                            update.push(Config::Devices(data.clone()))
-                        }
-                    } else {
-                        update.push(Config::Devices(config))
-                    }
-                }
-                _ => update.push(item),
-            }
-        }
-        if empty && !data.is_empty() {
-            STATE.lock().unwrap().change = true;
-            update.push(Config::Devices(data))
-        }
-        update
-    }
-
     pub fn load_emulators() -> Option<Vec<EmulatorConfig>> {
         for item in Self::load() {
             match item {
@@ -145,33 +215,6 @@ impl Config {
             }
         }
         None
-    }
-
-    fn update_emulators(data: Vec<EmulatorConfig>) -> Vec<Config> {
-        let config = Config::load();
-        let mut empty = true;
-        let mut update: Vec<Config> = vec![];
-        for item in config {
-            match item {
-                Config::Emulators(config) => {
-                    empty = false;
-                    if config != data {
-                        STATE.lock().unwrap().change = true;
-                        if !data.is_empty() {
-                            update.push(Config::Emulators(data.clone()))
-                        }
-                    } else {
-                        update.push(Config::Emulators(config))
-                    }
-                }
-                _ => update.push(item),
-            }
-        }
-        if empty && !data.is_empty() {
-            STATE.lock().unwrap().change = true;
-            update.push(Config::Emulators(data))
-        }
-        update
     }
 
     pub fn load_flutters() -> Option<Vec<FlutterConfig>> {
@@ -190,33 +233,6 @@ impl Config {
         None
     }
 
-    fn update_flutters(data: Vec<FlutterConfig>) -> Vec<Config> {
-        let config = Config::load();
-        let mut empty = true;
-        let mut update: Vec<Config> = vec![];
-        for item in config {
-            match item {
-                Config::Flutters(config) => {
-                    empty = false;
-                    if config != data {
-                        STATE.lock().unwrap().change = true;
-                        if !data.is_empty() {
-                            update.push(Config::Flutters(data.clone()))
-                        }
-                    } else {
-                        update.push(Config::Flutters(config))
-                    }
-                }
-                _ => update.push(item),
-            }
-        }
-        if empty && !data.is_empty() {
-            STATE.lock().unwrap().change = true;
-            update.push(Config::Flutters(data))
-        }
-        update
-    }
-
     pub fn load_psdks() -> Option<Vec<PsdkConfig>> {
         for item in Self::load() {
             match item {
@@ -233,33 +249,6 @@ impl Config {
         None
     }
 
-    fn update_psdks(data: Vec<PsdkConfig>) -> Vec<Config> {
-        let config = Config::load();
-        let mut empty = true;
-        let mut update: Vec<Config> = vec![];
-        for item in config {
-            match item {
-                Config::Psdks(config) => {
-                    empty = false;
-                    if config != data {
-                        STATE.lock().unwrap().change = true;
-                        if !data.is_empty() {
-                            update.push(Config::Psdks(data.clone()))
-                        }
-                    } else {
-                        update.push(Config::Psdks(config))
-                    }
-                }
-                _ => update.push(item),
-            }
-        }
-        if empty && !data.is_empty() {
-            STATE.lock().unwrap().change = true;
-            update.push(Config::Psdks(data))
-        }
-        update
-    }
-
     pub fn load_sdks() -> Option<Vec<SdkConfig>> {
         for item in Self::load() {
             match item {
@@ -274,32 +263,5 @@ impl Config {
             }
         }
         None
-    }
-
-    fn update_sdks(data: Vec<SdkConfig>) -> Vec<Config> {
-        let config = Config::load();
-        let mut empty = true;
-        let mut update: Vec<Config> = vec![];
-        for item in config {
-            match item {
-                Config::Sdks(config) => {
-                    empty = false;
-                    if config != data {
-                        STATE.lock().unwrap().change = true;
-                        if !data.is_empty() {
-                            update.push(Config::Sdks(data.clone()))
-                        }
-                    } else {
-                        update.push(Config::Sdks(config))
-                    }
-                }
-                _ => update.push(item),
-            }
-        }
-        if empty && !data.is_empty() {
-            STATE.lock().unwrap().change = true;
-            update.push(Config::Sdks(data))
-        }
-        update
     }
 }

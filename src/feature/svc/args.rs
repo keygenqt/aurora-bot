@@ -4,6 +4,7 @@ use crate::models::configuration::flutter::FlutterConfig;
 use crate::models::configuration::psdk::PsdkConfig;
 use crate::models::configuration::sdk::SdkConfig;
 use crate::service::dbus::server::ServerDbus;
+use crate::utils::macros::print_state;
 use crate::utils::{
     macros::{print_error, print_info, print_success},
     single,
@@ -47,13 +48,13 @@ pub enum SyncCommands {
 #[command(arg_required_else_help = true)]
 #[group(multiple = false)]
 pub struct SyncArgs {
-    /// Поиск и синхронизация эмуляторов
-    #[arg(short, long, default_value_t = false)]
-    emulator: bool,
-
     /// Поиск и синхронизация устройств
     #[arg(short, long, default_value_t = false)]
     device: bool,
+
+    /// Поиск и синхронизация эмуляторов
+    #[arg(short, long, default_value_t = false)]
+    emulator: bool,
 
     /// Поиск и синхронизация Flutter SDK
     #[arg(short, long, default_value_t = false)]
@@ -92,21 +93,45 @@ pub async fn run(arg: SvcArgs) {
     } else if let Some(sync) = arg.sync {
         match sync {
             SyncCommands::Sync(arg) => {
-                if arg.device {
-                    DeviceConfig::search().await.save();
-                } else if arg.emulator {
-                    EmulatorConfig::search().await.save();
-                } else if arg.flutter {
-                    FlutterConfig::search().await.save();
-                } else if arg.psdk {
-                    PsdkConfig::search().await.save();
-                } else if arg.sdk {
-                    SdkConfig::search().await.save();
-                } else {
-                    DeviceConfig::search().await.save();
-                    EmulatorConfig::search().await.save();
-                    PsdkConfig::search().await.save();
-                    SdkConfig::search().await.save();
+                if arg.device || arg.all {
+                    print_state!("синхронизация устройств...");
+                    if DeviceConfig::search().await.save() {
+                        print_success!("данные устройств обновлены")
+                    } else {
+                        print_info!("изменения конфигурации устройств не зафиксировано")
+                    }
+                }
+                if arg.emulator || arg.all {
+                    print_state!("синхронизация эмуляторов...");
+                    if EmulatorConfig::search().await.save() {
+                        print_success!("данные эмуляторов обновлены")
+                    } else {
+                        print_info!("изменения конфигурации эмуляторов не зафиксировано")
+                    }
+                }
+                if arg.flutter || arg.all {
+                    print_state!("синхронизация Flutter SDK...");
+                    if FlutterConfig::search().await.save() {
+                        print_success!("данные Flutter SDK обновлены")
+                    } else {
+                        print_info!("изменения конфигурации Flutter SDK не зафиксировано")
+                    }
+                }
+                if arg.psdk || arg.all {
+                    print_state!("синхронизация Platform SDK...");
+                    if PsdkConfig::search().await.save() {
+                        print_success!("данные Platform SDK обновлены")
+                    } else {
+                        print_info!("изменения конфигурации Platform SDK не зафиксировано")
+                    }
+                }
+                if arg.sdk || arg.all {
+                    print_state!("синхронизация Аврора SDK...");
+                    if SdkConfig::search().await.save() {
+                        print_success!("данные Аврора SDK обновлены")
+                    } else {
+                        print_info!("изменения конфигурации Аврора SDK не зафиксировано")
+                    }
                 }
             }
         }

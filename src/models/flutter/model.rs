@@ -1,10 +1,14 @@
-use crate::models::configuration::Config;
+use colored::Colorize;
+
+use crate::models::configuration::{flutter::FlutterConfig, Config};
 use crate::service::command::exec;
+use crate::utils::macros::print_info;
 use crate::utils::methods;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct FlutterModel {
+    pub dir: String,
     pub flutter: String,
     pub dart: String,
     pub flutter_version: String,
@@ -13,10 +17,9 @@ pub struct FlutterModel {
 }
 
 impl FlutterModel {
-    #[allow(dead_code)]
     pub async fn search() -> Result<Vec<FlutterModel>, Box<dyn std::error::Error>> {
         match Config::load_flutters() {
-            None => Self::search_full().await,
+            None => Ok(FlutterConfig::search_force().await),
             Some(config) => Ok(config.iter().map(|e| e.to_model()).collect()),
         }
     }
@@ -25,6 +28,7 @@ impl FlutterModel {
         let mut models: Vec<FlutterModel> = vec![];
         let flutters_path = methods::search_files("bin/flutter");
         for flutter in flutters_path {
+            let dir = flutter.clone().replace("/bin/flutter", "");
             let output = exec::exec_wait_args(&flutter, ["--version"])?;
             let lines = methods::parse_output(output.stdout);
             let flutter_version = match lines.get(0) {
@@ -33,6 +37,10 @@ impl FlutterModel {
                     .map(|e| e.trim())
                     .collect::<Vec<&str>>()
                     .get(0)
+                    .unwrap_or_else(|| &"")
+                    .split(" ")
+                    .collect::<Vec<&str>>()
+                    .get(1)
                     .unwrap_or_else(|| &""),
                 None => "",
             };
@@ -40,6 +48,10 @@ impl FlutterModel {
                 Some(line) => line
                     .split("•")
                     .map(|e| e.trim())
+                    .collect::<Vec<&str>>()
+                    .get(1)
+                    .unwrap_or_else(|| &"")
+                    .split(" ")
                     .collect::<Vec<&str>>()
                     .get(1)
                     .unwrap_or_else(|| &""),
@@ -51,6 +63,10 @@ impl FlutterModel {
                     .map(|e| e.trim())
                     .collect::<Vec<&str>>()
                     .get(2)
+                    .unwrap_or_else(|| &"")
+                    .split(" ")
+                    .collect::<Vec<&str>>()
+                    .get(1)
                     .unwrap_or_else(|| &""),
                 None => "",
             };
@@ -58,6 +74,7 @@ impl FlutterModel {
                 continue;
             }
             models.push(FlutterModel {
+                dir,
                 flutter: flutter.clone(),
                 dart: flutter.replace("bin/flutter", "bin/dart").to_string(),
                 flutter_version: flutter_version.to_string(),
@@ -66,5 +83,28 @@ impl FlutterModel {
             })
         }
         Ok(models)
+    }
+
+    pub fn print_list(models: Vec<FlutterModel>) {
+        if models.is_empty() {
+            print_info!("Flutter SDK не найдены")
+        }
+        for (index, e) in models.iter().enumerate() {
+            if index != 0 {
+                println!()
+            }
+            e.print()
+        }
+    }
+
+    pub fn print(&self) {
+        let message = format!(
+            "Flutter SDK: {}\nDart: {}\nDevTools: {}\nДиректория: {}",
+            self.flutter_version.bold().white(),
+            self.dart_version.bold().white(),
+            self.tools_version.bold().white(),
+            self.dir.to_string().white(),
+        );
+        print_info!(message);
     }
 }

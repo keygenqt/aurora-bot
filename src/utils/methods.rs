@@ -1,9 +1,9 @@
 use crate::utils::macros::print_error;
 use colored::Colorize;
 use regex::Regex;
+use std::env;
 use std::path::{Path, PathBuf};
 use std::process::exit;
-use std::env;
 use walkdir::{DirEntry, WalkDir};
 
 /// Main help app

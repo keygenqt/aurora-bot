@@ -1,10 +1,16 @@
 use clap::{Args, Subcommand};
 
+use crate::models::device::model::DeviceModel;
+use crate::models::emulator::model::EmulatorModel;
+use crate::models::flutter::model::FlutterModel;
 use crate::models::incoming::emulator_close::EmulatorCloseIncoming;
+use crate::models::psdk::model::PsdkModel;
+use crate::models::sdk::model::SdkModel;
 use crate::models::{
     incoming::{emulator_start::EmulatorStartIncoming, Incoming},
     outgoing::OutgoingType,
 };
+use crate::utils::macros::print_error;
 
 /// Классическая командная строка
 #[derive(Args)]
@@ -16,37 +22,35 @@ pub struct CliArgs {
 
 #[derive(Subcommand)]
 pub enum CliCommands {
-    // /// Приложения доступные для установки
-    // Apps(AppsArgs),
-    // /// Работа с устройством
-    // Device{},
-    /// Работа с эмулятором в virtualbox
+    /// Работа с устройством
+    Device(DeviceArgs),
+    /// Работа с эмуляторами
     Emulator(EmulatorArgs),
-    // /// Работа с Аврора SDK
-    // Sdk {},
-    // /// Работа с Аврора Platform SDK
-    // Psdk {},
-    // /// Работа с Flutter для ОС Aurora
-    // Flutter {},
-    // /// Работа с Visual Studio Code
-    // Vscode {},
+    /// Работа с Flutter SDK
+    Flutter(FlutterArgs),
+    /// Работа с Аврора Platform SDK
+    Psdk(PsdkArgs),
+    /// Работа с Аврора SDK
+    Sdk(SdkArgs),
 }
 
 #[derive(Args)]
 #[command(arg_required_else_help = true)]
-pub struct AppsArgs {
-    /// Получите список доступных приложений для ОС Аврора
+#[group(multiple = false)]
+pub struct DeviceArgs {
+    /// Информация по доступным устройствам
     #[arg(short, long, default_value_t = false)]
-    available: bool,
-
-    /// Установите приложение на устройство или эмулятор
-    #[arg(short, long, default_value_t = false)]
-    install: bool,
+    info: bool,
 }
 
 #[derive(Args)]
 #[command(arg_required_else_help = true)]
+#[group(multiple = false)]
 pub struct EmulatorArgs {
+    /// Информация по доступным эмуляторам
+    #[arg(short, long, default_value_t = false)]
+    info: bool,
+
     /// Запустить эмулятор
     #[arg(short, long, default_value_t = false)]
     start: bool,
@@ -56,21 +60,51 @@ pub struct EmulatorArgs {
     close: bool,
 }
 
+#[derive(Args)]
+#[command(arg_required_else_help = true)]
+#[group(multiple = false)]
+pub struct FlutterArgs {
+    /// Информация по доступным Flutter SDK
+    #[arg(short, long, default_value_t = false)]
+    info: bool,
+}
+
+#[derive(Args)]
+#[command(arg_required_else_help = true)]
+#[group(multiple = false)]
+pub struct PsdkArgs {
+    /// Информация по доступным Аврора Platform SDK
+    #[arg(short, long, default_value_t = false)]
+    info: bool,
+}
+
+#[derive(Args)]
+#[command(arg_required_else_help = true)]
+#[group(multiple = false)]
+pub struct SdkArgs {
+    /// Информация по доступным Аврора SDK
+    #[arg(short, long, default_value_t = false)]
+    info: bool,
+}
+
 /// Handling interface events
 pub async fn run(arg: CliArgs) {
     match arg.command.unwrap() {
-        // CliCommands::Apps(arg) => {
-        //     if arg.available {
-        //         println!("Get available")
-        //     }
-        //     if arg.install {
-        //         println!("Install package")
-        //     }
-        // }
-        // CliCommands::Device {} => {
-        //     println!("Device")
-        // }
+        CliCommands::Device(arg) => {
+            if arg.info {
+                match DeviceModel::search().await {
+                    Ok(models) => DeviceModel::print_list(models),
+                    Err(_) => print_error!("не удалось получить данные"),
+                };
+            }
+        }
         CliCommands::Emulator(arg) => {
+            if arg.info {
+                match EmulatorModel::search().await {
+                    Ok(models) => EmulatorModel::print_list(models),
+                    Err(_) => print_error!("не удалось получить данные"),
+                };
+            }
             if arg.start {
                 Incoming::handler(EmulatorStartIncoming::new(), OutgoingType::Cli)
                     .await
@@ -81,17 +115,30 @@ pub async fn run(arg: CliArgs) {
                     .await
                     .print()
             }
-        } // CliCommands::Sdk {} => {
-          //     println!("Sdk")
-          // }
-          // CliCommands::Psdk {} => {
-          //     println!("Psdk")
-          // }
-          // CliCommands::Flutter {} => {
-          //     println!("Flutter")
-          // }
-          // CliCommands::Vscode {} => {
-          //     println!("Vscode")
-          // }
+        }
+        CliCommands::Flutter(arg) => {
+            if arg.info {
+                match FlutterModel::search().await {
+                    Ok(models) => FlutterModel::print_list(models),
+                    Err(_) => print_error!("не удалось получить данные"),
+                };
+            }
+        }
+        CliCommands::Psdk(arg) => {
+            if arg.info {
+                match PsdkModel::search().await {
+                    Ok(models) => PsdkModel::print_list(models),
+                    Err(_) => print_error!("не удалось получить данные"),
+                };
+            }
+        }
+        CliCommands::Sdk(arg) => {
+            if arg.info {
+                match SdkModel::search().await {
+                    Ok(models) => SdkModel::print_list(models),
+                    Err(_) => print_error!("не удалось получить данные"),
+                };
+            }
+        }
     }
 }

@@ -26,7 +26,16 @@ impl PsdkConfig {
                     })
                     .collect(),
             ),
-            Err(_) => Config::Emulators(vec![]),
+            Err(_) => Config::Psdks(vec![]),
+        }
+    }
+
+    pub async fn search_force() -> Vec<PsdkModel> {
+        let config = Self::search().await;
+        config.clone().save();
+        match config {
+            Config::Psdks(models) => models.iter().map(|e| e.to_model()).collect(),
+            _ => vec![],
         }
     }
 

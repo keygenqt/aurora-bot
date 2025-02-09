@@ -20,7 +20,16 @@ impl DeviceConfig {
                     })
                     .collect(),
             ),
-            Err(_) => Config::Emulators(vec![]),
+            Err(_) => Config::Devices(vec![]),
+        }
+    }
+
+    pub async fn search_force() -> Vec<DeviceModel> {
+        let config = Self::search().await;
+        config.clone().save();
+        match config {
+            Config::Devices(models) => models.iter().map(|e| e.to_model()).collect(),
+            _ => vec![],
         }
     }
 

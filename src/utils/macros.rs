@@ -29,3 +29,11 @@ macro_rules! print_success {
     };
 }
 pub(crate) use print_success;
+
+/// Pretty print state
+macro_rules! print_state {
+    ($arg:tt) => {
+        println!("{}", format!("\x1b[1m\x1b[36mstate\x1b[0m: {}", $arg))
+    };
+}
+pub(crate) use print_state;

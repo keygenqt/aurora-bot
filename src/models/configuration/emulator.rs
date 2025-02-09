@@ -29,6 +29,15 @@ impl EmulatorConfig {
         }
     }
 
+    pub async fn search_force() -> Vec<EmulatorModel> {
+        let config = Self::search().await;
+        config.clone().save();
+        match config {
+            Config::Emulators(models) => models.iter().map(|e| e.to_model()).collect(),
+            _ => vec![],
+        }
+    }
+
     pub fn to_model(&self) -> EmulatorModel {
         fn _is_running(uuid: &String) -> Result<bool, Box<dyn Error>> {
             let program = programs::get_vboxmanage()?;

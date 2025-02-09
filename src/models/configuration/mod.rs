@@ -4,7 +4,6 @@ use crate::models::configuration::flutter::FlutterConfig;
 use crate::models::configuration::psdk::PsdkConfig;
 use crate::models::configuration::sdk::SdkConfig;
 use crate::utils::constants::CONFIGURATION_FILE;
-use crate::utils::macros::{print_error, print_info, print_success};
 use crate::utils::methods::get_file_save;
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -59,21 +58,19 @@ impl Config {
     }
 
     // Save configuration to file
-    pub fn save(self) {
+    pub fn save(self) -> bool {
         STATE.lock().unwrap().change = false;
         // Get updated config
         let data = match self {
-            Config::Devices(list) => (Self::update_devices(list), "устройств"),
-            Config::Emulators(list) => (Self::update_emulators(list), "эмуляторов"),
-            Config::Flutters(list) => (Self::update_flutters(list), "Flutter"),
-            Config::Psdks(list) => (Self::update_psdks(list), "Platform SDK"),
-            Config::Sdks(list) => (Self::update_sdks(list), "SDK"),
+            Config::Devices(list) => Self::update_devices(list),
+            Config::Emulators(list) => Self::update_emulators(list),
+            Config::Flutters(list) => Self::update_flutters(list),
+            Config::Psdks(list) => Self::update_psdks(list),
+            Config::Sdks(list) => Self::update_sdks(list),
         };
         // Check is not update
         if !STATE.lock().unwrap().change {
-            let message = format!("конфигурация {} актуальна", data.1);
-            print_info!(message);
-            return;
+            return false;
         }
         // Save
         fn _exec(config: Vec<Config>) -> Result<(), Box<dyn std::error::Error>> {
@@ -85,19 +82,22 @@ impl Config {
             fs::write(path, value_for_save).expect("не удалось записать файл");
             Ok(())
         }
-        match _exec(data.0) {
-            Ok(_) => {
-                let message = format!("конфигурация {} обновлена", data.1);
-                print_success!(message)
-            }
-            Err(error) => print_error!(error),
+        match _exec(data) {
+            Ok(_) => true,
+            Err(_) => false,
         }
     }
 
     pub fn load_devices() -> Option<Vec<DeviceConfig>> {
         for item in Self::load() {
             match item {
-                Config::Devices(list) => return Some(list),
+                Config::Devices(list) => {
+                    if list.is_empty() {
+                        return None;
+                    } else {
+                        return Some(list);
+                    }
+                }
                 _ => {}
             }
         }
@@ -134,7 +134,13 @@ impl Config {
     pub fn load_emulators() -> Option<Vec<EmulatorConfig>> {
         for item in Self::load() {
             match item {
-                Config::Emulators(list) => return Some(list),
+                Config::Emulators(list) => {
+                    if list.is_empty() {
+                        return None;
+                    } else {
+                        return Some(list);
+                    }
+                }
                 _ => {}
             }
         }
@@ -171,7 +177,13 @@ impl Config {
     pub fn load_flutters() -> Option<Vec<FlutterConfig>> {
         for item in Self::load() {
             match item {
-                Config::Flutters(list) => return Some(list),
+                Config::Flutters(list) => {
+                    if list.is_empty() {
+                        return None;
+                    } else {
+                        return Some(list);
+                    }
+                }
                 _ => {}
             }
         }
@@ -208,7 +220,13 @@ impl Config {
     pub fn load_psdks() -> Option<Vec<PsdkConfig>> {
         for item in Self::load() {
             match item {
-                Config::Psdks(list) => return Some(list),
+                Config::Psdks(list) => {
+                    if list.is_empty() {
+                        return None;
+                    } else {
+                        return Some(list);
+                    }
+                }
                 _ => {}
             }
         }
@@ -245,7 +263,13 @@ impl Config {
     pub fn load_sdks() -> Option<Vec<SdkConfig>> {
         for item in Self::load() {
             match item {
-                Config::Sdks(list) => return Some(list),
+                Config::Sdks(list) => {
+                    if list.is_empty() {
+                        return None;
+                    } else {
+                        return Some(list);
+                    }
+                }
                 _ => {}
             }
         }

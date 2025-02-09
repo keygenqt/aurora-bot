@@ -1,7 +1,10 @@
-use std::fs;
-use crate::models::configuration::Config;
-use serde::{Deserialize, Serialize};
+use colored::Colorize;
+
+use crate::models::configuration::{sdk::SdkConfig, Config};
+use crate::utils::macros::print_info;
 use crate::utils::methods;
+use serde::{Deserialize, Serialize};
+use std::fs;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct SdkModel {
@@ -11,10 +14,9 @@ pub struct SdkModel {
 }
 
 impl SdkModel {
-    #[allow(dead_code)]
     pub async fn search() -> Result<Vec<SdkModel>, Box<dyn std::error::Error>> {
         match Config::load_sdks() {
-            None => Self::search_full().await,
+            None => Ok(SdkConfig::search_force().await),
             Some(config) => Ok(config.iter().map(|e| e.to_model()).collect()),
         }
     }
@@ -26,7 +28,10 @@ impl SdkModel {
             let sdk_dir = tools.replace("/SDKMaintenanceTool", "");
             let sdk_release = sdk_dir.clone() + "/sdk-release";
             let data = match fs::read_to_string(sdk_release) {
-                Ok(value) => value.split("\n").map(|e| e.to_string()).collect::<Vec<String>>(),
+                Ok(value) => value
+                    .split("\n")
+                    .map(|e| e.to_string())
+                    .collect::<Vec<String>>(),
                 Err(_) => continue,
             };
             let version = match methods::config_get_string(&data, "SDK_RELEASE", "=") {
@@ -40,5 +45,26 @@ impl SdkModel {
             });
         }
         Ok(models)
+    }
+
+    pub fn print_list(models: Vec<SdkModel>) {
+        if models.is_empty() {
+            print_info!("Аврора SDK не найдены")
+        }
+        for (index, e) in models.iter().enumerate() {
+            if index != 0 {
+                println!()
+            }
+            e.print()
+        }
+    }
+
+    pub fn print(&self) {
+        let message = format!(
+            "Аврора SDK: {}\nДиректория: {}",
+            self.version.bold().white(),
+            self.dir.to_string().bold().white()
+        );
+        print_info!(message);
     }
 }

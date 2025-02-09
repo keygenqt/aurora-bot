@@ -38,7 +38,10 @@ impl EmulatorSession {
         .await?;
         let output = session.call("cat /etc/os-release").await?;
         let lines = match output.first() {
-            Some(s) => s.split("\n").map(|e| e.to_string()).collect::<Vec<String>>(),
+            Some(s) => s
+                .split("\n")
+                .map(|e| e.to_string())
+                .collect::<Vec<String>>(),
             None => Err("ошибка при получении данных")?,
         };
         let os_name = match methods::config_get_string(&lines, "PRETTY_NAME", "=") {

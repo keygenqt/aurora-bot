@@ -22,7 +22,16 @@ impl SdkConfig {
                     })
                     .collect(),
             ),
-            Err(_) => Config::Emulators(vec![]),
+            Err(_) => Config::Sdks(vec![]),
+        }
+    }
+
+    pub async fn search_force() -> Vec<SdkModel> {
+        let config = Self::search().await;
+        config.clone().save();
+        match config {
+            Config::Sdks(models) => models.iter().map(|e| e.to_model()).collect(),
+            _ => vec![],
         }
     }
 

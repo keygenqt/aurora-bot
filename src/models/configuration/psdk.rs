@@ -14,7 +14,7 @@ pub struct PsdkConfig {
 impl PsdkConfig {
     pub async fn search() -> Config {
         match PsdkModel::search_full().await {
-            Ok(models) => Config::Psdks(
+            Ok(models) => Config::Psdk(
                 models
                     .iter()
                     .map(|e| PsdkConfig {
@@ -26,7 +26,7 @@ impl PsdkConfig {
                     })
                     .collect(),
             ),
-            Err(_) => Config::Psdks(vec![]),
+            Err(_) => Config::Psdk(vec![]),
         }
     }
 
@@ -34,7 +34,7 @@ impl PsdkConfig {
         let config = Self::search().await;
         config.clone().save();
         match config {
-            Config::Psdks(models) => models.iter().map(|e| e.to_model()).collect(),
+            Config::Psdk(models) => models.iter().map(|e| e.to_model()).collect(),
             _ => vec![],
         }
     }

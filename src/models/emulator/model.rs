@@ -11,14 +11,8 @@ use crate::{
     utils::{methods, programs},
 };
 
-#[derive(Deserialize, Serialize, Clone, PartialEq)]
-pub enum EmulatorType {
-    VirtualBox,
-}
-
 #[derive(Serialize, Deserialize, Clone)]
 pub struct EmulatorModel {
-    pub emulator_type: EmulatorType,
     pub dir: String,
     pub uuid: String,
     pub is_running: bool,
@@ -26,12 +20,9 @@ pub struct EmulatorModel {
 
 impl TraitModel for EmulatorModel {
     fn print(&self) {
-        let type_name: &str = match self.emulator_type {
-            EmulatorType::VirtualBox => "VirtualBox",
-        };
         let message = format!(
             "Эмулятор: {}\nСтатус: {}\nUUID: {}\nДиректория: {}",
-            type_name.bold().white(),
+            "VirtualBox".bold().white(),
             (if self.is_running {
                 "активен"
             } else {
@@ -112,7 +103,6 @@ impl EmulatorModel {
                 Err(_) => continue,
             };
             emulators.push(EmulatorModel {
-                emulator_type: EmulatorType::VirtualBox,
                 dir,
                 uuid: uuid.clone(),
                 is_running,

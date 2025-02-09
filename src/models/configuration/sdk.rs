@@ -12,7 +12,7 @@ pub struct SdkConfig {
 impl SdkConfig {
     pub async fn search() -> Config {
         match SdkModel::search_full().await {
-            Ok(models) => Config::Sdks(
+            Ok(models) => Config::Sdk(
                 models
                     .iter()
                     .map(|e| SdkConfig {
@@ -22,7 +22,7 @@ impl SdkConfig {
                     })
                     .collect(),
             ),
-            Err(_) => Config::Sdks(vec![]),
+            Err(_) => Config::Sdk(vec![]),
         }
     }
 
@@ -30,7 +30,7 @@ impl SdkConfig {
         let config = Self::search().await;
         config.clone().save();
         match config {
-            Config::Sdks(models) => models.iter().map(|e| e.to_model()).collect(),
+            Config::Sdk(models) => models.iter().map(|e| e.to_model()).collect(),
             _ => vec![],
         }
     }

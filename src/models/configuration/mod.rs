@@ -26,21 +26,21 @@ static STATE: Mutex<ConfigState> = Mutex::new(ConfigState { change: false });
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub enum Config {
-    Devices(Vec<DeviceConfig>),
-    Emulators(Vec<EmulatorConfig>),
-    Flutters(Vec<FlutterConfig>),
-    Psdks(Vec<PsdkConfig>),
-    Sdks(Vec<SdkConfig>),
+    Device(Vec<DeviceConfig>),
+    Emulator(Vec<EmulatorConfig>),
+    Flutter(Vec<FlutterConfig>),
+    Psdk(Vec<PsdkConfig>),
+    Sdk(Vec<SdkConfig>),
 }
 
 impl Config {
     pub fn new() -> Vec<Config> {
         vec![
-            Self::Devices(vec![]),
-            Self::Emulators(vec![]),
-            Self::Flutters(vec![]),
-            Self::Psdks(vec![]),
-            Self::Sdks(vec![]),
+            Self::Device(vec![]),
+            Self::Emulator(vec![]),
+            Self::Flutter(vec![]),
+            Self::Psdk(vec![]),
+            Self::Sdk(vec![]),
         ]
     }
 
@@ -106,13 +106,13 @@ impl Config {
         let mut update: Vec<Config> = vec![];
         for item in config {
             match &item {
-                Config::Devices(config_list) => {
+                Config::Device(config_list) => {
                     match &data {
-                        Config::Devices(update_list) => {
+                        Config::Device(update_list) => {
                             empty = false;
                             if config_list != update_list {
                                 STATE.lock().unwrap().change = true;
-                                update.push(Config::Devices(update_list.clone()))
+                                update.push(Config::Device(update_list.clone()))
                             } else {
                                 update.push(item.clone())
                             }
@@ -120,13 +120,13 @@ impl Config {
                         _ => update.push(item.clone())
                     }
                 },
-                Config::Emulators(config_list) => {
+                Config::Emulator(config_list) => {
                     match &data {
-                        Config::Emulators(update_list) => {
+                        Config::Emulator(update_list) => {
                             empty = false;
                             if config_list != update_list {
                                 STATE.lock().unwrap().change = true;
-                                update.push(Config::Emulators(update_list.clone()))
+                                update.push(Config::Emulator(update_list.clone()))
                             } else {
                                 update.push(item.clone())
                             }
@@ -134,13 +134,13 @@ impl Config {
                         _ => update.push(item.clone())
                     }
                 },
-                Config::Flutters(config_list) => {
+                Config::Flutter(config_list) => {
                     match &data {
-                        Config::Flutters(update_list) => {
+                        Config::Flutter(update_list) => {
                             empty = false;
                             if config_list != update_list {
                                 STATE.lock().unwrap().change = true;
-                                update.push(Config::Flutters(update_list.clone()))
+                                update.push(Config::Flutter(update_list.clone()))
                             } else {
                                 update.push(item.clone())
                             }
@@ -148,13 +148,13 @@ impl Config {
                         _ => update.push(item.clone())
                     }
                 },
-                Config::Psdks(config_list) => {
+                Config::Psdk(config_list) => {
                     match &data {
-                        Config::Psdks(update_list) => {
+                        Config::Psdk(update_list) => {
                             empty = false;
                             if config_list != update_list {
                                 STATE.lock().unwrap().change = true;
-                                update.push(Config::Psdks(update_list.clone()))
+                                update.push(Config::Psdk(update_list.clone()))
                             } else {
                                 update.push(item.clone())
                             }
@@ -162,13 +162,13 @@ impl Config {
                         _ => update.push(item.clone())
                     }
                 },
-                Config::Sdks(config_list) => {
+                Config::Sdk(config_list) => {
                     match &data {
-                        Config::Sdks(update_list) => {
+                        Config::Sdk(update_list) => {
                             empty = false;
                             if config_list != update_list {
                                 STATE.lock().unwrap().change = true;
-                                update.push(Config::Sdks(update_list.clone()))
+                                update.push(Config::Sdk(update_list.clone()))
                             } else {
                                 update.push(item.clone())
                             }
@@ -188,7 +188,7 @@ impl Config {
     pub fn load_devices() -> Option<Vec<DeviceConfig>> {
         for item in Self::load() {
             match item {
-                Config::Devices(list) => {
+                Config::Device(list) => {
                     if list.is_empty() {
                         return None;
                     } else {
@@ -204,7 +204,7 @@ impl Config {
     pub fn load_emulators() -> Option<Vec<EmulatorConfig>> {
         for item in Self::load() {
             match item {
-                Config::Emulators(list) => {
+                Config::Emulator(list) => {
                     if list.is_empty() {
                         return None;
                     } else {
@@ -220,7 +220,7 @@ impl Config {
     pub fn load_flutters() -> Option<Vec<FlutterConfig>> {
         for item in Self::load() {
             match item {
-                Config::Flutters(list) => {
+                Config::Flutter(list) => {
                     if list.is_empty() {
                         return None;
                     } else {
@@ -236,7 +236,7 @@ impl Config {
     pub fn load_psdks() -> Option<Vec<PsdkConfig>> {
         for item in Self::load() {
             match item {
-                Config::Psdks(list) => {
+                Config::Psdk(list) => {
                     if list.is_empty() {
                         return None;
                     } else {
@@ -252,7 +252,7 @@ impl Config {
     pub fn load_sdks() -> Option<Vec<SdkConfig>> {
         for item in Self::load() {
             match item {
-                Config::Sdks(list) => {
+                Config::Sdk(list) => {
                     if list.is_empty() {
                         return None;
                     } else {

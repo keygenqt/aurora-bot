@@ -15,7 +15,7 @@ pub struct FlutterConfig {
 impl FlutterConfig {
     pub async fn search() -> Config {
         match FlutterModel::search_full().await {
-            Ok(models) => Config::Flutters(
+            Ok(models) => Config::Flutter(
                 models
                     .iter()
                     .map(|e| FlutterConfig {
@@ -28,7 +28,7 @@ impl FlutterConfig {
                     })
                     .collect(),
             ),
-            Err(_) => Config::Flutters(vec![]),
+            Err(_) => Config::Flutter(vec![]),
         }
     }
 
@@ -36,7 +36,7 @@ impl FlutterConfig {
         let config = Self::search().await;
         config.clone().save();
         match config {
-            Config::Flutters(models) => models.iter().map(|e| e.to_model()).collect(),
+            Config::Flutter(models) => models.iter().map(|e| e.to_model()).collect(),
             _ => vec![],
         }
     }

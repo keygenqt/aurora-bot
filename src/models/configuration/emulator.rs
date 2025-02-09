@@ -1,5 +1,5 @@
 use crate::models::configuration::Config;
-use crate::models::emulator::model::{EmulatorModel, EmulatorType};
+use crate::models::emulator::model::EmulatorModel;
 use crate::service::command::exec;
 use crate::utils::programs;
 use serde::{Deserialize, Serialize};
@@ -7,7 +7,6 @@ use std::error::Error;
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct EmulatorConfig {
-    pub emulator_type: EmulatorType,
     pub dir: String,
     pub uuid: String,
 }
@@ -15,17 +14,16 @@ pub struct EmulatorConfig {
 impl EmulatorConfig {
     pub async fn search() -> Config {
         match EmulatorModel::search_full().await {
-            Ok(models) => Config::Emulators(
+            Ok(models) => Config::Emulator(
                 models
                     .iter()
                     .map(|e| EmulatorConfig {
-                        emulator_type: e.emulator_type.clone(),
                         dir: e.dir.clone(),
                         uuid: e.uuid.clone(),
                     })
                     .collect(),
             ),
-            Err(_) => Config::Emulators(vec![]),
+            Err(_) => Config::Emulator(vec![]),
         }
     }
 
@@ -33,7 +31,7 @@ impl EmulatorConfig {
         let config = Self::search().await;
         config.clone().save();
         match config {
-            Config::Emulators(models) => models.iter().map(|e| e.to_model()).collect(),
+            Config::Emulator(models) => models.iter().map(|e| e.to_model()).collect(),
             _ => vec![],
         }
     }
@@ -46,7 +44,6 @@ impl EmulatorConfig {
             Ok(uuids.contains(uuid))
         }
         EmulatorModel {
-            emulator_type: self.emulator_type.clone(),
             dir: self.dir.clone(),
             uuid: self.uuid.clone(),
             is_running: _is_running(&self.uuid).unwrap_or_else(|_| false),

@@ -11,7 +11,7 @@ pub struct DeviceConfig {
 impl DeviceConfig {
     pub async fn search() -> Config {
         match DeviceModel::search_full().await {
-            Ok(models) => Config::Devices(
+            Ok(models) => Config::Device(
                 models
                     .iter()
                     .map(|e| DeviceConfig {
@@ -20,7 +20,7 @@ impl DeviceConfig {
                     })
                     .collect(),
             ),
-            Err(_) => Config::Devices(vec![]),
+            Err(_) => Config::Device(vec![]),
         }
     }
 
@@ -28,7 +28,7 @@ impl DeviceConfig {
         let config = Self::search().await;
         config.clone().save();
         match config {
-            Config::Devices(models) => models.iter().map(|e| e.to_model()).collect(),
+            Config::Device(models) => models.iter().map(|e| e.to_model()).collect(),
             _ => vec![],
         }
     }

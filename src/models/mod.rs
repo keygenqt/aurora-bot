@@ -29,7 +29,7 @@ pub trait TraitModel {
 impl dyn TraitModel {
     pub fn print_list<T: TraitModel>(models: Vec<T>) {
         if models.is_empty() {
-            print_info!("эмуляторы не найдены")
+            print_info!("данные не найдены")
         }
         for (index, e) in models.iter().enumerate() {
             if index != 0 {

@@ -60,7 +60,7 @@ pub struct SyncArgs {
     #[arg(short, long, default_value_t = false)]
     flutter: bool,
 
-    /// Поиск и синхронизация Аврора Platform SDK
+    /// Поиск и синхронизация Platform SDK
     #[arg(short, long, default_value_t = false)]
     psdk: bool,
 

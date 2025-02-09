@@ -61,7 +61,7 @@ impl PsdkModel {
 
     pub fn print_list(models: Vec<PsdkModel>) {
         if models.is_empty() {
-            print_info!("Аврора Platform SDK не найдены")
+            print_info!("Platform SDK не найдены")
         }
         for (index, e) in models.iter().enumerate() {
             if index != 0 {
@@ -73,7 +73,7 @@ impl PsdkModel {
 
     pub fn print(&self) {
         let message = format!(
-            "Аврора Platform SDK: {}\nДиректория: {}",
+            "Platform SDK: {}\nДиректория: {}",
             self.version_id.bold().white(),
             self.dir.to_string().bold().white(),
         );

@@ -28,7 +28,7 @@ pub enum CliCommands {
     Emulator(EmulatorArgs),
     /// Работа с Flutter SDK
     Flutter(FlutterArgs),
-    /// Работа с Аврора Platform SDK
+    /// Работа с Platform SDK
     Psdk(PsdkArgs),
     /// Работа с Аврора SDK
     Sdk(SdkArgs),
@@ -73,7 +73,7 @@ pub struct FlutterArgs {
 #[command(arg_required_else_help = true)]
 #[group(multiple = false)]
 pub struct PsdkArgs {
-    /// Информация по доступным Аврора Platform SDK
+    /// Информация по доступным Platform SDK
     #[arg(short, long, default_value_t = false)]
     info: bool,
 }

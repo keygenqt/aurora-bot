@@ -3,7 +3,7 @@ use crate::models::configuration::emulator::EmulatorConfig;
 use crate::models::configuration::flutter::FlutterConfig;
 use crate::models::configuration::psdk::PsdkConfig;
 use crate::models::configuration::sdk::SdkConfig;
-use crate::utils::constants::CONFIGURATION_FILE;
+use crate::utils::constants::{CONFIGURATION_FILE, CONFIGURATION_VERSION};
 use crate::utils::methods::get_file_save;
 use serde::{Deserialize, Serialize};
 use serde_variant::to_variant_name;
@@ -26,6 +26,7 @@ static STATE: Mutex<ConfigState> = Mutex::new(ConfigState { change: false });
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub enum Config {
+    Version(String),
     Device(Vec<DeviceConfig>),
     Emulator(Vec<EmulatorConfig>),
     Flutter(Vec<FlutterConfig>),
@@ -36,6 +37,7 @@ pub enum Config {
 impl Config {
     pub fn new() -> Vec<Config> {
         vec![
+            Self::Version(CONFIGURATION_VERSION.to_string()),
             Self::Device(vec![]),
             Self::Emulator(vec![]),
             Self::Flutter(vec![]),
@@ -104,80 +106,82 @@ impl Config {
         let config = Config::load();
         let mut empty = true;
         let mut update: Vec<Config> = vec![];
+        let mut config_version = "".to_string();
         for item in config {
             match &item {
-                Config::Device(config_list) => {
-                    match &data {
-                        Config::Device(update_list) => {
-                            empty = false;
-                            if config_list != update_list {
-                                STATE.lock().unwrap().change = true;
-                                update.push(Config::Device(update_list.clone()))
-                            } else {
-                                update.push(item.clone())
-                            }
-                        }
-                        _ => update.push(item.clone())
-                    }
+                Config::Version(version) => {
+                    config_version = version.clone();
+                    update.push(Config::Version(CONFIGURATION_VERSION.to_string()))
                 },
-                Config::Emulator(config_list) => {
-                    match &data {
-                        Config::Emulator(update_list) => {
-                            empty = false;
-                            if config_list != update_list {
-                                STATE.lock().unwrap().change = true;
-                                update.push(Config::Emulator(update_list.clone()))
-                            } else {
-                                update.push(item.clone())
-                            }
+                Config::Device(config_list) => match &data {
+                    Config::Device(update_list) => {
+                        empty = false;
+                        if config_list != update_list {
+                            STATE.lock().unwrap().change = true;
+                            update.push(Config::Device(update_list.clone()))
+                        } else {
+                            update.push(item.clone())
                         }
-                        _ => update.push(item.clone())
                     }
+                    _ => update.push(item.clone()),
                 },
-                Config::Flutter(config_list) => {
-                    match &data {
-                        Config::Flutter(update_list) => {
-                            empty = false;
-                            if config_list != update_list {
-                                STATE.lock().unwrap().change = true;
-                                update.push(Config::Flutter(update_list.clone()))
-                            } else {
-                                update.push(item.clone())
-                            }
+                Config::Emulator(config_list) => match &data {
+                    Config::Emulator(update_list) => {
+                        empty = false;
+                        if config_list != update_list {
+                            STATE.lock().unwrap().change = true;
+                            update.push(Config::Emulator(update_list.clone()))
+                        } else {
+                            update.push(item.clone())
                         }
-                        _ => update.push(item.clone())
                     }
+                    _ => update.push(item.clone()),
                 },
-                Config::Psdk(config_list) => {
-                    match &data {
-                        Config::Psdk(update_list) => {
-                            empty = false;
-                            if config_list != update_list {
-                                STATE.lock().unwrap().change = true;
-                                update.push(Config::Psdk(update_list.clone()))
-                            } else {
-                                update.push(item.clone())
-                            }
+                Config::Flutter(config_list) => match &data {
+                    Config::Flutter(update_list) => {
+                        empty = false;
+                        if config_list != update_list {
+                            STATE.lock().unwrap().change = true;
+                            update.push(Config::Flutter(update_list.clone()))
+                        } else {
+                            update.push(item.clone())
                         }
-                        _ => update.push(item.clone())
                     }
+                    _ => update.push(item.clone()),
                 },
-                Config::Sdk(config_list) => {
-                    match &data {
-                        Config::Sdk(update_list) => {
-                            empty = false;
-                            if config_list != update_list {
-                                STATE.lock().unwrap().change = true;
-                                update.push(Config::Sdk(update_list.clone()))
-                            } else {
-                                update.push(item.clone())
-                            }
+                Config::Psdk(config_list) => match &data {
+                    Config::Psdk(update_list) => {
+                        empty = false;
+                        if config_list != update_list {
+                            STATE.lock().unwrap().change = true;
+                            update.push(Config::Psdk(update_list.clone()))
+                        } else {
+                            update.push(item.clone())
                         }
-                        _ => update.push(item.clone())
                     }
+                    _ => update.push(item.clone()),
+                },
+                Config::Sdk(config_list) => match &data {
+                    Config::Sdk(update_list) => {
+                        empty = false;
+                        if config_list != update_list {
+                            STATE.lock().unwrap().change = true;
+                            update.push(Config::Sdk(update_list.clone()))
+                        } else {
+                            update.push(item.clone())
+                        }
+                    }
+                    _ => update.push(item.clone()),
                 },
             }
         }
+        // check version config
+        if config_version.is_empty() || config_version != CONFIGURATION_VERSION.to_string() {
+            empty = true;
+            let key = to_variant_name(&data).unwrap();
+            update = Config::new().into_iter().filter(|e| to_variant_name(e).unwrap() != key).collect();
+        }
+        // set update if data config empty
         if empty {
             STATE.lock().unwrap().change = true;
             update.push(data)

@@ -1,7 +1,10 @@
 use colored::Colorize;
 
 use crate::{
-    models::{configuration::{device::DeviceConfig, Config}, TraitModel},
+    models::{
+        configuration::{device::DeviceConfig, Config},
+        TraitModel,
+    },
     utils::macros::print_info,
 };
 use serde::{Deserialize, Serialize};

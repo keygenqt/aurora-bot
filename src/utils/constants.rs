@@ -20,6 +20,9 @@ pub const SESSION_FILE: &str = ".aurora-bot.session";
 /// File name for save configuration
 pub const CONFIGURATION_FILE: &str = ".aurora-bot.configuration";
 
+/// Version configuration
+pub const CONFIGURATION_VERSION: &str = "1";
+
 /// See also `clap_cargo::style::CLAP_STYLING`
 pub const CLAP_STYLING: clap::builder::styling::Styles = clap::builder::styling::Styles::styled()
     .header(clap_cargo::style::HEADER)

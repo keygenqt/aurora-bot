@@ -1,7 +1,7 @@
 use colored::Colorize;
 
 use crate::{
-    models::configuration::{device::DeviceConfig, Config},
+    models::{configuration::{device::DeviceConfig, Config}, TraitModel},
     utils::macros::print_info,
 };
 use serde::{Deserialize, Serialize};
@@ -10,6 +10,17 @@ use serde::{Deserialize, Serialize};
 pub struct DeviceModel {
     pub ip: String,
     pub port: u8,
+}
+
+impl TraitModel for DeviceModel {
+    fn print(&self) {
+        let message = format!(
+            "Устройство: {}:{}",
+            self.ip.bold().white(),
+            self.port.to_string()
+        );
+        print_info!(message);
+    }
 }
 
 impl DeviceModel {
@@ -23,26 +34,5 @@ impl DeviceModel {
     pub async fn search_full() -> Result<Vec<DeviceModel>, Box<dyn std::error::Error>> {
         // @todo search devices by localhost
         Ok(vec![])
-    }
-
-    pub fn print_list(models: Vec<DeviceModel>) {
-        if models.is_empty() {
-            print_info!("устройства не найдены")
-        }
-        for (index, e) in models.iter().enumerate() {
-            if index != 0 {
-                println!()
-            }
-            e.print()
-        }
-    }
-
-    pub fn print(&self) {
-        let message = format!(
-            "Устройство: {}:{}",
-            self.ip.bold().white(),
-            self.port.to_string()
-        );
-        print_info!(message);
     }
 }

@@ -1,6 +1,7 @@
 use colored::Colorize;
 
 use crate::models::configuration::{sdk::SdkConfig, Config};
+use crate::models::TraitModel;
 use crate::utils::macros::print_info;
 use crate::utils::methods;
 use serde::{Deserialize, Serialize};
@@ -11,6 +12,17 @@ pub struct SdkModel {
     pub dir: String,
     pub tools: String,
     pub version: String,
+}
+
+impl TraitModel for SdkModel {
+    fn print(&self) {
+        let message = format!(
+            "Аврора SDK: {}\nДиректория: {}",
+            self.version.bold().white(),
+            self.dir.to_string().bold().white()
+        );
+        print_info!(message);
+    }
 }
 
 impl SdkModel {
@@ -45,26 +57,5 @@ impl SdkModel {
             });
         }
         Ok(models)
-    }
-
-    pub fn print_list(models: Vec<SdkModel>) {
-        if models.is_empty() {
-            print_info!("Аврора SDK не найдены")
-        }
-        for (index, e) in models.iter().enumerate() {
-            if index != 0 {
-                println!()
-            }
-            e.print()
-        }
-    }
-
-    pub fn print(&self) {
-        let message = format!(
-            "Аврора SDK: {}\nДиректория: {}",
-            self.version.bold().white(),
-            self.dir.to_string().bold().white()
-        );
-        print_info!(message);
     }
 }

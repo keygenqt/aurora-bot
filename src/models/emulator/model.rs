@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use super::session::{EmulatorSession, EmulatorSessionType};
 use crate::models::configuration::emulator::EmulatorConfig;
 use crate::models::configuration::Config;
+use crate::models::TraitModel;
 use crate::utils::macros::print_info;
 use crate::{
     service::command::exec,
@@ -21,6 +22,28 @@ pub struct EmulatorModel {
     pub dir: String,
     pub uuid: String,
     pub is_running: bool,
+}
+
+impl TraitModel for EmulatorModel {
+    fn print(&self) {
+        let type_name: &str = match self.emulator_type {
+            EmulatorType::VirtualBox => "VirtualBox",
+        };
+        let message = format!(
+            "Эмулятор: {}\nСтатус: {}\nUUID: {}\nДиректория: {}",
+            type_name.bold().white(),
+            (if self.is_running {
+                "активен"
+            } else {
+                "не активен"
+            })
+            .bold()
+            .white(),
+            self.uuid.bold().white(),
+            self.dir.to_string().bold().white()
+        );
+        print_info!(message);
+    }
 }
 
 impl EmulatorModel {
@@ -97,37 +120,5 @@ impl EmulatorModel {
         }
         // Result
         Ok(emulators)
-    }
-
-    pub fn print_list(models: Vec<EmulatorModel>) {
-        if models.is_empty() {
-            print_info!("эмуляторы не найдены")
-        }
-        for (index, e) in models.iter().enumerate() {
-            if index != 0 {
-                println!()
-            }
-            e.print()
-        }
-    }
-
-    pub fn print(&self) {
-        let type_name: &str = match self.emulator_type {
-            EmulatorType::VirtualBox => "VirtualBox",
-        };
-        let message = format!(
-            "Эмулятор: {}\nСтатус: {}\nUUID: {}\nДиректория: {}",
-            type_name.bold().white(),
-            (if self.is_running {
-                "активен"
-            } else {
-                "не активен"
-            })
-            .bold()
-            .white(),
-            self.uuid.bold().white(),
-            self.dir.to_string().bold().white()
-        );
-        print_info!(message);
     }
 }

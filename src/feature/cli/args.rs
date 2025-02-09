@@ -6,6 +6,7 @@ use crate::models::flutter::model::FlutterModel;
 use crate::models::incoming::emulator_close::EmulatorCloseIncoming;
 use crate::models::psdk::model::PsdkModel;
 use crate::models::sdk::model::SdkModel;
+use crate::models::TraitModel;
 use crate::models::{
     incoming::{emulator_start::EmulatorStartIncoming, Incoming},
     outgoing::OutgoingType,
@@ -93,7 +94,7 @@ pub async fn run(arg: CliArgs) {
         CliCommands::Device(arg) => {
             if arg.info {
                 match DeviceModel::search().await {
-                    Ok(models) => DeviceModel::print_list(models),
+                    Ok(models) => <dyn TraitModel>::print_list(models),
                     Err(_) => print_error!("не удалось получить данные"),
                 };
             }
@@ -101,7 +102,7 @@ pub async fn run(arg: CliArgs) {
         CliCommands::Emulator(arg) => {
             if arg.info {
                 match EmulatorModel::search().await {
-                    Ok(models) => EmulatorModel::print_list(models),
+                    Ok(models) => <dyn TraitModel>::print_list(models),
                     Err(_) => print_error!("не удалось получить данные"),
                 };
             }
@@ -119,7 +120,7 @@ pub async fn run(arg: CliArgs) {
         CliCommands::Flutter(arg) => {
             if arg.info {
                 match FlutterModel::search().await {
-                    Ok(models) => FlutterModel::print_list(models),
+                    Ok(models) => <dyn TraitModel>::print_list(models),
                     Err(_) => print_error!("не удалось получить данные"),
                 };
             }
@@ -127,7 +128,7 @@ pub async fn run(arg: CliArgs) {
         CliCommands::Psdk(arg) => {
             if arg.info {
                 match PsdkModel::search().await {
-                    Ok(models) => PsdkModel::print_list(models),
+                    Ok(models) => <dyn TraitModel>::print_list(models),
                     Err(_) => print_error!("не удалось получить данные"),
                 };
             }
@@ -135,7 +136,7 @@ pub async fn run(arg: CliArgs) {
         CliCommands::Sdk(arg) => {
             if arg.info {
                 match SdkModel::search().await {
-                    Ok(models) => SdkModel::print_list(models),
+                    Ok(models) => <dyn TraitModel>::print_list(models),
                     Err(_) => print_error!("не удалось получить данные"),
                 };
             }

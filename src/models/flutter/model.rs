@@ -1,6 +1,7 @@
 use colored::Colorize;
 
 use crate::models::configuration::{flutter::FlutterConfig, Config};
+use crate::models::TraitModel;
 use crate::service::command::exec;
 use crate::utils::macros::print_info;
 use crate::utils::methods;
@@ -14,6 +15,19 @@ pub struct FlutterModel {
     pub flutter_version: String,
     pub tools_version: String,
     pub dart_version: String,
+}
+
+impl TraitModel for FlutterModel {
+    fn print(&self) {
+        let message = format!(
+            "Flutter SDK: {}\nDart: {}\nDevTools: {}\nДиректория: {}",
+            self.flutter_version.bold().white(),
+            self.dart_version.bold().white(),
+            self.tools_version.bold().white(),
+            self.dir.to_string().white(),
+        );
+        print_info!(message);
+    }
 }
 
 impl FlutterModel {
@@ -83,28 +97,5 @@ impl FlutterModel {
             })
         }
         Ok(models)
-    }
-
-    pub fn print_list(models: Vec<FlutterModel>) {
-        if models.is_empty() {
-            print_info!("Flutter SDK не найдены")
-        }
-        for (index, e) in models.iter().enumerate() {
-            if index != 0 {
-                println!()
-            }
-            e.print()
-        }
-    }
-
-    pub fn print(&self) {
-        let message = format!(
-            "Flutter SDK: {}\nDart: {}\nDevTools: {}\nДиректория: {}",
-            self.flutter_version.bold().white(),
-            self.dart_version.bold().white(),
-            self.tools_version.bold().white(),
-            self.dir.to_string().white(),
-        );
-        print_info!(message);
     }
 }

@@ -1,6 +1,7 @@
 use colored::Colorize;
 
 use crate::models::configuration::{psdk::PsdkConfig, Config};
+use crate::models::TraitModel;
 use crate::utils::macros::print_info;
 use crate::utils::methods;
 use serde::{Deserialize, Serialize};
@@ -13,6 +14,17 @@ pub struct PsdkModel {
     pub version: String,
     pub version_id: String,
     pub build: u8,
+}
+
+impl TraitModel for PsdkModel {
+    fn print(&self) {
+        let message = format!(
+            "Platform SDK: {}\nДиректория: {}",
+            self.version_id.bold().white(),
+            self.dir.to_string().bold().white(),
+        );
+        print_info!(message);
+    }
 }
 
 impl PsdkModel {
@@ -57,26 +69,5 @@ impl PsdkModel {
             });
         }
         Ok(models)
-    }
-
-    pub fn print_list(models: Vec<PsdkModel>) {
-        if models.is_empty() {
-            print_info!("Platform SDK не найдены")
-        }
-        for (index, e) in models.iter().enumerate() {
-            if index != 0 {
-                println!()
-            }
-            e.print()
-        }
-    }
-
-    pub fn print(&self) {
-        let message = format!(
-            "Platform SDK: {}\nДиректория: {}",
-            self.version_id.bold().white(),
-            self.dir.to_string().bold().white(),
-        );
-        print_info!(message);
     }
 }

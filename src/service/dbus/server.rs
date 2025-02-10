@@ -11,14 +11,24 @@ use futures::future;
 
 use crate::models::incoming::app_info::AppInfoIncoming;
 use crate::models::incoming::dbus_info::DbusInfoIncoming;
+use crate::models::incoming::device_info::DeviceInfoIncoming;
 use crate::models::incoming::emulator_close::EmulatorCloseIncoming;
+use crate::models::incoming::emulator_info::EmulatorInfoIncoming;
 use crate::models::incoming::emulator_start::EmulatorStartIncoming;
+use crate::models::incoming::flutter_info::FlutterInfoIncoming;
+use crate::models::incoming::psdk_info::PsdkInfoIncoming;
+use crate::models::incoming::sdk_info::SdkInfoIncoming;
+use crate::models::incoming::sync_device::SyncDeviceIncoming;
+use crate::models::incoming::sync_emulator::SyncEmulatorIncoming;
+use crate::models::incoming::sync_flutter::SyncFlutterIncoming;
+use crate::models::incoming::sync_psdk::SyncPsdkIncoming;
+use crate::models::incoming::sync_sdk::SyncSdkIncoming;
 use crate::models::incoming::Incoming;
 use crate::models::outgoing::{Outgoing, OutgoingType};
 use crate::utils::constants::DBUS_NAME;
 use crate::utils::single::get_dbus;
 
-// gdbus call --session --dest com.keygenqt.aurora_bot --object-path /api --method com.keygenqt.aurora_bot.{KEY}
+// gdbus call --timeout=99999 --session --dest com.keygenqt.aurora_bot --object-path /api --method com.keygenqt.aurora_bot.{KEY}
 // gdbus monitor --session --dest com.keygenqt.aurora_bot --object-path /api com.keygenqt.aurora_bot.listen
 
 struct IfaceData {}
@@ -49,8 +59,18 @@ impl ServerDbus {
             // Incoming: step 7
             ServerDbus::add_method(AppInfoIncoming::new(), builder);
             ServerDbus::add_method(DbusInfoIncoming::new(), builder);
+            ServerDbus::add_method(DeviceInfoIncoming::new(), builder);
             ServerDbus::add_method(EmulatorCloseIncoming::new(), builder);
+            ServerDbus::add_method(EmulatorInfoIncoming::new(), builder);
             ServerDbus::add_method(EmulatorStartIncoming::new(), builder);
+            ServerDbus::add_method(FlutterInfoIncoming::new(), builder);
+            ServerDbus::add_method(PsdkInfoIncoming::new(), builder);
+            ServerDbus::add_method(SdkInfoIncoming::new(), builder);
+            ServerDbus::add_method(SyncDeviceIncoming::new(), builder);
+            ServerDbus::add_method(SyncEmulatorIncoming::new(), builder);
+            ServerDbus::add_method(SyncFlutterIncoming::new(), builder);
+            ServerDbus::add_method(SyncPsdkIncoming::new(), builder);
+            ServerDbus::add_method(SyncSdkIncoming::new(), builder);
         });
 
         // Add api

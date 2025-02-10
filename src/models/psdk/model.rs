@@ -1,6 +1,6 @@
 use colored::Colorize;
 
-use crate::models::configuration::{psdk::PsdkConfig, Config};
+use crate::models::configuration::psdk::PsdkConfig;
 use crate::models::TraitModel;
 use crate::utils::macros::print_info;
 use crate::utils::methods;
@@ -28,11 +28,8 @@ impl TraitModel for PsdkModel {
 }
 
 impl PsdkModel {
-    pub async fn search() -> Result<Vec<PsdkModel>, Box<dyn std::error::Error>> {
-        match Config::load_psdks() {
-            None => Ok(PsdkConfig::search_force().await),
-            Some(config) => Ok(config.iter().map(|e| e.to_model()).collect()),
-        }
+    pub async fn search() -> Vec<PsdkModel> {
+        PsdkConfig::load_models().await
     }
 
     pub async fn search_full() -> Result<Vec<PsdkModel>, Box<dyn std::error::Error>> {

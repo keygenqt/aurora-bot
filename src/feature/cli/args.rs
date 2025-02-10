@@ -1,17 +1,15 @@
 use clap::{Args, Subcommand};
 
-use crate::models::device::model::DeviceModel;
-use crate::models::emulator::model::EmulatorModel;
-use crate::models::flutter::model::FlutterModel;
+use crate::models::incoming::device_info::DeviceInfoIncoming;
 use crate::models::incoming::emulator_close::EmulatorCloseIncoming;
-use crate::models::psdk::model::PsdkModel;
-use crate::models::sdk::model::SdkModel;
-use crate::models::TraitModel;
+use crate::models::incoming::emulator_info::EmulatorInfoIncoming;
+use crate::models::incoming::flutter_info::FlutterInfoIncoming;
+use crate::models::incoming::psdk_info::PsdkInfoIncoming;
+use crate::models::incoming::sdk_info::SdkInfoIncoming;
 use crate::models::{
     incoming::{emulator_start::EmulatorStartIncoming, Incoming},
     outgoing::OutgoingType,
 };
-use crate::utils::macros::print_error;
 
 /// Классическая командная строка
 #[derive(Args)]
@@ -93,18 +91,16 @@ pub async fn run(arg: CliArgs) {
     match arg.command.unwrap() {
         CliCommands::Device(arg) => {
             if arg.info {
-                match DeviceModel::search().await {
-                    Ok(models) => <dyn TraitModel>::print_list(models),
-                    Err(_) => print_error!("не удалось получить данные"),
-                };
+                Incoming::handler(DeviceInfoIncoming::new(), OutgoingType::Cli)
+                    .await
+                    .print()
             }
         }
         CliCommands::Emulator(arg) => {
             if arg.info {
-                match EmulatorModel::search().await {
-                    Ok(models) => <dyn TraitModel>::print_list(models),
-                    Err(_) => print_error!("не удалось получить данные"),
-                };
+                Incoming::handler(EmulatorInfoIncoming::new(), OutgoingType::Cli)
+                    .await
+                    .print()
             }
             if arg.start {
                 Incoming::handler(EmulatorStartIncoming::new(), OutgoingType::Cli)
@@ -119,26 +115,23 @@ pub async fn run(arg: CliArgs) {
         }
         CliCommands::Flutter(arg) => {
             if arg.info {
-                match FlutterModel::search().await {
-                    Ok(models) => <dyn TraitModel>::print_list(models),
-                    Err(_) => print_error!("не удалось получить данные"),
-                };
+                Incoming::handler(FlutterInfoIncoming::new(), OutgoingType::Cli)
+                    .await
+                    .print()
             }
         }
         CliCommands::Psdk(arg) => {
             if arg.info {
-                match PsdkModel::search().await {
-                    Ok(models) => <dyn TraitModel>::print_list(models),
-                    Err(_) => print_error!("не удалось получить данные"),
-                };
+                Incoming::handler(PsdkInfoIncoming::new(), OutgoingType::Cli)
+                    .await
+                    .print()
             }
         }
         CliCommands::Sdk(arg) => {
             if arg.info {
-                match SdkModel::search().await {
-                    Ok(models) => <dyn TraitModel>::print_list(models),
-                    Err(_) => print_error!("не удалось получить данные"),
-                };
+                Incoming::handler(SdkInfoIncoming::new(), OutgoingType::Cli)
+                    .await
+                    .print()
             }
         }
     }

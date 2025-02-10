@@ -1,6 +1,6 @@
 use colored::Colorize;
 
-use crate::models::configuration::{sdk::SdkConfig, Config};
+use crate::models::configuration::sdk::SdkConfig;
 use crate::models::TraitModel;
 use crate::utils::macros::print_info;
 use crate::utils::methods;
@@ -26,11 +26,8 @@ impl TraitModel for SdkModel {
 }
 
 impl SdkModel {
-    pub async fn search() -> Result<Vec<SdkModel>, Box<dyn std::error::Error>> {
-        match Config::load_sdks() {
-            None => Ok(SdkConfig::search_force().await),
-            Some(config) => Ok(config.iter().map(|e| e.to_model()).collect()),
-        }
+    pub async fn search() -> Vec<SdkModel> {
+        SdkConfig::load_models().await
     }
 
     pub async fn search_full() -> Result<Vec<SdkModel>, Box<dyn std::error::Error>> {

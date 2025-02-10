@@ -12,30 +12,30 @@ pub struct PsdkConfig {
 }
 
 impl PsdkConfig {
-    pub async fn search() -> Config {
-        match PsdkModel::search_full().await {
-            Ok(models) => Config::Psdk(
-                models
-                    .iter()
-                    .map(|e| PsdkConfig {
-                        dir: e.dir.clone(),
-                        chroot: e.chroot.clone(),
-                        version: e.version.clone(),
-                        version_id: e.version_id.clone(),
-                        build: e.build,
-                    })
-                    .collect(),
-            ),
-            Err(_) => Config::Psdk(vec![]),
+    pub async fn load_models() -> Vec<PsdkModel> {
+        let psdk = Config::load().psdk;
+        if psdk.is_empty() {
+            let update = Self::search().await;
+            if Config::save_psdk(update.clone()) {
+                return update.iter().map(|e| e.to_model()).collect();
+            }
         }
+        psdk.iter().map(|e| e.to_model()).collect()
     }
 
-    pub async fn search_force() -> Vec<PsdkModel> {
-        let config = Self::search().await;
-        config.clone().save();
-        match config {
-            Config::Psdk(models) => models.iter().map(|e| e.to_model()).collect(),
-            _ => vec![],
+    pub async fn search() -> Vec<PsdkConfig> {
+        match PsdkModel::search_full().await {
+            Ok(models) => models
+                .iter()
+                .map(|e| PsdkConfig {
+                    dir: e.dir.clone(),
+                    chroot: e.chroot.clone(),
+                    version: e.version.clone(),
+                    version_id: e.version_id.clone(),
+                    build: e.build,
+                })
+                .collect(),
+            Err(_) => vec![],
         }
     }
 

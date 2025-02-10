@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 
 use super::session::{EmulatorSession, EmulatorSessionType};
 use crate::models::configuration::emulator::EmulatorConfig;
-use crate::models::configuration::Config;
 use crate::models::TraitModel;
 use crate::utils::macros::print_info;
 use crate::{
@@ -67,11 +66,8 @@ impl EmulatorModel {
         }
     }
 
-    pub async fn search() -> Result<Vec<EmulatorModel>, Box<dyn std::error::Error>> {
-        match Config::load_emulators() {
-            None => Ok(EmulatorConfig::search_force().await),
-            Some(config) => Ok(config.iter().map(|e| e.to_model()).collect()),
-        }
+    pub async fn search() -> Vec<EmulatorModel> {
+        EmulatorConfig::load_models().await
     }
 
     pub async fn search_full() -> Result<Vec<EmulatorModel>, Box<dyn std::error::Error>> {

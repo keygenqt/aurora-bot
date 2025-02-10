@@ -9,27 +9,27 @@ pub struct DeviceConfig {
 }
 
 impl DeviceConfig {
-    pub async fn search() -> Config {
-        match DeviceModel::search_full().await {
-            Ok(models) => Config::Device(
-                models
-                    .iter()
-                    .map(|e| DeviceConfig {
-                        ip: e.ip.clone(),
-                        port: e.port,
-                    })
-                    .collect(),
-            ),
-            Err(_) => Config::Device(vec![]),
+    pub async fn load_models() -> Vec<DeviceModel> {
+        let device = Config::load().device;
+        if device.is_empty() {
+            let update = Self::search().await;
+            if Config::save_device(update.clone()) {
+                return update.iter().map(|e| e.to_model()).collect();
+            }
         }
+        device.iter().map(|e| e.to_model()).collect()
     }
 
-    pub async fn search_force() -> Vec<DeviceModel> {
-        let config = Self::search().await;
-        config.clone().save();
-        match config {
-            Config::Device(models) => models.iter().map(|e| e.to_model()).collect(),
-            _ => vec![],
+    pub async fn search() -> Vec<DeviceConfig> {
+        match DeviceModel::search_full().await {
+            Ok(models) => models
+                .iter()
+                .map(|e| DeviceConfig {
+                    ip: e.ip.clone(),
+                    port: e.port,
+                })
+                .collect(),
+            Err(_) => vec![],
         }
     }
 

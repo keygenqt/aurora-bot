@@ -1,10 +1,11 @@
-use crate::models::configuration::device::DeviceConfig;
-use crate::models::configuration::emulator::EmulatorConfig;
-use crate::models::configuration::flutter::FlutterConfig;
-use crate::models::configuration::psdk::PsdkConfig;
-use crate::models::configuration::sdk::SdkConfig;
+use crate::models::incoming::sync_device::SyncDeviceIncoming;
+use crate::models::incoming::sync_emulator::SyncEmulatorIncoming;
+use crate::models::incoming::sync_flutter::SyncFlutterIncoming;
+use crate::models::incoming::sync_psdk::SyncPsdkIncoming;
+use crate::models::incoming::sync_sdk::SyncSdkIncoming;
+use crate::models::incoming::Incoming;
+use crate::models::outgoing::OutgoingType;
 use crate::service::dbus::server::ServerDbus;
-use crate::utils::macros::print_state;
 use crate::utils::{
     macros::{print_error, print_info, print_success},
     single,
@@ -94,44 +95,29 @@ pub async fn run(arg: SvcArgs) {
         match sync {
             SyncCommands::Sync(arg) => {
                 if arg.device || arg.all {
-                    print_state!("синхронизация устройств...");
-                    if DeviceConfig::search().await.save() {
-                        print_success!("данные устройств обновлены")
-                    } else {
-                        print_info!("изменения конфигурации устройств не зафиксировано")
-                    }
+                    Incoming::handler(SyncDeviceIncoming::new(), OutgoingType::Cli)
+                        .await
+                        .print()
                 }
                 if arg.emulator || arg.all {
-                    print_state!("синхронизация эмуляторов...");
-                    if EmulatorConfig::search().await.save() {
-                        print_success!("данные эмуляторов обновлены")
-                    } else {
-                        print_info!("изменения конфигурации эмуляторов не зафиксировано")
-                    }
+                    Incoming::handler(SyncEmulatorIncoming::new(), OutgoingType::Cli)
+                        .await
+                        .print()
                 }
                 if arg.flutter || arg.all {
-                    print_state!("синхронизация Flutter SDK...");
-                    if FlutterConfig::search().await.save() {
-                        print_success!("данные Flutter SDK обновлены")
-                    } else {
-                        print_info!("изменения конфигурации Flutter SDK не зафиксировано")
-                    }
+                    Incoming::handler(SyncFlutterIncoming::new(), OutgoingType::Cli)
+                        .await
+                        .print()
                 }
                 if arg.psdk || arg.all {
-                    print_state!("синхронизация Platform SDK...");
-                    if PsdkConfig::search().await.save() {
-                        print_success!("данные Platform SDK обновлены")
-                    } else {
-                        print_info!("изменения конфигурации Platform SDK не зафиксировано")
-                    }
+                    Incoming::handler(SyncPsdkIncoming::new(), OutgoingType::Cli)
+                        .await
+                        .print()
                 }
                 if arg.sdk || arg.all {
-                    print_state!("синхронизация Аврора SDK...");
-                    if SdkConfig::search().await.save() {
-                        print_success!("данные Аврора SDK обновлены")
-                    } else {
-                        print_info!("изменения конфигурации Аврора SDK не зафиксировано")
-                    }
+                    Incoming::handler(SyncSdkIncoming::new(), OutgoingType::Cli)
+                        .await
+                        .print()
                 }
             }
         }

@@ -12,27 +12,27 @@ pub struct EmulatorConfig {
 }
 
 impl EmulatorConfig {
-    pub async fn search() -> Config {
-        match EmulatorModel::search_full().await {
-            Ok(models) => Config::Emulator(
-                models
-                    .iter()
-                    .map(|e| EmulatorConfig {
-                        dir: e.dir.clone(),
-                        uuid: e.uuid.clone(),
-                    })
-                    .collect(),
-            ),
-            Err(_) => Config::Emulator(vec![]),
+    pub async fn load_models() -> Vec<EmulatorModel> {
+        let emulator = Config::load().emulator;
+        if emulator.is_empty() {
+            let update = Self::search().await;
+            if Config::save_emulator(update.clone()) {
+                return update.iter().map(|e| e.to_model()).collect();
+            }
         }
+        emulator.iter().map(|e| e.to_model()).collect()
     }
 
-    pub async fn search_force() -> Vec<EmulatorModel> {
-        let config = Self::search().await;
-        config.clone().save();
-        match config {
-            Config::Emulator(models) => models.iter().map(|e| e.to_model()).collect(),
-            _ => vec![],
+    pub async fn search() -> Vec<EmulatorConfig> {
+        match EmulatorModel::search_full().await {
+            Ok(models) => models
+                .iter()
+                .map(|e| EmulatorConfig {
+                    dir: e.dir.clone(),
+                    uuid: e.uuid.clone(),
+                })
+                .collect(),
+            Err(_) => vec![],
         }
     }
 

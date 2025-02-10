@@ -10,28 +10,28 @@ pub struct SdkConfig {
 }
 
 impl SdkConfig {
-    pub async fn search() -> Config {
-        match SdkModel::search_full().await {
-            Ok(models) => Config::Sdk(
-                models
-                    .iter()
-                    .map(|e| SdkConfig {
-                        dir: e.dir.clone(),
-                        tools: e.tools.clone(),
-                        version: e.version.clone(),
-                    })
-                    .collect(),
-            ),
-            Err(_) => Config::Sdk(vec![]),
+    pub async fn load_models() -> Vec<SdkModel> {
+        let sdk = Config::load().sdk;
+        if sdk.is_empty() {
+            let update = Self::search().await;
+            if Config::save_sdk(update.clone()) {
+                return update.iter().map(|e| e.to_model()).collect();
+            }
         }
+        sdk.iter().map(|e| e.to_model()).collect()
     }
 
-    pub async fn search_force() -> Vec<SdkModel> {
-        let config = Self::search().await;
-        config.clone().save();
-        match config {
-            Config::Sdk(models) => models.iter().map(|e| e.to_model()).collect(),
-            _ => vec![],
+    pub async fn search() -> Vec<SdkConfig> {
+        match SdkModel::search_full().await {
+            Ok(models) => models
+                .iter()
+                .map(|e| SdkConfig {
+                    dir: e.dir.clone(),
+                    tools: e.tools.clone(),
+                    version: e.version.clone(),
+                })
+                .collect(),
+            Err(_) => vec![],
         }
     }
 

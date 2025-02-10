@@ -1,6 +1,6 @@
 use colored::Colorize;
 
-use crate::models::configuration::{flutter::FlutterConfig, Config};
+use crate::models::configuration::flutter::FlutterConfig;
 use crate::models::TraitModel;
 use crate::service::command::exec;
 use crate::utils::macros::print_info;
@@ -31,11 +31,8 @@ impl TraitModel for FlutterModel {
 }
 
 impl FlutterModel {
-    pub async fn search() -> Result<Vec<FlutterModel>, Box<dyn std::error::Error>> {
-        match Config::load_flutters() {
-            None => Ok(FlutterConfig::search_force().await),
-            Some(config) => Ok(config.iter().map(|e| e.to_model()).collect()),
-        }
+    pub async fn search() -> Vec<FlutterModel> {
+        FlutterConfig::load_models().await
     }
 
     pub async fn search_full() -> Result<Vec<FlutterModel>, Box<dyn std::error::Error>> {

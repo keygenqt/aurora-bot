@@ -29,7 +29,7 @@ impl TraitIncoming for EmulatorStartIncoming {
             // Send state search emulators
             EmulatorStartStateOutgoing::new_search().send(&send_type);
             // Search emulators
-            let emulators = EmulatorModel::search().await?;
+            let emulators = EmulatorModel::search().await;
             // Get first emulator, multiselect for the future
             if let Some(emulator) = emulators.iter().next() {
                 return if emulator.is_running {

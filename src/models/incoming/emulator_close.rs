@@ -24,7 +24,7 @@ impl TraitIncoming for EmulatorCloseIncoming {
             // Send state search emulators
             EmulatorCloseStateOutgoing::new_search().send(&send_type);
             // Search emulators
-            let emulators = EmulatorModel::search().await?;
+            let emulators = EmulatorModel::search().await;
             // Close all emulators
             let mut is_close = false;
             for emulator in emulators.iter() {

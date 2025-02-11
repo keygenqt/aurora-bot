@@ -12,12 +12,17 @@ use futures::future;
 use crate::models::incoming::app_info::AppInfoIncoming;
 use crate::models::incoming::dbus_info::DbusInfoIncoming;
 use crate::models::incoming::device_info::DeviceInfoIncoming;
+use crate::models::incoming::device_terminal::DeviceTerminalIncoming;
 use crate::models::incoming::emulator_close::EmulatorCloseIncoming;
 use crate::models::incoming::emulator_info::EmulatorInfoIncoming;
 use crate::models::incoming::emulator_start::EmulatorStartIncoming;
+use crate::models::incoming::emulator_terminal::EmulatorTerminalIncoming;
 use crate::models::incoming::flutter_info::FlutterInfoIncoming;
+use crate::models::incoming::flutter_terminal::FlutterTerminalIncoming;
 use crate::models::incoming::psdk_info::PsdkInfoIncoming;
+use crate::models::incoming::psdk_terminal::PsdkTerminalIncoming;
 use crate::models::incoming::sdk_info::SdkInfoIncoming;
+use crate::models::incoming::sdk_tools::SdkToolsIncoming;
 use crate::models::incoming::sync_device::SyncDeviceIncoming;
 use crate::models::incoming::sync_emulator::SyncEmulatorIncoming;
 use crate::models::incoming::sync_flutter::SyncFlutterIncoming;
@@ -60,12 +65,18 @@ impl ServerDbus {
             ServerDbus::add_method(AppInfoIncoming::new(), builder);
             ServerDbus::add_method(DbusInfoIncoming::new(), builder);
             ServerDbus::add_method(DeviceInfoIncoming::new(), builder);
+            ServerDbus::add_method(DeviceTerminalIncoming::new(), builder);
             ServerDbus::add_method(EmulatorCloseIncoming::new(), builder);
             ServerDbus::add_method(EmulatorInfoIncoming::new(), builder);
             ServerDbus::add_method(EmulatorStartIncoming::new(), builder);
+            ServerDbus::add_method_name("EmulatorTerminalUser", EmulatorTerminalIncoming::new_user(), builder);
+            ServerDbus::add_method_name("EmulatorTerminalRoot",EmulatorTerminalIncoming::new_root(), builder);
             ServerDbus::add_method(FlutterInfoIncoming::new(), builder);
+            ServerDbus::add_method(FlutterTerminalIncoming::new(), builder);
             ServerDbus::add_method(PsdkInfoIncoming::new(), builder);
+            ServerDbus::add_method(PsdkTerminalIncoming::new(), builder);
             ServerDbus::add_method(SdkInfoIncoming::new(), builder);
+            ServerDbus::add_method(SdkToolsIncoming::new(), builder);
             ServerDbus::add_method(SyncDeviceIncoming::new(), builder);
             ServerDbus::add_method(SyncEmulatorIncoming::new(), builder);
             ServerDbus::add_method(SyncFlutterIncoming::new(), builder);
@@ -117,8 +128,12 @@ impl ServerDbus {
     }
 
     fn add_method(incoming: Incoming, builder: &mut IfaceBuilder<IfaceData>) {
+        Self::add_method_name(&incoming.name(), incoming, builder)
+    }
+
+    fn add_method_name(name: &str, incoming: Incoming, builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
-            incoming.name(),
+            name.to_string(),
             (),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, _: ()| {

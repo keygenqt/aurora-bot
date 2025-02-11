@@ -21,7 +21,7 @@ pub struct EmulatorSession {
 impl EmulatorSession {
     pub async fn new(
         session_type: EmulatorSessionType,
-        vm_folder: &String,
+        key: &String,
     ) -> Result<Self, Box<dyn std::error::Error>> {
         let host = "localhost";
         let user = if session_type == EmulatorSessionType::Root {
@@ -30,12 +30,7 @@ impl EmulatorSession {
             "defaultuser"
         };
         let port = 2223;
-        let session = SshSession::connect(
-            PathBuf::from(format!("{}/vmshare/ssh/private_keys/sdk", vm_folder)),
-            user,
-            (host, port),
-        )
-        .await?;
+        let session = SshSession::connect(PathBuf::from(key), user, (host, port)).await?;
         let output = session.call("cat /etc/os-release").await?;
         let lines = match output.first() {
             Some(s) => s

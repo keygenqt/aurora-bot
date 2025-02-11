@@ -4,13 +4,18 @@ use crate::service::{dbus::server::ServerDbus, websocket::client::ClientWebsocke
 use app_info::AppInfoOutgoing;
 use dbus_info::DbusInfoOutgoing;
 use device_info::DeviceInfoOutgoing;
+use device_terminal::DeviceTerminalOutgoing;
 use emulator_info::EmulatorInfoOutgoing;
 use emulator_start::*;
 use emulator_start_state::EmulatorStartStateOutgoing;
+use emulator_terminal::EmulatorTerminalOutgoing;
 use error::ErrorOutgoing;
 use flutter_info::FlutterInfoOutgoing;
+use flutter_terminal::FlutterTerminalOutgoing;
 use psdk_info::PsdkInfoOutgoing;
+use psdk_terminal::PsdkTerminalOutgoing;
 use sdk_info::SdkInfoOutgoing;
+use sdk_tools::SdkToolsOutgoing;
 use serde::{Deserialize, Serialize};
 use sync_device::SyncDeviceOutgoing;
 use sync_emulator::SyncEmulatorOutgoing;
@@ -23,15 +28,20 @@ use ws_connect::WsConnectionOutgoing;
 pub mod app_info;
 pub mod dbus_info;
 pub mod device_info;
+pub mod device_terminal;
 pub mod emulator_close;
 pub mod emulator_close_state;
 pub mod emulator_info;
 pub mod emulator_start;
 pub mod emulator_start_state;
+pub mod emulator_terminal;
 pub mod error;
 pub mod flutter_info;
+pub mod flutter_terminal;
 pub mod psdk_info;
+pub mod psdk_terminal;
 pub mod sdk_info;
+pub mod sdk_tools;
 pub mod sync_device;
 pub mod sync_emulator;
 pub mod sync_flutter;
@@ -63,15 +73,20 @@ pub enum Outgoing {
     AppInfo(AppInfoOutgoing),
     DbusInfo(DbusInfoOutgoing),
     DeviceInfo(DeviceInfoOutgoing),
+    DeviceTerminal(DeviceTerminalOutgoing),
     EmulatorClose(EmulatorCloseOutgoing),
     EmulatorInfo(EmulatorInfoOutgoing),
     EmulatorCloseState(EmulatorCloseStateOutgoing),
     EmulatorStart(EmulatorStartOutgoing),
     EmulatorStartState(EmulatorStartStateOutgoing),
+    EmulatorTerminal(EmulatorTerminalOutgoing),
     Error(ErrorOutgoing),
     FlutterInfo(FlutterInfoOutgoing),
+    FlutterTerminal(FlutterTerminalOutgoing),
     PsdkInfo(PsdkInfoOutgoing),
+    PsdkTerminal(PsdkTerminalOutgoing),
     SdkInfo(SdkInfoOutgoing),
+    SdkTools(SdkToolsOutgoing),
     SyncDevice(SyncDeviceOutgoing),
     SyncEmulator(SyncEmulatorOutgoing),
     SyncFlutter(SyncFlutterOutgoing),
@@ -88,15 +103,20 @@ impl Outgoing {
             Outgoing::AppInfo(model) => model.print(),
             Outgoing::DbusInfo(model) => model.print(),
             Outgoing::DeviceInfo(model) => model.print(),
+            Outgoing::DeviceTerminal(model) => model.print(),
+            Outgoing::EmulatorCloseState(model) => model.print(),
             Outgoing::EmulatorClose(model) => model.print(),
             Outgoing::EmulatorInfo(model) => model.print(),
-            Outgoing::EmulatorCloseState(model) => model.print(),
-            Outgoing::EmulatorStart(model) => model.print(),
             Outgoing::EmulatorStartState(model) => model.print(),
+            Outgoing::EmulatorStart(model) => model.print(),
+            Outgoing::EmulatorTerminal(model) => model.print(),
             Outgoing::Error(model) => model.print(),
             Outgoing::FlutterInfo(model) => model.print(),
+            Outgoing::FlutterTerminal(model) => model.print(),
             Outgoing::PsdkInfo(model) => model.print(),
+            Outgoing::PsdkTerminal(model) => model.print(),
             Outgoing::SdkInfo(model) => model.print(),
+            Outgoing::SdkTools(model) => model.print(),
             Outgoing::SyncDevice(model) => model.print(),
             Outgoing::SyncEmulator(model) => model.print(),
             Outgoing::SyncFlutter(model) => model.print(),

@@ -8,6 +8,7 @@ use std::error::Error;
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct EmulatorConfig {
     pub dir: String,
+    pub key: String,
     pub uuid: String,
 }
 
@@ -29,6 +30,7 @@ impl EmulatorConfig {
                 .iter()
                 .map(|e| EmulatorConfig {
                     dir: e.dir.clone(),
+                    key: e.key.clone(),
                     uuid: e.uuid.clone(),
                 })
                 .collect(),
@@ -45,6 +47,7 @@ impl EmulatorConfig {
         }
         EmulatorModel {
             dir: self.dir.clone(),
+            key: self.key.clone(),
             uuid: self.uuid.clone(),
             is_running: _is_running(&self.uuid).unwrap_or_else(|_| false),
         }

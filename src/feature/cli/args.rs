@@ -1,11 +1,16 @@
 use clap::{Args, Subcommand};
 
 use crate::models::incoming::device_info::DeviceInfoIncoming;
+use crate::models::incoming::device_terminal::DeviceTerminalIncoming;
 use crate::models::incoming::emulator_close::EmulatorCloseIncoming;
 use crate::models::incoming::emulator_info::EmulatorInfoIncoming;
+use crate::models::incoming::emulator_terminal::EmulatorTerminalIncoming;
 use crate::models::incoming::flutter_info::FlutterInfoIncoming;
+use crate::models::incoming::flutter_terminal::FlutterTerminalIncoming;
 use crate::models::incoming::psdk_info::PsdkInfoIncoming;
+use crate::models::incoming::psdk_terminal::PsdkTerminalIncoming;
 use crate::models::incoming::sdk_info::SdkInfoIncoming;
+use crate::models::incoming::sdk_tools::SdkToolsIncoming;
 use crate::models::{
     incoming::{emulator_start::EmulatorStartIncoming, Incoming},
     outgoing::OutgoingType,
@@ -40,6 +45,10 @@ pub struct DeviceArgs {
     /// Информация по доступным устройствам
     #[arg(short, long, default_value_t = false)]
     info: bool,
+
+    /// Открыть терминал с соединением ssh
+    #[arg(short, long, default_value_t = false)]
+    terminal: bool,
 }
 
 #[derive(Args)]
@@ -57,6 +66,14 @@ pub struct EmulatorArgs {
     /// Закрыть эмулятор
     #[arg(short, long, default_value_t = false)]
     close: bool,
+
+    /// Открыть терминал с соединением ssh
+    #[arg(short, long, default_value_t = false)]
+    user: bool,
+
+    /// Открыть терминал с соединением ssh пользователя root
+    #[arg(short, long, default_value_t = false)]
+    root: bool,
 }
 
 #[derive(Args)]
@@ -66,6 +83,10 @@ pub struct FlutterArgs {
     /// Информация по доступным Flutter SDK
     #[arg(short, long, default_value_t = false)]
     info: bool,
+
+    /// Открыть терминал с окружением Flutter
+    #[arg(short, long, default_value_t = false)]
+    terminal: bool,
 }
 
 #[derive(Args)]
@@ -75,6 +96,10 @@ pub struct PsdkArgs {
     /// Информация по доступным Platform SDK
     #[arg(short, long, default_value_t = false)]
     info: bool,
+
+    /// Открыть терминал с окружением Platform SDK
+    #[arg(short, long, default_value_t = false)]
+    terminal: bool,
 }
 
 #[derive(Args)]
@@ -84,6 +109,10 @@ pub struct SdkArgs {
     /// Информация по доступным Аврора SDK
     #[arg(short, long, default_value_t = false)]
     info: bool,
+
+    /// Открыть maintenance tools
+    #[arg(short, long, default_value_t = false)]
+    tools: bool,
 }
 
 /// Handling interface events
@@ -95,8 +124,18 @@ pub async fn run(arg: CliArgs) {
                     .await
                     .print()
             }
+            if arg.terminal {
+                Incoming::handler(DeviceTerminalIncoming::new(), OutgoingType::Cli)
+                    .await
+                    .print()
+            }
         }
         CliCommands::Emulator(arg) => {
+            if arg.close {
+                Incoming::handler(EmulatorCloseIncoming::new(), OutgoingType::Cli)
+                    .await
+                    .print()
+            }
             if arg.info {
                 Incoming::handler(EmulatorInfoIncoming::new(), OutgoingType::Cli)
                     .await
@@ -107,8 +146,13 @@ pub async fn run(arg: CliArgs) {
                     .await
                     .print()
             }
-            if arg.close {
-                Incoming::handler(EmulatorCloseIncoming::new(), OutgoingType::Cli)
+            if arg.user {
+                Incoming::handler(EmulatorTerminalIncoming::new_user(), OutgoingType::Cli)
+                    .await
+                    .print()
+            }
+            if arg.root {
+                Incoming::handler(EmulatorTerminalIncoming::new_root(), OutgoingType::Cli)
                     .await
                     .print()
             }
@@ -119,6 +163,11 @@ pub async fn run(arg: CliArgs) {
                     .await
                     .print()
             }
+            if arg.terminal {
+                Incoming::handler(FlutterTerminalIncoming::new(), OutgoingType::Cli)
+                    .await
+                    .print()
+            }
         }
         CliCommands::Psdk(arg) => {
             if arg.info {
@@ -126,10 +175,20 @@ pub async fn run(arg: CliArgs) {
                     .await
                     .print()
             }
+            if arg.terminal {
+                Incoming::handler(PsdkTerminalIncoming::new(), OutgoingType::Cli)
+                    .await
+                    .print()
+            }
         }
         CliCommands::Sdk(arg) => {
             if arg.info {
                 Incoming::handler(SdkInfoIncoming::new(), OutgoingType::Cli)
+                    .await
+                    .print()
+            }
+            if arg.tools {
+                Incoming::handler(SdkToolsIncoming::new(), OutgoingType::Cli)
                     .await
                     .print()
             }

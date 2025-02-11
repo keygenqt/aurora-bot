@@ -13,6 +13,7 @@ use crate::{
 #[derive(Serialize, Deserialize, Clone)]
 pub struct EmulatorModel {
     pub dir: String,
+    pub key: String,
     pub uuid: String,
     pub is_running: bool,
 }
@@ -38,12 +39,12 @@ impl TraitModel for EmulatorModel {
 
 impl EmulatorModel {
     pub async fn session_user(&self) -> Result<EmulatorSession, Box<dyn std::error::Error>> {
-        Ok(EmulatorSession::new(EmulatorSessionType::User, &self.dir).await?)
+        Ok(EmulatorSession::new(EmulatorSessionType::User, &self.key).await?)
     }
 
     #[allow(dead_code)]
     pub async fn session_root(&self) -> Result<EmulatorSession, Box<dyn std::error::Error>> {
-        Ok(EmulatorSession::new(EmulatorSessionType::Root, &self.dir).await?)
+        Ok(EmulatorSession::new(EmulatorSessionType::Root, &self.key).await?)
     }
 
     pub async fn start(&self) -> Result<(), Box<dyn std::error::Error>> {
@@ -99,7 +100,8 @@ impl EmulatorModel {
                 Err(_) => continue,
             };
             emulators.push(EmulatorModel {
-                dir,
+                dir: dir.clone(),
+                key: format!("{}/vmshare/ssh/private_keys/sdk", dir),
                 uuid: uuid.clone(),
                 is_running,
             });

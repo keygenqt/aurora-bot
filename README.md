@@ -2,8 +2,8 @@
 
 > Subscribe and like ⭐
 
-[![Releases DEB](https://img.shields.io/badge/dynamic/json?url=https://api.github.com/repos/keygenqt/aurora-bot/releases/latest&query=assets[1][download_count]&label=Releases%20DEB&color=BE8731&logo=github&prefix=0.0.2%20(&suffix=))](https://github.com/keygenqt/aurora-bot/releases)
-[![Releases TAR](https://img.shields.io/badge/dynamic/json?url=https://api.github.com/repos/keygenqt/aurora-bot/releases/latest&query=assets[0][download_count]&label=Releases%20TAR&color=040404&logo=github&prefix=0.0.2%20(&suffix=))](https://github.com/keygenqt/aurora-bot/releases)
+[![Releases DEB](https://img.shields.io/badge/dynamic/json?url=https://api.github.com/repos/keygenqt/aurora-bot/releases/latest&query=assets[0][download_count]&label=Releases%20DEB&color=BE8731&logo=github&prefix=0.0.2%20(&suffix=))](https://github.com/keygenqt/aurora-bot/releases)
+[![Releases TAR](https://img.shields.io/badge/dynamic/json?url=https://api.github.com/repos/keygenqt/aurora-bot/releases/latest&query=assets[1][download_count]&label=Releases%20TAR&color=040404&logo=github&prefix=0.0.2%20(&suffix=))](https://github.com/keygenqt/aurora-bot/releases)
 
 Fast, smart, lightweight, client of the Aurora Bot project.
 

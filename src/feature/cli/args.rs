@@ -1,19 +1,15 @@
 use clap::{Args, Subcommand};
 
-use crate::models::incoming::device_info::DeviceInfoIncoming;
-use crate::models::incoming::device_terminal::DeviceTerminalIncoming;
-use crate::models::incoming::emulator_close::EmulatorCloseIncoming;
-use crate::models::incoming::emulator_info::EmulatorInfoIncoming;
-use crate::models::incoming::emulator_terminal::EmulatorTerminalIncoming;
-use crate::models::incoming::flutter_info::FlutterInfoIncoming;
-use crate::models::incoming::flutter_terminal::FlutterTerminalIncoming;
-use crate::models::incoming::psdk_info::PsdkInfoIncoming;
-use crate::models::incoming::psdk_terminal::PsdkTerminalIncoming;
-use crate::models::incoming::sdk_info::SdkInfoIncoming;
-use crate::models::incoming::sdk_tools::SdkToolsIncoming;
-use crate::models::{
-    incoming::{emulator_start::EmulatorStartIncoming, Incoming},
-    outgoing::OutgoingType,
+use crate::models::client::{
+    emulator_close::incoming::EmulatorCloseIncoming, emulator_info::incoming::EmulatorInfoIncoming,
+    emulator_start::incoming::EmulatorStartIncoming,
+    emulator_terminal::incoming::EmulatorTerminalIncoming,
+    emulator_terminal_root::incoming::EmulatorTerminalRootIncoming,
+    flutter_info::incoming::FlutterInfoIncoming,
+    flutter_terminal::incoming::FlutterTerminalIncoming, incoming::TraitIncoming,
+    outgoing::OutgoingType, psdk_info::incoming::PsdkInfoIncoming,
+    psdk_terminal::incoming::PsdkTerminalIncoming, sdk_info::incoming::SdkInfoIncoming,
+    sdk_tools::incoming::SdkToolsIncoming,
 };
 
 /// Классическая командная строка
@@ -26,8 +22,8 @@ pub struct CliArgs {
 
 #[derive(Subcommand)]
 pub enum CliCommands {
-    /// Работа с устройством
-    Device(DeviceArgs),
+    // /// Работа с устройством
+    // Device(DeviceArgs),
     /// Работа с эмуляторами
     Emulator(EmulatorArgs),
     /// Работа с Flutter SDK
@@ -69,11 +65,11 @@ pub struct EmulatorArgs {
 
     /// Открыть терминал с соединением ssh
     #[arg(short, long, default_value_t = false)]
-    user: bool,
+    user_terminal: bool,
 
     /// Открыть терминал с соединением ssh пользователя root
     #[arg(short, long, default_value_t = false)]
-    root: bool,
+    root_terminal: bool,
 }
 
 #[derive(Args)]
@@ -116,81 +112,61 @@ pub struct SdkArgs {
 }
 
 /// Handling interface events
-pub async fn run(arg: CliArgs) {
+pub fn run(arg: CliArgs) {
     match arg.command.unwrap() {
-        CliCommands::Device(arg) => {
-            if arg.info {
-                Incoming::handler(DeviceInfoIncoming::new(), OutgoingType::Cli)
-                    .await
-                    .print()
-            }
-            if arg.terminal {
-                Incoming::handler(DeviceTerminalIncoming::new(), OutgoingType::Cli)
-                    .await
-                    .print()
-            }
-        }
+        // CliCommands::Device(arg) => {
+        //     if arg.info {
+        //         // @todo
+        //     }
+        //     if arg.terminal {
+        //         // @todo
+        //     }
+        // }
         CliCommands::Emulator(arg) => {
             if arg.close {
-                Incoming::handler(EmulatorCloseIncoming::new(), OutgoingType::Cli)
-                    .await
-                    .print()
+                EmulatorCloseIncoming::new().run(OutgoingType::Cli).print();
             }
             if arg.info {
-                Incoming::handler(EmulatorInfoIncoming::new(), OutgoingType::Cli)
-                    .await
-                    .print()
+                EmulatorInfoIncoming::new().run(OutgoingType::Cli).print();
             }
             if arg.start {
-                Incoming::handler(EmulatorStartIncoming::new(), OutgoingType::Cli)
-                    .await
-                    .print()
+                EmulatorStartIncoming::new().run(OutgoingType::Cli).print();
             }
-            if arg.user {
-                Incoming::handler(EmulatorTerminalIncoming::new_user(), OutgoingType::Cli)
-                    .await
-                    .print()
+            if arg.user_terminal {
+                EmulatorTerminalIncoming::new()
+                    .run(OutgoingType::Cli)
+                    .print();
             }
-            if arg.root {
-                Incoming::handler(EmulatorTerminalIncoming::new_root(), OutgoingType::Cli)
-                    .await
-                    .print()
+            if arg.root_terminal {
+                EmulatorTerminalRootIncoming::new()
+                    .run(OutgoingType::Cli)
+                    .print();
             }
         }
         CliCommands::Flutter(arg) => {
             if arg.info {
-                Incoming::handler(FlutterInfoIncoming::new(), OutgoingType::Cli)
-                    .await
-                    .print()
+                FlutterInfoIncoming::new().run(OutgoingType::Cli).print();
             }
             if arg.terminal {
-                Incoming::handler(FlutterTerminalIncoming::new(), OutgoingType::Cli)
-                    .await
-                    .print()
+                FlutterTerminalIncoming::new()
+                    .run(OutgoingType::Cli)
+                    .print();
             }
         }
         CliCommands::Psdk(arg) => {
             if arg.info {
-                Incoming::handler(PsdkInfoIncoming::new(), OutgoingType::Cli)
-                    .await
-                    .print()
+                PsdkInfoIncoming::new().run(OutgoingType::Cli).print();
             }
             if arg.terminal {
-                Incoming::handler(PsdkTerminalIncoming::new(), OutgoingType::Cli)
-                    .await
-                    .print()
+                PsdkTerminalIncoming::new().run(OutgoingType::Cli).print();
             }
         }
         CliCommands::Sdk(arg) => {
             if arg.info {
-                Incoming::handler(SdkInfoIncoming::new(), OutgoingType::Cli)
-                    .await
-                    .print()
+                SdkInfoIncoming::new().run(OutgoingType::Cli).print();
             }
             if arg.tools {
-                Incoming::handler(SdkToolsIncoming::new(), OutgoingType::Cli)
-                    .await
-                    .print()
+                SdkToolsIncoming::new().run(OutgoingType::Cli).print();
             }
         }
     }

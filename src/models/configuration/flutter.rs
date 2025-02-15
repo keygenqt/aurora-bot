@@ -13,10 +13,10 @@ pub struct FlutterConfig {
 }
 
 impl FlutterConfig {
-    pub async fn load_models() -> Vec<FlutterModel> {
+    pub fn load_models() -> Vec<FlutterModel> {
         let flutter = Config::load().flutter;
         if flutter.is_empty() {
-            let update = Self::search().await;
+            let update = Self::search();
             if Config::save_flutter(update.clone()) {
                 return update.iter().map(|e| e.to_model()).collect();
             }
@@ -24,8 +24,8 @@ impl FlutterConfig {
         flutter.iter().map(|e| e.to_model()).collect()
     }
 
-    pub async fn search() -> Vec<FlutterConfig> {
-        match FlutterModel::search_full().await {
+    pub fn search() -> Vec<FlutterConfig> {
+        match FlutterModel::search_full() {
             Ok(models) => models
                 .iter()
                 .map(|e| FlutterConfig {

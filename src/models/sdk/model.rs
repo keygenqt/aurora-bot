@@ -1,9 +1,8 @@
 use colored::Colorize;
 
-use crate::models::configuration::sdk::SdkConfig;
 use crate::models::TraitModel;
-use crate::utils::macros::print_info;
-use crate::utils::methods;
+use crate::tools::utils;
+use crate::{models::configuration::sdk::SdkConfig, tools::macros::print_info};
 use serde::{Deserialize, Serialize};
 use std::fs;
 
@@ -15,6 +14,10 @@ pub struct SdkModel {
 }
 
 impl TraitModel for SdkModel {
+    fn get_id(&self) -> String {
+        format!("{:x}", md5::compute(self.dir.as_bytes()))
+    }
+
     fn print(&self) {
         let message = format!(
             "Аврора SDK: {}\nДиректория: {}",
@@ -25,14 +28,23 @@ impl TraitModel for SdkModel {
     }
 }
 
+#[allow(dead_code)]
 impl SdkModel {
-    pub async fn search() -> Vec<SdkModel> {
-        SdkConfig::load_models().await
+    pub fn search() -> Vec<SdkModel> {
+        SdkConfig::load_models()
     }
 
-    pub async fn search_full() -> Result<Vec<SdkModel>, Box<dyn std::error::Error>> {
+    pub fn search_filter<T: Fn(&SdkModel) -> bool>(filter: T) -> Vec<SdkModel> {
+        SdkConfig::load_models()
+            .iter()
+            .filter(|e| filter(e))
+            .cloned()
+            .collect()
+    }
+
+    pub fn search_full() -> Result<Vec<SdkModel>, Box<dyn std::error::Error>> {
         let mut models: Vec<SdkModel> = vec![];
-        let sdks_path = methods::search_files("SDKMaintenanceTool");
+        let sdks_path = utils::search_files("SDKMaintenanceTool");
         for tools in sdks_path {
             let sdk_dir = tools.replace("/SDKMaintenanceTool", "");
             let sdk_release = sdk_dir.clone() + "/sdk-release";
@@ -43,7 +55,7 @@ impl SdkModel {
                     .collect::<Vec<String>>(),
                 Err(_) => continue,
             };
-            let version = match methods::config_get_string(&data, "SDK_RELEASE", "=") {
+            let version = match utils::config_get_string(&data, "SDK_RELEASE", "=") {
                 Ok(s) => s,
                 Err(_) => continue,
             };

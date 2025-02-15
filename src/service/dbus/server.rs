@@ -1,4 +1,3 @@
-use colored::Colorize;
 use std::sync::Arc;
 
 use dbus::channel::{MatchingReceiver, Sender};
@@ -8,35 +7,31 @@ use dbus::{Message, Path};
 use dbus_crossroads::{Crossroads, IfaceBuilder};
 use dbus_tokio::connection;
 use futures::future;
+use tokio::runtime::Handle;
 
-use crate::models::incoming::app_info::AppInfoIncoming;
-use crate::models::incoming::dbus_info::DbusInfoIncoming;
-use crate::models::incoming::device_info::DeviceInfoIncoming;
-use crate::models::incoming::device_terminal::DeviceTerminalIncoming;
-use crate::models::incoming::emulator_close::EmulatorCloseIncoming;
-use crate::models::incoming::emulator_info::EmulatorInfoIncoming;
-use crate::models::incoming::emulator_start::EmulatorStartIncoming;
-use crate::models::incoming::emulator_terminal::EmulatorTerminalIncoming;
-use crate::models::incoming::flutter_info::FlutterInfoIncoming;
-use crate::models::incoming::flutter_terminal::FlutterTerminalIncoming;
-use crate::models::incoming::psdk_info::PsdkInfoIncoming;
-use crate::models::incoming::psdk_terminal::PsdkTerminalIncoming;
-use crate::models::incoming::sdk_info::SdkInfoIncoming;
-use crate::models::incoming::sdk_tools::SdkToolsIncoming;
-use crate::models::incoming::sync_device::SyncDeviceIncoming;
-use crate::models::incoming::sync_emulator::SyncEmulatorIncoming;
-use crate::models::incoming::sync_flutter::SyncFlutterIncoming;
-use crate::models::incoming::sync_psdk::SyncPsdkIncoming;
-use crate::models::incoming::sync_sdk::SyncSdkIncoming;
-use crate::models::incoming::Incoming;
-use crate::models::outgoing::{Outgoing, OutgoingType};
-use crate::utils::constants::DBUS_NAME;
-use crate::utils::single::get_dbus;
+use crate::models::client::app_info::incoming::AppInfoIncoming;
+use crate::models::client::emulator_close::incoming::EmulatorCloseIncoming;
+use crate::models::client::emulator_info::incoming::EmulatorInfoIncoming;
+use crate::models::client::emulator_start::incoming::EmulatorStartIncoming;
+use crate::models::client::emulator_sync::incoming::EmulatorSyncIncoming;
+use crate::models::client::emulator_terminal::incoming::EmulatorTerminalIncoming;
+use crate::models::client::emulator_terminal_root::incoming::EmulatorTerminalRootIncoming;
+use crate::models::client::flutter_info::incoming::FlutterInfoIncoming;
+use crate::models::client::flutter_sync::incoming::FlutterSyncIncoming;
+use crate::models::client::flutter_terminal::incoming::FlutterTerminalIncoming;
+use crate::models::client::psdk_info::incoming::PsdkInfoIncoming;
+use crate::models::client::psdk_sync::incoming::PsdkSyncIncoming;
+use crate::models::client::psdk_terminal::incoming::PsdkTerminalIncoming;
+use crate::models::client::sdk_info::incoming::SdkInfoIncoming;
+use crate::models::client::sdk_sync::incoming::SdkSyncIncoming;
+use crate::models::client::sdk_tools::incoming::SdkToolsIncoming;
+use crate::tools::macros::print_success;
+use crate::tools::{constants, single};
 
 // gdbus call --timeout=99999 --session --dest com.keygenqt.aurora_bot --object-path /api --method com.keygenqt.aurora_bot.{KEY}
 // gdbus monitor --session --dest com.keygenqt.aurora_bot --object-path /api com.keygenqt.aurora_bot.listen
 
-struct IfaceData {}
+pub struct IfaceData {}
 
 pub struct ServerDbus {
     pub connection: Arc<SyncConnection>,
@@ -57,31 +52,41 @@ impl ServerDbus {
         )));
 
         // Init api
-        let signal_state = cr.register(DBUS_NAME, |builder| {
+        let signal_state = cr.register(constants::DBUS_NAME, |builder| {
             // Signals
             ServerDbus::add_signal("listen", builder);
-            // Methods
-            // Incoming: step 7
-            ServerDbus::add_method(AppInfoIncoming::new(), builder);
-            ServerDbus::add_method(DbusInfoIncoming::new(), builder);
-            ServerDbus::add_method(DeviceInfoIncoming::new(), builder);
-            ServerDbus::add_method(DeviceTerminalIncoming::new(), builder);
-            ServerDbus::add_method(EmulatorCloseIncoming::new(), builder);
-            ServerDbus::add_method(EmulatorInfoIncoming::new(), builder);
-            ServerDbus::add_method(EmulatorStartIncoming::new(), builder);
-            ServerDbus::add_method_name("EmulatorTerminalUser", EmulatorTerminalIncoming::new_user(), builder);
-            ServerDbus::add_method_name("EmulatorTerminalRoot",EmulatorTerminalIncoming::new_root(), builder);
-            ServerDbus::add_method(FlutterInfoIncoming::new(), builder);
-            ServerDbus::add_method(FlutterTerminalIncoming::new(), builder);
-            ServerDbus::add_method(PsdkInfoIncoming::new(), builder);
-            ServerDbus::add_method(PsdkTerminalIncoming::new(), builder);
-            ServerDbus::add_method(SdkInfoIncoming::new(), builder);
-            ServerDbus::add_method(SdkToolsIncoming::new(), builder);
-            ServerDbus::add_method(SyncDeviceIncoming::new(), builder);
-            ServerDbus::add_method(SyncEmulatorIncoming::new(), builder);
-            ServerDbus::add_method(SyncFlutterIncoming::new(), builder);
-            ServerDbus::add_method(SyncPsdkIncoming::new(), builder);
-            ServerDbus::add_method(SyncSdkIncoming::new(), builder);
+            // App
+            AppInfoIncoming::dbus_method_run(builder);
+            // Emulator
+            EmulatorCloseIncoming::dbus_method_run(builder);
+            EmulatorCloseIncoming::dbus_method_run_by_id(builder);
+            EmulatorInfoIncoming::dbus_method_run(builder);
+            EmulatorInfoIncoming::dbus_method_run_by_id(builder);
+            EmulatorStartIncoming::dbus_method_run(builder);
+            EmulatorStartIncoming::dbus_method_run_by_id(builder);
+            EmulatorSyncIncoming::dbus_method_run(builder);
+            EmulatorTerminalIncoming::dbus_method_run(builder);
+            EmulatorTerminalIncoming::dbus_method_run_by_id(builder);
+            EmulatorTerminalRootIncoming::dbus_method_run(builder);
+            EmulatorTerminalRootIncoming::dbus_method_run_by_id(builder);
+            // Flutter
+            FlutterInfoIncoming::dbus_method_run(builder);
+            FlutterInfoIncoming::dbus_method_run_by_id(builder);
+            FlutterSyncIncoming::dbus_method_run(builder);
+            FlutterTerminalIncoming::dbus_method_run(builder);
+            FlutterTerminalIncoming::dbus_method_run_by_id(builder);
+            // Psdk
+            PsdkInfoIncoming::dbus_method_run(builder);
+            PsdkInfoIncoming::dbus_method_run_by_id(builder);
+            PsdkSyncIncoming::dbus_method_run(builder);
+            PsdkTerminalIncoming::dbus_method_run(builder);
+            PsdkTerminalIncoming::dbus_method_run_by_id(builder);
+            // Sdk
+            SdkInfoIncoming::dbus_method_run(builder);
+            SdkInfoIncoming::dbus_method_run_by_id(builder);
+            SdkSyncIncoming::dbus_method_run(builder);
+            SdkToolsIncoming::dbus_method_run(builder);
+            SdkToolsIncoming::dbus_method_run_by_id(builder);
         });
 
         // Add api
@@ -103,46 +108,28 @@ impl ServerDbus {
         return ServerDbus { connection };
     }
 
-    pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
-        get_dbus()
-            .connection
-            .request_name(DBUS_NAME, false, true, false)
-            .await?;
-        println!("{}", "Сервис D-Bus успешно запущен!".green().bold());
-        future::pending::<()>().await;
+    pub fn run() -> Result<(), Box<dyn std::error::Error>> {
+        tokio::task::block_in_place(|| {
+            Handle::current().block_on(single::get_dbus().connection.request_name(
+                constants::DBUS_NAME,
+                false,
+                true,
+                false,
+            ))
+        })?;
+        print_success!("Сервис D-Bus запущен!");
+        tokio::task::block_in_place(|| Handle::current().block_on(future::pending::<()>()));
         unreachable!()
     }
 
-    pub fn send(outgoing: &Outgoing) {
-        let outgoing = outgoing.to_string();
-        if outgoing.is_ok() {
-            let path: Path<'static> = format!("{}", "/api").into();
-            let msg = Message::signal(&path, &DBUS_NAME.into(), &"listen".into())
-                .append1(outgoing.unwrap());
-            let _ = get_dbus().connection.send(msg);
-        }
+    pub fn send(outgoing: String) {
+        let path: Path<'static> = format!("{}", "/api").into();
+        let msg = Message::signal(&path, &constants::DBUS_NAME.into(), &"listen".into())
+            .append1(outgoing);
+        let _ = single::get_dbus().connection.send(msg);
     }
 
     fn add_signal(name: &str, builder: &mut IfaceBuilder<IfaceData>) {
         builder.signal::<(String,), _>(String::from(name), ("sender",));
-    }
-
-    fn add_method(incoming: Incoming, builder: &mut IfaceBuilder<IfaceData>) {
-        Self::add_method_name(&incoming.name(), incoming, builder)
-    }
-
-    fn add_method_name(name: &str, incoming: Incoming, builder: &mut IfaceBuilder<IfaceData>) {
-        builder.method_with_cr_async(
-            name.to_string(),
-            (),
-            ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, _: ()| {
-                let value = incoming.clone();
-                async move {
-                    let outgoing = Incoming::handler(value, OutgoingType::Dbus).await;
-                    ctx.reply(Ok((outgoing.to_string().unwrap(),)))
-                }
-            },
-        );
     }
 }

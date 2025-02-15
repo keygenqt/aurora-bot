@@ -1,7 +1,6 @@
-use crate::models::configuration::Config;
 use crate::models::emulator::model::EmulatorModel;
 use crate::service::command::exec;
-use crate::utils::programs;
+use crate::{models::configuration::Config, tools::programs};
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 
@@ -13,10 +12,10 @@ pub struct EmulatorConfig {
 }
 
 impl EmulatorConfig {
-    pub async fn load_models() -> Vec<EmulatorModel> {
+    pub fn load_models() -> Vec<EmulatorModel> {
         let emulator = Config::load().emulator;
         if emulator.is_empty() {
-            let update = Self::search().await;
+            let update = Self::search();
             if Config::save_emulator(update.clone()) {
                 return update.iter().map(|e| e.to_model()).collect();
             }
@@ -24,8 +23,9 @@ impl EmulatorConfig {
         emulator.iter().map(|e| e.to_model()).collect()
     }
 
-    pub async fn search() -> Vec<EmulatorConfig> {
-        match EmulatorModel::search_full().await {
+    #[allow(dead_code)]
+    pub fn search() -> Vec<EmulatorConfig> {
+        match EmulatorModel::search_full() {
             Ok(models) => models
                 .iter()
                 .map(|e| EmulatorConfig {

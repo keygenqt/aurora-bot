@@ -9,10 +9,10 @@ pub struct DeviceConfig {
 }
 
 impl DeviceConfig {
-    pub async fn load_models() -> Vec<DeviceModel> {
+    pub fn load_models() -> Vec<DeviceModel> {
         let device = Config::load().device;
         if device.is_empty() {
-            let update = Self::search().await;
+            let update = Self::search();
             if Config::save_device(update.clone()) {
                 return update.iter().map(|e| e.to_model()).collect();
             }
@@ -20,8 +20,8 @@ impl DeviceConfig {
         device.iter().map(|e| e.to_model()).collect()
     }
 
-    pub async fn search() -> Vec<DeviceConfig> {
-        match DeviceModel::search_full().await {
+    pub fn search() -> Vec<DeviceConfig> {
+        match DeviceModel::search_full() {
             Ok(models) => models
                 .iter()
                 .map(|e| DeviceConfig {

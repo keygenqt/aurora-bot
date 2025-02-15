@@ -1,36 +1,34 @@
 use color_eyre::owo_colors::OwoColorize;
 use std::fs;
-use std::process::exit;
 use std::sync::Arc;
+use tokio::runtime::Handle;
 use tokio::time::{sleep, Duration};
 
 use reqwest::{Client, Response, StatusCode};
 use reqwest_cookie_store::{CookieStore, CookieStoreMutex};
 
 use crate::service::responses::common::CommonResponse;
-use crate::utils::macros::{print_error, print_info, print_success};
-
-use crate::utils::constants::{SESSION_FILE, URL_API};
-use crate::utils::methods::get_file_save;
+use crate::tools::macros::{crash, print_info, print_success};
+use crate::tools::{constants, utils};
 
 pub struct ClientRequest {
     pub client: Client,
     cookie: Arc<CookieStoreMutex>,
 }
 
+#[allow(dead_code)]
 impl ClientRequest {
     /// Create instance
-    pub fn new() -> ClientRequest {
+    pub fn new(timeout: u64) -> ClientRequest {
         let cookie = match ClientRequest::load_cookie(true) {
             Ok(cookie) => std::sync::Arc::clone(&cookie),
-            Err(error) => {
-                print_error!(error);
-                exit(1)
+            Err(_) => {
+                crash!("ошибка чтение данных")
             }
         };
         let client = Client::builder()
             .cookie_provider(std::sync::Arc::clone(&cookie))
-            .timeout(Duration::from_secs(5))
+            .timeout(Duration::from_secs(timeout))
             .build()
             .unwrap();
         ClientRequest { client, cookie }
@@ -39,7 +37,7 @@ impl ClientRequest {
     /// Load an existing set of cookies, serialized as json
     pub fn load_cookie(create: bool) -> Result<Arc<CookieStoreMutex>, Box<dyn std::error::Error>> {
         // Get path
-        let path = get_file_save(SESSION_FILE);
+        let path = utils::get_file_save(constants::SESSION_FILE);
         let buf = fs::File::open(path).map(std::io::BufReader::new);
         // Load cookie
         let cookie: CookieStore = if let Ok(file) = buf {
@@ -48,7 +46,7 @@ impl ClientRequest {
             if create {
                 CookieStore::new(None)
             } else {
-                Err("требуется авторизация")?
+                crash!("требуется авторизация")
             }
         };
         let cookie = CookieStoreMutex::new(cookie);
@@ -59,7 +57,7 @@ impl ClientRequest {
     /// Write store to disk
     fn save_cookie(&self) {
         // Get path
-        let path = get_file_save(SESSION_FILE);
+        let path = utils::get_file_save(constants::SESSION_FILE);
         // Load file
         let mut writer = std::fs::File::create(path)
             .map(std::io::BufWriter::new)
@@ -71,14 +69,14 @@ impl ClientRequest {
 
     pub fn logout(&self) -> Result<(), Box<dyn std::error::Error>> {
         // Get path
-        let path = get_file_save(SESSION_FILE);
+        let path = utils::get_file_save(constants::SESSION_FILE);
         fs::remove_file(path)?;
         Ok(())
     }
 
     /// Auth by deeplink
-    async fn auth(&self) -> Result<bool, Box<dyn std::error::Error>> {
-        match self.auth_deeplink().await {
+    fn auth(&self) -> Result<bool, Box<dyn std::error::Error>> {
+        match tokio::task::block_in_place(|| Handle::current().block_on(self.auth_deeplink())) {
             Ok(value) => {
                 if value.code == 200 {
                     println!(
@@ -89,7 +87,7 @@ impl ClientRequest {
                         Some(value) => value,
                         None => Err("токен не найден")?,
                     };
-                    match self.auth_ping_token(String::from(token)).await {
+                    match self.auth_ping_token(String::from(token)) {
                         Ok(_) => {
                             print_success!("авторизация выполнена успешно");
                             Ok(true)
@@ -108,7 +106,7 @@ impl ClientRequest {
     async fn auth_deeplink(&self) -> Result<CommonResponse, Box<dyn std::error::Error>> {
         let response = match self
             .client
-            .get(format!("{URL_API}/auth/deeplink"))
+            .get(format!("{}/auth/deeplink", constants::URL_API))
             .send()
             .await
         {
@@ -126,8 +124,8 @@ impl ClientRequest {
     }
 
     /// Waiting for authorization
-    pub async fn auth_ping_token(&self, token: String) -> Result<(), Box<dyn std::error::Error>> {
-        return self.auth_ping(token, 1).await;
+    pub fn auth_ping_token(&self, token: String) -> Result<(), Box<dyn std::error::Error>> {
+        tokio::task::block_in_place(|| Handle::current().block_on(self.auth_ping(token, 1)))
     }
 
     /// Waiting for authorization
@@ -141,7 +139,7 @@ impl ClientRequest {
         }
         let response = match self
             .client
-            .get(format!("{URL_API}/auth/token/{token}"))
+            .get(format!("{}/auth/token/{token}", constants::URL_API))
             .send()
             .await
         {
@@ -178,11 +176,15 @@ impl ClientRequest {
     }
 
     /// Common GET request with auth
-    pub async fn get_request(&self, url: String) -> Result<Response, Box<dyn std::error::Error>> {
+    pub fn get_request(&self, url: String) -> Result<Response, Box<dyn std::error::Error>> {
+        tokio::task::block_in_place(|| Handle::current().block_on(self._get_request(url)))
+    }
+
+    async fn _get_request(&self, url: String) -> Result<Response, Box<dyn std::error::Error>> {
         match self.client.get(&url).send().await {
             Ok(response) => {
                 if StatusCode::UNAUTHORIZED == response.status() {
-                    match self.auth().await {
+                    match self.auth() {
                         Ok(_) => match self.client.get(&url).send().await {
                             Ok(response) => Ok(response),
                             Err(error) => Err(error)?,

@@ -1,17 +1,25 @@
-use std::process::exit;
-use std::time::Duration;
+use std::{
+    thread,
+    time::{self, Duration},
+};
 
-use crate::models::incoming::Incoming;
-use crate::models::outgoing::ws_connect::WsConnectionOutgoing;
-use crate::models::outgoing::{Outgoing, OutgoingType};
-use crate::print_warning;
-use crate::service::requests::client::ClientRequest;
-use crate::utils::constants::{URL_API, WSS_API};
-use crate::utils::macros::print_error;
+use crate::{
+    models::client::{
+        incoming::DataIncoming,
+        outgoing::{OutgoingType, TraitOutgoing},
+        ws_ping::outgoing::WsPingOutgoing,
+    },
+    service::requests::client::ClientRequest,
+    tools::{
+        constants,
+        macros::{crash, print_error, print_warning},
+        single,
+    },
+};
 use futures_util::{SinkExt, TryStreamExt};
 use reqwest::Client;
 use reqwest_websocket::{Message, RequestBuilderExt, WebSocket};
-use tokio::time::sleep;
+use tokio::{runtime::Handle, time::sleep};
 
 pub struct ClientWebsocket {
     client: Client,
@@ -23,7 +31,7 @@ impl ClientWebsocket {
             Ok(cookie) => std::sync::Arc::clone(&cookie),
             Err(error) => {
                 print_error!(error);
-                exit(1)
+                panic!("{}", error)
             }
         };
         let client = Client::builder()
@@ -34,22 +42,26 @@ impl ClientWebsocket {
         ClientWebsocket { client }
     }
 
-    pub fn send(outgoing: &Outgoing) {
-        let message = outgoing.to_string().unwrap();
+    pub fn send(outgoing: String) {
         tokio::spawn({
             async move {
-                let request = ClientRequest::new();
-                let url = format!("{URL_API}/state/connect");
-                let _ = request.client.post(&url).body(message).send().await;
+                let request = ClientRequest::new(1);
+                let url = format!("{}/state/connect", constants::URL_API);
+                let _ = request.client.post(&url).body(outgoing).send().await;
             }
         });
+        // Min seep for speed result
+        thread::sleep(time::Duration::from_secs(1));
     }
 
-    pub async fn run(&self) -> Result<(), Box<dyn std::error::Error>> {
-        match self.connect().await {
-            Ok(_) => Ok(()),
-            Err(_) => Ok(self.reconnect().await?),
+    pub fn run(&self) -> Result<(), Box<dyn std::error::Error>> {
+        async fn _run(ws: &ClientWebsocket) -> Result<(), Box<dyn std::error::Error>> {
+            match ws.connect().await {
+                Ok(_) => Ok(()),
+                Err(_) => Ok(ws.reconnect().await?),
+            }
         }
+        tokio::task::block_in_place(|| Handle::current().block_on(_run(self)))
     }
 
     pub async fn reconnect(&self) -> Result<(), Box<dyn std::error::Error>> {
@@ -63,31 +75,33 @@ impl ClientWebsocket {
 
     async fn connect(&self) -> Result<(), Box<dyn std::error::Error>> {
         // Get response
-        let response = match self.client.get(WSS_API).upgrade().send().await {
+        let response = match self.client.get(constants::WSS_API).upgrade().send().await {
             Ok(value) => value,
             Err(error) => Err(error)?,
         };
         // Get websocket
         let mut websocket: WebSocket = match response.into_websocket().await {
             Ok(value) => value,
-            Err(error) => Err(error)?,
+            Err(_) => {
+                let _ = single::get_request().logout();
+                crash!("требуется авторизация")
+            }
         };
         // Send connect message
-        let outgoing = WsConnectionOutgoing::new_ping();
-        let message = Message::Text(outgoing.to_string().unwrap());
+        let ping = WsPingOutgoing::new();
+        let message = Message::Text(ping.to_string());
         websocket.send(message).await?;
         // Listen response
         while let Ok(Some(message)) = websocket.try_next().await {
             if let Message::Text(text) = message {
-                match Incoming::convert(text) {
+                match DataIncoming::deserialize(&text)?.deserialize(&text) {
                     Ok(incoming) => {
-                        let outgoing = Incoming::handler(incoming, OutgoingType::Websocket).await;
-                        match outgoing {
-                            Outgoing::WsConnection(_) => outgoing.print(),
-                            _ => match outgoing.to_string() {
-                                Ok(outgoing) => websocket.send(Message::Text(outgoing)).await?,
-                                Err(_) => Err("не удалось получить outgoing")?,
-                            },
+                        let outgoing = incoming.run(OutgoingType::Websocket);
+                        // Check ping/pong
+                        if outgoing.to_string().contains("WsPing") {
+                            outgoing.print();
+                        } else {
+                            websocket.send(Message::Text(outgoing.to_string())).await?;
                         }
                     }
                     Err(_) => Err("не удалось получить incoming")?,

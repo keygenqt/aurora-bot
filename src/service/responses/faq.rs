@@ -109,9 +109,11 @@ impl FaqResponse {
     }
 }
 
+#[allow(dead_code)]
 pub struct FaqResponses(pub Vec<FaqResponse>);
 
 impl FaqResponses {
+    #[allow(dead_code)]
     pub fn print(&self) {
         if self.0.len() == 1 {
             self.0.first().unwrap().print();

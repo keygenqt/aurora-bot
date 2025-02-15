@@ -1,9 +1,8 @@
 use colored::Colorize;
 
-use crate::models::configuration::psdk::PsdkConfig;
 use crate::models::TraitModel;
-use crate::utils::macros::print_info;
-use crate::utils::methods;
+use crate::tools::utils;
+use crate::{models::configuration::psdk::PsdkConfig, tools::macros::print_info};
 use serde::{Deserialize, Serialize};
 use std::fs;
 
@@ -17,6 +16,10 @@ pub struct PsdkModel {
 }
 
 impl TraitModel for PsdkModel {
+    fn get_id(&self) -> String {
+        format!("{:x}", md5::compute(self.chroot.as_bytes()))
+    }
+
     fn print(&self) {
         let message = format!(
             "Platform SDK: {}\nДиректория: {}",
@@ -27,14 +30,23 @@ impl TraitModel for PsdkModel {
     }
 }
 
+#[allow(dead_code)]
 impl PsdkModel {
-    pub async fn search() -> Vec<PsdkModel> {
-        PsdkConfig::load_models().await
+    pub fn search() -> Vec<PsdkModel> {
+        PsdkConfig::load_models()
     }
 
-    pub async fn search_full() -> Result<Vec<PsdkModel>, Box<dyn std::error::Error>> {
+    pub fn search_filter<T: Fn(&PsdkModel) -> bool>(filter: T) -> Vec<PsdkModel> {
+        PsdkConfig::load_models()
+            .iter()
+            .filter(|e| filter(e))
+            .cloned()
+            .collect()
+    }
+
+    pub fn search_full() -> Result<Vec<PsdkModel>, Box<dyn std::error::Error>> {
         let mut models: Vec<PsdkModel> = vec![];
-        let psdks_path = methods::search_files("aurora_psdk/sdk-chroot");
+        let psdks_path = utils::search_files("aurora_psdk/sdk-chroot");
         for chroot in psdks_path {
             let psdk_dir = chroot.replace("/sdk-chroot", "");
             let psdk_release = psdk_dir.clone() + "/etc/aurora-release";
@@ -45,15 +57,15 @@ impl PsdkModel {
                     .collect::<Vec<String>>(),
                 Err(_) => continue,
             };
-            let version = match methods::config_get_string(&data, "VERSION", "=") {
+            let version = match utils::config_get_string(&data, "VERSION", "=") {
                 Ok(s) => s,
                 Err(_) => continue,
             };
-            let version_id = match methods::config_get_string(&data, "VERSION_ID", "=") {
+            let version_id = match utils::config_get_string(&data, "VERSION_ID", "=") {
                 Ok(s) => s,
                 Err(_) => continue,
             };
-            let build = match methods::config_get_string(&data, "SAILFISH_BUILD", "=") {
+            let build = match utils::config_get_string(&data, "SAILFISH_BUILD", "=") {
                 Ok(s) => s.parse::<u8>().unwrap_or_else(|_| 0),
                 Err(_) => continue,
             };

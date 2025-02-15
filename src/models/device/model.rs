@@ -1,10 +1,11 @@
 use colored::Colorize;
 
+use serde::{Deserialize, Serialize};
+
 use crate::{
     models::{configuration::device::DeviceConfig, TraitModel},
-    utils::macros::print_info,
+    tools::macros::print_info,
 };
-use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct DeviceModel {
@@ -13,6 +14,10 @@ pub struct DeviceModel {
 }
 
 impl TraitModel for DeviceModel {
+    fn get_id(&self) -> String {
+        format!("{:x}", md5::compute(self.ip.as_bytes()))
+    }
+
     fn print(&self) {
         let message = format!(
             "Устройство: {}:{}",
@@ -23,12 +28,21 @@ impl TraitModel for DeviceModel {
     }
 }
 
+#[allow(dead_code)]
 impl DeviceModel {
-    pub async fn search() -> Vec<DeviceModel> {
-        DeviceConfig::load_models().await
+    pub fn search() -> Vec<DeviceModel> {
+        DeviceConfig::load_models()
     }
 
-    pub async fn search_full() -> Result<Vec<DeviceModel>, Box<dyn std::error::Error>> {
+    pub fn search_filter<T: Fn(&DeviceModel) -> bool>(filter: T) -> Vec<DeviceModel> {
+        DeviceConfig::load_models()
+            .iter()
+            .filter(|e| filter(e))
+            .cloned()
+            .collect()
+    }
+
+    pub fn search_full() -> Result<Vec<DeviceModel>, Box<dyn std::error::Error>> {
         // @todo search devices by localhost
         Ok(vec![])
     }

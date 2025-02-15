@@ -1,14 +1,14 @@
-use crate::models::incoming::sync_device::SyncDeviceIncoming;
-use crate::models::incoming::sync_emulator::SyncEmulatorIncoming;
-use crate::models::incoming::sync_flutter::SyncFlutterIncoming;
-use crate::models::incoming::sync_psdk::SyncPsdkIncoming;
-use crate::models::incoming::sync_sdk::SyncSdkIncoming;
-use crate::models::incoming::Incoming;
-use crate::models::outgoing::OutgoingType;
-use crate::service::dbus::server::ServerDbus;
-use crate::utils::{
-    macros::{print_error, print_info, print_success},
-    single,
+use crate::{
+    models::client::{
+        emulator_sync::incoming::EmulatorSyncIncoming, flutter_sync::incoming::FlutterSyncIncoming,
+        incoming::TraitIncoming, outgoing::OutgoingType, psdk_sync::incoming::PsdkSyncIncoming,
+        sdk_sync::incoming::SdkSyncIncoming,
+    },
+    service::dbus::server::ServerDbus,
+    tools::{
+        macros::{print_error, print_info, print_success},
+        single,
+    },
 };
 use clap::{Args, Subcommand};
 
@@ -49,10 +49,9 @@ pub enum SyncCommands {
 #[command(arg_required_else_help = true)]
 #[group(multiple = false)]
 pub struct SyncArgs {
-    /// Поиск и синхронизация устройств
-    #[arg(short, long, default_value_t = false)]
-    device: bool,
-
+    // /// Поиск и синхронизация устройств
+    // #[arg(short, long, default_value_t = false)]
+    // device: bool,
     /// Поиск и синхронизация эмуляторов
     #[arg(short, long, default_value_t = false)]
     emulator: bool,
@@ -75,60 +74,46 @@ pub struct SyncArgs {
 }
 
 /// Handling interface events
-pub async fn run(arg: SvcArgs) {
+pub fn run(arg: SvcArgs) {
     if arg.dbus {
-        match ServerDbus::run().await {
+        match ServerDbus::run() {
             Ok(_) => print_info!("соединение закрыто"),
             Err(_) => print_error!("не удалось активировать сервер"),
         }
-    } else if arg.connect {
-        match single::get_websocket().run().await {
+    }
+    if arg.connect {
+        match single::get_websocket().run() {
             Ok(_) => print_info!("соединение закрыто"),
             Err(_) => print_error!("соединение не установлено"),
         }
-    } else if arg.logout {
+    }
+    if arg.logout {
         match single::get_request().logout() {
             Ok(_) => print_success!("сессия удалена успешно"),
             Err(_) => print_error!("сессия не найдена"),
         }
-    } else if let Some(sync) = arg.sync {
+    }
+    if let Some(token) = arg.auth {
+        match single::get_request().auth_ping_token(token) {
+            Ok(_) => print_success!("авторизация выполнена успешно"),
+            Err(_) => print_error!("авторизация по токену не удалась"),
+        }
+    }
+    if let Some(sync) = arg.sync {
         match sync {
             SyncCommands::Sync(arg) => {
-                if arg.device || arg.all {
-                    Incoming::handler(SyncDeviceIncoming::new(), OutgoingType::Cli)
-                        .await
-                        .print()
-                }
                 if arg.emulator || arg.all {
-                    Incoming::handler(SyncEmulatorIncoming::new(), OutgoingType::Cli)
-                        .await
-                        .print()
+                    EmulatorSyncIncoming::new().run(OutgoingType::Cli).print();
                 }
                 if arg.flutter || arg.all {
-                    Incoming::handler(SyncFlutterIncoming::new(), OutgoingType::Cli)
-                        .await
-                        .print()
+                    FlutterSyncIncoming::new().run(OutgoingType::Cli).print();
                 }
                 if arg.psdk || arg.all {
-                    Incoming::handler(SyncPsdkIncoming::new(), OutgoingType::Cli)
-                        .await
-                        .print()
+                    PsdkSyncIncoming::new().run(OutgoingType::Cli).print();
                 }
                 if arg.sdk || arg.all {
-                    Incoming::handler(SyncSdkIncoming::new(), OutgoingType::Cli)
-                        .await
-                        .print()
+                    SdkSyncIncoming::new().run(OutgoingType::Cli).print();
                 }
-            }
-        }
-    } else {
-        match single::get_request()
-            .auth_ping_token(arg.auth.unwrap())
-            .await
-        {
-            Ok(_) => print_success!("авторизация выполнена успешно"),
-            Err(_) => {
-                print_error!("не удалось подключиться, проверьте соединение и актуальность токена")
             }
         }
     }

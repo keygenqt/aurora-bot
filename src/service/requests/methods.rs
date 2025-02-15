@@ -1,20 +1,23 @@
-use crate::models::incoming::Incoming;
+use tokio::runtime::Handle;
+
+use crate::models::client::incoming::{DataIncoming, TraitIncoming};
 use crate::service::requests::client::ClientRequest;
 use crate::service::responses::common::CommonResponse;
 use crate::service::responses::faq::{FaqResponse, FaqResponses};
 use crate::service::responses::user::UserResponse;
-use crate::utils::constants::URL_API;
+use crate::tools::constants;
 
 impl ClientRequest {
     /// Get data user
     #[allow(dead_code)]
-    pub async fn get_user(&self) -> Result<UserResponse, Box<dyn std::error::Error>> {
-        let url = format!("{URL_API}/user/info");
-        let response = match self.get_request(url).await {
+    pub fn get_user(&self) -> Result<UserResponse, Box<dyn std::error::Error>> {
+        let url = format!("{}/user/info", constants::URL_API);
+        let response = match self.get_request(url) {
             Ok(value) => value,
             Err(error) => Err(error)?,
         };
-        let body = match response.text().await {
+        let body = match tokio::task::block_in_place(|| Handle::current().block_on(response.text()))
+        {
             Ok(value) => value,
             Err(error) => Err(error)?,
         };
@@ -28,30 +31,37 @@ impl ClientRequest {
     }
 
     /// AI Command line
-    pub async fn get_command(&self, value: String) -> Result<Incoming, Box<dyn std::error::Error>> {
-        let url = format!("{URL_API}/cli-dataset/command/{value}");
-        let response = match self.get_request(url).await {
-            Ok(value) => value,
-            Err(error) => Err(error)?,
-        };
-        let body = match response.text().await {
-            Ok(value) => value,
-            Err(error) => Err(error)?,
-        };
-        Incoming::convert(body)
-    }
-
-    /// Get answer
-    pub async fn get_search(
+    pub fn get_command(
         &self,
         value: String,
-    ) -> Result<FaqResponses, Box<dyn std::error::Error>> {
-        let url = format!("{URL_API}/aurora-dataset/search/data/{value}");
-        let response = match self.get_request(url).await {
+    ) -> Result<Box<dyn TraitIncoming>, Box<dyn std::error::Error>> {
+        let url = format!("{}/cli-dataset/command/{}", constants::URL_API, value);
+        let response = match self.get_request(url) {
+            Ok(value) => value,
+            Err(error) => Err(error)?,
+        };
+        let body = match tokio::task::block_in_place(|| Handle::current().block_on(response.text()))
+        {
+            Ok(value) => value,
+            Err(error) => Err(error)?,
+        };
+        DataIncoming::deserialize(&body)?.deserialize(&body)
+    }
+
+    #[allow(dead_code)]
+    /// Get answer
+    pub fn get_search(&self, value: String) -> Result<FaqResponses, Box<dyn std::error::Error>> {
+        let url = format!(
+            "{}/aurora-dataset/search/data/{}",
+            constants::URL_API,
+            value
+        );
+        let response = match self.get_request(url) {
             Ok(response) => response,
             Err(error) => Err(error)?,
         };
-        let body = match response.text().await {
+        let body = match tokio::task::block_in_place(|| Handle::current().block_on(response.text()))
+        {
             Ok(value) => value,
             Err(error) => Err(error)?,
         };

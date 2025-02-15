@@ -1,10 +1,9 @@
-use crate::models::configuration::device::DeviceConfig;
 use crate::models::configuration::emulator::EmulatorConfig;
 use crate::models::configuration::flutter::FlutterConfig;
 use crate::models::configuration::psdk::PsdkConfig;
 use crate::models::configuration::sdk::SdkConfig;
-use crate::utils::constants::{CONFIGURATION_FILE, CONFIGURATION_VERSION};
-use crate::utils::methods::get_file_save;
+use crate::tools::utils;
+use crate::{models::configuration::device::DeviceConfig, tools::constants};
 use serde::{Deserialize, Serialize};
 use std::fs;
 
@@ -27,7 +26,7 @@ pub struct Config {
 impl Config {
     fn new() -> Config {
         Self {
-            version: CONFIGURATION_VERSION.to_string(),
+            version: constants::VERSION_CONFIGURATION.to_string(),
             device: vec![],
             emulator: vec![],
             flutter: vec![],
@@ -38,7 +37,7 @@ impl Config {
 
     pub fn load() -> Config {
         fn _exec() -> Result<Config, Box<dyn std::error::Error>> {
-            let path = get_file_save(CONFIGURATION_FILE);
+            let path = utils::get_file_save(constants::CONFIGURATION_FILE);
             let data = match fs::read_to_string(path) {
                 Ok(value) => value,
                 Err(_) => Err("не удалось прочитать конфигурацию")?,
@@ -61,7 +60,7 @@ impl Config {
                 Ok(config) => config,
                 Err(_) => Err("не удалось получить конфигурацию")?,
             };
-            let path = get_file_save(CONFIGURATION_FILE);
+            let path = utils::get_file_save(constants::CONFIGURATION_FILE);
             fs::write(path, value_for_save).expect("не удалось записать файл");
             Ok(())
         }
@@ -80,6 +79,7 @@ impl Config {
         config.save()
     }
 
+    #[allow(dead_code)]
     pub fn save_emulator(list: Vec<EmulatorConfig>) -> bool {
         let mut config = Config::load();
         if config.emulator == list {

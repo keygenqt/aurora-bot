@@ -1,7 +1,10 @@
 use std::path::PathBuf;
 
-use crate::{service::ssh::client::SshSession, utils::methods};
+use tokio::runtime::Handle;
 
+use crate::{service::ssh::client::SshSession, tools::utils};
+
+#[allow(dead_code)]
 #[derive(PartialEq)]
 pub enum EmulatorSessionType {
     Root,
@@ -19,7 +22,7 @@ pub struct EmulatorSession {
 }
 
 impl EmulatorSession {
-    pub async fn new(
+    pub fn new(
         session_type: EmulatorSessionType,
         key: &String,
     ) -> Result<Self, Box<dyn std::error::Error>> {
@@ -30,8 +33,8 @@ impl EmulatorSession {
             "defaultuser"
         };
         let port = 2223;
-        let session = SshSession::connect(PathBuf::from(key), user, (host, port)).await?;
-        let output = session.call("cat /etc/os-release").await?;
+        let session = SshSession::connect(PathBuf::from(key), user, (host, port))?;
+        let output = session.call("cat /etc/os-release")?;
         let lines = match output.first() {
             Some(s) => s
                 .split("\n")
@@ -39,11 +42,11 @@ impl EmulatorSession {
                 .collect::<Vec<String>>(),
             None => Err("ошибка при получении данных")?,
         };
-        let os_name = match methods::config_get_string(&lines, "PRETTY_NAME", "=") {
+        let os_name = match utils::config_get_string(&lines, "PRETTY_NAME", "=") {
             Ok(s) => s,
             Err(error) => Err(error)?,
         };
-        let os_version = match methods::config_get_string(&lines, "VERSION_ID", "=") {
+        let os_version = match utils::config_get_string(&lines, "VERSION_ID", "=") {
             Ok(s) => s,
             Err(error) => Err(error)?,
         };
@@ -57,8 +60,8 @@ impl EmulatorSession {
         })
     }
 
-    pub async fn close(&self) -> Result<(), Box<dyn std::error::Error>> {
-        self.session.close().await?;
+    pub fn close(&self) -> Result<(), Box<dyn std::error::Error>> {
+        tokio::task::block_in_place(|| Handle::current().block_on(self.session.close()))?;
         Ok(())
     }
 }

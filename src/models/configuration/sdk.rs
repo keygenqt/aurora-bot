@@ -10,10 +10,10 @@ pub struct SdkConfig {
 }
 
 impl SdkConfig {
-    pub async fn load_models() -> Vec<SdkModel> {
+    pub fn load_models() -> Vec<SdkModel> {
         let sdk = Config::load().sdk;
         if sdk.is_empty() {
-            let update = Self::search().await;
+            let update = Self::search();
             if Config::save_sdk(update.clone()) {
                 return update.iter().map(|e| e.to_model()).collect();
             }
@@ -21,8 +21,8 @@ impl SdkConfig {
         sdk.iter().map(|e| e.to_model()).collect()
     }
 
-    pub async fn search() -> Vec<SdkConfig> {
-        match SdkModel::search_full().await {
+    pub fn search() -> Vec<SdkConfig> {
+        match SdkModel::search_full() {
             Ok(models) => models
                 .iter()
                 .map(|e| SdkConfig {

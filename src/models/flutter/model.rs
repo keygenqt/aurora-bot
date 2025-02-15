@@ -1,10 +1,9 @@
 use colored::Colorize;
 
-use crate::models::configuration::flutter::FlutterConfig;
 use crate::models::TraitModel;
 use crate::service::command::exec;
-use crate::utils::macros::print_info;
-use crate::utils::methods;
+use crate::tools::utils;
+use crate::{models::configuration::flutter::FlutterConfig, tools::macros::print_info};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -18,6 +17,10 @@ pub struct FlutterModel {
 }
 
 impl TraitModel for FlutterModel {
+    fn get_id(&self) -> String {
+        format!("{:x}", md5::compute(self.flutter.as_bytes()))
+    }
+
     fn print(&self) {
         let message = format!(
             "Flutter SDK: {}\nDart: {}\nDevTools: {}\nДиректория: {}",
@@ -30,18 +33,27 @@ impl TraitModel for FlutterModel {
     }
 }
 
+#[allow(dead_code)]
 impl FlutterModel {
-    pub async fn search() -> Vec<FlutterModel> {
-        FlutterConfig::load_models().await
+    pub fn search() -> Vec<FlutterModel> {
+        FlutterConfig::load_models()
     }
 
-    pub async fn search_full() -> Result<Vec<FlutterModel>, Box<dyn std::error::Error>> {
+    pub fn search_filter<T: Fn(&FlutterModel) -> bool>(filter: T) -> Vec<FlutterModel> {
+        FlutterConfig::load_models()
+            .iter()
+            .filter(|e| filter(e))
+            .cloned()
+            .collect()
+    }
+
+    pub fn search_full() -> Result<Vec<FlutterModel>, Box<dyn std::error::Error>> {
         let mut models: Vec<FlutterModel> = vec![];
-        let flutters_path = methods::search_files("bin/flutter");
+        let flutters_path = utils::search_files("bin/flutter");
         for flutter in flutters_path {
             let dir = flutter.clone().replace("/bin/flutter", "");
             let output = exec::exec_wait_args(&flutter, ["--version"])?;
-            let lines = methods::parse_output(output.stdout);
+            let lines = utils::parse_output(output.stdout);
             let flutter_version = match lines.get(0) {
                 Some(line) => line
                     .split("•")

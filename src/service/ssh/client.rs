@@ -7,6 +7,7 @@ use russh::keys::*;
 use russh::*;
 use std::str;
 use tokio::net::ToSocketAddrs;
+use tokio::runtime::Handle;
 
 struct SshClient {}
 
@@ -26,7 +27,17 @@ pub struct SshSession {
 }
 
 impl SshSession {
-    pub async fn connect<P: AsRef<Path>, A: ToSocketAddrs>(
+    pub fn connect<P: AsRef<Path>, A: ToSocketAddrs>(
+        key_path: P,
+        user: impl Into<String>,
+        addrs: A,
+    ) -> Result<Self, Box<dyn std::error::Error>> {
+        tokio::task::block_in_place(|| {
+            Handle::current().block_on(Self::_connect(key_path, user, addrs))
+        })
+    }
+
+    async fn _connect<P: AsRef<Path>, A: ToSocketAddrs>(
         key_path: P,
         user: impl Into<String>,
         addrs: A,
@@ -46,7 +57,6 @@ impl SshSession {
 
         let config = Arc::new(config);
         let sh = SshClient {};
-
         let mut session = client::connect(config, addrs, sh).await?;
         let auth_res = session
             .authenticate_publickey(
@@ -65,7 +75,11 @@ impl SshSession {
         Ok(Self { session })
     }
 
-    pub async fn call(&self, command: &str) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    pub fn call(&self, command: &str) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        tokio::task::block_in_place(|| Handle::current().block_on(self._call(command)))
+    }
+
+    async fn _call(&self, command: &str) -> Result<Vec<String>, Box<dyn std::error::Error>> {
         let mut code = None;
         let mut response: Vec<String> = vec![];
         let mut channel = self.session.channel_open_session().await?;

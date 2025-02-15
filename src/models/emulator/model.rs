@@ -4,11 +4,9 @@ use serde::{Deserialize, Serialize};
 use super::session::{EmulatorSession, EmulatorSessionType};
 use crate::models::configuration::emulator::EmulatorConfig;
 use crate::models::TraitModel;
-use crate::utils::macros::print_info;
-use crate::{
-    service::command::exec,
-    utils::{methods, programs},
-};
+use crate::service::command::exec;
+use crate::tools::macros::print_info;
+use crate::tools::{programs, utils};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct EmulatorModel {
@@ -19,6 +17,10 @@ pub struct EmulatorModel {
 }
 
 impl TraitModel for EmulatorModel {
+    fn get_id(&self) -> String {
+        format!("{:x}", md5::compute(self.uuid.as_bytes()))
+    }
+
     fn print(&self) {
         let message = format!(
             "Эмулятор: {}\nСтатус: {}\nUUID: {}\nДиректория: {}",
@@ -37,17 +39,18 @@ impl TraitModel for EmulatorModel {
     }
 }
 
+#[allow(dead_code)]
 impl EmulatorModel {
-    pub async fn session_user(&self) -> Result<EmulatorSession, Box<dyn std::error::Error>> {
-        Ok(EmulatorSession::new(EmulatorSessionType::User, &self.key).await?)
+    pub fn session_user(&self) -> Result<EmulatorSession, Box<dyn std::error::Error>> {
+        Ok(EmulatorSession::new(EmulatorSessionType::User, &self.key)?)
     }
 
     #[allow(dead_code)]
-    pub async fn session_root(&self) -> Result<EmulatorSession, Box<dyn std::error::Error>> {
-        Ok(EmulatorSession::new(EmulatorSessionType::Root, &self.key).await?)
+    pub fn session_root(&self) -> Result<EmulatorSession, Box<dyn std::error::Error>> {
+        Ok(EmulatorSession::new(EmulatorSessionType::Root, &self.key)?)
     }
 
-    pub async fn start(&self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn start(&self) -> Result<(), Box<dyn std::error::Error>> {
         let program = programs::get_vboxmanage()?;
         let output = exec::exec_wait_args(&program, ["startvm", self.uuid.as_str()])?;
         if output.status.success() {
@@ -57,7 +60,7 @@ impl EmulatorModel {
         }
     }
 
-    pub async fn close(&self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn close(&self) -> Result<(), Box<dyn std::error::Error>> {
         let program = programs::get_vboxmanage()?;
         let output = exec::exec_wait_args(&program, ["controlvm", self.uuid.as_str(), "poweroff"])?;
         if output.status.success() {
@@ -67,15 +70,23 @@ impl EmulatorModel {
         }
     }
 
-    pub async fn search() -> Vec<EmulatorModel> {
-        EmulatorConfig::load_models().await
+    pub fn search() -> Vec<EmulatorModel> {
+        EmulatorConfig::load_models()
     }
 
-    pub async fn search_full() -> Result<Vec<EmulatorModel>, Box<dyn std::error::Error>> {
+    pub fn search_filter<T: Fn(&EmulatorModel) -> bool>(filter: T) -> Vec<EmulatorModel> {
+        EmulatorConfig::load_models()
+            .iter()
+            .filter(|e| filter(e))
+            .cloned()
+            .collect()
+    }
+
+    pub fn search_full() -> Result<Vec<EmulatorModel>, Box<dyn std::error::Error>> {
         let mut emulators = vec![];
         let program = programs::get_vboxmanage()?;
         let output = exec::exec_wait_args(&program, ["list", "vms"])?;
-        let lines = methods::parse_output(output.stdout);
+        let lines = utils::parse_output(output.stdout);
         for line in lines {
             if !line.to_lowercase().contains("aurora") {
                 continue;
@@ -85,12 +96,12 @@ impl EmulatorModel {
             }
             let uuid = line.split("{").skip(1).collect::<String>().replace("}", "");
             let output = exec::exec_wait_args(&program, ["showvminfo", &uuid])?;
-            let lines = methods::parse_output(output.stdout);
-            let is_running = match methods::config_get_bool(&lines, "State:", "running") {
+            let lines = utils::parse_output(output.stdout);
+            let is_running = match utils::config_get_bool(&lines, "State:", "running") {
                 Ok(value) => value,
                 Err(_) => continue,
             };
-            let dir = match methods::config_get_string(&lines, "Snapshot folder:", " ") {
+            let dir = match utils::config_get_string(&lines, "Snapshot folder:", " ") {
                 Ok(s) => s
                     .split("/")
                     .skip(1)

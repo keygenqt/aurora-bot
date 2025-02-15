@@ -12,10 +12,10 @@ pub struct PsdkConfig {
 }
 
 impl PsdkConfig {
-    pub async fn load_models() -> Vec<PsdkModel> {
+    pub fn load_models() -> Vec<PsdkModel> {
         let psdk = Config::load().psdk;
         if psdk.is_empty() {
-            let update = Self::search().await;
+            let update = Self::search();
             if Config::save_psdk(update.clone()) {
                 return update.iter().map(|e| e.to_model()).collect();
             }
@@ -23,8 +23,8 @@ impl PsdkConfig {
         psdk.iter().map(|e| e.to_model()).collect()
     }
 
-    pub async fn search() -> Vec<PsdkConfig> {
-        match PsdkModel::search_full().await {
+    pub fn search() -> Vec<PsdkConfig> {
+        match PsdkModel::search_full() {
             Ok(models) => models
                 .iter()
                 .map(|e| PsdkConfig {

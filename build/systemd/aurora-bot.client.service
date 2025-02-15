@@ -4,6 +4,7 @@ Requires=default.target
 After=default.target
 
 [Service]
+Environment=DISPLAY=:1
 Type=exec
 KillMode=process
 TimeoutSec=5min

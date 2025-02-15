@@ -43,7 +43,9 @@ dpkg-deb --build --root-owner-group "$DEB_FOLDER"
 rm -rf "$DEB_FOLDER"
 
 # DEB Install / Remove
-#sudo dpkg -r aurora-bot
-#sudo dpkg -i "$DEB_FOLDER".deb
-#systemctl --user enable aurora-bot.client.service
-#systemctl --user enable aurora-bot.dbus.service
+# sudo dpkg -r aurora-bot
+# sudo dpkg -i "$DEB_FOLDER".deb
+# systemctl --user enable aurora-bot.client.service
+# systemctl --user enable aurora-bot.dbus.service
+# systemctl --user restart aurora-bot.client.service
+# systemctl --user restart aurora-bot.dbus.service

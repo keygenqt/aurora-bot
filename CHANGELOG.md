@@ -1,4 +1,4 @@
-## Updated: 02/06/2025 18:46:00 PM
+## Updated: 02/15/2025 17:37:08 PM
 
 ## Info
 
@@ -8,3 +8,9 @@
 ## Versions
 
 - Version: 0.0.1 (06/02/2025)
+
+### HEAD (15/02/2025)
+
+#### Feature
+
+- Cache-configuration.

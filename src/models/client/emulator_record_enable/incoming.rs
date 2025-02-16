@@ -16,22 +16,23 @@ use crate::{
 };
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct EmulatorStartIncoming {
+pub struct EmulatorRecordEnableIncoming {
     id: Option<String>,
 }
 
-impl EmulatorStartIncoming {
+// @todo Add to server
+impl EmulatorRecordEnableIncoming {
     pub fn name() -> String {
-        serde_variant::to_variant_name(&ClientMethodsKey::EmulatorStart)
+        serde_variant::to_variant_name(&ClientMethodsKey::EmulatorRecordEnable)
             .unwrap()
             .to_string()
     }
 
-    pub fn new() -> Box<EmulatorStartIncoming> {
+    pub fn new() -> Box<EmulatorRecordEnableIncoming> {
         Box::new(Self { id: None })
     }
 
-    pub fn new_id(id: String) -> Box<EmulatorStartIncoming> {
+    pub fn new_id(id: String) -> Box<EmulatorRecordEnableIncoming> {
         Box::new(Self { id: Some(id) })
     }
 
@@ -60,30 +61,18 @@ impl EmulatorStartIncoming {
     }
 }
 
-impl TraitIncoming for EmulatorStartIncoming {
+impl TraitIncoming for EmulatorRecordEnableIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
-        let key = EmulatorStartIncoming::name();
-        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(&self.id, &send_type, false);
+        let key = EmulatorRecordEnableIncoming::name();
+        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(&self.id, &send_type, Some(false));
         // Exec fun
+        #[allow(unused_variables)] // @todo add feature
         fn _run(
             emulator: EmulatorModel,
             send_type: &OutgoingType,
         ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-            if !emulator.is_running {
-                StateMessageOutgoing::new_state(tr!("открываем эмулятор")).send(send_type);
-                emulator.start()?;
-            }
-            StateMessageOutgoing::new_state(tr!("соединение с эмулятором")).send(send_type);
-            // Get emulator connect session
-            let emulator = emulator.session_user()?;
-            // Close connect
-            emulator.close()?;
-            // Done
-            Ok(StateMessageOutgoing::new_success(tr!(
-                "эмулятор {} готов к работе",
-                emulator.os_name
-            )))
+            Ok(StateMessageOutgoing::new_info(tr!("@todo")))
         }
         // Select
         match models.iter().count() {
@@ -93,7 +82,7 @@ impl TraitIncoming for EmulatorStartIncoming {
             },
             0 => StateMessageOutgoing::new_info(tr!("эмуляторы не найдены")),
             _ => Box::new(EmulatorModelSelect::select(key, models, |id| {
-                *EmulatorStartIncoming::new_id(id)
+                *EmulatorRecordEnableIncoming::new_id(id)
             })),
         }
     }

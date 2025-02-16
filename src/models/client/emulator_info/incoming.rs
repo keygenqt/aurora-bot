@@ -66,7 +66,7 @@ impl TraitIncoming for EmulatorInfoIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = EmulatorInfoIncoming::name();
-        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(&self.id, &send_type, false);
+        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(&self.id, &send_type, None);
         // Select
         match models.iter().count() {
             1 => EmulatorInfoOutgoing::new(models.first().unwrap().clone()),

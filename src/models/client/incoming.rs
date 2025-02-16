@@ -3,26 +3,7 @@ use serde::Deserialize;
 use crate::tools::utils;
 
 use super::{
-    app_info::incoming::AppInfoIncoming,
-    emulator_close::incoming::EmulatorCloseIncoming,
-    emulator_info::incoming::EmulatorInfoIncoming,
-    emulator_start::incoming::EmulatorStartIncoming,
-    emulator_sync::incoming::EmulatorSyncIncoming,
-    emulator_terminal::incoming::EmulatorTerminalIncoming,
-    emulator_terminal_root::incoming::EmulatorTerminalRootIncoming,
-    flutter_info::incoming::FlutterInfoIncoming,
-    flutter_sync::incoming::FlutterSyncIncoming,
-    flutter_terminal::incoming::FlutterTerminalIncoming,
-    outgoing::{OutgoingType, TraitOutgoing},
-    psdk_info::incoming::PsdkInfoIncoming,
-    psdk_sync::incoming::PsdkSyncIncoming,
-    psdk_terminal::incoming::PsdkTerminalIncoming,
-    sdk_info::incoming::SdkInfoIncoming,
-    sdk_sync::incoming::SdkSyncIncoming,
-    sdk_tools::incoming::SdkToolsIncoming,
-    state_message::incoming::StateMessageIncoming,
-    ws_ping::incoming::WsPingIncoming,
-    ClientMethodsKey,
+    app_info::incoming::AppInfoIncoming, emulator_close::incoming::EmulatorCloseIncoming, emulator_info::incoming::EmulatorInfoIncoming, emulator_open::incoming::EmulatorOpenIncoming, emulator_open_vnc::incoming::EmulatorOpenVncIncoming, emulator_record_disable::incoming::EmulatorRecordDisableIncoming, emulator_record_enable::incoming::EmulatorRecordEnableIncoming, emulator_screenshot::incoming::EmulatorScreenshotIncoming, emulator_sync::incoming::EmulatorSyncIncoming, emulator_terminal::incoming::EmulatorTerminalIncoming, emulator_terminal_root::incoming::EmulatorTerminalRootIncoming, flutter_info::incoming::FlutterInfoIncoming, flutter_sync::incoming::FlutterSyncIncoming, flutter_terminal::incoming::FlutterTerminalIncoming, outgoing::{OutgoingType, TraitOutgoing}, psdk_info::incoming::PsdkInfoIncoming, psdk_sync::incoming::PsdkSyncIncoming, psdk_terminal::incoming::PsdkTerminalIncoming, sdk_info::incoming::SdkInfoIncoming, sdk_sync::incoming::SdkSyncIncoming, sdk_tools::incoming::SdkToolsIncoming, state_message::incoming::StateMessageIncoming, ws_ping::incoming::WsPingIncoming, ClientMethodsKey
 };
 
 pub trait TraitIncoming {
@@ -60,8 +41,24 @@ impl ClientMethodsKey {
                 let model = serde_json::from_str::<EmulatorInfoIncoming>(&value)?;
                 Ok(Box::new(model))
             }
-            ClientMethodsKey::EmulatorStart => {
-                let model = serde_json::from_str::<EmulatorStartIncoming>(&value)?;
+            ClientMethodsKey::EmulatorOpen => {
+                let model = serde_json::from_str::<EmulatorOpenIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::EmulatorOpenVnc => {
+                let model = serde_json::from_str::<EmulatorOpenVncIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::EmulatorRecordDisable => {
+                let model = serde_json::from_str::<EmulatorRecordDisableIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::EmulatorRecordEnable => {
+                let model = serde_json::from_str::<EmulatorRecordEnableIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::EmulatorScreenshot => {
+                let model = serde_json::from_str::<EmulatorScreenshotIncoming>(&value)?;
                 Ok(Box::new(model))
             }
             ClientMethodsKey::EmulatorSync => {

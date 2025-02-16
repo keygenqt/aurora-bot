@@ -38,14 +38,14 @@ impl EmulatorModelSelect {
     pub fn search(
         id: &Option<String>,
         send_type: &OutgoingType,
-        is_running: bool,
+        is_running: Option<bool>,
     ) -> Vec<EmulatorModel> {
         if let Some(id) = id {
             EmulatorModel::search_filter(|e| e.get_id() == id.clone())
         } else {
             StateMessageOutgoing::new_state(tr!("получение эмуляторов...")).send(send_type);
-            if is_running {
-                EmulatorModel::search_filter(|e| e.is_running)
+            if let Some(is_running) = is_running {
+                EmulatorModel::search_filter(|e| e.is_running == is_running)
             } else {
                 EmulatorModel::search()
             }

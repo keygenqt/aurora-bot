@@ -43,7 +43,6 @@ impl DeviceModel {
     }
 
     pub fn search_full() -> Result<Vec<DeviceModel>, Box<dyn std::error::Error>> {
-        // @todo search devices by localhost
         Ok(vec![])
     }
 }

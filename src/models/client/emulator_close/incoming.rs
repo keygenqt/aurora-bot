@@ -64,7 +64,7 @@ impl TraitIncoming for EmulatorCloseIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = EmulatorCloseIncoming::name();
-        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(&self.id, &send_type, true);
+        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(&self.id, &send_type, Some(true));
         // Exec fun
         fn _run(emulator: EmulatorModel) -> Box<dyn TraitOutgoing> {
             match emulator.close() {

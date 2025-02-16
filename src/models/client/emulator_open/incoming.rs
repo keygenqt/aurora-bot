@@ -12,26 +12,26 @@ use crate::{
         emulator::{model::EmulatorModel, select::EmulatorModelSelect},
     },
     service::dbus::server::IfaceData,
-    tools::{macros::tr, terminal},
+    tools::macros::tr,
 };
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct EmulatorTerminalIncoming {
+pub struct EmulatorOpenIncoming {
     id: Option<String>,
 }
 
-impl EmulatorTerminalIncoming {
+impl EmulatorOpenIncoming {
     pub fn name() -> String {
-        serde_variant::to_variant_name(&ClientMethodsKey::EmulatorTerminal)
+        serde_variant::to_variant_name(&ClientMethodsKey::EmulatorOpen)
             .unwrap()
             .to_string()
     }
 
-    pub fn new() -> Box<EmulatorTerminalIncoming> {
+    pub fn new() -> Box<EmulatorOpenIncoming> {
         Box::new(Self { id: None })
     }
 
-    pub fn new_id(id: String) -> Box<EmulatorTerminalIncoming> {
+    pub fn new_id(id: String) -> Box<EmulatorOpenIncoming> {
         Box::new(Self { id: Some(id) })
     }
 
@@ -60,30 +60,40 @@ impl EmulatorTerminalIncoming {
     }
 }
 
-impl TraitIncoming for EmulatorTerminalIncoming {
+impl TraitIncoming for EmulatorOpenIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
-        let key = EmulatorTerminalIncoming::name();
-        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(&self.id, &send_type, Some(true));
+        let key = EmulatorOpenIncoming::name();
+        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(&self.id, &send_type, Some(false));
         // Exec fun
-        fn _run(emulator: EmulatorModel) -> Box<dyn TraitOutgoing> {
+        fn _run(
+            emulator: EmulatorModel,
+            send_type: &OutgoingType,
+        ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
             if !emulator.is_running {
-                return StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен"));
-            } else {
-                // Run command
-                let command = format!(
-                    "ssh -o 'ConnectTimeout=2' -o 'StrictHostKeyChecking=no' defaultuser@localhost -p 2223 -i {}", emulator.key
-                );
-                // Try run terminal
-                terminal::open(command)
+                StateMessageOutgoing::new_state(tr!("открываем эмулятор")).send(send_type);
+                emulator.start()?;
             }
+            StateMessageOutgoing::new_state(tr!("соединение с эмулятором")).send(send_type);
+            // Get emulator connect session
+            let emulator = emulator.session_user()?;
+            // Close connect
+            emulator.close()?;
+            // Done
+            Ok(StateMessageOutgoing::new_success(tr!(
+                "эмулятор {} готов к работе",
+                emulator.os_name
+            )))
         }
         // Select
         match models.iter().count() {
-            1 => _run(models.first().unwrap().clone()),
-            0 => StateMessageOutgoing::new_info(tr!("запущенные эмуляторы не найдены")),
+            1 => match _run(models.first().unwrap().clone(), &send_type) {
+                Ok(result) => result,
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось открыть эмулятор")),
+            },
+            0 => StateMessageOutgoing::new_info(tr!("эмуляторы не найдены")),
             _ => Box::new(EmulatorModelSelect::select(key, models, |id| {
-                *EmulatorTerminalIncoming::new_id(id)
+                *EmulatorOpenIncoming::new_id(id)
             })),
         }
     }

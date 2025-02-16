@@ -1,15 +1,7 @@
 use clap::{Args, Subcommand};
 
 use crate::models::client::{
-    emulator_close::incoming::EmulatorCloseIncoming, emulator_info::incoming::EmulatorInfoIncoming,
-    emulator_start::incoming::EmulatorStartIncoming,
-    emulator_terminal::incoming::EmulatorTerminalIncoming,
-    emulator_terminal_root::incoming::EmulatorTerminalRootIncoming,
-    flutter_info::incoming::FlutterInfoIncoming,
-    flutter_terminal::incoming::FlutterTerminalIncoming, incoming::TraitIncoming,
-    outgoing::OutgoingType, psdk_info::incoming::PsdkInfoIncoming,
-    psdk_terminal::incoming::PsdkTerminalIncoming, sdk_info::incoming::SdkInfoIncoming,
-    sdk_tools::incoming::SdkToolsIncoming,
+    emulator_close::incoming::EmulatorCloseIncoming, emulator_info::incoming::EmulatorInfoIncoming, emulator_open::incoming::EmulatorOpenIncoming, emulator_open_vnc::incoming::EmulatorOpenVncIncoming, emulator_record_disable::incoming::EmulatorRecordDisableIncoming, emulator_record_enable::incoming::EmulatorRecordEnableIncoming, emulator_screenshot::incoming::EmulatorScreenshotIncoming, emulator_terminal::incoming::EmulatorTerminalIncoming, emulator_terminal_root::incoming::EmulatorTerminalRootIncoming, flutter_info::incoming::FlutterInfoIncoming, flutter_terminal::incoming::FlutterTerminalIncoming, incoming::TraitIncoming, outgoing::OutgoingType, psdk_info::incoming::PsdkInfoIncoming, psdk_terminal::incoming::PsdkTerminalIncoming, sdk_info::incoming::SdkInfoIncoming, sdk_tools::incoming::SdkToolsIncoming
 };
 
 /// Классическая командная строка
@@ -57,11 +49,27 @@ pub struct EmulatorArgs {
 
     /// Запустить эмулятор
     #[arg(short, long, default_value_t = false)]
-    start: bool,
+    open: bool,
+
+    /// Запустить эмулятор headless с VNC
+    #[arg(short, long, default_value_t = false)]
+    vnc_open: bool,
 
     /// Закрыть эмулятор
     #[arg(short, long, default_value_t = false)]
     close: bool,
+
+    /// Сделать скриншот
+    #[arg(short, long, default_value_t = false)]
+    screenshot: bool,
+
+    /// Активировать запись видео
+    #[arg(short, long, default_value_t = false)]
+    enable_record: bool,
+
+    /// Остановить запись видео и получить результат
+    #[arg(short, long, default_value_t = false)]
+    disable_record: bool,
 
     /// Открыть терминал с соединением ssh
     #[arg(short, long, default_value_t = false)]
@@ -123,14 +131,26 @@ pub fn run(arg: CliArgs) {
         //     }
         // }
         CliCommands::Emulator(arg) => {
-            if arg.close {
-                EmulatorCloseIncoming::new().run(OutgoingType::Cli).print();
-            }
             if arg.info {
                 EmulatorInfoIncoming::new().run(OutgoingType::Cli).print();
             }
-            if arg.start {
-                EmulatorStartIncoming::new().run(OutgoingType::Cli).print();
+            if arg.open {
+                EmulatorOpenIncoming::new().run(OutgoingType::Cli).print();
+            }
+            if arg.vnc_open {
+                EmulatorOpenVncIncoming::new().run(OutgoingType::Cli).print();
+            }
+            if arg.close {
+                EmulatorCloseIncoming::new().run(OutgoingType::Cli).print();
+            }
+            if arg.screenshot {
+                EmulatorScreenshotIncoming::new().run(OutgoingType::Cli).print();
+            }
+            if arg.enable_record {
+                EmulatorRecordEnableIncoming::new().run(OutgoingType::Cli).print();
+            }
+            if arg.disable_record {
+                EmulatorRecordDisableIncoming::new().run(OutgoingType::Cli).print();
             }
             if arg.user_terminal {
                 EmulatorTerminalIncoming::new()

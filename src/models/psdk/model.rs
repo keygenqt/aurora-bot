@@ -1,9 +1,11 @@
 use colored::Colorize;
 
+use crate::models::configuration::psdk::PsdkConfig;
 use crate::models::TraitModel;
+use crate::tools::macros::print_info;
 use crate::tools::utils;
-use crate::{models::configuration::psdk::PsdkConfig, tools::macros::print_info};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use std::fs;
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -51,10 +53,7 @@ impl PsdkModel {
             let psdk_dir = chroot.replace("/sdk-chroot", "");
             let psdk_release = psdk_dir.clone() + "/etc/aurora-release";
             let data = match fs::read_to_string(psdk_release) {
-                Ok(value) => value
-                    .split("\n")
-                    .map(|e| e.to_string())
-                    .collect::<Vec<String>>(),
+                Ok(value) => value.split("\n").map(|e| e.to_string()).collect::<Vec<String>>(),
                 Err(_) => continue,
             };
             let version = match utils::config_get_string(&data, "VERSION", "=") {

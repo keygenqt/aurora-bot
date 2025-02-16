@@ -1,8 +1,10 @@
-use clap::{Parser, Subcommand};
-use models::client::{
-    app_info::incoming::AppInfoIncoming, incoming::TraitIncoming, outgoing::OutgoingType,
-};
-use tools::{constants, utils};
+use clap::Parser;
+use clap::Subcommand;
+use models::client::app_info::incoming::AppInfoIncoming;
+use models::client::incoming::TraitIncoming;
+use models::client::outgoing::OutgoingType;
+use tools::constants;
+use tools::utils;
 
 mod feature;
 mod models;

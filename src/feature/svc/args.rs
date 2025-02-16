@@ -1,16 +1,16 @@
-use crate::{
-    models::client::{
-        emulator_sync::incoming::EmulatorSyncIncoming, flutter_sync::incoming::FlutterSyncIncoming,
-        incoming::TraitIncoming, outgoing::OutgoingType, psdk_sync::incoming::PsdkSyncIncoming,
-        sdk_sync::incoming::SdkSyncIncoming,
-    },
-    service::dbus::server::ServerDbus,
-    tools::{
-        macros::{print_error, print_info, print_success},
-        single,
-    },
-};
-use clap::{Args, Subcommand};
+use crate::models::client::emulator_sync::incoming::EmulatorSyncIncoming;
+use crate::models::client::flutter_sync::incoming::FlutterSyncIncoming;
+use crate::models::client::incoming::TraitIncoming;
+use crate::models::client::outgoing::OutgoingType;
+use crate::models::client::psdk_sync::incoming::PsdkSyncIncoming;
+use crate::models::client::sdk_sync::incoming::SdkSyncIncoming;
+use crate::service::dbus::server::ServerDbus;
+use crate::tools::macros::print_error;
+use crate::tools::macros::print_info;
+use crate::tools::macros::print_success;
+use crate::tools::single;
+use clap::Args;
+use clap::Subcommand;
 
 #[derive(Args)]
 #[command()]

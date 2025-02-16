@@ -1,14 +1,14 @@
-use std::sync::{LazyLock, Mutex};
+use std::sync::LazyLock;
+use std::sync::Mutex;
 
-use crate::service::{
-    dbus::server::ServerDbus, requests::client::ClientRequest, websocket::client::ClientWebsocket,
-};
+use crate::service::dbus::server::ServerDbus;
+use crate::service::requests::client::ClientRequest;
+use crate::service::websocket::client::ClientWebsocket;
 
 use super::macros::print_error;
 
 /// Singleton client requests
-static CLIENT_H: LazyLock<Mutex<ClientRequest>> =
-    LazyLock::new(|| Mutex::new(ClientRequest::new(5)));
+static CLIENT_H: LazyLock<Mutex<ClientRequest>> = LazyLock::new(|| Mutex::new(ClientRequest::new(5)));
 
 pub fn get_request() -> std::sync::MutexGuard<'static, ClientRequest> {
     if let Ok(client) = CLIENT_H.lock() {
@@ -20,8 +20,7 @@ pub fn get_request() -> std::sync::MutexGuard<'static, ClientRequest> {
 }
 
 /// Singleton client websocket
-static CLIENT_W: LazyLock<Mutex<ClientWebsocket>> =
-    LazyLock::new(|| Mutex::new(ClientWebsocket::new()));
+static CLIENT_W: LazyLock<Mutex<ClientWebsocket>> = LazyLock::new(|| Mutex::new(ClientWebsocket::new()));
 
 pub fn get_websocket() -> std::sync::MutexGuard<'static, ClientWebsocket> {
     if let Ok(client) = CLIENT_W.lock() {

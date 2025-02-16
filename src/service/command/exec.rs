@@ -1,7 +1,7 @@
-use std::{
-    ffi::OsStr,
-    process::{Command, Output, Stdio},
-};
+use std::ffi::OsStr;
+use std::process::Command;
+use std::process::Output;
+use std::process::Stdio;
 
 #[allow(dead_code)]
 pub fn exec_wait(program: &str) -> Result<Output, Box<dyn std::error::Error>> {

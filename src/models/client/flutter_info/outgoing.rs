@@ -1,10 +1,10 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
-use crate::models::{
-    client::outgoing::{DataOutgoing, TraitOutgoing},
-    flutter::model::FlutterModel,
-    TraitModel,
-};
+use crate::models::client::outgoing::DataOutgoing;
+use crate::models::client::outgoing::TraitOutgoing;
+use crate::models::flutter::model::FlutterModel;
+use crate::models::TraitModel;
 
 use super::incoming::FlutterInfoIncoming;
 

@@ -1,11 +1,12 @@
 use colored::Colorize;
 use dialoguer::Select;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
-use crate::models::client::{
-    incoming::TraitIncoming,
-    outgoing::{DataOutgoing, OutgoingType, TraitOutgoing},
-};
+use crate::models::client::incoming::TraitIncoming;
+use crate::models::client::outgoing::DataOutgoing;
+use crate::models::client::outgoing::OutgoingType;
+use crate::models::client::outgoing::TraitOutgoing;
 
 use super::incoming::SelectorIncoming;
 

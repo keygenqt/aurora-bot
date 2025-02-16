@@ -1,20 +1,18 @@
 use dbus_crossroads::IfaceBuilder;
 use maplit::hashmap;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
-use crate::{
-    models::{
-        client::{
-            incoming::TraitIncoming,
-            outgoing::{OutgoingType, TraitOutgoing},
-            state_message::outgoing::StateMessageOutgoing,
-            ClientMethodsKey,
-        },
-        flutter::{model::FlutterModel, select::FlutterModelSelect},
-    },
-    service::dbus::server::IfaceData,
-    tools::{macros::tr, terminal},
-};
+use crate::models::client::incoming::TraitIncoming;
+use crate::models::client::outgoing::OutgoingType;
+use crate::models::client::outgoing::TraitOutgoing;
+use crate::models::client::state_message::outgoing::StateMessageOutgoing;
+use crate::models::client::ClientMethodsKey;
+use crate::models::flutter::model::FlutterModel;
+use crate::models::flutter::select::FlutterModelSelect;
+use crate::service::dbus::server::IfaceData;
+use crate::tools::macros::tr;
+use crate::tools::terminal;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct FlutterTerminalIncoming {

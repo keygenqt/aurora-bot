@@ -1,25 +1,25 @@
-use std::{
-    thread,
-    time::{self, Duration},
-};
+use std::thread;
+use std::time::Duration;
+use std::time::{self};
 
-use crate::{
-    models::client::{
-        incoming::DataIncoming,
-        outgoing::{OutgoingType, TraitOutgoing},
-        ws_ping::outgoing::WsPingOutgoing,
-    },
-    service::requests::client::ClientRequest,
-    tools::{
-        constants,
-        macros::{crash, print_error, print_warning},
-        single,
-    },
-};
-use futures_util::{SinkExt, TryStreamExt};
+use crate::models::client::incoming::DataIncoming;
+use crate::models::client::outgoing::OutgoingType;
+use crate::models::client::outgoing::TraitOutgoing;
+use crate::models::client::ws_ping::outgoing::WsPingOutgoing;
+use crate::service::requests::client::ClientRequest;
+use crate::tools::constants;
+use crate::tools::macros::crash;
+use crate::tools::macros::print_error;
+use crate::tools::macros::print_warning;
+use crate::tools::single;
+use futures_util::SinkExt;
+use futures_util::TryStreamExt;
 use reqwest::Client;
-use reqwest_websocket::{Message, RequestBuilderExt, WebSocket};
-use tokio::{runtime::Handle, time::sleep};
+use reqwest_websocket::Message;
+use reqwest_websocket::RequestBuilderExt;
+use reqwest_websocket::WebSocket;
+use tokio::runtime::Handle;
+use tokio::time::sleep;
 
 pub struct ClientWebsocket {
     client: Client,

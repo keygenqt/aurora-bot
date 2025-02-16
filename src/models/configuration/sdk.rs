@@ -1,6 +1,7 @@
 use crate::models::configuration::Config;
 use crate::models::sdk::model::SdkModel;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct SdkConfig {

@@ -1,9 +1,9 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
-use crate::{
-    models::client::outgoing::{DataOutgoing, TraitOutgoing},
-    tools::constants,
-};
+use crate::models::client::outgoing::DataOutgoing;
+use crate::models::client::outgoing::TraitOutgoing;
+use crate::tools::constants;
 
 use super::incoming::AppInfoIncoming;
 

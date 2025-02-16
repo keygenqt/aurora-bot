@@ -1,9 +1,11 @@
 use tokio::runtime::Handle;
 
-use crate::models::client::incoming::{DataIncoming, TraitIncoming};
+use crate::models::client::incoming::DataIncoming;
+use crate::models::client::incoming::TraitIncoming;
 use crate::service::requests::client::ClientRequest;
 use crate::service::responses::common::CommonResponse;
-use crate::service::responses::faq::{FaqResponse, FaqResponses};
+use crate::service::responses::faq::FaqResponse;
+use crate::service::responses::faq::FaqResponses;
 use crate::service::responses::user::UserResponse;
 use crate::tools::constants;
 
@@ -16,8 +18,7 @@ impl ClientRequest {
             Ok(value) => value,
             Err(error) => Err(error)?,
         };
-        let body = match tokio::task::block_in_place(|| Handle::current().block_on(response.text()))
-        {
+        let body = match tokio::task::block_in_place(|| Handle::current().block_on(response.text())) {
             Ok(value) => value,
             Err(error) => Err(error)?,
         };
@@ -31,17 +32,13 @@ impl ClientRequest {
     }
 
     /// AI Command line
-    pub fn get_command(
-        &self,
-        value: String,
-    ) -> Result<Box<dyn TraitIncoming>, Box<dyn std::error::Error>> {
+    pub fn get_command(&self, value: String) -> Result<Box<dyn TraitIncoming>, Box<dyn std::error::Error>> {
         let url = format!("{}/cli-dataset/command/{}", constants::URL_API, value);
         let response = match self.get_request(url) {
             Ok(value) => value,
             Err(error) => Err(error)?,
         };
-        let body = match tokio::task::block_in_place(|| Handle::current().block_on(response.text()))
-        {
+        let body = match tokio::task::block_in_place(|| Handle::current().block_on(response.text())) {
             Ok(value) => value,
             Err(error) => Err(error)?,
         };
@@ -51,17 +48,12 @@ impl ClientRequest {
     #[allow(dead_code)]
     /// Get answer
     pub fn get_search(&self, value: String) -> Result<FaqResponses, Box<dyn std::error::Error>> {
-        let url = format!(
-            "{}/aurora-dataset/search/data/{}",
-            constants::URL_API,
-            value
-        );
+        let url = format!("{}/aurora-dataset/search/data/{}", constants::URL_API, value);
         let response = match self.get_request(url) {
             Ok(response) => response,
             Err(error) => Err(error)?,
         };
-        let body = match tokio::task::block_in_place(|| Handle::current().block_on(response.text()))
-        {
+        let body = match tokio::task::block_in_place(|| Handle::current().block_on(response.text())) {
             Ok(value) => value,
             Err(error) => Err(error)?,
         };

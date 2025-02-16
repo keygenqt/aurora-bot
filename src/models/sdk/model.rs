@@ -1,9 +1,11 @@
 use colored::Colorize;
 
+use crate::models::configuration::sdk::SdkConfig;
 use crate::models::TraitModel;
+use crate::tools::macros::print_info;
 use crate::tools::utils;
-use crate::{models::configuration::sdk::SdkConfig, tools::macros::print_info};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use std::fs;
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -35,11 +37,7 @@ impl SdkModel {
     }
 
     pub fn search_filter<T: Fn(&SdkModel) -> bool>(filter: T) -> Vec<SdkModel> {
-        SdkConfig::load_models()
-            .iter()
-            .filter(|e| filter(e))
-            .cloned()
-            .collect()
+        SdkConfig::load_models().iter().filter(|e| filter(e)).cloned().collect()
     }
 
     pub fn search_full() -> Result<Vec<SdkModel>, Box<dyn std::error::Error>> {
@@ -49,10 +47,7 @@ impl SdkModel {
             let sdk_dir = tools.replace("/SDKMaintenanceTool", "");
             let sdk_release = sdk_dir.clone() + "/sdk-release";
             let data = match fs::read_to_string(sdk_release) {
-                Ok(value) => value
-                    .split("\n")
-                    .map(|e| e.to_string())
-                    .collect::<Vec<String>>(),
+                Ok(value) => value.split("\n").map(|e| e.to_string()).collect::<Vec<String>>(),
                 Err(_) => continue,
             };
             let version = match utils::config_get_string(&data, "SDK_RELEASE", "=") {

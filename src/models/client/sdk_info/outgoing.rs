@@ -1,10 +1,10 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
-use crate::models::{
-    client::outgoing::{DataOutgoing, TraitOutgoing},
-    sdk::model::SdkModel,
-    TraitModel,
-};
+use crate::models::client::outgoing::DataOutgoing;
+use crate::models::client::outgoing::TraitOutgoing;
+use crate::models::sdk::model::SdkModel;
+use crate::models::TraitModel;
 
 use super::incoming::SdkInfoIncoming;
 

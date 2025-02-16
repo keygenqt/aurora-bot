@@ -1,8 +1,23 @@
-use clap::{Args, Subcommand};
+use clap::Args;
+use clap::Subcommand;
 
-use crate::models::client::{
-    emulator_close::incoming::EmulatorCloseIncoming, emulator_info::incoming::EmulatorInfoIncoming, emulator_open::incoming::EmulatorOpenIncoming, emulator_open_vnc::incoming::EmulatorOpenVncIncoming, emulator_record_disable::incoming::EmulatorRecordDisableIncoming, emulator_record_enable::incoming::EmulatorRecordEnableIncoming, emulator_screenshot::incoming::EmulatorScreenshotIncoming, emulator_terminal::incoming::EmulatorTerminalIncoming, emulator_terminal_root::incoming::EmulatorTerminalRootIncoming, flutter_info::incoming::FlutterInfoIncoming, flutter_terminal::incoming::FlutterTerminalIncoming, incoming::TraitIncoming, outgoing::OutgoingType, psdk_info::incoming::PsdkInfoIncoming, psdk_terminal::incoming::PsdkTerminalIncoming, sdk_info::incoming::SdkInfoIncoming, sdk_tools::incoming::SdkToolsIncoming
-};
+use crate::models::client::emulator_close::incoming::EmulatorCloseIncoming;
+use crate::models::client::emulator_info::incoming::EmulatorInfoIncoming;
+use crate::models::client::emulator_open::incoming::EmulatorOpenIncoming;
+use crate::models::client::emulator_open_vnc::incoming::EmulatorOpenVncIncoming;
+use crate::models::client::emulator_record_disable::incoming::EmulatorRecordDisableIncoming;
+use crate::models::client::emulator_record_enable::incoming::EmulatorRecordEnableIncoming;
+use crate::models::client::emulator_screenshot::incoming::EmulatorScreenshotIncoming;
+use crate::models::client::emulator_terminal::incoming::EmulatorTerminalIncoming;
+use crate::models::client::emulator_terminal_root::incoming::EmulatorTerminalRootIncoming;
+use crate::models::client::flutter_info::incoming::FlutterInfoIncoming;
+use crate::models::client::flutter_terminal::incoming::FlutterTerminalIncoming;
+use crate::models::client::incoming::TraitIncoming;
+use crate::models::client::outgoing::OutgoingType;
+use crate::models::client::psdk_info::incoming::PsdkInfoIncoming;
+use crate::models::client::psdk_terminal::incoming::PsdkTerminalIncoming;
+use crate::models::client::sdk_info::incoming::SdkInfoIncoming;
+use crate::models::client::sdk_tools::incoming::SdkToolsIncoming;
 
 /// Классическая командная строка
 #[derive(Args)]
@@ -153,14 +168,10 @@ pub fn run(arg: CliArgs) {
                 EmulatorRecordDisableIncoming::new().run(OutgoingType::Cli).print();
             }
             if arg.user_terminal {
-                EmulatorTerminalIncoming::new()
-                    .run(OutgoingType::Cli)
-                    .print();
+                EmulatorTerminalIncoming::new().run(OutgoingType::Cli).print();
             }
             if arg.root_terminal {
-                EmulatorTerminalRootIncoming::new()
-                    .run(OutgoingType::Cli)
-                    .print();
+                EmulatorTerminalRootIncoming::new().run(OutgoingType::Cli).print();
             }
         }
         CliCommands::Flutter(arg) => {
@@ -168,9 +179,7 @@ pub fn run(arg: CliArgs) {
                 FlutterInfoIncoming::new().run(OutgoingType::Cli).print();
             }
             if arg.terminal {
-                FlutterTerminalIncoming::new()
-                    .run(OutgoingType::Cli)
-                    .print();
+                FlutterTerminalIncoming::new().run(OutgoingType::Cli).print();
             }
         }
         CliCommands::Psdk(arg) => {

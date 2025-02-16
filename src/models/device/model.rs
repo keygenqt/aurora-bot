@@ -1,11 +1,11 @@
 use colored::Colorize;
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
-use crate::{
-    models::{configuration::device::DeviceConfig, TraitModel},
-    tools::macros::print_info,
-};
+use crate::models::configuration::device::DeviceConfig;
+use crate::models::TraitModel;
+use crate::tools::macros::print_info;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct DeviceModel {
@@ -19,11 +19,7 @@ impl TraitModel for DeviceModel {
     }
 
     fn print(&self) {
-        let message = format!(
-            "Устройство: {}:{}",
-            self.ip.bold().white(),
-            self.port.to_string()
-        );
+        let message = format!("Устройство: {}:{}", self.ip.bold().white(), self.port.to_string());
         print_info!(message);
     }
 }

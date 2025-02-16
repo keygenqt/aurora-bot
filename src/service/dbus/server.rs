@@ -1,10 +1,13 @@
 use std::sync::Arc;
 
-use dbus::channel::{MatchingReceiver, Sender};
+use dbus::channel::MatchingReceiver;
+use dbus::channel::Sender;
 use dbus::message::MatchRule;
 use dbus::nonblock::SyncConnection;
-use dbus::{Message, Path};
-use dbus_crossroads::{Crossroads, IfaceBuilder};
+use dbus::Message;
+use dbus::Path;
+use dbus_crossroads::Crossroads;
+use dbus_crossroads::IfaceBuilder;
 use dbus_tokio::connection;
 use futures::future;
 use tokio::runtime::Handle;
@@ -29,8 +32,9 @@ use crate::models::client::psdk_terminal::incoming::PsdkTerminalIncoming;
 use crate::models::client::sdk_info::incoming::SdkInfoIncoming;
 use crate::models::client::sdk_sync::incoming::SdkSyncIncoming;
 use crate::models::client::sdk_tools::incoming::SdkToolsIncoming;
+use crate::tools::constants;
 use crate::tools::macros::print_success;
-use crate::tools::{constants, single};
+use crate::tools::single;
 
 // gdbus call --timeout=99999 --session --dest com.keygenqt.aurora_bot --object-path /api --method com.keygenqt.aurora_bot.{KEY}
 // gdbus monitor --session --dest com.keygenqt.aurora_bot --object-path /api com.keygenqt.aurora_bot.listen
@@ -136,8 +140,7 @@ impl ServerDbus {
 
     pub fn send(outgoing: String) {
         let path: Path<'static> = format!("{}", "/api").into();
-        let msg = Message::signal(&path, &constants::DBUS_NAME.into(), &"listen".into())
-            .append1(outgoing);
+        let msg = Message::signal(&path, &constants::DBUS_NAME.into(), &"listen".into()).append1(outgoing);
         let _ = single::get_dbus().connection.send(msg);
     }
 

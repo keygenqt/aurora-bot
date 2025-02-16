@@ -1,10 +1,12 @@
+use crate::models::configuration::device::DeviceConfig;
 use crate::models::configuration::emulator::EmulatorConfig;
 use crate::models::configuration::flutter::FlutterConfig;
 use crate::models::configuration::psdk::PsdkConfig;
 use crate::models::configuration::sdk::SdkConfig;
+use crate::tools::constants;
 use crate::tools::utils;
-use crate::{models::configuration::device::DeviceConfig, tools::constants};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use std::fs;
 
 pub mod device;

@@ -1,17 +1,13 @@
 use serde::Serialize;
 
-use crate::{
-    models::{
-        client::{
-            incoming::TraitIncoming,
-            outgoing::{OutgoingType, TraitOutgoing},
-            selector::{incoming::SelectorIncoming, outgoing::SelectorOutgoing},
-            state_message::outgoing::StateMessageOutgoing,
-        },
-        TraitModel,
-    },
-    tools::macros::tr,
-};
+use crate::models::client::incoming::TraitIncoming;
+use crate::models::client::outgoing::OutgoingType;
+use crate::models::client::outgoing::TraitOutgoing;
+use crate::models::client::selector::incoming::SelectorIncoming;
+use crate::models::client::selector::outgoing::SelectorOutgoing;
+use crate::models::client::state_message::outgoing::StateMessageOutgoing;
+use crate::models::TraitModel;
+use crate::tools::macros::tr;
 
 use super::model::EmulatorModel;
 
@@ -35,11 +31,7 @@ impl EmulatorModelSelect {
         }
     }
 
-    pub fn search(
-        id: &Option<String>,
-        send_type: &OutgoingType,
-        is_running: Option<bool>,
-    ) -> Vec<EmulatorModel> {
+    pub fn search(id: &Option<String>, send_type: &OutgoingType, is_running: Option<bool>) -> Vec<EmulatorModel> {
         if let Some(id) = id {
             EmulatorModel::search_filter(|e| e.get_id() == id.clone())
         } else {

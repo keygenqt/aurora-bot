@@ -1,7 +1,6 @@
-use crate::tools::{
-    macros::{print_error, print_info},
-    single,
-};
+use crate::tools::macros::print_error;
+use crate::tools::macros::print_info;
+use crate::tools::single;
 
 /// Handling interface events
 pub fn run(search: Option<Vec<String>>) {

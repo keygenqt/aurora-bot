@@ -1,19 +1,17 @@
 use dbus_crossroads::IfaceBuilder;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
-use crate::{
-    models::{
-        client::{
-            incoming::TraitIncoming,
-            outgoing::{OutgoingType, TraitOutgoing},
-            state_message::outgoing::StateMessageOutgoing,
-            ClientMethodsKey,
-        },
-        emulator::{model::EmulatorModel, select::EmulatorModelSelect},
-    },
-    service::dbus::server::IfaceData,
-    tools::{macros::tr, terminal},
-};
+use crate::models::client::incoming::TraitIncoming;
+use crate::models::client::outgoing::OutgoingType;
+use crate::models::client::outgoing::TraitOutgoing;
+use crate::models::client::state_message::outgoing::StateMessageOutgoing;
+use crate::models::client::ClientMethodsKey;
+use crate::models::emulator::model::EmulatorModel;
+use crate::models::emulator::select::EmulatorModelSelect;
+use crate::service::dbus::server::IfaceData;
+use crate::tools::macros::tr;
+use crate::tools::terminal;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct EmulatorTerminalRootIncoming {
@@ -72,7 +70,8 @@ impl TraitIncoming for EmulatorTerminalRootIncoming {
             } else {
                 // Run command
                 let command = format!(
-                    "ssh -o 'ConnectTimeout=2' -o 'StrictHostKeyChecking=no' root@localhost -p 2223 -i {}", emulator.key
+                    "ssh -o 'ConnectTimeout=2' -o 'StrictHostKeyChecking=no' root@localhost -p 2223 -i {}",
+                    emulator.key
                 );
                 // Try run terminal
                 terminal::open(command)

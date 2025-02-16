@@ -2,7 +2,8 @@ use color_eyre::owo_colors::OwoColorize;
 use dialoguer::Select;
 use nipper::Document;
 use regex::Regex;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
 #[derive(Deserialize, Serialize)]
 pub struct FaqResponse {
@@ -87,23 +88,13 @@ impl FaqResponse {
         });
         document.select("blockquote").iter().for_each(|mut e| {
             if e.attr("expandable").is_none() {
-                e.replace_with_html(format!(
-                    "❝{}❞",
-                    e.text().to_string().replace("⌫", "").trim()
-                ));
+                e.replace_with_html(format!("❝{}❞", e.text().to_string().replace("⌫", "").trim()));
             } else {
-                e.replace_with_html(format!(
-                    "❝\n{}\n❞",
-                    e.text().to_string().replace("⌫", "").trim()
-                ));
+                e.replace_with_html(format!("❝\n{}\n❞", e.text().to_string().replace("⌫", "").trim()));
             }
         });
         document.select("a").iter().for_each(|mut e| {
-            e.replace_with_html(format!(
-                "{}: {}",
-                e.text().blue().bold(),
-                e.attr("href").unwrap()
-            ));
+            e.replace_with_html(format!("{}: {}", e.text().blue().bold(), e.attr("href").unwrap()));
         });
         document.select("body").text().trim().to_string()
     }

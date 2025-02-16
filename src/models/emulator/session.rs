@@ -2,7 +2,8 @@ use std::path::PathBuf;
 
 use tokio::runtime::Handle;
 
-use crate::{service::ssh::client::SshSession, tools::utils};
+use crate::service::ssh::client::SshSession;
+use crate::tools::utils;
 
 #[allow(dead_code)]
 #[derive(PartialEq)]
@@ -22,10 +23,7 @@ pub struct EmulatorSession {
 }
 
 impl EmulatorSession {
-    pub fn new(
-        session_type: EmulatorSessionType,
-        key: &String,
-    ) -> Result<Self, Box<dyn std::error::Error>> {
+    pub fn new(session_type: EmulatorSessionType, key: &String) -> Result<Self, Box<dyn std::error::Error>> {
         let host = "localhost";
         let user = if session_type == EmulatorSessionType::Root {
             "root"
@@ -36,10 +34,7 @@ impl EmulatorSession {
         let session = SshSession::connect(PathBuf::from(key), user, (host, port))?;
         let output = session.call("cat /etc/os-release")?;
         let lines = match output.first() {
-            Some(s) => s
-                .split("\n")
-                .map(|e| e.to_string())
-                .collect::<Vec<String>>(),
+            Some(s) => s.split("\n").map(|e| e.to_string()).collect::<Vec<String>>(),
             None => Err("ошибка при получении данных")?,
         };
         let os_name = match utils::config_get_string(&lines, "PRETTY_NAME", "=") {

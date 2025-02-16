@@ -1,19 +1,16 @@
 use dbus_crossroads::IfaceBuilder;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
-use crate::{
-    models::{
-        client::{
-            incoming::TraitIncoming,
-            outgoing::{OutgoingType, TraitOutgoing},
-            state_message::outgoing::StateMessageOutgoing,
-            ClientMethodsKey,
-        },
-        sdk::{model::SdkModel, select::SdkModelSelect},
-    },
-    service::dbus::server::IfaceData,
-    tools::macros::tr,
-};
+use crate::models::client::incoming::TraitIncoming;
+use crate::models::client::outgoing::OutgoingType;
+use crate::models::client::outgoing::TraitOutgoing;
+use crate::models::client::state_message::outgoing::StateMessageOutgoing;
+use crate::models::client::ClientMethodsKey;
+use crate::models::sdk::model::SdkModel;
+use crate::models::sdk::select::SdkModelSelect;
+use crate::service::dbus::server::IfaceData;
+use crate::tools::macros::tr;
 
 use super::outgoing::SdkInfoOutgoing;
 
@@ -71,9 +68,7 @@ impl TraitIncoming for SdkInfoIncoming {
         match models.iter().count() {
             1 => SdkInfoOutgoing::new(models.first().unwrap().clone()),
             0 => StateMessageOutgoing::new_info(tr!("Аврора SDK не найдены")),
-            _ => Box::new(SdkModelSelect::select(key, models, |id| {
-                *SdkInfoIncoming::new_id(id)
-            })),
+            _ => Box::new(SdkModelSelect::select(key, models, |id| *SdkInfoIncoming::new_id(id))),
         }
     }
 }

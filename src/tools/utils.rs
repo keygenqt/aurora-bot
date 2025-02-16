@@ -1,8 +1,10 @@
 use colored::Colorize;
 use regex::Regex;
 use std::env;
-use std::path::{Path, PathBuf};
-use walkdir::{DirEntry, WalkDir};
+use std::path::Path;
+use std::path::PathBuf;
+use walkdir::DirEntry;
+use walkdir::WalkDir;
 
 use crate::tools::macros::crash;
 
@@ -21,11 +23,7 @@ pub fn app_about() -> String {
     )
 }
 
-pub fn config_get_string(
-    params: &Vec<String>,
-    key: &str,
-    split: &str,
-) -> Result<String, Box<dyn std::error::Error>> {
+pub fn config_get_string(params: &Vec<String>, key: &str, split: &str) -> Result<String, Box<dyn std::error::Error>> {
     match params.iter().filter(|e| e.contains(key)).next() {
         Some(option) => Ok(option
             .split(split)
@@ -38,11 +36,7 @@ pub fn config_get_string(
     }
 }
 
-pub fn config_get_bool(
-    params: &Vec<String>,
-    key: &str,
-    find: &str,
-) -> Result<bool, Box<dyn std::error::Error>> {
+pub fn config_get_bool(params: &Vec<String>, key: &str, find: &str) -> Result<bool, Box<dyn std::error::Error>> {
     match params.iter().filter(|e| e.contains(key)).next() {
         Some(option) => Ok(option.contains(find)),
         None => Err("не удалось найти ключ")?,
@@ -52,9 +46,7 @@ pub fn config_get_bool(
 pub fn get_home_folder() -> PathBuf {
     match env::var("HOME") {
         Ok(path_home) => Path::new(&path_home).to_path_buf(),
-        Err(_) => {
-            env::current_dir().unwrap_or_else(|_| crash!("директория конфигурации не найдена"))
-        }
+        Err(_) => env::current_dir().unwrap_or_else(|_| crash!("директория конфигурации не найдена")),
     }
 }
 
@@ -83,10 +75,7 @@ pub fn search_files(path: &str) -> Vec<String> {
     {
         let file_path = entry.path().to_string_lossy();
         if file_path.contains(path) {
-            if !file_path.contains("/Trash/")
-                && is_file(&entry)
-                && re.is_match(entry.path().to_str().unwrap())
-            {
+            if !file_path.contains("/Trash/") && is_file(&entry) && re.is_match(entry.path().to_str().unwrap()) {
                 if let Some(path_str) = entry.path().to_str() {
                     result.push(path_str.to_string());
                 }

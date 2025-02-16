@@ -1,20 +1,18 @@
 use dbus_crossroads::IfaceBuilder;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
-use crate::{
-    models::{
-        client::{
-            incoming::TraitIncoming,
-            outgoing::{OutgoingType, TraitOutgoing},
-            psdk_info::incoming::PsdkInfoIncoming,
-            state_message::outgoing::StateMessageOutgoing,
-            ClientMethodsKey,
-        },
-        psdk::{model::PsdkModel, select::PsdkModelSelect},
-    },
-    service::dbus::server::IfaceData,
-    tools::{macros::tr, terminal},
-};
+use crate::models::client::incoming::TraitIncoming;
+use crate::models::client::outgoing::OutgoingType;
+use crate::models::client::outgoing::TraitOutgoing;
+use crate::models::client::psdk_info::incoming::PsdkInfoIncoming;
+use crate::models::client::state_message::outgoing::StateMessageOutgoing;
+use crate::models::client::ClientMethodsKey;
+use crate::models::psdk::model::PsdkModel;
+use crate::models::psdk::select::PsdkModelSelect;
+use crate::service::dbus::server::IfaceData;
+use crate::tools::macros::tr;
+use crate::tools::terminal;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct PsdkTerminalIncoming {
@@ -74,9 +72,7 @@ impl TraitIncoming for PsdkTerminalIncoming {
         match models.iter().count() {
             1 => _run(models.first().unwrap().clone()),
             0 => StateMessageOutgoing::new_info(tr!("Platform SDK не найдены")),
-            _ => Box::new(PsdkModelSelect::select(key, models, |id| {
-                *PsdkInfoIncoming::new_id(id)
-            })),
+            _ => Box::new(PsdkModelSelect::select(key, models, |id| *PsdkInfoIncoming::new_id(id))),
         }
     }
 }

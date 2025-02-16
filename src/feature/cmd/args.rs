@@ -1,7 +1,6 @@
-use crate::{
-    models::client::outgoing::OutgoingType,
-    tools::{macros::print_error, single},
-};
+use crate::models::client::outgoing::OutgoingType;
+use crate::tools::macros::print_error;
+use crate::tools::single;
 
 /// Handling interface events
 pub fn run(command: Option<Vec<String>>) {

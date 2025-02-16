@@ -1,7 +1,9 @@
+use crate::models::configuration::Config;
 use crate::models::emulator::model::EmulatorModel;
 use crate::service::command::exec;
-use crate::{models::configuration::Config, tools::programs};
-use serde::{Deserialize, Serialize};
+use crate::tools::programs;
+use serde::Deserialize;
+use serde::Serialize;
 use std::error::Error;
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]

@@ -1,6 +1,8 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
-use crate::service::{dbus::server::ServerDbus, websocket::client::ClientWebsocket};
+use crate::service::dbus::server::ServerDbus;
+use crate::service::websocket::client::ClientWebsocket;
 
 /// Send data type
 #[derive(Clone)]

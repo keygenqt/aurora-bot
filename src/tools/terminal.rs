@@ -1,25 +1,20 @@
-use std::{collections::HashMap, fs};
+use std::collections::HashMap;
+use std::fs;
 
-use crate::{
-    models::client::{outgoing::TraitOutgoing, state_message::outgoing::StateMessageOutgoing},
-    service::command::exec,
-};
+use crate::models::client::outgoing::TraitOutgoing;
+use crate::models::client::state_message::outgoing::StateMessageOutgoing;
+use crate::service::command::exec;
 
-use super::{constants, macros::tr, programs, utils};
+use super::constants;
+use super::macros::tr;
+use super::programs;
+use super::utils;
 
-pub fn command_aliases(
-    aliases: HashMap<&str, String>,
-) -> Result<String, Box<dyn std::error::Error>> {
+pub fn command_aliases(aliases: HashMap<&str, String>) -> Result<String, Box<dyn std::error::Error>> {
     // Map aliases
-    let list_aliases: Vec<String> = aliases
-        .iter()
-        .map(|e| format!("alias {}={}", e.0, e.1))
-        .collect();
+    let list_aliases: Vec<String> = aliases.iter().map(|e| format!("alias {}={}", e.0, e.1)).collect();
     // Map template
-    let list_keys: Vec<String> = aliases
-        .iter()
-        .map(|e| format!("\x1b[94m{}\x1b[0m", e.0))
-        .collect();
+    let list_keys: Vec<String> = aliases.iter().map(|e| format!("\x1b[94m{}\x1b[0m", e.0)).collect();
     // Create file rcfile
     let file_rcfile = format!(
         r#"# Environment for run instance bash

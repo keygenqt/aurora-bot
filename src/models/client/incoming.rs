@@ -2,9 +2,31 @@ use serde::Deserialize;
 
 use crate::tools::utils;
 
-use super::{
-    app_info::incoming::AppInfoIncoming, emulator_close::incoming::EmulatorCloseIncoming, emulator_info::incoming::EmulatorInfoIncoming, emulator_open::incoming::EmulatorOpenIncoming, emulator_open_vnc::incoming::EmulatorOpenVncIncoming, emulator_record_disable::incoming::EmulatorRecordDisableIncoming, emulator_record_enable::incoming::EmulatorRecordEnableIncoming, emulator_screenshot::incoming::EmulatorScreenshotIncoming, emulator_sync::incoming::EmulatorSyncIncoming, emulator_terminal::incoming::EmulatorTerminalIncoming, emulator_terminal_root::incoming::EmulatorTerminalRootIncoming, flutter_info::incoming::FlutterInfoIncoming, flutter_sync::incoming::FlutterSyncIncoming, flutter_terminal::incoming::FlutterTerminalIncoming, outgoing::{OutgoingType, TraitOutgoing}, psdk_info::incoming::PsdkInfoIncoming, psdk_sync::incoming::PsdkSyncIncoming, psdk_terminal::incoming::PsdkTerminalIncoming, sdk_info::incoming::SdkInfoIncoming, sdk_sync::incoming::SdkSyncIncoming, sdk_tools::incoming::SdkToolsIncoming, state_message::incoming::StateMessageIncoming, ws_ping::incoming::WsPingIncoming, ClientMethodsKey
-};
+use super::app_info::incoming::AppInfoIncoming;
+use super::emulator_close::incoming::EmulatorCloseIncoming;
+use super::emulator_info::incoming::EmulatorInfoIncoming;
+use super::emulator_open::incoming::EmulatorOpenIncoming;
+use super::emulator_open_vnc::incoming::EmulatorOpenVncIncoming;
+use super::emulator_record_disable::incoming::EmulatorRecordDisableIncoming;
+use super::emulator_record_enable::incoming::EmulatorRecordEnableIncoming;
+use super::emulator_screenshot::incoming::EmulatorScreenshotIncoming;
+use super::emulator_sync::incoming::EmulatorSyncIncoming;
+use super::emulator_terminal::incoming::EmulatorTerminalIncoming;
+use super::emulator_terminal_root::incoming::EmulatorTerminalRootIncoming;
+use super::flutter_info::incoming::FlutterInfoIncoming;
+use super::flutter_sync::incoming::FlutterSyncIncoming;
+use super::flutter_terminal::incoming::FlutterTerminalIncoming;
+use super::outgoing::OutgoingType;
+use super::outgoing::TraitOutgoing;
+use super::psdk_info::incoming::PsdkInfoIncoming;
+use super::psdk_sync::incoming::PsdkSyncIncoming;
+use super::psdk_terminal::incoming::PsdkTerminalIncoming;
+use super::sdk_info::incoming::SdkInfoIncoming;
+use super::sdk_sync::incoming::SdkSyncIncoming;
+use super::sdk_tools::incoming::SdkToolsIncoming;
+use super::state_message::incoming::StateMessageIncoming;
+use super::ws_ping::incoming::WsPingIncoming;
+use super::ClientMethodsKey;
 
 pub trait TraitIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing>;
@@ -23,10 +45,7 @@ impl DataIncoming {
 }
 
 impl ClientMethodsKey {
-    pub fn deserialize(
-        &self,
-        value: &String,
-    ) -> Result<Box<dyn TraitIncoming>, Box<dyn std::error::Error>> {
+    pub fn deserialize(&self, value: &String) -> Result<Box<dyn TraitIncoming>, Box<dyn std::error::Error>> {
         let value = utils::clear_to_model_body(value)?;
         match self {
             ClientMethodsKey::AppInfo => {

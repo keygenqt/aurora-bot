@@ -1,12 +1,14 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
-use crate::{
-    models::client::{
-        outgoing::{DataOutgoing, TraitOutgoing},
-        ClientMethodsState,
-    },
-    tools::macros::{print_error, print_info, print_state, print_success, print_warning},
-};
+use crate::models::client::outgoing::DataOutgoing;
+use crate::models::client::outgoing::TraitOutgoing;
+use crate::models::client::ClientMethodsState;
+use crate::tools::macros::print_error;
+use crate::tools::macros::print_info;
+use crate::tools::macros::print_state;
+use crate::tools::macros::print_success;
+use crate::tools::macros::print_warning;
 
 use super::incoming::StateMessageIncoming;
 

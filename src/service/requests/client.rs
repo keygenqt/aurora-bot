@@ -2,14 +2,21 @@ use color_eyre::owo_colors::OwoColorize;
 use std::fs;
 use std::sync::Arc;
 use tokio::runtime::Handle;
-use tokio::time::{sleep, Duration};
+use tokio::time::sleep;
+use tokio::time::Duration;
 
-use reqwest::{Client, Response, StatusCode};
-use reqwest_cookie_store::{CookieStore, CookieStoreMutex};
+use reqwest::Client;
+use reqwest::Response;
+use reqwest::StatusCode;
+use reqwest_cookie_store::CookieStore;
+use reqwest_cookie_store::CookieStoreMutex;
 
 use crate::service::responses::common::CommonResponse;
-use crate::tools::macros::{crash, print_info, print_success};
-use crate::tools::{constants, utils};
+use crate::tools::constants;
+use crate::tools::macros::crash;
+use crate::tools::macros::print_info;
+use crate::tools::macros::print_success;
+use crate::tools::utils;
 
 pub struct ClientRequest {
     pub client: Client,
@@ -59,9 +66,7 @@ impl ClientRequest {
         // Get path
         let path = utils::get_file_save(constants::SESSION_FILE);
         // Load file
-        let mut writer = std::fs::File::create(path)
-            .map(std::io::BufWriter::new)
-            .unwrap();
+        let mut writer = std::fs::File::create(path).map(std::io::BufWriter::new).unwrap();
         // Save cookie
         let store = self.cookie.lock().unwrap();
         store.save(&mut writer, ::serde_json::to_string).unwrap();
@@ -129,11 +134,7 @@ impl ClientRequest {
     }
 
     /// Waiting for authorization
-    async fn auth_ping(
-        &self,
-        token: String,
-        counter: u64,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    async fn auth_ping(&self, token: String, counter: u64) -> Result<(), Box<dyn std::error::Error>> {
         if counter >= 15 {
             Err("тайм-аут подключения к серверу")?
         }

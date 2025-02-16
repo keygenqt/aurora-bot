@@ -1,10 +1,12 @@
 use colored::Colorize;
 
+use crate::models::configuration::flutter::FlutterConfig;
 use crate::models::TraitModel;
 use crate::service::command::exec;
+use crate::tools::macros::print_info;
 use crate::tools::utils;
-use crate::{models::configuration::flutter::FlutterConfig, tools::macros::print_info};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct FlutterModel {

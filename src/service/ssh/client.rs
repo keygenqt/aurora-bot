@@ -14,10 +14,7 @@ struct SshClient {}
 impl client::Handler for SshClient {
     type Error = russh::Error;
 
-    async fn check_server_key(
-        &mut self,
-        _server_public_key: &ssh_key::PublicKey,
-    ) -> Result<bool, Self::Error> {
+    async fn check_server_key(&mut self, _server_public_key: &ssh_key::PublicKey) -> Result<bool, Self::Error> {
         Ok(true)
     }
 }
@@ -32,9 +29,7 @@ impl SshSession {
         user: impl Into<String>,
         addrs: A,
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        tokio::task::block_in_place(|| {
-            Handle::current().block_on(Self::_connect(key_path, user, addrs))
-        })
+        tokio::task::block_in_place(|| Handle::current().block_on(Self::_connect(key_path, user, addrs)))
     }
 
     async fn _connect<P: AsRef<Path>, A: ToSocketAddrs>(
@@ -108,9 +103,7 @@ impl SshSession {
     }
 
     pub async fn close(&self) -> Result<(), Box<dyn std::error::Error>> {
-        self.session
-            .disconnect(Disconnect::ByApplication, "", "ru_RU")
-            .await?;
+        self.session.disconnect(Disconnect::ByApplication, "", "ru_RU").await?;
         Ok(())
     }
 }

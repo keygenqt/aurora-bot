@@ -1,9 +1,10 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
-use crate::{
-    models::client::outgoing::{DataOutgoing, TraitOutgoing},
-    tools::macros::{print_error, print_success},
-};
+use crate::models::client::outgoing::DataOutgoing;
+use crate::models::client::outgoing::TraitOutgoing;
+use crate::tools::macros::print_error;
+use crate::tools::macros::print_success;
 
 use super::incoming::WsPingIncoming;
 
@@ -18,9 +19,7 @@ impl WsPingOutgoing {
     }
 
     pub fn new_message(message: String) -> Box<WsPingOutgoing> {
-        Box::new(Self {
-            message: Some(message),
-        })
+        Box::new(Self { message: Some(message) })
     }
 }
 

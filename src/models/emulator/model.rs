@@ -1,12 +1,15 @@
 use colored::Colorize;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
-use super::session::{EmulatorSession, EmulatorSessionType};
+use super::session::EmulatorSession;
+use super::session::EmulatorSessionType;
 use crate::models::configuration::emulator::EmulatorConfig;
 use crate::models::TraitModel;
 use crate::service::command::exec;
 use crate::tools::macros::print_info;
-use crate::tools::{programs, utils};
+use crate::tools::programs;
+use crate::tools::utils;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct EmulatorModel {

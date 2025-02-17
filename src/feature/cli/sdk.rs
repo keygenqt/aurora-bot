@@ -12,11 +12,9 @@ pub struct SdkArgs {
     /// Информация по доступным Аврора SDK
     #[arg(short, long, default_value_t = false)]
     info: bool,
-
     /// Открыть maintenance tools
     #[arg(short, long, default_value_t = false)]
     tools: bool,
-
     /// Показать это сообщение и выйти
     #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
     help: Option<bool>,

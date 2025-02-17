@@ -28,10 +28,9 @@ struct App {
     /// Показать версию и выйти
     #[arg(short, long, default_value_t = false)]
     version: bool,
-
+    /// Commands
     #[command(subcommand)]
     command: Option<Commands>,
-
     /// Показать это сообщение и выйти
     #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
     help: Option<bool>,
@@ -52,6 +51,7 @@ enum Commands {
         #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
         help: Option<bool>,
     },
+
     /// Работа с Aurora Dataset
     #[command(allow_external_subcommands = true)]
     #[command(arg_required_else_help = true)]
@@ -62,6 +62,7 @@ enum Commands {
         #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
         help: Option<bool>,
     },
+
     /// Работа с сервисами бота
     Svc(SvcArgs),
 }

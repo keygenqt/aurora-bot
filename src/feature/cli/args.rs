@@ -10,9 +10,9 @@ use super::sdk::SdkArgs;
 #[derive(Args)]
 #[command(arg_required_else_help = true)]
 pub struct CliArgs {
+    /// Commands
     #[command(subcommand)]
     command: Option<CliCommands>,
-
     /// Показать это сообщение и выйти
     #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
     help: Option<bool>,

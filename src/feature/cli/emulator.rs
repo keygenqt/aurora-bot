@@ -16,22 +16,18 @@ use crate::models::client::outgoing::OutgoingType;
 #[command(arg_required_else_help = true)]
 #[group(multiple = false)]
 pub struct EmulatorArgs {
+    /// Subcommand (multiple false ignore)
+    #[command(subcommand)]
+    command: Option<EmulatorArgsGroup>,
     /// Информация по доступным эмуляторам
     #[arg(short, long, default_value_t = false)]
     info: bool,
-
     /// Закрыть эмулятор
     #[arg(short, long, default_value_t = false)]
     close: bool,
-
     /// Сделать скриншот
     #[arg(short, long, default_value_t = false)]
     screenshot: bool,
-
-    // Subcommand (multiple false ignore)
-    #[command(subcommand)]
-    command: Option<EmulatorArgsGroup>,
-
     /// Показать это сообщение и выйти
     #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
     help: Option<bool>,
@@ -42,11 +38,9 @@ enum EmulatorArgsGroup {
     /// Открыть эмулятор
     #[command(short_flag = 'o')]
     Open(EmulatorOpenArgs),
-
     /// Запись видео
     #[command(short_flag = 'r')]
     Record(EmulatorRecordArgs),
-
     /// Открыть терминал
     #[command(short_flag = 't')]
     Terminal(EmulatorTerminalArgs),
@@ -58,7 +52,6 @@ pub struct EmulatorOpenArgs {
     /// Запустить эмулятор headless с VNC
     #[arg(short, long, default_value_t = false)]
     vnc: bool,
-
     /// Показать это сообщение и выйти
     #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
     help: Option<bool>,
@@ -70,7 +63,6 @@ pub struct EmulatorRecordArgs {
     /// Остановить запись
     #[arg(short, long, default_value_t = false)]
     stop: bool,
-
     /// Показать это сообщение и выйти
     #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
     help: Option<bool>,
@@ -82,7 +74,6 @@ pub struct EmulatorTerminalArgs {
     /// Открыть от root пользователя
     #[arg(short, long, default_value_t = false)]
     root: bool,
-
     /// Показать это сообщение и выйти
     #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
     help: Option<bool>,

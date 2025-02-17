@@ -12,11 +12,9 @@ pub struct PsdkArgs {
     /// Информация по доступным Platform SDK
     #[arg(short, long, default_value_t = false)]
     info: bool,
-
     /// Открыть терминал с окружением Platform SDK
     #[arg(short, long, default_value_t = false)]
     terminal: bool,
-
     /// Показать это сообщение и выйти
     #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
     help: Option<bool>,

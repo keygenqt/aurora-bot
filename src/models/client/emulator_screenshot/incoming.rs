@@ -64,10 +64,7 @@ impl TraitIncoming for EmulatorScreenshotIncoming {
         let key = EmulatorScreenshotIncoming::name();
         let models: Vec<EmulatorModel> = EmulatorModelSelect::search(&self.id, &send_type, Some(false));
         // Exec fun
-        fn _run(
-            _: EmulatorModel,
-            _: &OutgoingType,
-        ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+        fn _run(_: EmulatorModel, _: &OutgoingType) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
             Ok(StateMessageOutgoing::new_info(tr!("@todo")))
         }
         // Select

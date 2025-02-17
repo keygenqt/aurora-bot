@@ -20,13 +20,7 @@ pub mod emulator_info {
 pub mod emulator_open {
     pub mod incoming;
 }
-pub mod emulator_open_vnc {
-    pub mod incoming;
-}
-pub mod emulator_record_disable {
-    pub mod incoming;
-}
-pub mod emulator_record_enable {
+pub mod emulator_record {
     pub mod incoming;
 }
 pub mod emulator_screenshot {
@@ -98,9 +92,7 @@ pub enum ClientMethodsKey {
     EmulatorClose,
     EmulatorInfo,
     EmulatorOpen,
-    EmulatorOpenVnc,
-    EmulatorRecordDisable,
-    EmulatorRecordEnable,
+    EmulatorRecord,
     EmulatorScreenshot,
     EmulatorSync,
     EmulatorTerminal,

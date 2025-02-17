@@ -9,14 +9,20 @@ use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::models::client::ClientMethodsKey;
 use crate::models::emulator::model::EmulatorModel;
 use crate::models::emulator::select::EmulatorModelSelect;
+use crate::service::command::exec;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
+use crate::tools::programs;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct EmulatorOpenIncoming {
     id: Option<String>,
+    is_vnc: bool,
+    password: Option<String>,
+    port: Option<u64>,
 }
 
+// @todo Change server
 impl EmulatorOpenIncoming {
     pub fn name() -> String {
         serde_variant::to_variant_name(&ClientMethodsKey::EmulatorOpen)
@@ -25,11 +31,39 @@ impl EmulatorOpenIncoming {
     }
 
     pub fn new() -> Box<EmulatorOpenIncoming> {
-        Box::new(Self { id: None })
+        Box::new(Self {
+            id: None,
+            is_vnc: false,
+            password: None,
+            port: None,
+        })
     }
 
     pub fn new_id(id: String) -> Box<EmulatorOpenIncoming> {
-        Box::new(Self { id: Some(id) })
+        Box::new(Self {
+            id: Some(id),
+            is_vnc: false,
+            password: None,
+            port: None,
+        })
+    }
+
+    pub fn new_vnc(password: String, port: u64) -> Box<EmulatorOpenIncoming> {
+        Box::new(Self {
+            id: None,
+            is_vnc: true,
+            password: Some(password),
+            port: Some(port),
+        })
+    }
+
+    pub fn new_vnc_id(id: String, password: String, port: u64) -> Box<EmulatorOpenIncoming> {
+        Box::new(Self {
+            id: Some(id),
+            is_vnc: true,
+            password: Some(password),
+            port: Some(port),
+        })
     }
 
     pub fn dbus_method_run(builder: &mut IfaceBuilder<IfaceData>) {
@@ -55,6 +89,90 @@ impl EmulatorOpenIncoming {
             },
         );
     }
+
+    pub fn dbus_method_run_vnc(builder: &mut IfaceBuilder<IfaceData>) {
+        builder.method_with_cr_async(
+            format!("{}{}", Self::name(), "Vnc"),
+            ("password", "port"),
+            ("result",),
+            move |mut ctx: dbus_crossroads::Context, _, (password, port): (String, u64)| async move {
+                let outgoing = Self::new_vnc(password, port).run(OutgoingType::Dbus);
+                ctx.reply(Ok((outgoing.to_string(),)))
+            },
+        );
+    }
+
+    pub fn dbus_method_run_vnc_by_id(builder: &mut IfaceBuilder<IfaceData>) {
+        builder.method_with_cr_async(
+            format!("{}{}{}", Self::name(), "Vnc", "ById"),
+            ("id", "password", "port"),
+            ("result",),
+            move |mut ctx: dbus_crossroads::Context, _, (id, password, port): (String, String, u64)| async move {
+                let outgoing = Self::new_vnc_id(id, password, port).run(OutgoingType::Dbus);
+                ctx.reply(Ok((outgoing.to_string(),)))
+            },
+        );
+    }
+
+    fn run_emulator(
+        emulator: EmulatorModel,
+        send_type: &OutgoingType,
+    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+        if !emulator.is_running {
+            StateMessageOutgoing::new_state(tr!("открываем эмулятор")).send(send_type);
+            emulator.start()?;
+        }
+        StateMessageOutgoing::new_state(tr!("соединение с эмулятором")).send(send_type);
+        // Get emulator connect session
+        let emulator = emulator.session_user()?;
+        // Close connect
+        emulator.close()?;
+        // Done
+        Ok(StateMessageOutgoing::new_success(tr!(
+            "эмулятор {} готов к работе",
+            emulator.os_name
+        )))
+    }
+
+    fn run_emulator_vnc(
+        emulator: EmulatorModel,
+        _: &OutgoingType,
+        password: Option<String>,
+        port: Option<u64>,
+    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+        if emulator.is_running {
+            Ok(StateMessageOutgoing::new_info(tr!("эмулятор уже запущен")))
+        } else {
+            let uuid = emulator.uuid.as_str();
+            let program = programs::get_vboxmanage()?;
+            let output = exec::exec_wait_args(&program, ["setproperty", "vrdeextpack", "VNC"])?;
+            if !output.status.success() {
+                Err("не удалось изменить настройки")?
+            }
+            let password = password.unwrap_or_else(|| "00000".to_string());
+            let output = exec::exec_wait_args(
+                &program,
+                ["modifyvm", uuid, "--vrdeproperty", &format!("VNCPassword={}", password)],
+            )?;
+            if !output.status.success() {
+                Err("не удалось установить пароль")?
+            }
+            let port = &port.unwrap_or_else(|| 3389).to_string();
+            let output = exec::exec_wait_args(&program, ["modifyvm", uuid, "--vrde-port", port])?;
+            if !output.status.success() {
+                Err("не удалось установить порт")?
+            }
+            let output = exec::exec_wait_args(&program, ["modifyvm", uuid, "--vrde", "on"])?;
+            if !output.status.success() {
+                Err("не удалось включить vrde")?
+            }
+            let output = exec::exec_wait_args(&program, ["startvm", uuid, "--type", "headless"])?;
+            if !output.status.success() {
+                Err("не удалось запустить эмулятор headless")?
+            }
+            Ok(StateMessageOutgoing::new_success(tr!("эмулятор успешно запущен")))
+        }
+    }
 }
 
 impl TraitIncoming for EmulatorOpenIncoming {
@@ -62,32 +180,26 @@ impl TraitIncoming for EmulatorOpenIncoming {
         // Search
         let key = EmulatorOpenIncoming::name();
         let models: Vec<EmulatorModel> = EmulatorModelSelect::search(&self.id, &send_type, Some(false));
-        // Exec fun
-        fn _run(
-            emulator: EmulatorModel,
-            send_type: &OutgoingType,
-        ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-            if !emulator.is_running {
-                StateMessageOutgoing::new_state(tr!("открываем эмулятор")).send(send_type);
-                emulator.start()?;
-            }
-            StateMessageOutgoing::new_state(tr!("соединение с эмулятором")).send(send_type);
-            // Get emulator connect session
-            let emulator = emulator.session_user()?;
-            // Close connect
-            emulator.close()?;
-            // Done
-            Ok(StateMessageOutgoing::new_success(tr!(
-                "эмулятор {} готов к работе",
-                emulator.os_name
-            )))
-        }
         // Select
         match models.iter().count() {
-            1 => match _run(models.first().unwrap().clone(), &send_type) {
-                Ok(result) => result,
-                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось открыть эмулятор")),
-            },
+            1 => {
+                if self.is_vnc {
+                    match Self::run_emulator_vnc(
+                        models.first().unwrap().clone(),
+                        &send_type,
+                        self.password.clone(),
+                        self.port,
+                    ) {
+                        Ok(result) => result,
+                        Err(_) => StateMessageOutgoing::new_error(tr!("не удалось открыть эмулятор")),
+                    }
+                } else {
+                    match Self::run_emulator(models.first().unwrap().clone(), &send_type) {
+                        Ok(result) => result,
+                        Err(_) => StateMessageOutgoing::new_error(tr!("не удалось открыть эмулятор")),
+                    }
+                }
+            }
             0 => StateMessageOutgoing::new_info(tr!("эмуляторы не найдены")),
             _ => Box::new(EmulatorModelSelect::select(key, models, |id| {
                 *EmulatorOpenIncoming::new_id(id)

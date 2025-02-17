@@ -6,9 +6,7 @@ use super::app_info::incoming::AppInfoIncoming;
 use super::emulator_close::incoming::EmulatorCloseIncoming;
 use super::emulator_info::incoming::EmulatorInfoIncoming;
 use super::emulator_open::incoming::EmulatorOpenIncoming;
-use super::emulator_open_vnc::incoming::EmulatorOpenVncIncoming;
-use super::emulator_record_disable::incoming::EmulatorRecordDisableIncoming;
-use super::emulator_record_enable::incoming::EmulatorRecordEnableIncoming;
+use super::emulator_record::incoming::EmulatorRecordIncoming;
 use super::emulator_screenshot::incoming::EmulatorScreenshotIncoming;
 use super::emulator_sync::incoming::EmulatorSyncIncoming;
 use super::emulator_terminal::incoming::EmulatorTerminalIncoming;
@@ -63,16 +61,8 @@ impl ClientMethodsKey {
                 let model = serde_json::from_str::<EmulatorOpenIncoming>(&value)?;
                 Ok(Box::new(model))
             }
-            ClientMethodsKey::EmulatorOpenVnc => {
-                let model = serde_json::from_str::<EmulatorOpenVncIncoming>(&value)?;
-                Ok(Box::new(model))
-            }
-            ClientMethodsKey::EmulatorRecordDisable => {
-                let model = serde_json::from_str::<EmulatorRecordDisableIncoming>(&value)?;
-                Ok(Box::new(model))
-            }
-            ClientMethodsKey::EmulatorRecordEnable => {
-                let model = serde_json::from_str::<EmulatorRecordEnableIncoming>(&value)?;
+            ClientMethodsKey::EmulatorRecord => {
+                let model = serde_json::from_str::<EmulatorRecordIncoming>(&value)?;
                 Ok(Box::new(model))
             }
             ClientMethodsKey::EmulatorScreenshot => {

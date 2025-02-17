@@ -4,9 +4,7 @@ use clap::Subcommand;
 use crate::models::client::emulator_close::incoming::EmulatorCloseIncoming;
 use crate::models::client::emulator_info::incoming::EmulatorInfoIncoming;
 use crate::models::client::emulator_open::incoming::EmulatorOpenIncoming;
-use crate::models::client::emulator_open_vnc::incoming::EmulatorOpenVncIncoming;
-use crate::models::client::emulator_record_disable::incoming::EmulatorRecordDisableIncoming;
-use crate::models::client::emulator_record_enable::incoming::EmulatorRecordEnableIncoming;
+use crate::models::client::emulator_record::incoming::EmulatorRecordIncoming;
 use crate::models::client::emulator_screenshot::incoming::EmulatorScreenshotIncoming;
 use crate::models::client::emulator_terminal::incoming::EmulatorTerminalIncoming;
 use crate::models::client::incoming::TraitIncoming;
@@ -16,12 +14,15 @@ use crate::models::client::outgoing::OutgoingType;
 #[command(arg_required_else_help = true)]
 #[group(multiple = false)]
 pub struct EmulatorArgs {
-    /// Subcommand (multiple false ignore)
+    /// Subcommand
     #[command(subcommand)]
     command: Option<EmulatorArgsGroup>,
     /// Информация по доступным эмуляторам
     #[arg(short, long, default_value_t = false)]
     info: bool,
+    /// Открыть эмулятор
+    #[arg(short, long, default_value_t = false)]
+    open: bool,
     /// Закрыть эмулятор
     #[arg(short, long, default_value_t = false)]
     close: bool,
@@ -35,9 +36,9 @@ pub struct EmulatorArgs {
 
 #[derive(Subcommand)]
 enum EmulatorArgsGroup {
-    /// Открыть эмулятор
-    #[command(short_flag = 'o')]
-    Open(EmulatorOpenArgs),
+    /// Запустить эмулятор headless с VNC
+    #[command(short_flag = 'v')]
+    Vnc(EmulatorVncOpenArgs),
     /// Запись видео
     #[command(short_flag = 'r')]
     Record(EmulatorRecordArgs),
@@ -47,11 +48,13 @@ enum EmulatorArgsGroup {
 }
 
 #[derive(Args)]
-#[group(multiple = false)]
-pub struct EmulatorOpenArgs {
-    /// Запустить эмулятор headless с VNC
-    #[arg(short, long, default_value_t = false)]
-    vnc: bool,
+pub struct EmulatorVncOpenArgs {
+    /// Пароль доступа к VNC
+    #[arg(short='w', long, default_value_t = String::from("0000"))]
+    password: String,
+    /// Порт доступа к VNC
+    #[arg(short, long, default_value_t = 3389)]
+    port: u64,
     /// Показать это сообщение и выйти
     #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
     help: Option<bool>,
@@ -85,6 +88,10 @@ pub fn run(arg: EmulatorArgs) {
         EmulatorInfoIncoming::new().run(OutgoingType::Cli).print();
         return;
     }
+    if arg.open {
+        EmulatorOpenIncoming::new().run(OutgoingType::Cli).print();
+        return;
+    }
     if arg.close {
         EmulatorCloseIncoming::new().run(OutgoingType::Cli).print();
         return;
@@ -96,19 +103,13 @@ pub fn run(arg: EmulatorArgs) {
     // Commands
     if let Some(command) = arg.command {
         match command {
-            EmulatorArgsGroup::Open(arg) => {
-                if arg.vnc {
-                    EmulatorOpenVncIncoming::new().run(OutgoingType::Cli).print();
-                    return;
-                }
-                EmulatorOpenIncoming::new().run(OutgoingType::Cli).print();
+            EmulatorArgsGroup::Vnc(arg) => {
+                EmulatorOpenIncoming::new_vnc(arg.password, arg.port)
+                    .run(OutgoingType::Cli)
+                    .print();
             }
             EmulatorArgsGroup::Record(arg) => {
-                if arg.stop {
-                    EmulatorRecordDisableIncoming::new().run(OutgoingType::Cli).print();
-                    return;
-                }
-                EmulatorRecordEnableIncoming::new().run(OutgoingType::Cli).print();
+                EmulatorRecordIncoming::new(!arg.stop).run(OutgoingType::Cli).print();
             }
             EmulatorArgsGroup::Terminal(arg) => {
                 EmulatorTerminalIncoming::new(arg.root).run(OutgoingType::Cli).print();

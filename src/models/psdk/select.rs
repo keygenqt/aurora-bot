@@ -14,10 +14,10 @@ use super::model::PsdkModel;
 pub struct PsdkModelSelect {}
 
 impl PsdkModelSelect {
-    pub fn select<T: TraitIncoming + Serialize + Clone>(
+    pub fn select<T: TraitIncoming + Serialize + Clone, F: Fn(String) -> T>(
         key: String,
         models: Vec<PsdkModel>,
-        incoming: fn(String) -> T,
+        incoming: F,
     ) -> SelectorOutgoing<T> {
         SelectorOutgoing {
             key,

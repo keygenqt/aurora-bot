@@ -12,7 +12,6 @@ use super::emulator_record_enable::incoming::EmulatorRecordEnableIncoming;
 use super::emulator_screenshot::incoming::EmulatorScreenshotIncoming;
 use super::emulator_sync::incoming::EmulatorSyncIncoming;
 use super::emulator_terminal::incoming::EmulatorTerminalIncoming;
-use super::emulator_terminal_root::incoming::EmulatorTerminalRootIncoming;
 use super::flutter_info::incoming::FlutterInfoIncoming;
 use super::flutter_sync::incoming::FlutterSyncIncoming;
 use super::flutter_terminal::incoming::FlutterTerminalIncoming;
@@ -86,10 +85,6 @@ impl ClientMethodsKey {
             }
             ClientMethodsKey::EmulatorTerminal => {
                 let model = serde_json::from_str::<EmulatorTerminalIncoming>(&value)?;
-                Ok(Box::new(model))
-            }
-            ClientMethodsKey::EmulatorTerminalRoot => {
-                let model = serde_json::from_str::<EmulatorTerminalRootIncoming>(&value)?;
                 Ok(Box::new(model))
             }
             ClientMethodsKey::FlutterInfo => {

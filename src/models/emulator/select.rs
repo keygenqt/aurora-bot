@@ -14,10 +14,10 @@ use super::model::EmulatorModel;
 pub struct EmulatorModelSelect {}
 
 impl EmulatorModelSelect {
-    pub fn select<T: TraitIncoming + Serialize + Clone>(
+    pub fn select<T: TraitIncoming + Serialize + Clone, F: Fn(String) -> T>(
         key: String,
         models: Vec<EmulatorModel>,
-        incoming: fn(String) -> T,
+        incoming: F,
     ) -> SelectorOutgoing<T> {
         SelectorOutgoing {
             key,

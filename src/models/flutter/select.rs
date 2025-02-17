@@ -14,10 +14,10 @@ use super::model::FlutterModel;
 pub struct FlutterModelSelect {}
 
 impl FlutterModelSelect {
-    pub fn select<T: TraitIncoming + Serialize + Clone>(
+    pub fn select<T: TraitIncoming + Serialize + Clone, F: Fn(String) -> T>(
         key: String,
         models: Vec<FlutterModel>,
-        incoming: fn(String) -> T,
+        incoming: F,
     ) -> SelectorOutgoing<T> {
         SelectorOutgoing {
             key,

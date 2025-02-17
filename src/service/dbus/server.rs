@@ -22,7 +22,6 @@ use crate::models::client::emulator_record_enable::incoming::EmulatorRecordEnabl
 use crate::models::client::emulator_screenshot::incoming::EmulatorScreenshotIncoming;
 use crate::models::client::emulator_sync::incoming::EmulatorSyncIncoming;
 use crate::models::client::emulator_terminal::incoming::EmulatorTerminalIncoming;
-use crate::models::client::emulator_terminal_root::incoming::EmulatorTerminalRootIncoming;
 use crate::models::client::flutter_info::incoming::FlutterInfoIncoming;
 use crate::models::client::flutter_sync::incoming::FlutterSyncIncoming;
 use crate::models::client::flutter_terminal::incoming::FlutterTerminalIncoming;
@@ -83,8 +82,6 @@ impl ServerDbus {
             EmulatorSyncIncoming::dbus_method_run(builder);
             EmulatorTerminalIncoming::dbus_method_run(builder);
             EmulatorTerminalIncoming::dbus_method_run_by_id(builder);
-            EmulatorTerminalRootIncoming::dbus_method_run(builder);
-            EmulatorTerminalRootIncoming::dbus_method_run_by_id(builder);
             // Flutter
             FlutterInfoIncoming::dbus_method_run(builder);
             FlutterInfoIncoming::dbus_method_run_by_id(builder);

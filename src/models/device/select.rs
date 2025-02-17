@@ -16,10 +16,10 @@ pub struct DeviceModelSelect {}
 
 #[allow(dead_code)]
 impl DeviceModelSelect {
-    pub fn select<T: TraitIncoming + Serialize + Clone>(
+    pub fn select<T: TraitIncoming + Serialize + Clone, F: Fn(String) -> T>(
         key: String,
         models: Vec<DeviceModel>,
-        incoming: fn(String) -> T,
+        incoming: F,
     ) -> SelectorOutgoing<T> {
         SelectorOutgoing {
             key,

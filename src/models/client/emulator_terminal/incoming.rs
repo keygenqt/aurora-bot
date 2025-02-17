@@ -16,6 +16,7 @@ use crate::tools::terminal;
 #[derive(Serialize, Deserialize, Clone)]
 pub struct EmulatorTerminalIncoming {
     id: Option<String>,
+    is_root: bool,
 }
 
 impl EmulatorTerminalIncoming {
@@ -25,21 +26,21 @@ impl EmulatorTerminalIncoming {
             .to_string()
     }
 
-    pub fn new() -> Box<EmulatorTerminalIncoming> {
-        Box::new(Self { id: None })
+    pub fn new(is_root: bool) -> Box<EmulatorTerminalIncoming> {
+        Box::new(Self { id: None, is_root })
     }
 
-    pub fn new_id(id: String) -> Box<EmulatorTerminalIncoming> {
-        Box::new(Self { id: Some(id) })
+    pub fn new_id(id: String, is_root: bool) -> Box<EmulatorTerminalIncoming> {
+        Box::new(Self { id: Some(id), is_root })
     }
 
     pub fn dbus_method_run(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             Self::name(),
-            (),
+            ("is_root",),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (): ()| async move {
-                let outgoing = Self::new().run(OutgoingType::Dbus);
+            move |mut ctx: dbus_crossroads::Context, _, (is_root,): (bool,)| async move {
+                let outgoing = Self::new(is_root).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_string(),)))
             },
         );
@@ -48,10 +49,10 @@ impl EmulatorTerminalIncoming {
     pub fn dbus_method_run_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "ById"),
-            ("id",),
+            ("id", "is_root"),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (id,): (String,)| async move {
-                let outgoing = Self::new_id(id).run(OutgoingType::Dbus);
+            move |mut ctx: dbus_crossroads::Context, _, (id, is_root): (String, bool)| async move {
+                let outgoing = Self::new_id(id, is_root).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_string(),)))
             },
         );
@@ -64,14 +65,15 @@ impl TraitIncoming for EmulatorTerminalIncoming {
         let key = EmulatorTerminalIncoming::name();
         let models: Vec<EmulatorModel> = EmulatorModelSelect::search(&self.id, &send_type, Some(true));
         // Exec fun
-        fn _run(emulator: EmulatorModel) -> Box<dyn TraitOutgoing> {
+        fn _run(emulator: EmulatorModel, is_root: bool) -> Box<dyn TraitOutgoing> {
             if !emulator.is_running {
                 return StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен"));
             } else {
+                let user = if is_root { "root" } else { "defaultuser" };
                 // Run command
                 let command = format!(
-                    "ssh -o 'ConnectTimeout=2' -o 'StrictHostKeyChecking=no' defaultuser@localhost -p 2223 -i {}",
-                    emulator.key
+                    "ssh -o 'ConnectTimeout=2' -o 'StrictHostKeyChecking=no' {}@localhost -p 2223 -i {}",
+                    user, emulator.key
                 );
                 // Try run terminal
                 terminal::open(command)
@@ -79,10 +81,10 @@ impl TraitIncoming for EmulatorTerminalIncoming {
         }
         // Select
         match models.iter().count() {
-            1 => _run(models.first().unwrap().clone()),
+            1 => _run(models.first().unwrap().clone(), self.is_root),
             0 => StateMessageOutgoing::new_info(tr!("запущенные эмуляторы не найдены")),
             _ => Box::new(EmulatorModelSelect::select(key, models, |id| {
-                *EmulatorTerminalIncoming::new_id(id)
+                *EmulatorTerminalIncoming::new_id(id, self.is_root)
             })),
         }
     }

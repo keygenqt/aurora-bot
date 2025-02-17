@@ -36,11 +36,16 @@ pub struct SvcArgs {
     /// Поиск и синхронизация
     #[command(subcommand)]
     sync: Option<SyncCommands>,
+
+    /// Показать это сообщение и выйти
+    #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
+    help: Option<bool>,
 }
 
 #[derive(Subcommand)]
 pub enum SyncCommands {
     /// Синхронизация данных
+    #[command(short_flag = 's')]
     Sync(SyncArgs),
 }
 
@@ -49,9 +54,6 @@ pub enum SyncCommands {
 #[command(arg_required_else_help = true)]
 #[group(multiple = false)]
 pub struct SyncArgs {
-    // /// Поиск и синхронизация устройств
-    // #[arg(short, long, default_value_t = false)]
-    // device: bool,
     /// Поиск и синхронизация эмуляторов
     #[arg(short, long, default_value_t = false)]
     emulator: bool,
@@ -71,6 +73,10 @@ pub struct SyncArgs {
     /// Синхронизировать все
     #[arg(short, long, default_value_t = false)]
     all: bool,
+
+    /// Показать это сообщение и выйти
+    #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
+    help: Option<bool>,
 }
 
 /// Handling interface events
@@ -80,24 +86,28 @@ pub fn run(arg: SvcArgs) {
             Ok(_) => print_info!("соединение закрыто"),
             Err(_) => print_error!("не удалось активировать сервер"),
         }
+        return;
     }
     if arg.connect {
         match single::get_websocket().run() {
             Ok(_) => print_info!("соединение закрыто"),
             Err(_) => print_error!("соединение не установлено"),
         }
+        return;
     }
     if arg.logout {
         match single::get_request().logout() {
             Ok(_) => print_success!("сессия удалена успешно"),
             Err(_) => print_error!("сессия не найдена"),
         }
+        return;
     }
     if let Some(token) = arg.auth {
         match single::get_request().auth_ping_token(token) {
             Ok(_) => print_success!("авторизация выполнена успешно"),
             Err(_) => print_error!("авторизация по токену не удалась"),
         }
+        return;
     }
     if let Some(sync) = arg.sync {
         match sync {

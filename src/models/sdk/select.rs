@@ -14,10 +14,10 @@ use super::model::SdkModel;
 pub struct SdkModelSelect {}
 
 impl SdkModelSelect {
-    pub fn select<T: TraitIncoming + Serialize + Clone>(
+    pub fn select<T: TraitIncoming + Serialize + Clone, F: Fn(String) -> T>(
         key: String,
         models: Vec<SdkModel>,
-        incoming: fn(String) -> T,
+        incoming: F,
     ) -> SelectorOutgoing<T> {
         SelectorOutgoing {
             key,

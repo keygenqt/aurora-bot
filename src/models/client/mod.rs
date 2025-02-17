@@ -38,9 +38,6 @@ pub mod emulator_sync {
 pub mod emulator_terminal {
     pub mod incoming;
 }
-pub mod emulator_terminal_root {
-    pub mod incoming;
-}
 pub mod flutter_info {
     pub mod incoming;
     pub mod outgoing;
@@ -107,7 +104,6 @@ pub enum ClientMethodsKey {
     EmulatorScreenshot,
     EmulatorSync,
     EmulatorTerminal,
-    EmulatorTerminalRoot,
     FlutterInfo,
     FlutterSync,
     FlutterTerminal,

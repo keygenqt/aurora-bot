@@ -31,7 +31,7 @@ impl AppInfoIncoming {
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (): ()| async move {
                 let outgoing = AppInfoIncoming::new().run(OutgoingType::Dbus);
-                ctx.reply(Ok((outgoing.to_string(),)))
+                ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
     }

@@ -3,6 +3,7 @@ use serde::Serialize;
 
 use crate::service::dbus::server::ServerDbus;
 use crate::service::websocket::client::ClientWebsocket;
+use crate::tools::macros::print_debug;
 
 /// Send data type
 #[derive(Clone)]
@@ -18,14 +19,14 @@ pub trait TraitOutgoing {
     fn print(&self);
 
     /// Serialize data
-    fn to_string(&self) -> String;
+    fn to_json(&self) -> String;
 
     /// Send by type interface
     fn send(&self, send_type: &OutgoingType) {
         match send_type {
             OutgoingType::Cli => self.print(),
-            OutgoingType::Dbus => ServerDbus::send(self.to_string()),
-            OutgoingType::Websocket => ClientWebsocket::send(self.to_string()),
+            OutgoingType::Dbus => ServerDbus::send(self.to_json()),
+            OutgoingType::Websocket => ClientWebsocket::send(self.to_json()),
         }
     }
 }
@@ -40,6 +41,10 @@ pub struct DataOutgoing<T: TraitOutgoing + Serialize> {
 impl<T: TraitOutgoing + Serialize> DataOutgoing<T> {
     pub fn serialize(name: String, value: T) -> String {
         let data = DataOutgoing { key: name, value };
-        serde_json::to_string(&data).expect("Error convert")
+        let outgoing = serde_json::to_string(&data).expect("Error convert");
+        if cfg!(debug_assertions) {
+            print_debug!("{}", serde_json::to_string_pretty(&data).expect("Error convert"))
+        }
+        outgoing
     }
 }

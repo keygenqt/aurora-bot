@@ -24,7 +24,7 @@ impl TraitOutgoing for FlutterInfoOutgoing {
         self.model.print();
     }
 
-    fn to_string(&self) -> String {
+    fn to_json(&self) -> String {
         DataOutgoing::serialize(FlutterInfoIncoming::name(), self.clone())
     }
 }

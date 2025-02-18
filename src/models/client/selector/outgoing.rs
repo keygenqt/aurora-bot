@@ -31,7 +31,7 @@ impl<T: TraitIncoming + Serialize + Clone> TraitOutgoing for SelectorOutgoing<T>
         self.variants[index].incoming.run(OutgoingType::Cli).print();
     }
 
-    fn to_string(&self) -> String {
+    fn to_json(&self) -> String {
         DataOutgoing::serialize(SelectorIncoming::<T>::name(), self.clone())
     }
 }

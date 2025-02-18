@@ -24,7 +24,7 @@ impl TraitOutgoing for EmulatorInfoOutgoing {
         self.model.print();
     }
 
-    fn to_string(&self) -> String {
+    fn to_json(&self) -> String {
         DataOutgoing::serialize(EmulatorInfoIncoming::name(), self.clone())
     }
 }

@@ -1,5 +1,6 @@
 use serde::Deserialize;
 
+use crate::tools::macros::print_debug;
 use crate::tools::utils;
 
 use super::app_info::incoming::AppInfoIncoming;
@@ -43,6 +44,9 @@ impl DataIncoming {
 
 impl ClientMethodsKey {
     pub fn deserialize(&self, value: &String) -> Result<Box<dyn TraitIncoming>, Box<dyn std::error::Error>> {
+        if cfg!(debug_assertions) {
+            print_debug!("{}", value)
+        }
         let value = utils::clear_to_model_body(value)?;
         match self {
             ClientMethodsKey::AppInfo => {

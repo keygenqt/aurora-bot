@@ -34,6 +34,12 @@ impl FlutterTerminalIncoming {
         Box::new(Self { id: Some(id) })
     }
 
+    fn select(&self, id: String) -> FlutterTerminalIncoming {
+        let mut select = self.clone();
+        select.id = Some(id);
+        select
+    }
+
     pub fn dbus_method_run(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             Self::name(),
@@ -41,7 +47,7 @@ impl FlutterTerminalIncoming {
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (): ()| async move {
                 let outgoing = Self::new().run(OutgoingType::Dbus);
-                ctx.reply(Ok((outgoing.to_string(),)))
+                ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
     }
@@ -53,7 +59,7 @@ impl FlutterTerminalIncoming {
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (id,): (String,)| async move {
                 let outgoing = Self::new_id(id).run(OutgoingType::Dbus);
-                ctx.reply(Ok((outgoing.to_string(),)))
+                ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
     }
@@ -80,9 +86,7 @@ impl TraitIncoming for FlutterTerminalIncoming {
         match models.iter().count() {
             1 => _run(models.first().unwrap().clone()),
             0 => StateMessageOutgoing::new_info(tr!("Flutter SDK не найдены")),
-            _ => Box::new(FlutterModelSelect::select(key, models, |id| {
-                *FlutterTerminalIncoming::new_id(id)
-            })),
+            _ => Box::new(FlutterModelSelect::select(key, models, |id| self.select(id))),
         }
     }
 }

@@ -34,6 +34,12 @@ impl EmulatorTerminalIncoming {
         Box::new(Self { id: Some(id), is_root })
     }
 
+    fn select(&self, id: String) -> EmulatorTerminalIncoming {
+        let mut select = self.clone();
+        select.id = Some(id);
+        select
+    }
+
     pub fn dbus_method_run(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             Self::name(),
@@ -41,7 +47,7 @@ impl EmulatorTerminalIncoming {
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (is_root,): (bool,)| async move {
                 let outgoing = Self::new(is_root).run(OutgoingType::Dbus);
-                ctx.reply(Ok((outgoing.to_string(),)))
+                ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
     }
@@ -53,7 +59,7 @@ impl EmulatorTerminalIncoming {
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (id, is_root): (String, bool)| async move {
                 let outgoing = Self::new_id(id, is_root).run(OutgoingType::Dbus);
-                ctx.reply(Ok((outgoing.to_string(),)))
+                ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
     }
@@ -83,9 +89,7 @@ impl TraitIncoming for EmulatorTerminalIncoming {
         match models.iter().count() {
             1 => _run(models.first().unwrap().clone(), self.is_root),
             0 => StateMessageOutgoing::new_info(tr!("запущенные эмуляторы не найдены")),
-            _ => Box::new(EmulatorModelSelect::select(key, models, |id| {
-                *EmulatorTerminalIncoming::new_id(id, self.is_root)
-            })),
+            _ => Box::new(EmulatorModelSelect::select(key, models, |id| self.select(id))),
         }
     }
 }

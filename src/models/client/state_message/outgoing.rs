@@ -68,7 +68,7 @@ impl TraitOutgoing for StateMessageOutgoing {
         }
     }
 
-    fn to_string(&self) -> String {
+    fn to_json(&self) -> String {
         DataOutgoing::serialize(StateMessageIncoming::name(), self.clone())
     }
 }

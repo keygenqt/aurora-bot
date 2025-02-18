@@ -24,7 +24,7 @@ impl TraitOutgoing for SdkInfoOutgoing {
         self.model.print();
     }
 
-    fn to_string(&self) -> String {
+    fn to_json(&self) -> String {
         DataOutgoing::serialize(SdkInfoIncoming::name(), self.clone())
     }
 }

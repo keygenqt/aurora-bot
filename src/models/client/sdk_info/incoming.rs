@@ -34,6 +34,12 @@ impl SdkInfoIncoming {
         Box::new(Self { id: Some(id) })
     }
 
+    fn select(&self, id: String) -> SdkInfoIncoming {
+        let mut select = self.clone();
+        select.id = Some(id);
+        select
+    }
+
     pub fn dbus_method_run(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             Self::name(),
@@ -41,7 +47,7 @@ impl SdkInfoIncoming {
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (): ()| async move {
                 let outgoing = Self::new().run(OutgoingType::Dbus);
-                ctx.reply(Ok((outgoing.to_string(),)))
+                ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
     }
@@ -53,7 +59,7 @@ impl SdkInfoIncoming {
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (id,): (String,)| async move {
                 let outgoing = Self::new_id(id).run(OutgoingType::Dbus);
-                ctx.reply(Ok((outgoing.to_string(),)))
+                ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
     }
@@ -68,7 +74,7 @@ impl TraitIncoming for SdkInfoIncoming {
         match models.iter().count() {
             1 => SdkInfoOutgoing::new(models.first().unwrap().clone()),
             0 => StateMessageOutgoing::new_info(tr!("Аврора SDK не найдены")),
-            _ => Box::new(SdkModelSelect::select(key, models, |id| *SdkInfoIncoming::new_id(id))),
+            _ => Box::new(SdkModelSelect::select(key, models, |id| self.select(id))),
         }
     }
 }

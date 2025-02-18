@@ -89,7 +89,7 @@ impl ClientWebsocket {
         };
         // Send connect message
         let ping = WsPingOutgoing::new();
-        let message = Message::Text(ping.to_string());
+        let message = Message::Text(ping.to_json());
         websocket.send(message).await?;
         // Listen response
         while let Ok(Some(message)) = websocket.try_next().await {
@@ -97,11 +97,12 @@ impl ClientWebsocket {
                 match DataIncoming::deserialize(&text)?.deserialize(&text) {
                     Ok(incoming) => {
                         let outgoing = incoming.run(OutgoingType::Websocket);
+                        let json = outgoing.to_json();
                         // Check ping/pong
-                        if outgoing.to_string().contains("WsPing") {
+                        if json.contains("WsPing") {
                             outgoing.print();
                         } else {
-                            websocket.send(Message::Text(outgoing.to_string())).await?;
+                            websocket.send(Message::Text(json)).await?;
                         }
                     }
                     Err(_) => Err("не удалось получить incoming")?,

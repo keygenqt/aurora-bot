@@ -24,7 +24,7 @@ impl TraitOutgoing for PsdkInfoOutgoing {
         self.model.print();
     }
 
-    fn to_string(&self) -> String {
+    fn to_json(&self) -> String {
         DataOutgoing::serialize(PsdkInfoIncoming::name(), self.clone())
     }
 }

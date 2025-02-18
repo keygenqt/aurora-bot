@@ -27,7 +27,7 @@ impl TraitOutgoing for AppInfoOutgoing {
         println!("aurora-bot v{} (api: v{})", self.version, self.api_version)
     }
 
-    fn to_string(&self) -> String {
+    fn to_json(&self) -> String {
         DataOutgoing::serialize(AppInfoIncoming::name(), self.clone())
     }
 }

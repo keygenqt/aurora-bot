@@ -6,7 +6,6 @@ use models::client::app_info::incoming::AppInfoIncoming;
 use models::client::incoming::TraitIncoming;
 use models::client::outgoing::OutgoingType;
 use tools::constants;
-use tools::macros::print_warning;
 use tools::utils;
 
 mod feature;
@@ -69,9 +68,6 @@ enum Commands {
 
 #[tokio::main]
 async fn main() {
-    if cfg!(debug_assertions) {
-        print_warning!("включен debug режим");
-    }
     if App::parse().version {
         AppInfoIncoming::new().run(OutgoingType::Cli).print();
     } else {

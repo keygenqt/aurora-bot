@@ -32,7 +32,7 @@ impl TraitOutgoing for WsPingOutgoing {
         }
     }
 
-    fn to_string(&self) -> String {
+    fn to_json(&self) -> String {
         DataOutgoing::serialize(WsPingIncoming::name(), self.clone())
     }
 }

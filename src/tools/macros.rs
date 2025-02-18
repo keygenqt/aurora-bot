@@ -38,6 +38,14 @@ macro_rules! print_state {
 }
 pub(crate) use print_state;
 
+/// Pretty print debug
+macro_rules! print_debug {
+    ($($arg:tt)*) => {
+        println!("{}", format!("\x1b[1m\x1b[93mdebug\x1b[0m: {}", format!($($arg)*)))
+    }
+}
+pub(crate) use print_debug;
+
 /// Text tr
 macro_rules! tr {
     ($($arg:tt)*) => {

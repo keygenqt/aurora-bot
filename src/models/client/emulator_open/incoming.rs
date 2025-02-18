@@ -66,6 +66,12 @@ impl EmulatorOpenIncoming {
         })
     }
 
+    fn select(&self, id: String) -> EmulatorOpenIncoming {
+        let mut select = self.clone();
+        select.id = Some(id);
+        select
+    }
+
     pub fn dbus_method_run(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             Self::name(),
@@ -73,7 +79,7 @@ impl EmulatorOpenIncoming {
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (): ()| async move {
                 let outgoing = Self::new().run(OutgoingType::Dbus);
-                ctx.reply(Ok((outgoing.to_string(),)))
+                ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
     }
@@ -85,7 +91,7 @@ impl EmulatorOpenIncoming {
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (id,): (String,)| async move {
                 let outgoing = Self::new_id(id).run(OutgoingType::Dbus);
-                ctx.reply(Ok((outgoing.to_string(),)))
+                ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
     }
@@ -97,7 +103,7 @@ impl EmulatorOpenIncoming {
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (password, port): (String, u64)| async move {
                 let outgoing = Self::new_vnc(password, port).run(OutgoingType::Dbus);
-                ctx.reply(Ok((outgoing.to_string(),)))
+                ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
     }
@@ -109,7 +115,7 @@ impl EmulatorOpenIncoming {
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (id, password, port): (String, String, u64)| async move {
                 let outgoing = Self::new_vnc_id(id, password, port).run(OutgoingType::Dbus);
-                ctx.reply(Ok((outgoing.to_string(),)))
+                ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
     }
@@ -136,18 +142,22 @@ impl EmulatorOpenIncoming {
 
     fn run_emulator_vnc(
         emulator: EmulatorModel,
-        _: &OutgoingType,
+        send_type: &OutgoingType,
         password: Option<String>,
         port: Option<u64>,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         if emulator.is_running {
             Ok(StateMessageOutgoing::new_info(tr!("эмулятор уже запущен")))
         } else {
+            StateMessageOutgoing::new_state(tr!("открываем эмулятор")).send(send_type);
+
             let uuid = emulator.uuid.as_str();
             let program = programs::get_vboxmanage()?;
             let output = exec::exec_wait_args(&program, ["setproperty", "vrdeextpack", "VNC"])?;
             if !output.status.success() {
                 Err("не удалось изменить настройки")?
+            } else {
+                StateMessageOutgoing::new_state(tr!("включен VirtualBox VNC")).send(send_type);
             }
             let password = password.unwrap_or_else(|| "00000".to_string());
             let output = exec::exec_wait_args(
@@ -156,11 +166,15 @@ impl EmulatorOpenIncoming {
             )?;
             if !output.status.success() {
                 Err("не удалось установить пароль")?
+            } else {
+                StateMessageOutgoing::new_info(tr!("установлен пароль: <code>{}</code>", password)).send(send_type);
             }
             let port = &port.unwrap_or_else(|| 3389).to_string();
             let output = exec::exec_wait_args(&program, ["modifyvm", uuid, "--vrde-port", port])?;
             if !output.status.success() {
                 Err("не удалось установить порт")?
+            } else {
+                StateMessageOutgoing::new_info(tr!("установлен порт: <code>{}</code>", port)).send(send_type);
             }
             let output = exec::exec_wait_args(&program, ["modifyvm", uuid, "--vrde", "on"])?;
             if !output.status.success() {
@@ -201,9 +215,7 @@ impl TraitIncoming for EmulatorOpenIncoming {
                 }
             }
             0 => StateMessageOutgoing::new_info(tr!("эмуляторы не найдены")),
-            _ => Box::new(EmulatorModelSelect::select(key, models, |id| {
-                *EmulatorOpenIncoming::new_id(id)
-            })),
+            _ => Box::new(EmulatorModelSelect::select(key, models, |id| self.select(id))),
         }
     }
 }

@@ -5,7 +5,6 @@ use serde::Serialize;
 use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
-use crate::models::client::psdk_info::incoming::PsdkInfoIncoming;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::models::client::ClientMethodsKey;
 use crate::models::psdk::model::PsdkModel;
@@ -68,7 +67,7 @@ impl PsdkTerminalIncoming {
 impl TraitIncoming for PsdkTerminalIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
-        let key = PsdkInfoIncoming::name();
+        let key = PsdkTerminalIncoming::name();
         let models: Vec<PsdkModel> = PsdkModelSelect::search(&self.id, &send_type);
         // Exec fun
         fn _run(model: PsdkModel) -> Box<dyn TraitOutgoing> {

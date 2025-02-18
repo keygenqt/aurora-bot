@@ -24,7 +24,7 @@ impl PsdkModelSelect {
             variants: models
                 .iter()
                 .map(|e| SelectorIncoming {
-                    name: tr!("Platform SDK: {}", e.version),
+                    name: tr!("Platform SDK: {}", e.version_id),
                     incoming: incoming(e.get_id()),
                 })
                 .collect::<Vec<SelectorIncoming<T>>>(),

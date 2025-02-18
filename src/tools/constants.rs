@@ -29,10 +29,10 @@ pub const CONFIGURATION_FILE: &str = ".aurora-bot.configuration";
 pub const ENVIRONMENT_FILE: &str = ".aurora-bot.environment";
 
 /// Version application
-pub const VERSION_APP: &str = "0.0.2";
+pub const VERSION_APP: &str = "0.0.3";
 
 /// Version dbus api
-pub const VERSION_API: &str = "0.0.2";
+pub const VERSION_API: &str = "0.0.1";
 
 /// Version configuration
 pub const VERSION_CONFIGURATION: &str = "1";

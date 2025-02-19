@@ -22,6 +22,10 @@ impl TraitModel for PsdkModel {
         format!("{:x}", md5::compute(self.chroot.as_bytes()))
     }
 
+    fn get_key(&self) -> String {
+        utils::key_from_path(&self.dir)
+    }
+
     fn print(&self) {
         let message = format!(
             "Platform SDK: {}\nДиректория: {}",

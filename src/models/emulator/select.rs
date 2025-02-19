@@ -24,7 +24,7 @@ impl EmulatorModelSelect {
             variants: models
                 .iter()
                 .map(|e| SelectorIncoming {
-                    name: tr!("Эмулятор: {}", e.uuid),
+                    name: tr!("Эмулятор: {}", e.get_key()),
                     incoming: incoming(e.get_id()),
                 })
                 .collect::<Vec<SelectorIncoming<T>>>(),

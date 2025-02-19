@@ -20,6 +20,10 @@ impl TraitModel for SdkModel {
         format!("{:x}", md5::compute(self.dir.as_bytes()))
     }
 
+    fn get_key(&self) -> String {
+        utils::key_from_path(&self.dir)
+    }
+
     fn print(&self) {
         let message = format!(
             "Аврора SDK: {}\nДиректория: {}",

@@ -2,6 +2,7 @@ use tokio::runtime::Handle;
 
 use crate::models::client::incoming::DataIncoming;
 use crate::models::client::incoming::TraitIncoming;
+use crate::models::client::selector::incoming_cmd::SelectorCmdIncoming;
 use crate::service::requests::client::ClientRequest;
 use crate::service::responses::common::CommonResponse;
 use crate::service::responses::faq::FaqResponse;
@@ -42,7 +43,12 @@ impl ClientRequest {
             Ok(value) => value,
             Err(error) => Err(error)?,
         };
-        DataIncoming::deserialize(&body)?.deserialize(&body)
+        // Cmd selector API interface [SelectorCmdIncoming]
+        if body.contains("stringData") {
+            serde_json::from_str::<SelectorCmdIncoming>(&body).expect("Error convert").select()
+        } else {
+            DataIncoming::deserialize(&body)?.deserialize(&body)
+        }
     }
 
     #[allow(dead_code)]

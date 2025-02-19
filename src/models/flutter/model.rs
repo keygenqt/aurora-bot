@@ -23,6 +23,10 @@ impl TraitModel for FlutterModel {
         format!("{:x}", md5::compute(self.flutter.as_bytes()))
     }
 
+    fn get_key(&self) -> String {
+        utils::key_from_path(&self.flutter)
+    }
+
     fn print(&self) {
         let message = format!(
             "Flutter SDK: {}\nDart: {}\nDevTools: {}\nДиректория: {}",

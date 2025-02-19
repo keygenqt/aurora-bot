@@ -24,7 +24,7 @@ impl FlutterModelSelect {
             variants: models
                 .iter()
                 .map(|e| SelectorIncoming {
-                    name: tr!("Flutter SDK: {}", e.flutter_version),
+                    name: tr!("Flutter SDK: {} ({})", e.flutter_version, e.get_key()),
                     incoming: incoming(e.get_id()),
                 })
                 .collect::<Vec<SelectorIncoming<T>>>(),

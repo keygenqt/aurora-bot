@@ -24,7 +24,7 @@ impl SdkModelSelect {
             variants: models
                 .iter()
                 .map(|e| SelectorIncoming {
-                    name: tr!("Аврора SDK: {}", e.version),
+                    name: tr!("Аврора SDK: {} ({})", e.version, e.get_key()),
                     incoming: incoming(e.get_id()),
                 })
                 .collect::<Vec<SelectorIncoming<T>>>(),

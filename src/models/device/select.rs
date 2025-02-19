@@ -26,7 +26,7 @@ impl DeviceModelSelect {
             variants: models
                 .iter()
                 .map(|e| SelectorIncoming {
-                    name: tr!("Устройство: {}", e.ip),
+                    name: tr!("Устройство: {}", e.get_key()),
                     incoming: incoming(e.get_id()),
                 })
                 .collect::<Vec<SelectorIncoming<T>>>(),

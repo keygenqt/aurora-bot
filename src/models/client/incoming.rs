@@ -1,5 +1,6 @@
 use serde::Deserialize;
 
+use crate::tools::constants;
 use crate::tools::macros::print_debug;
 use crate::tools::utils;
 
@@ -44,7 +45,7 @@ impl DataIncoming {
 
 impl ClientMethodsKey {
     pub fn deserialize(&self, value: &String) -> Result<Box<dyn TraitIncoming>, Box<dyn std::error::Error>> {
-        if cfg!(debug_assertions) {
+        if constants::DEBUG_JSON {
             print_debug!("{}", value)
         }
         let value = utils::clear_to_model_body(value)?;

@@ -26,5 +26,6 @@ pub mod sdk {
 
 pub trait TraitModel {
     fn get_id(&self) -> String;
+    fn get_key(&self) -> String;
     fn print(&self);
 }

@@ -97,8 +97,34 @@ pub fn parse_output(out: Vec<u8>) -> Vec<String> {
 }
 
 pub fn clear_to_model_body(value: &String) -> Result<String, Box<dyn std::error::Error>> {
-    match value.split("\"value\":").last() {
-        Some(body) => Ok(body[0..body.len() - 1].trim().to_string()),
-        None => Err(tr!("error parse"))?,
+    if value.contains("jsonData") {
+        let body = match value.split("jsonData").last() {
+            Some(body) => body.trim(),
+            None => Err(tr!("error parse"))?,
+        };
+        let body = match body.split("nameData").next() {
+            Some(body) => body.trim(),
+            None => Err(tr!("error parse"))?,
+        };
+        Ok(body[2..body.len() - 1].trim().trim_end_matches(',').to_string())
+    } else {
+        Ok(value.clone())
     }
+}
+
+pub fn key_from_path(path: &String) -> String {
+    let mut keys: Vec<char> = vec![];
+    for block in path.split(['/', '-', '_']) {
+        match block.chars().nth(0) {
+            Some(c) => if c == '.' {
+                keys.push(block.chars().nth(1).unwrap());
+            } else if c == 'h' {
+                continue;
+            } else {
+                keys.push(c);
+            },
+            None => continue,
+        }
+    }
+    keys.iter().collect::<String>().to_lowercase()
 }

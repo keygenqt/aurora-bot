@@ -18,6 +18,10 @@ impl TraitModel for DeviceModel {
         format!("{:x}", md5::compute(self.ip.as_bytes()))
     }
 
+    fn get_key(&self) -> String {
+        self.ip.clone().to_lowercase()
+    }
+
     fn print(&self) {
         let message = format!("Устройство: {}:{}", self.ip.bold().white(), self.port.to_string());
         print_info!(message);

@@ -63,6 +63,7 @@ pub mod sdk_tools {
     pub mod incoming;
 }
 pub mod selector {
+    pub mod incoming_cmd;
     pub mod incoming;
     pub mod outgoing;
 }
@@ -86,7 +87,7 @@ pub enum ClientMethodsState {
 }
 
 /// Common keys client
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub enum ClientMethodsKey {
     AppInfo,
     EmulatorClose,

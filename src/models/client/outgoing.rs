@@ -3,6 +3,7 @@ use serde::Serialize;
 
 use crate::service::dbus::server::ServerDbus;
 use crate::service::websocket::client::ClientWebsocket;
+use crate::tools::constants;
 use crate::tools::macros::print_debug;
 
 /// Send data type
@@ -35,14 +36,16 @@ pub trait TraitOutgoing {
 #[derive(Serialize, Deserialize, Clone)]
 pub struct DataOutgoing<T: TraitOutgoing + Serialize> {
     key: String,
-    value: T,
+    #[serde(alias = "jsonData")]
+    #[serde(rename = "jsonData")]
+    json_data: T,
 }
 
 impl<T: TraitOutgoing + Serialize> DataOutgoing<T> {
-    pub fn serialize(name: String, value: T) -> String {
-        let data = DataOutgoing { key: name, value };
+    pub fn serialize(name: String, json_data: T) -> String {
+        let data = DataOutgoing { key: name, json_data };
         let outgoing = serde_json::to_string(&data).expect("Error convert");
-        if cfg!(debug_assertions) {
+        if constants::DEBUG_JSON {
             print_debug!("{}", serde_json::to_string_pretty(&data).expect("Error convert"))
         }
         outgoing

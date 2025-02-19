@@ -24,6 +24,10 @@ impl TraitModel for EmulatorModel {
         format!("{:x}", md5::compute(self.uuid.as_bytes()))
     }
 
+    fn get_key(&self) -> String {
+        self.uuid.clone().to_lowercase()
+    }
+
     fn print(&self) {
         let message = format!(
             "Эмулятор: {}\nСтатус: {}\nUUID: {}\nДиректория: {}",

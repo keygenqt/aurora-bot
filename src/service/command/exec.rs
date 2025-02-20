@@ -15,7 +15,6 @@ pub fn exec_wait(program: &str) -> Result<Output, Box<dyn std::error::Error>> {
     }
 }
 
-#[allow(dead_code)]
 pub fn exec_wait_args<I, S>(program: &str, args: I) -> Result<Output, Box<dyn std::error::Error>>
 where
     I: IntoIterator<Item = S>,

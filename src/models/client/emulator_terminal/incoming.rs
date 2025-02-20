@@ -69,7 +69,12 @@ impl TraitIncoming for EmulatorTerminalIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = EmulatorTerminalIncoming::name();
-        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(&self.id, &send_type, Some(true));
+        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(
+            &self.id,
+            &send_type,
+            tr!("ищем запущенный эмулятор для открытия терминала"),
+            Some(true),
+        );
         // Exec fun
         fn _run(emulator: EmulatorModel, is_root: bool) -> Box<dyn TraitOutgoing> {
             if !emulator.is_running {

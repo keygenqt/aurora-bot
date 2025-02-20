@@ -1,25 +1,38 @@
+use colored::Colorize;
+use dialoguer::Select;
 use serde::Deserialize;
-use serde::Serialize;
 
 use crate::models::client::incoming::TraitIncoming;
-use crate::models::client::outgoing::OutgoingType;
-use crate::models::client::outgoing::TraitOutgoing;
+use crate::models::client::ClientMethodsKey;
 
-#[derive(Serialize, Deserialize, Clone)]
-pub struct SelectorIncoming<T: TraitIncoming> {
-    pub name: String,
-    pub incoming: T,
+#[derive(Deserialize, Clone)]
+pub struct SelectorCmdIncoming {
+    variants: Vec<SelectorCmdVariantIncoming>,
 }
 
-impl<T: TraitIncoming> SelectorIncoming<T> {
-    pub fn name() -> String {
-        // Ony inner incoming
-        "Selector".to_string()
-    }
+#[derive(Deserialize, Clone)]
+pub struct SelectorCmdVariantIncoming {
+    key: ClientMethodsKey,
+    #[serde(alias = "nameData")]
+    #[serde(rename = "nameData")]
+    name_data: String,
+    #[serde(alias = "stringData")]
+    #[serde(rename = "stringData")]
+    string_data: String,
 }
 
-impl<T: TraitIncoming> TraitIncoming for SelectorIncoming<T> {
-    fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
-        self.incoming.run(send_type)
+impl SelectorCmdIncoming {
+    pub fn select(&self) -> Result<Box<dyn TraitIncoming>, Box<dyn std::error::Error>> {
+        let mut items: Vec<String> = vec![];
+        for (i, item) in self.variants.iter().enumerate() {
+            items.push(format!("{}. {}", i + 1, item.name_data));
+        }
+        let index = Select::new()
+            .with_prompt("Выберите вариант".blue().to_string())
+            .default(0)
+            .items(&items)
+            .interact()
+            .unwrap();
+        self.variants[index].key.deserialize(&self.variants[index].string_data)
     }
 }

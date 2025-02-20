@@ -27,7 +27,7 @@ printf "You can use {keys} aliases in this environment.\n\n{aliases}\n\n"
         keys = list_keys.join(" & ")
     );
     // Save to file
-    let rcfile_path = utils::get_file_save(constants::ENVIRONMENT_FILE);
+    let rcfile_path = utils::get_file_save_path(constants::ENVIRONMENT_FILE);
     fs::write(&rcfile_path, file_rcfile)?;
     let rcfile_str = rcfile_path.to_string_lossy();
     Ok(format!("bash --rcfile {}", rcfile_str))

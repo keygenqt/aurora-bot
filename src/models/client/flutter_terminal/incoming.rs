@@ -69,7 +69,8 @@ impl TraitIncoming for FlutterTerminalIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = FlutterTerminalIncoming::name();
-        let models: Vec<FlutterModel> = FlutterModelSelect::search(&self.id, &send_type);
+        let models: Vec<FlutterModel> =
+            FlutterModelSelect::search(&self.id, tr!("ищем Flutter SDK для открытия терминала"), &send_type);
         // Exec fun
         fn _run(model: FlutterModel) -> Box<dyn TraitOutgoing> {
             let command = terminal::command_aliases(hashmap! {

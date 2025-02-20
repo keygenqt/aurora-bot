@@ -69,7 +69,8 @@ impl TraitIncoming for PsdkInfoIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = PsdkInfoIncoming::name();
-        let models: Vec<PsdkModel> = PsdkModelSelect::search(&self.id, &send_type);
+        let models: Vec<PsdkModel> =
+            PsdkModelSelect::search(&self.id, tr!("получаем информацию о Platform SDK"), &send_type);
         // Select
         match models.iter().count() {
             1 => PsdkInfoOutgoing::new(models.first().unwrap().clone()),

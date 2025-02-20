@@ -39,7 +39,7 @@ impl Config {
 
     pub fn load() -> Config {
         fn _exec() -> Result<Config, Box<dyn std::error::Error>> {
-            let path = utils::get_file_save(constants::CONFIGURATION_FILE);
+            let path = utils::get_file_save_path(constants::CONFIGURATION_FILE);
             let data = match fs::read_to_string(path) {
                 Ok(value) => value,
                 Err(_) => Err("не удалось прочитать конфигурацию")?,
@@ -62,7 +62,7 @@ impl Config {
                 Ok(config) => config,
                 Err(_) => Err("не удалось получить конфигурацию")?,
             };
-            let path = utils::get_file_save(constants::CONFIGURATION_FILE);
+            let path = utils::get_file_save_path(constants::CONFIGURATION_FILE);
             fs::write(path, value_for_save).expect("не удалось записать файл");
             Ok(())
         }
@@ -81,7 +81,6 @@ impl Config {
         config.save()
     }
 
-    #[allow(dead_code)]
     pub fn save_emulator(list: Vec<EmulatorConfig>) -> bool {
         let mut config = Config::load();
         if config.emulator == list {

@@ -28,7 +28,6 @@ impl TraitModel for DeviceModel {
     }
 }
 
-#[allow(dead_code)]
 impl DeviceModel {
     pub fn search() -> Vec<DeviceModel> {
         DeviceConfig::load_models()

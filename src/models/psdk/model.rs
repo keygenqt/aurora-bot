@@ -36,7 +36,6 @@ impl TraitModel for PsdkModel {
     }
 }
 
-#[allow(dead_code)]
 impl PsdkModel {
     pub fn search() -> Vec<PsdkModel> {
         PsdkConfig::load_models()

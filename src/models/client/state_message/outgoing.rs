@@ -18,7 +18,6 @@ pub struct StateMessageOutgoing {
     message: String,
 }
 
-#[allow(dead_code)]
 impl StateMessageOutgoing {
     pub fn new_error(message: String) -> Box<StateMessageOutgoing> {
         Box::new(Self {

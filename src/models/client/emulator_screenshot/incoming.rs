@@ -9,15 +9,19 @@ use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::models::client::ClientMethodsKey;
 use crate::models::emulator::model::EmulatorModel;
 use crate::models::emulator::select::EmulatorModelSelect;
+use crate::service::command::exec;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
+use crate::tools::programs;
+use crate::tools::utils;
+
+use super::outgoing::EmulatorScreenshotOutgoing;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct EmulatorScreenshotIncoming {
     id: Option<String>,
 }
 
-// @todo Add to server
 impl EmulatorScreenshotIncoming {
     pub fn name() -> String {
         serde_variant::to_variant_name(&ClientMethodsKey::EmulatorScreenshot)
@@ -62,24 +66,42 @@ impl EmulatorScreenshotIncoming {
             },
         );
     }
+
+    fn take_screenshot(
+        emulator: EmulatorModel,
+        _: &OutgoingType,
+    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+        if !emulator.is_running {
+            return Ok(StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен")));
+        }
+        let path = utils::get_screenshot_save_path().to_string_lossy().to_string();
+        let uuid = emulator.uuid.as_str();
+        let program = programs::get_vboxmanage()?;
+        let output = exec::exec_wait_args(&program, ["controlvm", uuid, "screenshotpng", &path])?;
+        if !output.status.success() {
+            Err("не удалось сделать скриншот")?
+        }
+        Ok(EmulatorScreenshotOutgoing::new(path.to_string()))
+    }
 }
 
 impl TraitIncoming for EmulatorScreenshotIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = EmulatorScreenshotIncoming::name();
-        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(&self.id, &send_type, Some(false));
-        // Exec fun
-        fn _run(_: EmulatorModel, _: &OutgoingType) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-            Ok(StateMessageOutgoing::new_info(tr!("@todo")))
-        }
+        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(
+            &self.id,
+            &send_type,
+            tr!("ищем открытый эмулятор для скриншота"),
+            Some(true),
+        );
         // Select
         match models.iter().count() {
-            1 => match _run(models.first().unwrap().clone(), &send_type) {
+            1 => match Self::take_screenshot(models.first().unwrap().clone(), &send_type) {
                 Ok(result) => result,
-                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось открыть эмулятор")),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось сделать скриншот")),
             },
-            0 => StateMessageOutgoing::new_info(tr!("эмуляторы не найдены")),
+            0 => StateMessageOutgoing::new_info(tr!("запущенные эмуляторы не найдены")),
             _ => Box::new(EmulatorModelSelect::select(key, models, |id| self.select(id))),
         }
     }

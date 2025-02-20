@@ -34,7 +34,6 @@ impl TraitModel for SdkModel {
     }
 }
 
-#[allow(dead_code)]
 impl SdkModel {
     pub fn search() -> Vec<SdkModel> {
         SdkConfig::load_models()

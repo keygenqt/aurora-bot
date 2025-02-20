@@ -100,11 +100,9 @@ impl FaqResponse {
     }
 }
 
-#[allow(dead_code)]
 pub struct FaqResponses(pub Vec<FaqResponse>);
 
 impl FaqResponses {
-    #[allow(dead_code)]
     pub fn print(&self) {
         if self.0.len() == 1 {
             self.0.first().unwrap().print();
@@ -114,7 +112,7 @@ impl FaqResponses {
                 items.push(format!("{}. {}", i + 1, item.title));
             }
             let index = Select::new()
-                .with_prompt("📚 Варианты ответа".blue().to_string())
+                .with_prompt("Выберите вариант".blue().to_string())
                 .default(0)
                 .items(&items)
                 .interact()

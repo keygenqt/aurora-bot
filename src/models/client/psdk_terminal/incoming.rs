@@ -68,7 +68,8 @@ impl TraitIncoming for PsdkTerminalIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = PsdkTerminalIncoming::name();
-        let models: Vec<PsdkModel> = PsdkModelSelect::search(&self.id, &send_type);
+        let models: Vec<PsdkModel> =
+            PsdkModelSelect::search(&self.id, tr!("ищем Platform SDK для открытия терминала"), &send_type);
         // Exec fun
         fn _run(model: PsdkModel) -> Box<dyn TraitOutgoing> {
             terminal::open(model.chroot)

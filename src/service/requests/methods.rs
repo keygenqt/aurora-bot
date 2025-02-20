@@ -2,7 +2,7 @@ use tokio::runtime::Handle;
 
 use crate::models::client::incoming::DataIncoming;
 use crate::models::client::incoming::TraitIncoming;
-use crate::models::client::selector::incoming_cmd::SelectorCmdIncoming;
+use crate::models::client::selector::incoming::SelectorCmdIncoming;
 use crate::service::requests::client::ClientRequest;
 use crate::service::responses::common::CommonResponse;
 use crate::service::responses::faq::FaqResponse;
@@ -37,21 +37,22 @@ impl ClientRequest {
         let url = format!("{}/cli-dataset/command/{}", constants::URL_API, value);
         let response = match self.get_request(url) {
             Ok(value) => value,
-            Err(error) => Err(error)?,
+            Err(_) => Err("ошибка соединения")?,
         };
         let body = match tokio::task::block_in_place(|| Handle::current().block_on(response.text())) {
             Ok(value) => value,
-            Err(error) => Err(error)?,
+            Err(_) => Err("не удалось прочитать данные ответа")?,
         };
         // Cmd selector API interface [SelectorCmdIncoming]
         if body.contains("stringData") {
-            serde_json::from_str::<SelectorCmdIncoming>(&body).expect("Error convert").select()
+            serde_json::from_str::<SelectorCmdIncoming>(&body)
+                .expect("ошибка приема данных")
+                .select()
         } else {
             DataIncoming::deserialize(&body)?.deserialize(&body)
         }
     }
 
-    #[allow(dead_code)]
     /// Get answer
     pub fn get_search(&self, value: String) -> Result<FaqResponses, Box<dyn std::error::Error>> {
         let url = format!("{}/aurora-dataset/search/data/{}", constants::URL_API, value);

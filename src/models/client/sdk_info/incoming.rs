@@ -69,7 +69,8 @@ impl TraitIncoming for SdkInfoIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = SdkInfoIncoming::name();
-        let models: Vec<SdkModel> = SdkModelSelect::search(&self.id, &send_type);
+        let models: Vec<SdkModel> =
+            SdkModelSelect::search(&self.id, tr!("получаем информацию о Аврора SDK"), &send_type);
         // Select
         match models.iter().count() {
             1 => SdkInfoOutgoing::new(models.first().unwrap().clone()),

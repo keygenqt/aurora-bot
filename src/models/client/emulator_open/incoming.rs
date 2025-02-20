@@ -22,7 +22,6 @@ pub struct EmulatorOpenIncoming {
     port: Option<u64>,
 }
 
-// @todo Change server
 impl EmulatorOpenIncoming {
     pub fn name() -> String {
         serde_variant::to_variant_name(&ClientMethodsKey::EmulatorOpen)
@@ -193,7 +192,12 @@ impl TraitIncoming for EmulatorOpenIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = EmulatorOpenIncoming::name();
-        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(&self.id, &send_type, Some(false));
+        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(
+            &self.id,
+            &send_type,
+            tr!("ищем эмулятор который можно открыть"),
+            Some(false),
+        );
         // Select
         match models.iter().count() {
             1 => {

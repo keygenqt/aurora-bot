@@ -70,13 +70,17 @@ impl TraitIncoming for SdkToolsIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = SdkInfoIncoming::name();
-        let models: Vec<SdkModel> = SdkModelSelect::search(&self.id, &send_type);
+        let models: Vec<SdkModel> = SdkModelSelect::search(
+            &self.id,
+            tr!("ищем Аврора SDK для открытия Maintenance tools"),
+            &send_type,
+        );
         // Exec fun
         fn _run(model: SdkModel) -> Box<dyn TraitOutgoing> {
             if let Ok(_) = Command::new(model.tools).spawn() {
-                StateMessageOutgoing::new_success(tr!("Аврора SDK Tools запущено"))
+                StateMessageOutgoing::new_success(tr!("Аврора SDK Maintenance tools запущено"))
             } else {
-                StateMessageOutgoing::new_success(tr!("ошибка при запуске Аврора SDK Tools"))
+                StateMessageOutgoing::new_success(tr!("ошибка при запуске Аврора SDK Maintenance tools"))
             }
         }
         // Select

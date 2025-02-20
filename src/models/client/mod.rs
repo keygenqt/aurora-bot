@@ -22,9 +22,11 @@ pub mod emulator_open {
 }
 pub mod emulator_record {
     pub mod incoming;
+    pub mod outgoing;
 }
 pub mod emulator_screenshot {
     pub mod incoming;
+    pub mod outgoing;
 }
 pub mod emulator_sync {
     pub mod incoming;
@@ -63,9 +65,11 @@ pub mod sdk_tools {
     pub mod incoming;
 }
 pub mod selector {
-    pub mod incoming_cmd;
     pub mod incoming;
-    pub mod outgoing;
+    pub mod outgoing {
+        pub mod incoming;
+        pub mod outgoing;
+    }
 }
 pub mod state_message {
     pub mod incoming;

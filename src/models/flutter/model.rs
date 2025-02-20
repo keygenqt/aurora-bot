@@ -39,7 +39,6 @@ impl TraitModel for FlutterModel {
     }
 }
 
-#[allow(dead_code)]
 impl FlutterModel {
     pub fn search() -> Vec<FlutterModel> {
         FlutterConfig::load_models()

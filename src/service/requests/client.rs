@@ -23,7 +23,6 @@ pub struct ClientRequest {
     cookie: Arc<CookieStoreMutex>,
 }
 
-#[allow(dead_code)]
 impl ClientRequest {
     /// Create instance
     pub fn new(timeout: u64) -> ClientRequest {
@@ -44,7 +43,7 @@ impl ClientRequest {
     /// Load an existing set of cookies, serialized as json
     pub fn load_cookie(create: bool) -> Result<Arc<CookieStoreMutex>, Box<dyn std::error::Error>> {
         // Get path
-        let path = utils::get_file_save(constants::SESSION_FILE);
+        let path = utils::get_file_save_path(constants::SESSION_FILE);
         let buf = fs::File::open(path).map(std::io::BufReader::new);
         // Load cookie
         let cookie: CookieStore = if let Ok(file) = buf {
@@ -64,7 +63,7 @@ impl ClientRequest {
     /// Write store to disk
     fn save_cookie(&self) {
         // Get path
-        let path = utils::get_file_save(constants::SESSION_FILE);
+        let path = utils::get_file_save_path(constants::SESSION_FILE);
         // Load file
         let mut writer = std::fs::File::create(path).map(std::io::BufWriter::new).unwrap();
         // Save cookie
@@ -74,7 +73,7 @@ impl ClientRequest {
 
     pub fn logout(&self) -> Result<(), Box<dyn std::error::Error>> {
         // Get path
-        let path = utils::get_file_save(constants::SESSION_FILE);
+        let path = utils::get_file_save_path(constants::SESSION_FILE);
         fs::remove_file(path)?;
         Ok(())
     }

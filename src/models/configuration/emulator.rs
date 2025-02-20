@@ -11,6 +11,7 @@ pub struct EmulatorConfig {
     pub dir: String,
     pub key: String,
     pub uuid: String,
+    pub name: String,
 }
 
 impl EmulatorConfig {
@@ -25,7 +26,6 @@ impl EmulatorConfig {
         emulator.iter().map(|e| e.to_model()).collect()
     }
 
-    #[allow(dead_code)]
     pub fn search() -> Vec<EmulatorConfig> {
         match EmulatorModel::search_full() {
             Ok(models) => models
@@ -34,6 +34,7 @@ impl EmulatorConfig {
                     dir: e.dir.clone(),
                     key: e.key.clone(),
                     uuid: e.uuid.clone(),
+                    name: e.name.clone(),
                 })
                 .collect(),
             Err(_) => vec![],
@@ -51,6 +52,7 @@ impl EmulatorConfig {
             dir: self.dir.clone(),
             key: self.key.clone(),
             uuid: self.uuid.clone(),
+            name: self.name.clone(),
             is_running: _is_running(&self.uuid).unwrap_or_else(|_| false),
         }
     }

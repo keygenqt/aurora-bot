@@ -16,6 +16,7 @@ pub struct EmulatorModel {
     pub dir: String,
     pub key: String,
     pub uuid: String,
+    pub name: String,
     pub is_running: bool,
 }
 
@@ -25,7 +26,7 @@ impl TraitModel for EmulatorModel {
     }
 
     fn get_key(&self) -> String {
-        self.uuid.clone().to_lowercase()
+        self.name.clone()
     }
 
     fn print(&self) {
@@ -46,7 +47,6 @@ impl TraitModel for EmulatorModel {
     }
 }
 
-#[allow(dead_code)]
 impl EmulatorModel {
     pub fn session_user(&self) -> Result<EmulatorSession, Box<dyn std::error::Error>> {
         Ok(EmulatorSession::new(EmulatorSessionType::User, &self.key)?)
@@ -77,6 +77,22 @@ impl EmulatorModel {
         }
     }
 
+    pub fn is_recording(&self) -> bool {
+        let program = match programs::get_vboxmanage() {
+            Ok(value) => value,
+            Err(_) => return false,
+        };
+        let output = match exec::exec_wait_args(&program, ["showvminfo", &self.uuid]) {
+            Ok(value) => value,
+            Err(_) => return false,
+        };
+        let lines = utils::parse_output(output.stdout);
+        match utils::config_get_bool(&lines, "Recording enabled:", "yes") {
+            Ok(value) => value,
+            Err(_) => false,
+        }
+    }
+
     pub fn search() -> Vec<EmulatorModel> {
         EmulatorConfig::load_models()
     }
@@ -101,7 +117,14 @@ impl EmulatorModel {
             if line.to_lowercase().contains("engine") {
                 continue;
             }
-            let uuid = line.split("{").skip(1).collect::<String>().replace("}", "");
+            let uuid = line
+                .split_whitespace()
+                .last()
+                .unwrap()
+                .trim()
+                .trim_start_matches('{')
+                .trim_end_matches('}');
+            let name = line.split_whitespace().next().unwrap().trim().trim_matches('"');
             let output = exec::exec_wait_args(&program, ["showvminfo", &uuid])?;
             let lines = utils::parse_output(output.stdout);
             let is_running = match utils::config_get_bool(&lines, "State:", "running") {
@@ -120,7 +143,8 @@ impl EmulatorModel {
             emulators.push(EmulatorModel {
                 dir: dir.clone(),
                 key: format!("{}/vmshare/ssh/private_keys/sdk", dir),
-                uuid: uuid.clone(),
+                uuid: uuid.to_string(),
+                name: name.to_string(),
                 is_running,
             });
         }

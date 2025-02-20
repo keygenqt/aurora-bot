@@ -69,7 +69,8 @@ impl TraitIncoming for FlutterInfoIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = FlutterInfoIncoming::name();
-        let models: Vec<FlutterModel> = FlutterModelSelect::search(&self.id, &send_type);
+        let models: Vec<FlutterModel> =
+            FlutterModelSelect::search(&self.id, tr!("получаем информацию о Flutter SDK"), &send_type);
         // Select
         match models.iter().count() {
             1 => FlutterInfoOutgoing::new(models.first().unwrap().clone()),

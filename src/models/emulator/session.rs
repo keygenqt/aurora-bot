@@ -5,7 +5,6 @@ use tokio::runtime::Handle;
 use crate::service::ssh::client::SshSession;
 use crate::tools::utils;
 
-#[allow(dead_code)]
 #[derive(PartialEq)]
 pub enum EmulatorSessionType {
     Root,

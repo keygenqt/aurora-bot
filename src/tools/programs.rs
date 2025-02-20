@@ -10,7 +10,6 @@ pub fn get_vboxmanage() -> Result<String, Box<dyn std::error::Error>> {
     Err("не найден VBoxManage")?
 }
 
-#[allow(dead_code)]
 pub fn get_gnome_terminal() -> Result<String, Box<dyn std::error::Error>> {
     if let Ok(_) = exec::exec_wait_args("gnome-terminal", ["--version"]) {
         return Ok("gnome-terminal".into());
@@ -18,7 +17,6 @@ pub fn get_gnome_terminal() -> Result<String, Box<dyn std::error::Error>> {
     Err("не найден GNOME Terminal")?
 }
 
-#[allow(dead_code)]
 pub fn get_kitty_terminal() -> Result<String, Box<dyn std::error::Error>> {
     if let Ok(_) = exec::exec_wait_args("kitty", ["--version"]) {
         return Ok("kitty".into());

@@ -3,6 +3,8 @@ use regex::Regex;
 use std::env;
 use std::path::Path;
 use std::path::PathBuf;
+use std::time::SystemTime;
+use std::time::UNIX_EPOCH;
 use walkdir::DirEntry;
 use walkdir::WalkDir;
 
@@ -23,6 +25,7 @@ pub fn app_about() -> String {
     )
 }
 
+/// Search string value by any text-config
 pub fn config_get_string(params: &Vec<String>, key: &str, split: &str) -> Result<String, Box<dyn std::error::Error>> {
     match params.iter().filter(|e| e.contains(key)).next() {
         Some(option) => Ok(option
@@ -36,6 +39,7 @@ pub fn config_get_string(params: &Vec<String>, key: &str, split: &str) -> Result
     }
 }
 
+/// Search bool value by any text-config
 pub fn config_get_bool(params: &Vec<String>, key: &str, find: &str) -> Result<bool, Box<dyn std::error::Error>> {
     match params.iter().filter(|e| e.contains(key)).next() {
         Some(option) => Ok(option.contains(find)),
@@ -43,18 +47,36 @@ pub fn config_get_bool(params: &Vec<String>, key: &str, find: &str) -> Result<bo
     }
 }
 
-pub fn get_home_folder() -> PathBuf {
+/// Get home folder without HOME
+pub fn get_home_folder_path() -> PathBuf {
     match env::var("HOME") {
         Ok(path_home) => Path::new(&path_home).to_path_buf(),
         Err(_) => env::current_dir().unwrap_or_else(|_| crash!("директория конфигурации не найдена")),
     }
 }
 
-pub fn get_file_save(file_name: &str) -> PathBuf {
-    get_home_folder().join(file_name)
+/// Get path for save config-file
+pub fn get_file_save_path(file_name: &str) -> PathBuf {
+    get_home_folder_path().join(file_name)
 }
 
-#[allow(dead_code)]
+/// Gen path for screenshot
+pub fn get_screenshot_save_path() -> PathBuf {
+    let start = SystemTime::now();
+    let timestamp = start
+        .duration_since(UNIX_EPOCH)
+        .expect("Time went backwards")
+        .as_millis();
+    let file_name = format!("Screenshot_{}.png", timestamp.to_string());
+    let en_path = get_home_folder_path().join("Pictures").join("Screenshots");
+    if en_path.exists() {
+        en_path.join(file_name)
+    } else {
+        get_home_folder_path().join(file_name)
+    }
+}
+
+/// Check is file
 pub fn is_file(entry: &DirEntry) -> bool {
     if let Ok(metadata) = entry.metadata() {
         metadata.is_file()
@@ -63,12 +85,12 @@ pub fn is_file(entry: &DirEntry) -> bool {
     }
 }
 
-#[allow(dead_code)]
+/// Search file by PC
 pub fn search_files(path: &str) -> Vec<String> {
     let reg = format!("^.*{}$", path);
     let re = Regex::new(&reg).unwrap();
     let mut result: Vec<String> = vec![];
-    for entry in WalkDir::new(get_home_folder())
+    for entry in WalkDir::new(get_home_folder_path())
         .follow_links(false)
         .into_iter()
         .filter_map(|e| e.ok())
@@ -85,6 +107,7 @@ pub fn search_files(path: &str) -> Vec<String> {
     result
 }
 
+/// Output exec to list string
 pub fn parse_output(out: Vec<u8>) -> Vec<String> {
     if let Ok(value) = String::from_utf8(out) {
         return value
@@ -96,6 +119,7 @@ pub fn parse_output(out: Vec<u8>) -> Vec<String> {
     vec![]
 }
 
+/// Get incoming object from query
 pub fn clear_to_model_body(value: &String) -> Result<String, Box<dyn std::error::Error>> {
     if value.contains("jsonData") {
         let body = match value.split("jsonData").last() {
@@ -112,17 +136,20 @@ pub fn clear_to_model_body(value: &String) -> Result<String, Box<dyn std::error:
     }
 }
 
+// Get unique key by path for models
 pub fn key_from_path(path: &String) -> String {
     let mut keys: Vec<char> = vec![];
     for block in path.split(['/', '-', '_']) {
         match block.chars().nth(0) {
-            Some(c) => if c == '.' {
-                keys.push(block.chars().nth(1).unwrap());
-            } else if c == 'h' {
-                continue;
-            } else {
-                keys.push(c);
-            },
+            Some(c) => {
+                if c == '.' {
+                    keys.push(block.chars().nth(1).unwrap());
+                } else if c == 'h' {
+                    continue;
+                } else {
+                    keys.push(c);
+                }
+            }
             None => continue,
         }
     }

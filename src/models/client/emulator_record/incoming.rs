@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use dbus_crossroads::IfaceBuilder;
 use serde::Deserialize;
 use serde::Serialize;
@@ -9,8 +11,12 @@ use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::models::client::ClientMethodsKey;
 use crate::models::emulator::model::EmulatorModel;
 use crate::models::emulator::select::EmulatorModelSelect;
+use crate::service::command::exec;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
+use crate::tools::programs;
+
+use super::outgoing::EmulatorRecordOutgoing;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct EmulatorRecordIncoming {
@@ -18,7 +24,6 @@ pub struct EmulatorRecordIncoming {
     enable: bool,
 }
 
-// @todo Add to server
 impl EmulatorRecordIncoming {
     pub fn name() -> String {
         serde_variant::to_variant_name(&ClientMethodsKey::EmulatorRecord)
@@ -64,15 +69,42 @@ impl EmulatorRecordIncoming {
         );
     }
 
-    fn action_enable(_: EmulatorModel, _: &OutgoingType) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-        Ok(StateMessageOutgoing::new_info(tr!("@todo enable")))
+    fn action_enable(emulator: EmulatorModel) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+        if !emulator.is_running {
+            return Ok(StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен")));
+        }
+        if emulator.is_recording() {
+            return Ok(StateMessageOutgoing::new_info(tr!("запись видео уже активирована")));
+        }
+        let uuid = emulator.uuid.as_str();
+        let program = programs::get_vboxmanage()?;
+        let output = exec::exec_wait_args(&program, ["controlvm", uuid, "recording", "on"])?;
+        if !output.status.success() {
+            Err("не удалось активировать запись видео")?
+        }
+        Ok(StateMessageOutgoing::new_success(tr!("запись видео активирована")))
     }
 
-    fn action_disable(
-        _: EmulatorModel,
-        _: &OutgoingType,
-    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-        Ok(StateMessageOutgoing::new_info(tr!("@todo disable")))
+    fn action_disable(emulator: EmulatorModel) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+        if !emulator.is_running {
+            return Ok(StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен")));
+        }
+        if !emulator.is_recording() {
+            return Ok(StateMessageOutgoing::new_info(tr!("запись видео не активна")));
+        }
+        let uuid = emulator.uuid.as_str();
+        let program = programs::get_vboxmanage()?;
+        let output = exec::exec_wait_args(&program, ["controlvm", uuid, "recording", "off"])?;
+        if !output.status.success() {
+            Err("не удалось остановить запись видео")?
+        }
+        let name = emulator.name;
+        let path = Path::new(&emulator.dir)
+            .join("emulator")
+            .join(&name)
+            .join(&name)
+            .join(format!("{}-screen0.webm", &name));
+        Ok(EmulatorRecordOutgoing::new(path.to_string_lossy().to_string()))
     }
 }
 
@@ -80,23 +112,28 @@ impl TraitIncoming for EmulatorRecordIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = EmulatorRecordIncoming::name();
-        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(&self.id, &send_type, Some(false));
+        let text = if self.enable {
+            tr!("ищем эмулятор для включения записи видео")
+        } else {
+            tr!("ищем эмулятор для остановки записи видео")
+        };
+        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(&self.id, &send_type, text, Some(true));
         // Select
         match models.iter().count() {
             1 => {
                 if self.enable {
-                    match Self::action_enable(models.first().unwrap().clone(), &send_type) {
+                    match Self::action_enable(models.first().unwrap().clone()) {
                         Ok(result) => result,
-                        Err(_) => StateMessageOutgoing::new_error(tr!("не активировать запись видео")),
+                        Err(_) => StateMessageOutgoing::new_error(tr!("не удалось активировать запись видео")),
                     }
                 } else {
-                    match Self::action_disable(models.first().unwrap().clone(), &send_type) {
+                    match Self::action_disable(models.first().unwrap().clone()) {
                         Ok(result) => result,
                         Err(_) => StateMessageOutgoing::new_error(tr!("не удалось остановить запись видео")),
                     }
                 }
             }
-            0 => StateMessageOutgoing::new_info(tr!("эмуляторы не найдены")),
+            0 => StateMessageOutgoing::new_info(tr!("запущенные эмуляторы не найдены")),
             _ => Box::new(EmulatorModelSelect::select(key, models, |id| self.select(id))),
         }
     }

@@ -6,6 +6,6 @@ use crate::tools::single;
 pub fn run(command: Vec<String>) {
     match single::get_request().get_command(command.join(" ")) {
         Ok(incoming) => incoming.run(OutgoingType::Cli).print(),
-        Err(_) => print_error!("что-то пошло не так, попробуйте выполнить позже"),
+        Err(error) => print_error!(error),
     }
 }

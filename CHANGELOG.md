@@ -1,14 +1,29 @@
-## Updated: 02/15/2025 17:41:14 PM
+## Updated: 02/21/2025 20:44:25 PM
 
 ## Info
 
-- Last tag: 0.0.2
-- Released: 2
+- Last tag: 0.0.3
+- Released: 3
 
 ## Versions
 
+- Version: 0.0.3 (21/02/2025)
 - Version: 0.0.2 (15/02/2025)
 - Version: 0.0.1 (06/02/2025)
+
+### Version: 0.0.3 (21/02/2025)
+
+#### Feature
+
+- Standardization of data output.
+- Refactoring cli interface.
+- Selector telegram in/out.
+- Selector cmd.
+- Emulator screenshot.
+- Emulator record video.
+- Application architecture diagram.
+- Optimization and bug fixes.
+- Open emulator vnc.
 
 ### Version: 0.0.2 (15/02/2025)
 

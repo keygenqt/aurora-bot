@@ -2,8 +2,10 @@
 
 > Subscribe and like ⭐
 
-[![Releases DEB](https://img.shields.io/badge/dynamic/json?url=https://api.github.com/repos/keygenqt/aurora-bot/releases/latest&query=assets[0][download_count]&label=Releases%20DEB&color=BE8731&logo=github&prefix=0.0.2%20(&suffix=))](https://github.com/keygenqt/aurora-bot/releases)
-[![Releases TAR](https://img.shields.io/badge/dynamic/json?url=https://api.github.com/repos/keygenqt/aurora-bot/releases/latest&query=assets[1][download_count]&label=Releases%20TAR&color=040404&logo=github&prefix=0.0.2%20(&suffix=))](https://github.com/keygenqt/aurora-bot/releases)
+[![Releases DEB](https://img.shields.io/badge/dynamic/json?url=https://api.github.com/repos/keygenqt/aurora-bot/releases/latest&query=assets[0][download_count]&label=Releases%20DEB&color=BE8731&logo=github&prefix=0.0.3%20(&suffix=))](https://github.com/keygenqt/aurora-bot/releases)
+[![Releases TAR](https://img.shields.io/badge/dynamic/json?url=https://api.github.com/repos/keygenqt/aurora-bot/releases/latest&query=assets[1][download_count]&label=Releases%20TAR&color=040404&logo=github&prefix=0.0.3%20(&suffix=))](https://github.com/keygenqt/aurora-bot/releases)
+
+> The application is under development.
 
 Fast, smart, lightweight, client of the Aurora Bot project.
 
@@ -11,18 +13,20 @@ Fast, smart, lightweight, client of the Aurora Bot project.
 
 ### Features
 
-- Answers on the Aurora OS ecosystem.
-- Smart command line.
-- Classic command line.
-- Services: dbus & telegram client.
+- `cli` - Classic command line.
+- `cmd` - Smart command line.
+- `faq` - Answers on the Aurora OS ecosystem.
+- `svc` - Services: dbus api, telegram client.
 
-> The application is under development.
+### Architecture
+
+![preview](data/preview2.png)
 
 ### Install DEB
 
 ```shell
 # Install
-sudo dpkg -i aurora-bot_0.0.2-1_amd64.deb
+sudo dpkg -i aurora-bot_0.0.3-1_amd64.deb
 # Enable services
 systemctl --user enable aurora-bot.client.service
 systemctl --user enable aurora-bot.dbus.service

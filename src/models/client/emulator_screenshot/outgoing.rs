@@ -1,3 +1,7 @@
+use std::fs;
+
+use base64::engine::general_purpose;
+use base64::Engine;
 use colored::Colorize;
 use serde::Deserialize;
 use serde::Serialize;
@@ -12,11 +16,19 @@ use super::incoming::EmulatorScreenshotIncoming;
 #[derive(Serialize, Deserialize, Clone)]
 pub struct EmulatorScreenshotOutgoing {
     path: String,
+    base_64: Option<String>,
 }
 
 impl EmulatorScreenshotOutgoing {
     pub fn new(path: String) -> Box<EmulatorScreenshotOutgoing> {
-        Box::new(Self { path })
+        let base_64 = match fs::read(&path) {
+            Ok(input) => Some(general_purpose::STANDARD.encode(input)),
+            Err(_) => None,
+        };
+        Box::new(Self {
+            path: path.clone(),
+            base_64,
+        })
     }
 }
 

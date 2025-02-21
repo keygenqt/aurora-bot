@@ -67,10 +67,7 @@ impl EmulatorScreenshotIncoming {
         );
     }
 
-    fn take_screenshot(
-        emulator: EmulatorModel,
-        _: &OutgoingType,
-    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+    fn take_screenshot(emulator: EmulatorModel) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         if !emulator.is_running {
             return Ok(StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен")));
         }
@@ -97,7 +94,7 @@ impl TraitIncoming for EmulatorScreenshotIncoming {
         );
         // Select
         match models.iter().count() {
-            1 => match Self::take_screenshot(models.first().unwrap().clone(), &send_type) {
+            1 => match Self::take_screenshot(models.first().unwrap().clone()) {
                 Ok(result) => result,
                 Err(_) => StateMessageOutgoing::new_error(tr!("не удалось сделать скриншот")),
             },

@@ -40,3 +40,5 @@ walkdir = "2.5.0"
 md5 = "0.7.0"
 maplit = "1.0.2"
 base64 = "0.22.1"
+# @todo ffmpeg
+# ffmpeg-next = "7.1.0"

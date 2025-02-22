@@ -38,6 +38,9 @@ Description: An application that provides an easy start in the Aurora OS ecosyst
 Build-Depends: libssl-dev
 EOT
 
+# @todo ffmpeg
+# libavutil-dev, libavcodec-dev, libavformat-dev, libavfilter-dev, libavdevice-dev
+
 dpkg-deb --build --root-owner-group "$DEB_FOLDER"
 
 rm -rf "$DEB_FOLDER"

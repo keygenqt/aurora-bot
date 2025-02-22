@@ -13,6 +13,7 @@ use crate::models::emulator::model::EmulatorModel;
 use crate::models::emulator::select::EmulatorModelSelect;
 use crate::service::command::exec;
 use crate::service::dbus::server::IfaceData;
+use crate::tools::ffmpeg_utils;
 use crate::tools::macros::tr;
 use crate::tools::programs;
 
@@ -99,12 +100,21 @@ impl EmulatorRecordIncoming {
             Err("не удалось остановить запись видео")?
         }
         let name = emulator.name;
-        let path = Path::new(&emulator.dir)
+        let path_raw = Path::new(&emulator.dir)
             .join("emulator")
             .join(&name)
             .join(&name)
             .join(format!("{}-screen0.webm", &name));
-        Ok(EmulatorRecordOutgoing::new(path.to_string_lossy().to_string()))
+        // Crop, convert to mp4, gen gif preview
+        let outgoing = match ffmpeg_utils::ffmpeg_webm_convert(&path_raw) {
+            Ok(values) => {
+                EmulatorRecordOutgoing::new(values.0.to_string_lossy().to_string(), Some(values.1))
+            },
+            Err(_) => {
+                EmulatorRecordOutgoing::new(path_raw.to_string_lossy().to_string(), None)
+            },
+        };
+        Ok(outgoing)
     }
 }
 

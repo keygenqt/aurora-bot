@@ -2,6 +2,7 @@ use clap::Args;
 
 use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
+use crate::models::client::sdk_available::incoming::SdkAvailableIncoming;
 use crate::models::client::sdk_info::incoming::SdkInfoIncoming;
 use crate::models::client::sdk_tools::incoming::SdkToolsIncoming;
 
@@ -10,6 +11,9 @@ use crate::models::client::sdk_tools::incoming::SdkToolsIncoming;
 #[group(multiple = false)]
 pub struct SdkArgs {
     /// Информация по доступным Аврора SDK
+    #[arg(short, long, default_value_t = false)]
+    available: bool,
+    /// Информация по установленным Аврора SDK
     #[arg(short, long, default_value_t = false)]
     info: bool,
     /// Открыть maintenance tools
@@ -21,6 +25,9 @@ pub struct SdkArgs {
 }
 
 pub fn run(arg: SdkArgs) {
+    if arg.available {
+        SdkAvailableIncoming::new().run(OutgoingType::Cli).print();
+    }
     if arg.info {
         SdkInfoIncoming::new().run(OutgoingType::Cli).print();
     }

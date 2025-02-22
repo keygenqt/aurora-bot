@@ -12,11 +12,12 @@ use super::incoming::EmulatorRecordIncoming;
 #[derive(Serialize, Deserialize, Clone)]
 pub struct EmulatorRecordOutgoing {
     path: String,
+    base_64: Option<String>,
 }
 
 impl EmulatorRecordOutgoing {
-    pub fn new(path: String) -> Box<EmulatorRecordOutgoing> {
-        Box::new(Self { path })
+    pub fn new(path: String, base_64: Option<String>) -> Box<EmulatorRecordOutgoing> {
+        Box::new(Self { path, base_64 })
     }
 }
 

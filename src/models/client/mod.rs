@@ -34,6 +34,10 @@ pub mod emulator_sync {
 pub mod emulator_terminal {
     pub mod incoming;
 }
+pub mod flutter_available {
+    pub mod incoming;
+    pub mod outgoing;
+}
 pub mod flutter_info {
     pub mod incoming;
     pub mod outgoing;
@@ -44,6 +48,10 @@ pub mod flutter_sync {
 pub mod flutter_terminal {
     pub mod incoming;
 }
+pub mod psdk_available {
+    pub mod incoming;
+    pub mod outgoing;
+}
 pub mod psdk_info {
     pub mod incoming;
     pub mod outgoing;
@@ -53,6 +61,10 @@ pub mod psdk_sync {
 }
 pub mod psdk_terminal {
     pub mod incoming;
+}
+pub mod sdk_available {
+    pub mod incoming;
+    pub mod outgoing;
 }
 pub mod sdk_info {
     pub mod incoming;
@@ -101,12 +113,15 @@ pub enum ClientMethodsKey {
     EmulatorScreenshot,
     EmulatorSync,
     EmulatorTerminal,
+    FlutterAvailable,
     FlutterInfo,
     FlutterSync,
     FlutterTerminal,
+    PsdkAvailable,
     PsdkInfo,
     PsdkSync,
     PsdkTerminal,
+    SdkAvailable,
     SdkInfo,
     SdkSync,
     SdkTools,

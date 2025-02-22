@@ -35,11 +35,8 @@ Version: $VERSION
 Architecture: amd64
 Maintainer: Vitaliy Zarubin <keygenqt@gmail.com>
 Description: An application that provides an easy start in the Aurora OS ecosystem.
-Build-Depends: libssl-dev
+Build-Depends: libssl-dev, libavutil-dev, libavcodec-dev, libavformat-dev, libavfilter-dev, libavdevice-dev
 EOT
-
-# @todo ffmpeg
-# libavutil-dev, libavcodec-dev, libavformat-dev, libavfilter-dev, libavdevice-dev
 
 dpkg-deb --build --root-owner-group "$DEB_FOLDER"
 

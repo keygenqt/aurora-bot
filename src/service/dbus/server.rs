@@ -20,12 +20,15 @@ use crate::models::client::emulator_record::incoming::EmulatorRecordIncoming;
 use crate::models::client::emulator_screenshot::incoming::EmulatorScreenshotIncoming;
 use crate::models::client::emulator_sync::incoming::EmulatorSyncIncoming;
 use crate::models::client::emulator_terminal::incoming::EmulatorTerminalIncoming;
+use crate::models::client::flutter_available::incoming::FlutterAvailableIncoming;
 use crate::models::client::flutter_info::incoming::FlutterInfoIncoming;
 use crate::models::client::flutter_sync::incoming::FlutterSyncIncoming;
 use crate::models::client::flutter_terminal::incoming::FlutterTerminalIncoming;
+use crate::models::client::psdk_available::incoming::PsdkAvailableIncoming;
 use crate::models::client::psdk_info::incoming::PsdkInfoIncoming;
 use crate::models::client::psdk_sync::incoming::PsdkSyncIncoming;
 use crate::models::client::psdk_terminal::incoming::PsdkTerminalIncoming;
+use crate::models::client::sdk_available::incoming::SdkAvailableIncoming;
 use crate::models::client::sdk_info::incoming::SdkInfoIncoming;
 use crate::models::client::sdk_sync::incoming::SdkSyncIncoming;
 use crate::models::client::sdk_tools::incoming::SdkToolsIncoming;
@@ -79,18 +82,21 @@ impl ServerDbus {
             EmulatorTerminalIncoming::dbus_method_run(builder);
             EmulatorTerminalIncoming::dbus_method_run_by_id(builder);
             // Flutter
+            FlutterAvailableIncoming::dbus_method_run(builder);
             FlutterInfoIncoming::dbus_method_run(builder);
             FlutterInfoIncoming::dbus_method_run_by_id(builder);
             FlutterSyncIncoming::dbus_method_run(builder);
             FlutterTerminalIncoming::dbus_method_run(builder);
             FlutterTerminalIncoming::dbus_method_run_by_id(builder);
             // Psdk
+            PsdkAvailableIncoming::dbus_method_run(builder);
             PsdkInfoIncoming::dbus_method_run(builder);
             PsdkInfoIncoming::dbus_method_run_by_id(builder);
             PsdkSyncIncoming::dbus_method_run(builder);
             PsdkTerminalIncoming::dbus_method_run(builder);
             PsdkTerminalIncoming::dbus_method_run_by_id(builder);
             // Sdk
+            SdkAvailableIncoming::dbus_method_run(builder);
             SdkInfoIncoming::dbus_method_run(builder);
             SdkInfoIncoming::dbus_method_run_by_id(builder);
             SdkSyncIncoming::dbus_method_run(builder);

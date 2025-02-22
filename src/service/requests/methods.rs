@@ -1,3 +1,4 @@
+use nipper::Document;
 use tokio::runtime::Handle;
 
 use crate::models::client::incoming::DataIncoming;
@@ -86,5 +87,62 @@ impl ClientRequest {
                 }
             }
         }
+    }
+
+    // Get list run files sdk
+    pub fn get_repo_url_sdk(&self) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        self.get_repo_url_files(&vec!["AuroraSDK"], None)
+    }
+
+    // Get list archive files psdk
+    pub fn get_repo_url_psdk(&self) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        self.get_repo_url_files(&vec!["PlatformSDK", "AuroraPSDK"], None)
+    }
+
+    fn get_repo_url_files(&self, keys: &Vec<&str>, url: Option<String>) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        let url_default = "https://sdk-repo.omprussia.ru/sdk/installers/".to_string();
+        let url_level = match url {
+            Some(value) => value,
+            None => url_default,
+        };
+        let response = match self.get_request(url_level.clone()) {
+            Ok(response) => response,
+            Err(error) => Err(error)?,
+        };
+        let body = match tokio::task::block_in_place(|| Handle::current().block_on(response.text())) {
+            Ok(value) => value,
+            Err(error) => Err(error)?,
+        };
+        let document = Document::from(&body);
+        let a = document.select("a");
+        let links: Vec<String> = a.iter().map(|e| {
+            e.attr("href").unwrap().to_string()
+        }).collect();
+        let mut files: Vec<String>  = vec![];
+        for link in links {
+            if link.contains("..") {
+                continue;
+            }
+            if link.contains("exe") || link.contains("dmg") {
+                continue;
+            }
+            if link.contains("md5sum") || link.contains("md5") {
+                continue;
+            }
+            if !link.contains("/") {
+                let file_link = format!("{}{}", url_level, link);
+                for key in keys {
+                    if file_link.contains(key) {
+                        files.push(file_link);
+                        break;
+                    }
+                }
+                continue;
+            }
+            for file in self.get_repo_url_files(keys, Some(format!("{}{}", url_level, link)))? {
+                files.push(file);
+            }
+        }
+        Ok(files)
     }
 }

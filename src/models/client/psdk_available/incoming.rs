@@ -5,8 +5,11 @@ use serde::Serialize;
 use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
+use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::models::client::ClientMethodsKey;
 use crate::service::dbus::server::IfaceData;
+use crate::tools::macros::tr;
+use crate::tools::single;
 
 use super::outgoing::PsdkAvailableOutgoing;
 
@@ -38,8 +41,18 @@ impl PsdkAvailableIncoming {
 }
 
 impl TraitIncoming for PsdkAvailableIncoming {
-    fn run(&self, _: OutgoingType) -> Box<dyn TraitOutgoing> {
+    fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // @todo psdk available
-        PsdkAvailableOutgoing::new(vec![])
+        StateMessageOutgoing::new_state(tr!("получение данных с репозитория")).send(&send_type);
+        match single::get_request().get_repo_url_psdk() {
+            Ok(url_files) => {
+                for url in url_files {
+                    // @todo
+                    println!("{}", url)
+                }
+                PsdkAvailableOutgoing::new(vec![])
+            },
+            Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить данные")),
+        }
     }
 }

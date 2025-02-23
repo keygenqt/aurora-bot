@@ -1,10 +1,14 @@
 use dbus_crossroads::IfaceBuilder;
+use regex::Regex;
 use serde::Deserialize;
 use serde::Serialize;
 
 use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
+use crate::models::client::sdk_available::outgoing::SdkAvailableItemOutgoing;
+use crate::models::client::sdk_available::outgoing::SdkBuildType;
+use crate::models::client::sdk_available::outgoing::SdkInstallType;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::models::client::ClientMethodsKey;
 use crate::service::dbus::server::IfaceData;
@@ -14,7 +18,9 @@ use crate::tools::single;
 use super::outgoing::SdkAvailableOutgoing;
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct SdkAvailableIncoming {}
+pub struct SdkAvailableIncoming {
+    is_all: bool
+}
 
 impl SdkAvailableIncoming {
     pub fn name() -> String {
@@ -23,17 +29,17 @@ impl SdkAvailableIncoming {
             .to_string()
     }
 
-    pub fn new() -> Box<SdkAvailableIncoming> {
-        Box::new(Self { })
+    pub fn new(is_all: bool) -> Box<SdkAvailableIncoming> {
+        Box::new(Self { is_all })
     }
 
     pub fn dbus_method_run(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             Self::name(),
-            (),
+            ("is_all", ),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (): ()| async move {
-                let outgoing = Self::new().run(OutgoingType::Dbus);
+            move |mut ctx: dbus_crossroads::Context, _, (is_all,): (bool, )| async move {
+                let outgoing = Self::new(is_all).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
@@ -42,17 +48,39 @@ impl SdkAvailableIncoming {
 
 impl TraitIncoming for SdkAvailableIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
-        // @todo sdk available
         StateMessageOutgoing::new_state(tr!("получение данных с репозитория")).send(&send_type);
-        match single::get_request().get_repo_url_sdk() {
-            Ok(url_files) => {
-                for url in url_files {
-                    // @todo
-                    println!("{}", url)
-                }
-                SdkAvailableOutgoing::new(vec![])
-            },
-            Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить данные")),
+        let url_files = single::get_request().get_repo_url_sdk();
+        let mut list: Vec<SdkAvailableItemOutgoing> = vec![];
+        for url in url_files {
+            let version_major = url.split("installers/").last().unwrap().split("/").nth(0).unwrap().to_string();
+            let re = Regex::new(&format!("{}\\.{}", version_major.replace(".", "\\."), r"\d{1, 3}"));
+            let version_full = match re.unwrap().captures(&url) {
+                Some(value) => value.get(0).unwrap().as_str().to_string(),
+                None => continue,
+            };
+            let build_type = if url.contains("-asbt-") || url.contains("-BT-") {
+                SdkBuildType::BT
+            } else {
+                SdkBuildType::MB2
+            };
+            let install_type = if url.contains("-offline-") {
+                SdkInstallType::SdkOffline
+            } else {
+                SdkInstallType::SdkOnline
+            };
+            list.push(SdkAvailableItemOutgoing{
+                url,
+                version_major,
+                version_full,
+                build_type,
+                install_type
+            });
+        }
+        if list.is_empty() || self.is_all {
+            SdkAvailableOutgoing::new(list)
+        } else {
+            let version_last = list.last().unwrap().version_full.clone();
+            SdkAvailableOutgoing::new(list.iter().filter(|e| e.version_full == version_last).cloned().collect())
         }
     }
 }

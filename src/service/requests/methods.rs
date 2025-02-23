@@ -90,13 +90,19 @@ impl ClientRequest {
     }
 
     // Get list run files sdk
-    pub fn get_repo_url_sdk(&self) -> Result<Vec<String>, Box<dyn std::error::Error>> {
-        self.get_repo_url_files(&vec!["AuroraSDK"], None)
+    pub fn get_repo_url_sdk(&self) -> Vec<String>{
+        match self.get_repo_url_files(&vec!["AuroraSDK"], None) {
+            Ok(value) => value,
+            Err(_) => vec![],
+        }
     }
 
     // Get list archive files psdk
-    pub fn get_repo_url_psdk(&self) -> Result<Vec<String>, Box<dyn std::error::Error>> {
-        self.get_repo_url_files(&vec!["PlatformSDK", "AuroraPSDK"], None)
+    pub fn get_repo_url_psdk(&self) -> Vec<String>{
+        match self.get_repo_url_files(&vec!["PlatformSDK", "AuroraPSDK"], None) {
+            Ok(value) => value,
+            Err(_) => vec![],
+        }
     }
 
     fn get_repo_url_files(&self, keys: &Vec<&str>, url: Option<String>) -> Result<Vec<String>, Box<dyn std::error::Error>> {

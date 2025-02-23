@@ -14,7 +14,9 @@ use crate::tools::single;
 use super::outgoing::PsdkAvailableOutgoing;
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct PsdkAvailableIncoming {}
+pub struct PsdkAvailableIncoming {
+    is_all: bool
+}
 
 impl PsdkAvailableIncoming {
     pub fn name() -> String {
@@ -23,17 +25,17 @@ impl PsdkAvailableIncoming {
             .to_string()
     }
 
-    pub fn new() -> Box<PsdkAvailableIncoming> {
-        Box::new(Self { })
+    pub fn new(is_all: bool) -> Box<PsdkAvailableIncoming> {
+        Box::new(Self { is_all })
     }
 
     pub fn dbus_method_run(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             Self::name(),
-            (),
+            ("is_all", ),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (): ()| async move {
-                let outgoing = Self::new().run(OutgoingType::Dbus);
+            move |mut ctx: dbus_crossroads::Context, _, (is_all,): (bool,)| async move {
+                let outgoing = Self::new(is_all).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
@@ -42,17 +44,9 @@ impl PsdkAvailableIncoming {
 
 impl TraitIncoming for PsdkAvailableIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
-        // @todo psdk available
         StateMessageOutgoing::new_state(tr!("получение данных с репозитория")).send(&send_type);
-        match single::get_request().get_repo_url_psdk() {
-            Ok(url_files) => {
-                for url in url_files {
-                    // @todo
-                    println!("{}", url)
-                }
-                PsdkAvailableOutgoing::new(vec![])
-            },
-            Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить данные")),
-        }
+        // @todo psdk available
+        let _ = single::get_request().get_repo_url_psdk();
+        PsdkAvailableOutgoing::new(vec![])
     }
 }

@@ -1,8 +1,10 @@
+use colored::Colorize;
 use serde::Deserialize;
 use serde::Serialize;
 
 use crate::models::client::outgoing::DataOutgoing;
 use crate::models::client::outgoing::TraitOutgoing;
+use crate::tools::macros::tr;
 
 use super::incoming::SdkAvailableIncoming;
 
@@ -11,10 +13,26 @@ pub struct SdkAvailableOutgoing {
     models: Vec<SdkAvailableItemOutgoing>,
 }
 
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub enum SdkInstallType {
+    SdkOnline,
+    SdkOffline,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub enum SdkBuildType {
+    BT,
+    MB2,
+}
+
+
 #[derive(Serialize, Deserialize, Clone)]
 pub struct SdkAvailableItemOutgoing {
-    name: String,
-    url: String,
+    pub url: String,
+    pub version_major: String,
+    pub version_full: String,
+    pub build_type: SdkBuildType,
+    pub install_type: SdkInstallType,
 }
 
 impl SdkAvailableOutgoing {
@@ -25,7 +43,18 @@ impl SdkAvailableOutgoing {
 
 impl TraitOutgoing for SdkAvailableOutgoing {
     fn print(&self) {
-        println!("@todo sdk available")
+        let mut data: Vec<String> = vec![];
+        for item in self.models.clone() {
+            let message = tr!(
+                "Аврора SDK: {}\nТип сборки: {}\nТип установки: {}\nСсылка: {}",
+                item.version_full.bold().white(),
+                (if item.build_type == SdkBuildType::BT { "Build Tool" } else { "MB2" }).bold().white(),
+                (if item.install_type == SdkInstallType::SdkOnline { "Online" } else { "Offline" }).bold().white(),
+                item.url.to_string().bright_blue(),
+            );
+            data.push(message);
+        }
+        println!("{}", data.join("\n\n"));
     }
 
     fn to_json(&self) -> String {

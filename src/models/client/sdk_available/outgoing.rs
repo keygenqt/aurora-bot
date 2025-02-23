@@ -48,7 +48,7 @@ impl TraitOutgoing for SdkAvailableOutgoing {
             let message = tr!(
                 "Аврора SDK: {}\nТип сборки: {}\nТип установки: {}\nСсылка: {}",
                 item.version_full.bold().white(),
-                (if item.build_type == SdkBuildType::BT { "Build Tool" } else { "MB2" }).bold().white(),
+                (if item.build_type == SdkBuildType::BT { "Build Tools" } else { "MB2" }).bold().white(),
                 (if item.install_type == SdkInstallType::SdkOnline { "Online" } else { "Offline" }).bold().white(),
                 item.url.to_string().bright_blue(),
             );

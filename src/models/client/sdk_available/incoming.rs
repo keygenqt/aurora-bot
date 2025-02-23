@@ -1,4 +1,7 @@
+use std::collections::HashMap;
+
 use dbus_crossroads::IfaceBuilder;
+use human_sort::sort;
 use regex::Regex;
 use serde::Deserialize;
 use serde::Serialize;
@@ -50,7 +53,13 @@ impl TraitIncoming for SdkAvailableIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         StateMessageOutgoing::new_state(tr!("получение данных с репозитория")).send(&send_type);
         let url_files = single::get_request().get_repo_url_sdk();
-        let mut list: Vec<SdkAvailableItemOutgoing> = vec![];
+
+
+
+
+        // Squash urls by full version
+        let mut versions: Vec<String> = vec![];
+        let mut version_urls: HashMap<String, Vec<String>> = HashMap::new();
         for url in url_files {
             let version_major = url.split("installers/").last().unwrap().split("/").nth(0).unwrap().to_string();
             let re = Regex::new(&format!("{}\\.{}", version_major.replace(".", "\\."), r"\d{1, 3}"));
@@ -58,25 +67,50 @@ impl TraitIncoming for SdkAvailableIncoming {
                 Some(value) => value.get(0).unwrap().as_str().to_string(),
                 None => continue,
             };
-            let build_type = if url.contains("-asbt-") || url.contains("-BT-") {
-                SdkBuildType::BT
+            if version_urls.contains_key(&version_full) {
+                version_urls.get_mut(&version_full).unwrap().push(url);
             } else {
-                SdkBuildType::MB2
-            };
-            let install_type = if url.contains("-offline-") {
-                SdkInstallType::SdkOffline
-            } else {
-                SdkInstallType::SdkOnline
-            };
-            list.push(SdkAvailableItemOutgoing{
-                url,
-                version_major,
-                version_full,
-                build_type,
-                install_type
-            });
+                version_urls.insert(version_full.clone(), [url].to_vec());
+                versions.push(version_full);
+            }
         }
-        if list.is_empty() || self.is_all {
+        // Sort version
+        let mut versions = versions.iter().map(|e| e.as_str()).collect::<Vec<&str>>();
+        sort(&mut versions);
+        // Map to model
+        let mut list: Vec<SdkAvailableItemOutgoing> = vec![];
+        for version_full in versions {
+            let urls = version_urls.get(version_full).unwrap().clone();
+            for url in urls {
+                let version_major = url.split("installers/").last().unwrap().split("/").nth(0).unwrap().to_string();
+                let re = Regex::new(&format!("{}\\.{}", version_major.replace(".", "\\."), r"\d{1, 3}"));
+                let version_full = match re.unwrap().captures(&url) {
+                    Some(value) => value.get(0).unwrap().as_str().to_string(),
+                    None => continue,
+                };
+                let build_type = if url.contains("-asbt-") || url.contains("-BT-") {
+                    SdkBuildType::BT
+                } else {
+                    SdkBuildType::MB2
+                };
+                let install_type = if url.contains("-offline-") {
+                    SdkInstallType::SdkOffline
+                } else {
+                    SdkInstallType::SdkOnline
+                };
+                list.push(SdkAvailableItemOutgoing{
+                    url,
+                    version_major,
+                    version_full,
+                    build_type,
+                    install_type
+                });
+            }
+        }
+        if list.is_empty() {
+            return StateMessageOutgoing::new_error(tr!("не удалось получить данные"));
+        }
+        if self.is_all {
             SdkAvailableOutgoing::new(list)
         } else {
             let version_last = list.last().unwrap().version_full.clone();

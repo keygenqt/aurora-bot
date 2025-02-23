@@ -126,7 +126,7 @@ impl ClientRequest {
         }).collect();
         let mut files: Vec<String>  = vec![];
         for link in links {
-            if link.contains("..") {
+            if link.contains("..") || link.contains("-pu-") {
                 continue;
             }
             if link.contains("exe") || link.contains("dmg") {

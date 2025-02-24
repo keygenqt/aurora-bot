@@ -12,6 +12,7 @@ pub mod requests {
 pub mod responses {
     pub mod common;
     pub mod faq;
+    pub mod gitlab_tags;
     pub mod user;
 }
 pub mod ssh {

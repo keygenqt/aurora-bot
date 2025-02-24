@@ -8,6 +8,7 @@ use crate::service::requests::client::ClientRequest;
 use crate::service::responses::common::CommonResponse;
 use crate::service::responses::faq::FaqResponse;
 use crate::service::responses::faq::FaqResponses;
+use crate::service::responses::gitlab_tags::GitlabTagsResponse;
 use crate::service::responses::user::UserResponse;
 use crate::tools::constants;
 
@@ -150,5 +151,22 @@ impl ClientRequest {
             }
         }
         Ok(files)
+    }
+
+    // Get info about Flutter from gitlab tags repo
+    pub fn get_repo_tags_flutter(&self) -> Vec<GitlabTagsResponse> {
+        let url = "https://gitlab.com/api/v4/projects/53055476/repository/tags?per_page=100".to_string();
+        let response = match self.get_request(url) {
+            Ok(response) => response,
+            Err(_) => return vec![],
+        };
+        let body = match tokio::task::block_in_place(|| Handle::current().block_on(response.text())) {
+            Ok(value) => value,
+            Err(_) => return vec![],
+        };
+        match serde_json::from_str::<Vec<GitlabTagsResponse>>(&body) {
+            Ok(value) => value,
+            Err(_) => vec![],
+        }
     }
 }

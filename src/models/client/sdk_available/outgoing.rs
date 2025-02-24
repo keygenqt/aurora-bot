@@ -15,8 +15,8 @@ pub struct SdkAvailableOutgoing {
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub enum SdkInstallType {
-    SdkOnline,
-    SdkOffline,
+    Online,
+    Offline,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
@@ -49,7 +49,7 @@ impl TraitOutgoing for SdkAvailableOutgoing {
                 "Аврора SDK: {}\nТип сборки: {}\nТип установки: {}\nСсылка: {}",
                 item.version_full.bold().white(),
                 (if item.build_type == SdkBuildType::BT { "Build Tools" } else { "MB2" }).bold().white(),
-                (if item.install_type == SdkInstallType::SdkOnline { "Online" } else { "Offline" }).bold().white(),
+                (if item.install_type == SdkInstallType::Online { "Online" } else { "Offline" }).bold().white(),
                 item.url.to_string().bright_blue(),
             );
             data.push(message);

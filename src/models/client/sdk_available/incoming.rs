@@ -53,10 +53,6 @@ impl TraitIncoming for SdkAvailableIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         StateMessageOutgoing::new_state(tr!("получение данных с репозитория")).send(&send_type);
         let url_files = single::get_request().get_repo_url_sdk();
-
-
-
-
         // Squash urls by full version
         let mut versions: Vec<String> = vec![];
         let mut version_urls: HashMap<String, Vec<String>> = HashMap::new();
@@ -94,9 +90,9 @@ impl TraitIncoming for SdkAvailableIncoming {
                     SdkBuildType::MB2
                 };
                 let install_type = if url.contains("-offline-") {
-                    SdkInstallType::SdkOffline
+                    SdkInstallType::Offline
                 } else {
-                    SdkInstallType::SdkOnline
+                    SdkInstallType::Online
                 };
                 list.push(SdkAvailableItemOutgoing{
                     url,

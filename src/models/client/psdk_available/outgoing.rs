@@ -30,9 +30,7 @@ impl TraitOutgoing for PsdkAvailableOutgoing {
     fn print(&self) {
         let mut data: Vec<String> = vec![];
         for item in self.models.clone() {
-            let mut message_lines: Vec<String> = vec![
-                tr!("Platform SDK: {}", item.version_full.bold().white())
-            ];
+            let mut message_lines: Vec<String> = vec![tr!("Platform SDK: {}", item.version_full.bold().white())];
             for url in &item.urls {
                 if url.to_lowercase().contains("chroot") {
                     message_lines.push(tr!("Chroot: {}", url.bright_blue()));

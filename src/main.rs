@@ -33,6 +33,11 @@ struct App {
     /// Показать это сообщение и выйти
     #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
     help: Option<bool>,
+
+    /// Дебаг-метод
+    #[cfg(debug_assertions)]
+    #[arg(short, long, default_value_t = false)]
+    debug: bool,
 }
 
 /// Main groups clap
@@ -68,6 +73,11 @@ enum Commands {
 
 #[tokio::main]
 async fn main() {
+    #[cfg(debug_assertions)]
+    if App::parse().debug {
+        run_debug();
+        return;
+    }
     if App::parse().version {
         AppInfoIncoming::new().run(OutgoingType::Cli).print();
     } else {
@@ -77,5 +87,20 @@ async fn main() {
             Commands::Faq { search, help: _ } => feature::faq::args::run(search),
             Commands::Svc(arg) => feature::svc::args::run(arg),
         }
+    }
+}
+
+#[cfg(debug_assertions)]
+fn run_debug() {
+    // method ony for debug
+    // development of an easy-to-access method
+
+    use std::path::Path;
+    use tools::ffmpeg_utils;
+
+    let path = Path::new("/home/keygenqt/Aurora/AuroraOS/emulator/AuroraOS-5.1.3.85-MB2/AuroraOS-5.1.3.85-MB2/AuroraOS-5.1.3.85-MB2-screen0.webm").to_path_buf();
+    match ffmpeg_utils::ffmpeg_webm_convert(&path) {
+        Ok(value) => println!("path: {}, image: {}", value.0.to_string_lossy(), value.1),
+        Err(error) => panic!("{}", error),
     }
 }

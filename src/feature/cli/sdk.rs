@@ -1,4 +1,5 @@
-use clap::{Args, Subcommand};
+use clap::Args;
+use clap::Subcommand;
 
 use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;

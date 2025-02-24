@@ -35,9 +35,7 @@ impl TraitOutgoing for FlutterAvailableOutgoing {
         let mut data: Vec<String> = vec![];
         for item in self.models.clone() {
             let created_at = match DateTime::parse_from_rfc3339(&item.created_at) {
-                Ok(value) => {
-                    value.format("%Y-%m-%d").to_string()
-                },
+                Ok(value) => value.format("%Y-%m-%d").to_string(),
                 Err(_) => item.created_at,
             };
             let message = tr!(

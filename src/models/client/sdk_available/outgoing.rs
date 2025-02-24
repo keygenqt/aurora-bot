@@ -25,7 +25,6 @@ pub enum SdkBuildType {
     MB2,
 }
 
-
 #[derive(Serialize, Deserialize, Clone)]
 pub struct SdkAvailableItemOutgoing {
     pub url: String,
@@ -48,8 +47,20 @@ impl TraitOutgoing for SdkAvailableOutgoing {
             let message = tr!(
                 "Аврора SDK: {}\nТип сборки: {}\nТип установки: {}\nСсылка: {}",
                 item.version_full.bold().white(),
-                (if item.build_type == SdkBuildType::BT { "Build Tools" } else { "MB2" }).bold().white(),
-                (if item.install_type == SdkInstallType::Online { "Online" } else { "Offline" }).bold().white(),
+                (if item.build_type == SdkBuildType::BT {
+                    "Build Tools"
+                } else {
+                    "MB2"
+                })
+                .bold()
+                .white(),
+                (if item.install_type == SdkInstallType::Online {
+                    "Online"
+                } else {
+                    "Offline"
+                })
+                .bold()
+                .white(),
                 item.url.to_string().bright_blue(),
             );
             data.push(message);

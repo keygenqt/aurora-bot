@@ -107,12 +107,8 @@ impl EmulatorRecordIncoming {
             .join(format!("{}-screen0.webm", &name));
         // Crop, convert to mp4, gen gif preview
         let outgoing = match ffmpeg_utils::ffmpeg_webm_convert(&path_raw) {
-            Ok(values) => {
-                EmulatorRecordOutgoing::new(values.0.to_string_lossy().to_string(), Some(values.1))
-            },
-            Err(_) => {
-                EmulatorRecordOutgoing::new(path_raw.to_string_lossy().to_string(), None)
-            },
+            Ok(values) => EmulatorRecordOutgoing::new(values.0.to_string_lossy().to_string(), Some(values.1)),
+            Err(_) => EmulatorRecordOutgoing::new(path_raw.to_string_lossy().to_string(), None),
         };
         Ok(outgoing)
     }

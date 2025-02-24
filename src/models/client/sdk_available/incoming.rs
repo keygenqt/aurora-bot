@@ -22,7 +22,7 @@ use super::outgoing::SdkAvailableOutgoing;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct SdkAvailableIncoming {
-    is_all: bool
+    is_all: bool,
 }
 
 impl SdkAvailableIncoming {
@@ -39,9 +39,9 @@ impl SdkAvailableIncoming {
     pub fn dbus_method_run(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             Self::name(),
-            ("is_all", ),
+            ("is_all",),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (is_all,): (bool, )| async move {
+            move |mut ctx: dbus_crossroads::Context, _, (is_all,): (bool,)| async move {
                 let outgoing = Self::new(is_all).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
@@ -57,7 +57,14 @@ impl TraitIncoming for SdkAvailableIncoming {
         let mut versions: Vec<String> = vec![];
         let mut version_urls: HashMap<String, Vec<String>> = HashMap::new();
         for url in url_files {
-            let version_major = url.split("installers/").last().unwrap().split("/").nth(0).unwrap().to_string();
+            let version_major = url
+                .split("installers/")
+                .last()
+                .unwrap()
+                .split("/")
+                .nth(0)
+                .unwrap()
+                .to_string();
             let re = Regex::new(&format!("{}\\.{}", version_major.replace(".", "\\."), r"\d{1, 3}"));
             let version_full = match re.unwrap().captures(&url) {
                 Some(value) => value.get(0).unwrap().as_str().to_string(),
@@ -78,7 +85,14 @@ impl TraitIncoming for SdkAvailableIncoming {
         for version_full in versions {
             let urls = version_urls.get(version_full).unwrap().clone();
             for url in urls {
-                let version_major = url.split("installers/").last().unwrap().split("/").nth(0).unwrap().to_string();
+                let version_major = url
+                    .split("installers/")
+                    .last()
+                    .unwrap()
+                    .split("/")
+                    .nth(0)
+                    .unwrap()
+                    .to_string();
                 let re = Regex::new(&format!("{}\\.{}", version_major.replace(".", "\\."), r"\d{1, 3}"));
                 let version_full = match re.unwrap().captures(&url) {
                     Some(value) => value.get(0).unwrap().as_str().to_string(),
@@ -94,12 +108,12 @@ impl TraitIncoming for SdkAvailableIncoming {
                 } else {
                     SdkInstallType::Online
                 };
-                list.push(SdkAvailableItemOutgoing{
+                list.push(SdkAvailableItemOutgoing {
                     url,
                     version_major,
                     version_full,
                     build_type,
-                    install_type
+                    install_type,
                 });
             }
         }
@@ -110,7 +124,12 @@ impl TraitIncoming for SdkAvailableIncoming {
             SdkAvailableOutgoing::new(list)
         } else {
             let version_last = list.last().unwrap().version_full.clone();
-            SdkAvailableOutgoing::new(list.iter().filter(|e| e.version_full == version_last).cloned().collect())
+            SdkAvailableOutgoing::new(
+                list.iter()
+                    .filter(|e| e.version_full == version_last)
+                    .cloned()
+                    .collect(),
+            )
         }
     }
 }

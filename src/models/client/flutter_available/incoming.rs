@@ -20,7 +20,7 @@ use super::outgoing::FlutterAvailableOutgoing;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct FlutterAvailableIncoming {
-    is_all: bool
+    is_all: bool,
 }
 
 impl FlutterAvailableIncoming {
@@ -37,9 +37,9 @@ impl FlutterAvailableIncoming {
     pub fn dbus_method_run(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             Self::name(),
-            ("is_all", ),
+            ("is_all",),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (is_all, ): (bool, )| async move {
+            move |mut ctx: dbus_crossroads::Context, _, (is_all,): (bool,)| async move {
                 let outgoing = Self::new(is_all).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
@@ -77,8 +77,12 @@ impl TraitIncoming for FlutterAvailableIncoming {
                 version: version.to_string(),
                 created_at,
                 url_gitlab: format!("https://gitlab.com/omprussia/flutter/flutter/-/tree/{version}"),
-                url_zip: format!("https://gitlab.com/omprussia/flutter/flutter/-/archive/{version}/flutter-{version}.zip"),
-                url_tar_gz: format!("https://gitlab.com/omprussia/flutter/flutter/-/archive/{version}/flutter-{version}.tar.gz"),
+                url_zip: format!(
+                    "https://gitlab.com/omprussia/flutter/flutter/-/archive/{version}/flutter-{version}.zip"
+                ),
+                url_tar_gz: format!(
+                    "https://gitlab.com/omprussia/flutter/flutter/-/archive/{version}/flutter-{version}.tar.gz"
+                ),
             });
         }
         if list.is_empty() {

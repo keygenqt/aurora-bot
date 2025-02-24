@@ -91,7 +91,7 @@ impl ClientRequest {
     }
 
     // Get list run files sdk
-    pub fn get_repo_url_sdk(&self) -> Vec<String>{
+    pub fn get_repo_url_sdk(&self) -> Vec<String> {
         match self.get_repo_url_files(&vec!["AuroraSDK"], None) {
             Ok(value) => value,
             Err(_) => vec![],
@@ -99,14 +99,18 @@ impl ClientRequest {
     }
 
     // Get list archive files psdk
-    pub fn get_repo_url_psdk(&self) -> Vec<String>{
+    pub fn get_repo_url_psdk(&self) -> Vec<String> {
         match self.get_repo_url_files(&vec!["PlatformSDK", "AuroraPSDK"], None) {
             Ok(value) => value,
             Err(_) => vec![],
         }
     }
 
-    fn get_repo_url_files(&self, keys: &Vec<&str>, url: Option<String>) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    fn get_repo_url_files(
+        &self,
+        keys: &Vec<&str>,
+        url: Option<String>,
+    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
         let url_default = "https://sdk-repo.omprussia.ru/sdk/installers/".to_string();
         let url_level = match url {
             Some(value) => value,
@@ -122,10 +126,8 @@ impl ClientRequest {
         };
         let document = Document::from(&body);
         let a = document.select("a");
-        let links: Vec<String> = a.iter().map(|e| {
-            e.attr("href").unwrap().to_string()
-        }).collect();
-        let mut files: Vec<String>  = vec![];
+        let links: Vec<String> = a.iter().map(|e| e.attr("href").unwrap().to_string()).collect();
+        let mut files: Vec<String> = vec![];
         for link in links {
             if link.contains("..") || link.contains("-pu-") {
                 continue;

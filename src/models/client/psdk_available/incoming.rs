@@ -20,7 +20,7 @@ use super::outgoing::PsdkAvailableOutgoing;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct PsdkAvailableIncoming {
-    is_all: bool
+    is_all: bool,
 }
 
 impl PsdkAvailableIncoming {
@@ -37,7 +37,7 @@ impl PsdkAvailableIncoming {
     pub fn dbus_method_run(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             Self::name(),
-            ("is_all", ),
+            ("is_all",),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (is_all,): (bool,)| async move {
                 let outgoing = Self::new(is_all).run(OutgoingType::Dbus);
@@ -55,7 +55,14 @@ impl TraitIncoming for PsdkAvailableIncoming {
         let mut versions: Vec<String> = vec![];
         let mut version_urls: HashMap<String, Vec<String>> = HashMap::new();
         for url in url_files {
-            let version_major = url.split("installers/").last().unwrap().split("/").nth(0).unwrap().to_string();
+            let version_major = url
+                .split("installers/")
+                .last()
+                .unwrap()
+                .split("/")
+                .nth(0)
+                .unwrap()
+                .to_string();
             let re = Regex::new(&format!("{}\\.{}", version_major.replace(".", "\\."), r"\d{1, 3}"));
             let version_full = match re.unwrap().captures(&url) {
                 Some(value) => value.get(0).unwrap().as_str().to_string(),
@@ -89,7 +96,12 @@ impl TraitIncoming for PsdkAvailableIncoming {
             PsdkAvailableOutgoing::new(list)
         } else {
             let version_last = list.last().unwrap().version_full.clone();
-            PsdkAvailableOutgoing::new(list.iter().filter(|e| e.version_full == version_last).cloned().collect())
+            PsdkAvailableOutgoing::new(
+                list.iter()
+                    .filter(|e| e.version_full == version_last)
+                    .cloned()
+                    .collect(),
+            )
         }
     }
 }

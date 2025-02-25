@@ -140,7 +140,7 @@ impl EmulatorRecordIncoming {
         };
         // Crop, convert to mp4, gen gif preview
         let outgoing = match ffmpeg_utils::ffmpeg_webm_to_gif(&path_raw, fun) {
-            Ok(value) => EmulatorRecordOutgoing::new(path_raw.to_string_lossy().to_string(), value.to_str()), // @todo
+            Ok(value) => EmulatorRecordOutgoing::new(path_raw.to_string_lossy().to_string(), value.to_str()),
             Err(_) => EmulatorRecordOutgoing::new(path_raw.to_string_lossy().to_string(), None),
         };
         Ok(outgoing)

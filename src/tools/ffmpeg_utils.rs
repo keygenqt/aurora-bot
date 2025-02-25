@@ -1,32 +1,36 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
+use std::path::PathBuf;
 
 extern crate ffmpeg_next as ffmpeg;
 
 use ffmpeg::format::Pixel;
 use ffmpeg::media::Type;
-use ffmpeg::software::scaling::{context::Context, flag::Flags};
+use ffmpeg::software::scaling::context::Context;
+use ffmpeg::software::scaling::flag::Flags;
 use ffmpeg::util::frame::video::Video;
-use ffmpeg_next::{format, log};
-use gifski::collector::{ImgVec, RGBA8};
-use gifski::{Repeat, Settings};
-use image::{DynamicImage, GenericImageView, ImageFormat, ImageReader};
+use ffmpeg_next::format;
+use ffmpeg_next::log;
+use gifski::collector::ImgVec;
+use gifski::collector::RGBA8;
+use gifski::Repeat;
+use gifski::Settings;
+use image::DynamicImage;
+use image::GenericImageView;
+use image::ImageFormat;
+use image::ImageReader;
+use std::io::Cursor;
 use tokio::runtime::Handle;
 use tokio::task::JoinHandle;
-use std::io::Cursor;
 
 // Convert webm to gif
-pub fn ffmpeg_webm_to_gif(path: &PathBuf, state: fn (usize)) -> Result<PathBuf, Box<dyn std::error::Error>> {
-
+pub fn ffmpeg_webm_to_gif(path: &PathBuf, state: fn(usize)) -> Result<PathBuf, Box<dyn std::error::Error>> {
     ffmpeg::init().unwrap();
     log::set_level(log::Level::Warning);
 
     let gif_path = path.to_string_lossy().replace("webm", "gif");
     let mut ictx = format::input(&path).unwrap();
 
-    let input = ictx
-        .streams()
-        .best(Type::Video)
-        .ok_or(ffmpeg::Error::StreamNotFound)?;
+    let input = ictx.streams().best(Type::Video).ok_or(ffmpeg::Error::StreamNotFound)?;
 
     let video_stream_index = input.index();
     let context_decoder = ffmpeg::codec::context::Context::from_parameters(input.parameters())?;
@@ -90,10 +94,9 @@ fn get_image(frame: &Video) -> std::result::Result<DynamicImage, Box<dyn std::er
     let header = format!("P6\n{} {}\n255\n", frame.width(), frame.height());
     let raw: Vec<u8> = [header.as_bytes(), frame.data(0)].concat();
     // Load image
-    let image = ImageReader::with_format(
-        Cursor::new(raw),
-        ImageFormat::Pnm,
-    ).with_guessed_format()?.decode()?;
+    let image = ImageReader::with_format(Cursor::new(raw), ImageFormat::Pnm)
+        .with_guessed_format()?
+        .decode()?;
     // Result
     Ok(image)
 }
@@ -114,7 +117,7 @@ async fn create_gif(
     images_raw: &mut Vec<DynamicImage>,
     gif_path: &String,
     size: usize,
-    state: fn (usize)
+    state: fn(usize),
 ) -> std::result::Result<(), Box<dyn std::error::Error>> {
     // Get last frame
     let last = match images_raw.last() {
@@ -138,9 +141,9 @@ async fn create_gif(
     // Move to tokio
     let mut images_raw = images_raw.clone();
     // Run create
-    let join_handler:JoinHandle<Result<(), gifski::Error>> = tokio::task::spawn_blocking(move || {
+    let join_handler: JoinHandle<Result<(), gifski::Error>> = tokio::task::spawn_blocking(move || {
         let mut percent = 0;
-        for (index, image) in images_raw.iter_mut().enumerate()  {
+        for (index, image) in images_raw.iter_mut().enumerate() {
             // Crop space and to rgba8
             let frame_image = image.crop(space, 0, width, height).to_rgba8();
             // Get pixels
@@ -158,7 +161,8 @@ async fn create_gif(
             collector.add_frame_rgba(
                 index,
                 ImgVec::new(image_pixels, width as usize, height as usize),
-                    index as f64 * 0.1)?;
+                index as f64 * 0.1,
+            )?;
         }
         Ok(())
     });

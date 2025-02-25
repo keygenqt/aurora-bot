@@ -132,14 +132,15 @@ impl EmulatorRecordIncoming {
                     StateMessageOutgoing::new_state(tr!("получение gif файла...")).send(&OutgoingType::Websocket);
                 } else {
                     if index % 25 == 0 {
-                        StateMessageOutgoing::new_state(tr!("получение gif файла {}%", index)).send(&OutgoingType::Websocket);
+                        StateMessageOutgoing::new_state(tr!("получение gif файла {}%", index))
+                            .send(&OutgoingType::Websocket);
                     }
                 }
-            }
+            },
         };
         // Crop, convert to mp4, gen gif preview
         let outgoing = match ffmpeg_utils::ffmpeg_webm_to_gif(&path_raw, fun) {
-            Ok(value) =>  EmulatorRecordOutgoing::new(path_raw.to_string_lossy().to_string(), value.to_str()), // @todo
+            Ok(value) => EmulatorRecordOutgoing::new(path_raw.to_string_lossy().to_string(), value.to_str()), // @todo
             Err(_) => EmulatorRecordOutgoing::new(path_raw.to_string_lossy().to_string(), None),
         };
         Ok(outgoing)

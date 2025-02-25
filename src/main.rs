@@ -94,13 +94,4 @@ async fn main() {
 fn run_debug() {
     // method ony for debug
     // development of an easy-to-access method
-
-    use std::path::Path;
-    use tools::ffmpeg_utils;
-
-    let path = Path::new("/home/keygenqt/Aurora/AuroraOS/emulator/AuroraOS-5.1.3.85-MB2/AuroraOS-5.1.3.85-MB2/AuroraOS-5.1.3.85-MB2-screen0.webm").to_path_buf();
-    match ffmpeg_utils::ffmpeg_webm_convert(&path) {
-        Ok(value) => println!("path: {}, image: {}", value.0.to_string_lossy(), value.1),
-        Err(error) => panic!("{}", error),
-    }
 }

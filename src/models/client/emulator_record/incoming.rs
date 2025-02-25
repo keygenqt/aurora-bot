@@ -86,7 +86,10 @@ impl EmulatorRecordIncoming {
         Ok(StateMessageOutgoing::new_success(tr!("запись видео активирована")))
     }
 
-    fn action_disable(emulator: EmulatorModel) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+    fn action_disable(
+        emulator: EmulatorModel,
+        send_type: &OutgoingType,
+    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         if !emulator.is_running {
             return Ok(StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен")));
         }
@@ -105,9 +108,38 @@ impl EmulatorRecordIncoming {
             .join(&name)
             .join(&name)
             .join(format!("{}-screen0.webm", &name));
+
+        // Callback
+        let fun: fn(usize) = match send_type {
+            OutgoingType::Cli => |index| {
+                if index == 0 {
+                    StateMessageOutgoing::new_state(tr!("получение gif файла...")).send(&OutgoingType::Cli);
+                } else {
+                    if index % 10 == 0 {
+                        StateMessageOutgoing::new_state(tr!("получение gif файла {}%", index)).send(&OutgoingType::Cli);
+                    }
+                }
+            },
+            OutgoingType::Dbus => |index| {
+                if index == 0 {
+                    StateMessageOutgoing::new_state(tr!("получение gif файла...")).send(&OutgoingType::Dbus);
+                } else {
+                    StateMessageOutgoing::new_state(tr!("получение gif файла {}%", index)).send(&OutgoingType::Dbus);
+                }
+            },
+            OutgoingType::Websocket => |index| {
+                if index == 0 {
+                    StateMessageOutgoing::new_state(tr!("получение gif файла...")).send(&OutgoingType::Websocket);
+                } else {
+                    if index % 25 == 0 {
+                        StateMessageOutgoing::new_state(tr!("получение gif файла {}%", index)).send(&OutgoingType::Websocket);
+                    }
+                }
+            }
+        };
         // Crop, convert to mp4, gen gif preview
-        let outgoing = match ffmpeg_utils::ffmpeg_webm_convert(&path_raw) {
-            Ok(values) => EmulatorRecordOutgoing::new(values.0.to_string_lossy().to_string(), Some(values.1)),
+        let outgoing = match ffmpeg_utils::ffmpeg_webm_to_gif(&path_raw, fun) {
+            Ok(value) =>  EmulatorRecordOutgoing::new(path_raw.to_string_lossy().to_string(), value.to_str()), // @todo
             Err(_) => EmulatorRecordOutgoing::new(path_raw.to_string_lossy().to_string(), None),
         };
         Ok(outgoing)
@@ -123,7 +155,7 @@ impl TraitIncoming for EmulatorRecordIncoming {
         } else {
             tr!("ищем эмулятор для остановки записи видео")
         };
-        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(&self.id, &send_type, text, Some(true));
+        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(&self.id, &send_type, text, Some(false));
         // Select
         match models.iter().count() {
             1 => {
@@ -133,7 +165,7 @@ impl TraitIncoming for EmulatorRecordIncoming {
                         Err(_) => StateMessageOutgoing::new_error(tr!("не удалось активировать запись видео")),
                     }
                 } else {
-                    match Self::action_disable(models.first().unwrap().clone()) {
+                    match Self::action_disable(models.first().unwrap().clone(), &send_type) {
                         Ok(result) => result,
                         Err(_) => StateMessageOutgoing::new_error(tr!("не удалось остановить запись видео")),
                     }

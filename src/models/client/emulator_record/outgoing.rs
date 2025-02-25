@@ -1,3 +1,7 @@
+use std::fs;
+
+use base64::engine::general_purpose;
+use base64::Engine;
 use colored::Colorize;
 use serde::Deserialize;
 use serde::Serialize;
@@ -16,7 +20,15 @@ pub struct EmulatorRecordOutgoing {
 }
 
 impl EmulatorRecordOutgoing {
-    pub fn new(path: String, base_64: Option<String>) -> Box<EmulatorRecordOutgoing> {
+    pub fn new(path: String, gif_path: Option<&str>) -> Box<EmulatorRecordOutgoing> {
+        let base_64 = if gif_path.is_some() {
+            match fs::read(&gif_path.unwrap()) {
+                Ok(input) => Some(general_purpose::STANDARD.encode(input)),
+                Err(_) => None,
+            }
+        } else {
+            None
+        };
         Box::new(Self { path, base_64 })
     }
 }

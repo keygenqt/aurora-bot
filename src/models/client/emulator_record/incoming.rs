@@ -113,34 +113,46 @@ impl EmulatorRecordIncoming {
         let fun: fn(usize) = match send_type {
             OutgoingType::Cli => |index| {
                 if index == 0 {
-                    StateMessageOutgoing::new_state(tr!("получение gif файла...")).send(&OutgoingType::Cli);
+                    StateMessageOutgoing::new_state(tr!("получение данных...")).send(&OutgoingType::Cli);
+                } else if index == 1 {
+                    StateMessageOutgoing::new_state(tr!("причесываем данные...")).send(&OutgoingType::Cli);
+                } else if index == 2 {
+                    StateMessageOutgoing::new_state(tr!("начинаем конвертацию")).send(&OutgoingType::Cli);
                 } else {
                     if index % 10 == 0 {
-                        StateMessageOutgoing::new_state(tr!("получение gif файла {}%", index)).send(&OutgoingType::Cli);
+                        StateMessageOutgoing::new_state(tr!("конвертация файла {}%", index)).send(&OutgoingType::Cli);
                     }
                 }
             },
             OutgoingType::Dbus => |index| {
                 if index == 0 {
-                    StateMessageOutgoing::new_state(tr!("получение gif файла...")).send(&OutgoingType::Dbus);
+                    StateMessageOutgoing::new_state(tr!("получение данных...")).send(&OutgoingType::Dbus);
+                } else if index == 1 {
+                    StateMessageOutgoing::new_state(tr!("причесываем данные...")).send(&OutgoingType::Dbus);
+                } else if index == 2 {
+                    StateMessageOutgoing::new_state(tr!("начинаем конвертацию")).send(&OutgoingType::Dbus);
                 } else {
-                    StateMessageOutgoing::new_state(tr!("получение gif файла {}%", index)).send(&OutgoingType::Dbus);
+                    StateMessageOutgoing::new_state(tr!("конвертация файла {}%", index)).send(&OutgoingType::Dbus);
                 }
             },
             OutgoingType::Websocket => |index| {
                 if index == 0 {
-                    StateMessageOutgoing::new_state(tr!("получение gif файла...")).send(&OutgoingType::Websocket);
+                    StateMessageOutgoing::new_state(tr!("получение данных...")).send(&OutgoingType::Websocket);
+                } else if index == 1 {
+                    StateMessageOutgoing::new_state(tr!("причесываем данные...")).send(&OutgoingType::Websocket);
+                } else if index == 2 {
+                    StateMessageOutgoing::new_state(tr!("начинаем конвертацию")).send(&OutgoingType::Websocket);
                 } else {
                     if index % 25 == 0 {
-                        StateMessageOutgoing::new_state(tr!("получение gif файла {}%", index))
+                        StateMessageOutgoing::new_state(tr!("конвертация файла {}%", index))
                             .send(&OutgoingType::Websocket);
                     }
                 }
             },
         };
-        // Crop, convert to mp4, gen gif preview
-        let outgoing = match ffmpeg_utils::ffmpeg_webm_to_gif(&path_raw, fun) {
-            Ok(value) => EmulatorRecordOutgoing::new(path_raw.to_string_lossy().to_string(), value.to_str()),
+        // @todo: modes: gif or mp4
+        let outgoing = match ffmpeg_utils::webm_to_mp4(&path_raw, fun) {
+            Ok(value) => EmulatorRecordOutgoing::new(value.to_string_lossy().to_string(), value.to_str()),
             Err(_) => EmulatorRecordOutgoing::new(path_raw.to_string_lossy().to_string(), None),
         };
         Ok(outgoing)

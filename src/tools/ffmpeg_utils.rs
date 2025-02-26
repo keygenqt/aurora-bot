@@ -183,7 +183,7 @@ async fn create_gif(
         for (index, image) in images.iter_mut().enumerate() {
             // Send state
             let pos = index * 100 / size;
-            if percent != pos && pos > 2 {
+            if percent != pos && pos > 2 && pos != 100 {
                 state(index * 100 / size);
                 percent = pos;
             }
@@ -204,6 +204,8 @@ async fn create_gif(
     // Write file
     writer.write(std::fs::File::create(&gif_path)?, &mut gifski::progress::NoProgress {})?;
     join_handler.await??;
+    // Send done
+    state(100);
     // Result
     Ok(Path::new(&gif_path).to_path_buf())
 }
@@ -226,7 +228,7 @@ fn create_mp4(
     for (index, image) in images.iter().enumerate() {
         // Send state
         let pos = index * 100 / size;
-        if percent != pos && pos > 2 {
+        if percent != pos && pos > 2 && pos != 100 {
             state(index * 100 / size);
             percent = pos;
         }
@@ -249,6 +251,8 @@ fn create_mp4(
     video_buffer.read_to_end(&mut video_bytes).unwrap();
     // Write file
     std::fs::write(&mp4_path, &video_bytes).unwrap();
+    // Send done
+    state(100);
     // Result
     Ok(Path::new(&mp4_path).to_path_buf())
 }

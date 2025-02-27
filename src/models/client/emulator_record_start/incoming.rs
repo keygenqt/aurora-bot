@@ -13,31 +13,28 @@ use crate::service::command::exec;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
 use crate::tools::programs;
-use crate::tools::utils;
-
-use super::outgoing::EmulatorScreenshotOutgoing;
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct EmulatorScreenshotIncoming {
+pub struct EmulatorRecordStartIncoming {
     id: Option<String>,
 }
 
-impl EmulatorScreenshotIncoming {
+impl EmulatorRecordStartIncoming {
     pub fn name() -> String {
-        serde_variant::to_variant_name(&ClientMethodsKey::EmulatorScreenshot)
+        serde_variant::to_variant_name(&ClientMethodsKey::EmulatorRecordStart)
             .unwrap()
             .to_string()
     }
 
-    pub fn new() -> Box<EmulatorScreenshotIncoming> {
+    pub fn new() -> Box<EmulatorRecordStartIncoming> {
         Box::new(Self { id: None })
     }
 
-    pub fn new_id(id: String) -> Box<EmulatorScreenshotIncoming> {
+    pub fn new_id(id: String) -> Box<EmulatorRecordStartIncoming> {
         Box::new(Self { id: Some(id) })
     }
 
-    fn select(&self, id: String) -> EmulatorScreenshotIncoming {
+    fn select(&self, id: String) -> EmulatorRecordStartIncoming {
         let mut select = self.clone();
         select.id = Some(id);
         select
@@ -67,39 +64,38 @@ impl EmulatorScreenshotIncoming {
         );
     }
 
-    fn take_screenshot(emulator: EmulatorModel) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+    fn start(emulator: EmulatorModel) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         if !emulator.is_running {
             return Ok(StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен")));
         }
-        let path = utils::get_screenshot_save_path().to_string_lossy().to_string();
+        if emulator.is_recording() {
+            return Ok(StateMessageOutgoing::new_info(tr!("запись видео уже активирована")));
+        }
         let uuid = emulator.uuid.as_str();
         let program = programs::get_vboxmanage()?;
-        let output = exec::exec_wait_args(&program, ["controlvm", uuid, "screenshotpng", &path])?;
+        let output = exec::exec_wait_args(&program, ["controlvm", uuid, "recording", "on"])?;
         if !output.status.success() {
-            Err("не удалось сделать скриншот")?
+            Err("не удалось активировать запись видео")?
         }
-        Ok(EmulatorScreenshotOutgoing::new(
-            path.clone(),
-            utils::file_to_base64_by_path(Some(path.as_str())),
-        ))
+        Ok(StateMessageOutgoing::new_success(tr!("запись видео активирована")))
     }
 }
 
-impl TraitIncoming for EmulatorScreenshotIncoming {
+impl TraitIncoming for EmulatorRecordStartIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
-        let key = EmulatorScreenshotIncoming::name();
+        let key = EmulatorRecordStartIncoming::name();
         let models: Vec<EmulatorModel> = EmulatorModelSelect::search(
             &self.id,
             &send_type,
-            tr!("ищем открытый эмулятор для скриншота"),
+            tr!("ищем эмулятор для включения записи видео"),
             Some(true),
         );
         // Select
         match models.iter().count() {
-            1 => match Self::take_screenshot(models.first().unwrap().clone()) {
+            1 => match Self::start(models.first().unwrap().clone()) {
                 Ok(result) => result,
-                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось сделать скриншот")),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось активировать запись видео")),
             },
             0 => StateMessageOutgoing::new_info(tr!("запущенные эмуляторы не найдены")),
             _ => Box::new(EmulatorModelSelect::select(key, models, |id| self.select(id))),

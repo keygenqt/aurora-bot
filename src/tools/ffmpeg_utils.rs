@@ -28,14 +28,13 @@ use tokio::task::JoinHandle;
 
 extern crate ffmpeg_next as ffmpeg;
 
-#[allow(dead_code)]
 /// Crop black space and convert video Webm to Gif
-pub fn webm_to_gif(path: &PathBuf, state: fn(usize)) -> Result<PathBuf, Box<dyn std::error::Error>> {
-    state(0);
+pub fn webm_to_gif(path: &PathBuf, state: fn(i32)) -> Result<PathBuf, Box<dyn std::error::Error>> {
+    state(-1);
     let mut images = webm_to_images(path)?;
-    state(1);
+    state(-2);
     let images = images_crop_space(&mut images)?;
-    state(2);
+    state(-3);
     // Params
     let image = match images.last() {
         Some(value) => value,
@@ -50,12 +49,12 @@ pub fn webm_to_gif(path: &PathBuf, state: fn(usize)) -> Result<PathBuf, Box<dyn 
 }
 
 /// Crop black space and convert video Webm to Mp4
-pub fn webm_to_mp4(path: &PathBuf, state: fn(usize)) -> Result<PathBuf, Box<dyn std::error::Error>> {
-    state(0);
+pub fn webm_to_mp4(path: &PathBuf, state: fn(i32)) -> Result<PathBuf, Box<dyn std::error::Error>> {
+    state(-1);
     let mut images = webm_to_images(path)?;
-    state(1);
+    state(-2);
     let images = images_crop_space(&mut images)?;
-    state(2);
+    state(-3);
     // Params
     let image = match images.last() {
         Some(value) => value,
@@ -133,7 +132,7 @@ fn images_crop_space(images: &mut Vec<DynamicImage>) -> Result<Vec<DynamicImage>
         let black = [0_u8, 0_u8, 0_u8, 255];
         for x in 0..(image.width() / 2) {
             if image.get_pixel(x, 0).0 != black {
-                return x;
+                return x + 6 /* space gradient */;
             }
         }
         return 0;
@@ -164,7 +163,7 @@ async fn create_gif(
     path: &PathBuf,
     width: u32,
     height: u32,
-    state: fn(usize),
+    state: fn(i32),
 ) -> std::result::Result<PathBuf, Box<dyn std::error::Error>> {
     let gif_path = path.to_string_lossy().replace("webm", "gif");
     let (collector, writer) = gifski::new(Settings {
@@ -178,13 +177,13 @@ async fn create_gif(
     let mut images = images.clone();
     // Run create
     let join_handler: JoinHandle<Result<(), gifski::Error>> = tokio::task::spawn_blocking(move || {
-        let size = images.iter().count();
-        let mut percent = 0;
+        let size = images.iter().count() as i32;
+        let mut percent = -1;
         for (index, image) in images.iter_mut().enumerate() {
             // Send state
-            let pos = index * 100 / size;
-            if percent != pos && pos > 2 && pos != 100 {
-                state(index * 100 / size);
+            let pos = index as i32 * 100 / size;
+            if percent != pos && pos != 100 {
+                state(index as i32 * 100 / size);
                 percent = pos;
             }
             // Get pixels
@@ -217,19 +216,19 @@ fn create_mp4(
     path: &PathBuf,
     width: u32,
     height: u32,
-    state: fn(usize),
+    state: fn(i32),
 ) -> std::result::Result<PathBuf, Box<dyn std::error::Error>> {
     let mp4_path = path.to_string_lossy().replace("webm", "mp4");
     let mut encoder = Encoder::new().unwrap();
     let mut buf = Vec::new();
     // Run create
-    let size = images.iter().count();
-    let mut percent = 0;
+    let size = images.iter().count() as i32;
+    let mut percent = -1;
     for (index, image) in images.iter().enumerate() {
         // Send state
-        let pos = index * 100 / size;
-        if percent != pos && pos > 2 && pos != 100 {
-            state(index * 100 / size);
+        let pos = index as i32 * 100 / size;
+        if percent != pos && pos != 100 {
+            state(index as i32 * 100 / size);
             percent = pos;
         }
         let frame = image.as_bytes().to_vec();

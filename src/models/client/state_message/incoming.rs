@@ -32,6 +32,7 @@ impl TraitIncoming for StateMessageIncoming {
             ClientMethodsState::State => StateMessageOutgoing::new_state(message),
             ClientMethodsState::Success => StateMessageOutgoing::new_success(message),
             ClientMethodsState::Warning => StateMessageOutgoing::new_warning(message),
+            ClientMethodsState::Progress => StateMessageOutgoing::new_progress(message),
         }
     }
 }

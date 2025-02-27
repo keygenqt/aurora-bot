@@ -9,6 +9,7 @@ use crate::tools::macros::print_info;
 use crate::tools::macros::print_state;
 use crate::tools::macros::print_success;
 use crate::tools::macros::print_warning;
+use crate::tools::macros::tr;
 
 use super::incoming::StateMessageIncoming;
 
@@ -53,6 +54,13 @@ impl StateMessageOutgoing {
             message,
         })
     }
+
+    pub fn new_progress(message: String) -> Box<StateMessageOutgoing> {
+        Box::new(Self {
+            state: ClientMethodsState::Progress,
+            message,
+        })
+    }
 }
 
 impl TraitOutgoing for StateMessageOutgoing {
@@ -64,6 +72,16 @@ impl TraitOutgoing for StateMessageOutgoing {
             ClientMethodsState::State => print_state!(message),
             ClientMethodsState::Success => print_success!(message),
             ClientMethodsState::Warning => print_warning!(message),
+            ClientMethodsState::Progress => {
+                if message != "0" {
+                    if let Some(mut t) = term::stdout() {
+                        let _ = t.cursor_up();
+                        let _ = t.delete_line();
+                    }
+                }
+                let message = tr!("прогресс: {}%", message);
+                print_state!(message);
+            }
         }
     }
 

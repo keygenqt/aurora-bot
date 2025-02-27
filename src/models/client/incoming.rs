@@ -8,7 +8,8 @@ use super::app_info::incoming::AppInfoIncoming;
 use super::emulator_close::incoming::EmulatorCloseIncoming;
 use super::emulator_info::incoming::EmulatorInfoIncoming;
 use super::emulator_open::incoming::EmulatorOpenIncoming;
-use super::emulator_record::incoming::EmulatorRecordIncoming;
+use super::emulator_record_start::incoming::EmulatorRecordStartIncoming;
+use super::emulator_record_stop::incoming::EmulatorRecordStopIncoming;
 use super::emulator_screenshot::incoming::EmulatorScreenshotIncoming;
 use super::emulator_sync::incoming::EmulatorSyncIncoming;
 use super::emulator_terminal::incoming::EmulatorTerminalIncoming;
@@ -69,8 +70,12 @@ impl ClientMethodsKey {
                 let model = serde_json::from_str::<EmulatorOpenIncoming>(&value)?;
                 Ok(Box::new(model))
             }
-            ClientMethodsKey::EmulatorRecord => {
-                let model = serde_json::from_str::<EmulatorRecordIncoming>(&value)?;
+            ClientMethodsKey::EmulatorRecordStart => {
+                let model = serde_json::from_str::<EmulatorRecordStartIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::EmulatorRecordStop => {
+                let model = serde_json::from_str::<EmulatorRecordStopIncoming>(&value)?;
                 Ok(Box::new(model))
             }
             ClientMethodsKey::EmulatorScreenshot => {

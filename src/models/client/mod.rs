@@ -20,7 +20,10 @@ pub mod emulator_info {
 pub mod emulator_open {
     pub mod incoming;
 }
-pub mod emulator_record {
+pub mod emulator_record_start {
+    pub mod incoming;
+}
+pub mod emulator_record_stop {
     pub mod incoming;
     pub mod outgoing;
 }
@@ -100,6 +103,8 @@ pub enum ClientMethodsState {
     State,
     Success,
     Warning,
+    // @todo
+    Progress,
 }
 
 /// Common keys client
@@ -109,7 +114,8 @@ pub enum ClientMethodsKey {
     EmulatorClose,
     EmulatorInfo,
     EmulatorOpen,
-    EmulatorRecord,
+    EmulatorRecordStart,
+    EmulatorRecordStop,
     EmulatorScreenshot,
     EmulatorSync,
     EmulatorTerminal,

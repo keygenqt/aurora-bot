@@ -7,27 +7,27 @@ use crate::models::client::outgoing::TraitOutgoing;
 use crate::tools::macros::print_success;
 use crate::tools::macros::tr;
 
-use super::incoming::EmulatorScreenshotIncoming;
+use super::incoming::EmulatorRecordStopIncoming;
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct EmulatorScreenshotOutgoing {
+pub struct EmulatorRecordStopOutgoing {
     path: String,
     base_64: Option<String>,
 }
 
-impl EmulatorScreenshotOutgoing {
-    pub fn new(path: String, base_64: Option<String>) -> Box<EmulatorScreenshotOutgoing> {
+impl EmulatorRecordStopOutgoing {
+    pub fn new(path: String, base_64: Option<String>) -> Box<EmulatorRecordStopOutgoing> {
         Box::new(Self { path, base_64 })
     }
 }
 
-impl TraitOutgoing for EmulatorScreenshotOutgoing {
+impl TraitOutgoing for EmulatorRecordStopOutgoing {
     fn print(&self) {
-        let out = tr!("скриншот сделан: {}", self.path.blue());
+        let out = tr!("видео записано: {}", self.path.blue());
         print_success!(out);
     }
 
     fn to_json(&self) -> String {
-        DataOutgoing::serialize(EmulatorScreenshotIncoming::name(), self.clone())
+        DataOutgoing::serialize(EmulatorRecordStopIncoming::name(), self.clone())
     }
 }

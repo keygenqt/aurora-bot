@@ -4,7 +4,9 @@ use clap::Subcommand;
 use crate::models::client::emulator_close::incoming::EmulatorCloseIncoming;
 use crate::models::client::emulator_info::incoming::EmulatorInfoIncoming;
 use crate::models::client::emulator_open::incoming::EmulatorOpenIncoming;
-use crate::models::client::emulator_record::incoming::EmulatorRecordIncoming;
+use crate::models::client::emulator_record_start::incoming::EmulatorRecordStartIncoming;
+use crate::models::client::emulator_record_stop::incoming::EmulatorRecordStopIncoming;
+use crate::models::client::emulator_record_stop::incoming::EmulatorRecordStopType;
 use crate::models::client::emulator_screenshot::incoming::EmulatorScreenshotIncoming;
 use crate::models::client::emulator_terminal::incoming::EmulatorTerminalIncoming;
 use crate::models::client::incoming::TraitIncoming;
@@ -63,9 +65,15 @@ pub struct EmulatorVncOpenArgs {
 #[derive(Args)]
 #[group(multiple = false)]
 pub struct EmulatorRecordArgs {
-    /// Остановить запись
+    /// Остановить запись без конвертации
     #[arg(short, long, default_value_t = false)]
-    stop: bool,
+    raw_stop: bool,
+    /// Остановить запись и создать Mp4
+    #[arg(short, long, default_value_t = false)]
+    mp4_stop: bool,
+    /// Остановить запись и создать Gif
+    #[arg(short, long, default_value_t = false)]
+    gif_stop: bool,
     /// Показать это сообщение и выйти
     #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
     help: Option<bool>,
@@ -109,7 +117,25 @@ pub fn run(arg: EmulatorArgs) {
                     .print();
             }
             EmulatorArgsGroup::Record(arg) => {
-                EmulatorRecordIncoming::new(!arg.stop).run(OutgoingType::Cli).print();
+                if arg.raw_stop {
+                    EmulatorRecordStopIncoming::new(EmulatorRecordStopType::Raw)
+                        .run(OutgoingType::Cli)
+                        .print();
+                    return;
+                }
+                if arg.mp4_stop {
+                    EmulatorRecordStopIncoming::new(EmulatorRecordStopType::Mp4)
+                        .run(OutgoingType::Cli)
+                        .print();
+                    return;
+                }
+                if arg.gif_stop {
+                    EmulatorRecordStopIncoming::new(EmulatorRecordStopType::Gif)
+                        .run(OutgoingType::Cli)
+                        .print();
+                    return;
+                }
+                EmulatorRecordStartIncoming::new().run(OutgoingType::Cli).print();
             }
             EmulatorArgsGroup::Terminal(arg) => {
                 EmulatorTerminalIncoming::new(arg.root).run(OutgoingType::Cli).print();

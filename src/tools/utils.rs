@@ -1,6 +1,9 @@
+use base64::engine::general_purpose;
+use base64::Engine;
 use colored::Colorize;
 use regex::Regex;
 use std::env;
+use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
 use std::time::SystemTime;
@@ -154,4 +157,15 @@ pub fn key_from_path(path: &String) -> String {
         }
     }
     keys.iter().collect::<String>().to_lowercase()
+}
+
+pub fn file_to_base64_by_path(path: Option<&str>) -> Option<String> {
+    if path.is_some() {
+        match fs::read(path.unwrap()) {
+            Ok(input) => Some(general_purpose::STANDARD.encode(input)),
+            Err(_) => None,
+        }
+    } else {
+        None
+    }
 }

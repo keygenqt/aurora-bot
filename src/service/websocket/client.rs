@@ -45,7 +45,7 @@ impl ClientWebsocket {
     pub fn send(outgoing: String) {
         tokio::spawn({
             async move {
-                let request = ClientRequest::new(1);
+                let request = ClientRequest::new(Some(1));
                 let url = format!("{}/state/connect", constants::URL_API);
                 let _ = request.client.post(&url).body(outgoing).send().await;
             }

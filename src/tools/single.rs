@@ -8,7 +8,7 @@ use crate::service::websocket::client::ClientWebsocket;
 use super::macros::print_error;
 
 /// Singleton client requests
-static CLIENT_H: LazyLock<Mutex<ClientRequest>> = LazyLock::new(|| Mutex::new(ClientRequest::new(5)));
+static CLIENT_H: LazyLock<Mutex<ClientRequest>> = LazyLock::new(|| Mutex::new(ClientRequest::new(None)));
 
 pub fn get_request() -> std::sync::MutexGuard<'static, ClientRequest> {
     if let Ok(client) = CLIENT_H.lock() {

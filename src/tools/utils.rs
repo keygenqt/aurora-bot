@@ -1,5 +1,5 @@
-use base64::engine::general_purpose;
 use base64::Engine;
+use base64::engine::general_purpose;
 use colored::Colorize;
 use regex::Regex;
 use std::env;
@@ -159,6 +159,7 @@ pub fn key_from_path(path: &String) -> String {
     keys.iter().collect::<String>().to_lowercase()
 }
 
+/// Get file and encode to base64
 pub fn file_to_base64_by_path(path: Option<&str>) -> Option<String> {
     if path.is_some() {
         match fs::read(path.unwrap()) {
@@ -168,4 +169,33 @@ pub fn file_to_base64_by_path(path: Option<&str>) -> Option<String> {
     } else {
         None
     }
+}
+
+/// Change path by lambda to actual path
+pub fn path_lambda_home(path: &PathBuf) -> PathBuf {
+    let path_str = path.to_string_lossy();
+    if path_str.contains("~/") {
+        let path_home = format!("{}/", get_home_folder_path().to_string_lossy());
+        let path_new = path_str.replace("~/", &path_home);
+        return Path::new(&path_new).to_path_buf();
+    }
+    path.clone()
+}
+
+/// Get absolute path to file
+pub fn path_to_absolute(path: &PathBuf) -> Option<PathBuf> {
+    let path = path_lambda_home(path);
+    if !path.exists() || !path.is_file() {
+        None
+    } else {
+        match path.canonicalize() {
+            Ok(value) => Some(value),
+            Err(_) => None,
+        }
+    }
+}
+
+/// Get absolute path to file from str
+pub fn path_to_absolute_str(path: &str) -> Option<PathBuf> {
+    path_to_absolute(&Path::new(path).to_path_buf())
 }

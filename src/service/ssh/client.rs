@@ -1,11 +1,16 @@
 use std::borrow::Cow;
 use std::path::Path;
+use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
 
 use russh::keys::*;
 use russh::*;
+use russh_sftp::client::SftpSession;
+use russh_sftp::protocol::OpenFlags;
+use std::fs;
 use std::str;
+use tokio::io::AsyncWriteExt;
 use tokio::net::ToSocketAddrs;
 use tokio::runtime::Handle;
 
@@ -100,6 +105,30 @@ impl SshSession {
             Err("произошла ошибка при выполнении команды")?
         }
         Ok(response)
+    }
+
+    pub async fn upload(&self, path: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
+        // Get name
+        let file_name = match path.file_name() {
+            Some(name) => format!("Downloads/{}", name.to_string_lossy()),
+            None => Err("error load file name")?,
+        };
+        // Get connect
+        let channel = self.session.channel_open_session().await?;
+        channel.request_subsystem(true, "sftp").await.unwrap();
+        let sftp = SftpSession::new(channel.into_stream()).await.unwrap();
+        // Open file
+        let mut sftp_file = sftp
+            .open_with_flags(
+                file_name,
+                OpenFlags::CREATE | OpenFlags::TRUNCATE | OpenFlags::WRITE | OpenFlags::READ,
+            )
+            .await
+            .unwrap();
+        // Write data
+        let data_file = fs::read(path)?;
+        sftp_file.write_all(&data_file).await.unwrap();
+        Ok(())
     }
 
     pub async fn close(&self) -> Result<(), Box<dyn std::error::Error>> {

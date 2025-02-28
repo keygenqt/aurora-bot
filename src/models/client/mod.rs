@@ -37,6 +37,9 @@ pub mod emulator_sync {
 pub mod emulator_terminal {
     pub mod incoming;
 }
+pub mod emulator_upload {
+    pub mod incoming;
+}
 pub mod flutter_available {
     pub mod incoming;
     pub mod outgoing;
@@ -119,6 +122,7 @@ pub enum ClientMethodsKey {
     EmulatorScreenshot,
     EmulatorSync,
     EmulatorTerminal,
+    EmulatorUpload,
     FlutterAvailable,
     FlutterInfo,
     FlutterSync,

@@ -1,3 +1,11 @@
+use futures::StreamExt;
+use futures::stream::FuturesUnordered;
+use std::env;
+use std::fs::File;
+use std::io::Write;
+use std::path::PathBuf;
+use std::sync::Mutex;
+
 use nipper::Document;
 use tokio::runtime::Handle;
 
@@ -11,6 +19,7 @@ use crate::service::responses::faq::FaqResponses;
 use crate::service::responses::gitlab_tags::GitlabTagsResponse;
 use crate::service::responses::user::UserResponse;
 use crate::tools::constants;
+use crate::tools::macros::crash;
 
 impl ClientRequest {
     /// Get data user
@@ -170,5 +179,120 @@ impl ClientRequest {
             Ok(value) => value,
             Err(_) => vec![],
         }
+    }
+
+    #[allow(dead_code)]
+    /// Download files
+    pub fn download_files<T: Fn(i32) + Send + Copy + Sync + 'static>(
+        &self,
+        urls: Vec<String>,
+        state: T,
+    ) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
+        tokio::task::block_in_place(|| Handle::current().block_on(self._download_files(urls, state)))
+    }
+
+    /// Download files async
+    async fn _download_files<T: Fn(i32) + Send + Copy + Sync + 'static>(
+        &self,
+        urls: Vec<String>,
+        state: T,
+    ) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
+        let len = urls.len() as i32;
+        let tasks = FuturesUnordered::new();
+        let common_progress: &'static Mutex<i32> = Box::leak(Box::new(Mutex::new(0)));
+        let save_progress: &'static Mutex<i32> = Box::leak(Box::new(Mutex::new(0)));
+        // Check exist files with size
+        for url in &urls {
+            match self.client.get(url).send().await {
+                Ok(response) => {
+                    if response.content_length().is_none() {
+                        Err("не удалось получить размер файла")?
+                    }
+                }
+                Err(_) => Err("не удалось получить данные файла")?,
+            };
+        }
+        // Send start progress
+        state(0);
+        // Run async downloads
+        for url in urls {
+            tasks.push(tokio::spawn(async move {
+                match ClientRequest::new(None)
+                    .download_file(url.clone(), move |_| {
+                        *common_progress.lock().unwrap() += 1;
+                        let value = *common_progress.lock().unwrap() / len;
+                        if value < 100 && *save_progress.lock().unwrap() != value {
+                            state(value)
+                        }
+                        *save_progress.lock().unwrap() = value;
+                    })
+                    .await
+                {
+                    Ok(value) => value,
+                    Err(_) => {
+                        crash!("ошибка при скачивании файла")
+                    }
+                }
+            }));
+        }
+        let mut outputs = Vec::with_capacity(tasks.len());
+        for task in tasks {
+            outputs.push(task.await.unwrap());
+        }
+        state(100);
+        Ok(outputs)
+    }
+
+    /// Download file
+    pub async fn download_file<F: Fn(i32) + Send + Copy + Sync + 'static>(
+        &self,
+        url: String,
+        state: F,
+    ) -> Result<PathBuf, Box<dyn std::error::Error>> {
+        tokio::task::block_in_place(|| Handle::current().block_on(self._download_file(url, state)))
+    }
+
+    /// Download file async
+    async fn _download_file<F: Fn(i32) + Send + Copy + Sync + 'static>(
+        &self,
+        url: String,
+        state: F,
+    ) -> Result<PathBuf, Box<dyn std::error::Error>> {
+        // Get name from url
+        let file_name = match url.split("/").last() {
+            Some(value) => value,
+            None => Err("не удалось получит название файла")?,
+        };
+        // Create file
+        let mut path = env::temp_dir();
+        path.push(file_name);
+        let mut file = File::create(&path)?;
+        // Request
+        let response = match self.client.get(url.clone()).send().await {
+            Ok(response) => response,
+            Err(_) => Err("не удалось получить данные файла")?,
+        };
+        // Get size file
+        let total_size = match response.content_length() {
+            Some(value) => value,
+            None => Err("не удалось получить размер файла")?,
+        };
+        // Get stream
+        let mut stream = response.bytes_stream();
+        let mut save_pos: u64 = 0;
+        let mut save_per: u64 = 0;
+        state(0);
+        while let Some(item) = stream.next().await {
+            let chunk = item.or(Err(format!("Error while downloading file")))?;
+            file.write_all(&chunk).or(Err(format!("Error while writing to file")))?;
+            save_pos = save_pos + (chunk.len() as u64);
+            let per = save_pos * 100 / total_size;
+            if per != save_per {
+                save_per = per;
+                state(per as i32);
+            }
+        }
+        // Result path if ok
+        Ok(path)
     }
 }

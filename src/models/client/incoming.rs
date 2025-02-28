@@ -4,6 +4,7 @@ use crate::tools::constants;
 use crate::tools::macros::print_debug;
 use crate::tools::utils;
 
+use super::ClientMethodsKey;
 use super::app_info::incoming::AppInfoIncoming;
 use super::emulator_close::incoming::EmulatorCloseIncoming;
 use super::emulator_info::incoming::EmulatorInfoIncoming;
@@ -13,6 +14,7 @@ use super::emulator_record_stop::incoming::EmulatorRecordStopIncoming;
 use super::emulator_screenshot::incoming::EmulatorScreenshotIncoming;
 use super::emulator_sync::incoming::EmulatorSyncIncoming;
 use super::emulator_terminal::incoming::EmulatorTerminalIncoming;
+use super::emulator_upload::incoming::EmulatorUploadIncoming;
 use super::flutter_available::incoming::FlutterAvailableIncoming;
 use super::flutter_info::incoming::FlutterInfoIncoming;
 use super::flutter_sync::incoming::FlutterSyncIncoming;
@@ -29,7 +31,6 @@ use super::sdk_sync::incoming::SdkSyncIncoming;
 use super::sdk_tools::incoming::SdkToolsIncoming;
 use super::state_message::incoming::StateMessageIncoming;
 use super::ws_ping::incoming::WsPingIncoming;
-use super::ClientMethodsKey;
 
 pub trait TraitIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing>;
@@ -88,6 +89,10 @@ impl ClientMethodsKey {
             }
             ClientMethodsKey::EmulatorTerminal => {
                 let model = serde_json::from_str::<EmulatorTerminalIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::EmulatorUpload => {
+                let model = serde_json::from_str::<EmulatorUploadIncoming>(&value)?;
                 Ok(Box::new(model))
             }
             ClientMethodsKey::FlutterAvailable => {

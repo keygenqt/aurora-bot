@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use clap::Args;
 use clap::Subcommand;
 
@@ -9,8 +11,11 @@ use crate::models::client::emulator_record_stop::incoming::EmulatorRecordStopInc
 use crate::models::client::emulator_record_stop::incoming::EmulatorRecordStopType;
 use crate::models::client::emulator_screenshot::incoming::EmulatorScreenshotIncoming;
 use crate::models::client::emulator_terminal::incoming::EmulatorTerminalIncoming;
+use crate::models::client::emulator_upload::incoming::EmulatorUploadIncoming;
 use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
+use crate::tools::macros::print_error;
+use crate::tools::utils;
 
 #[derive(Args)]
 #[command(arg_required_else_help = true)]
@@ -31,6 +36,9 @@ pub struct EmulatorArgs {
     /// Сделать скриншот
     #[arg(short, long, default_value_t = false)]
     screenshot: bool,
+    /// Загрузить файл в каталог ~/Download
+    #[arg(short, long, value_name = "path")]
+    upload: Option<PathBuf>,
     /// Показать это сообщение и выйти
     #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
     help: Option<bool>,
@@ -106,6 +114,13 @@ pub fn run(arg: EmulatorArgs) {
     }
     if arg.screenshot {
         EmulatorScreenshotIncoming::new().run(OutgoingType::Cli).print();
+        return;
+    }
+    if let Some(path) = arg.upload {
+        match utils::path_to_absolute(&path) {
+            Some(path) => EmulatorUploadIncoming::new_path(path).run(OutgoingType::Cli).print(),
+            None => print_error!("проверьте путь к файлу"),
+        }
         return;
     }
     // Commands

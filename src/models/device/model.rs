@@ -3,8 +3,8 @@ use colored::Colorize;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::models::configuration::device::DeviceConfig;
 use crate::models::TraitModel;
+use crate::models::configuration::device::DeviceConfig;
 use crate::tools::macros::print_info;
 
 #[derive(Serialize, Deserialize, Clone)]

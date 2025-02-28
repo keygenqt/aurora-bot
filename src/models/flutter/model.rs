@@ -1,7 +1,7 @@
 use colored::Colorize;
 
-use crate::models::configuration::flutter::FlutterConfig;
 use crate::models::TraitModel;
+use crate::models::configuration::flutter::FlutterConfig;
 use crate::service::command::exec;
 use crate::tools::macros::print_info;
 use crate::tools::utils;

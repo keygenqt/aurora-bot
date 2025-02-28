@@ -2,8 +2,8 @@ use color_eyre::owo_colors::OwoColorize;
 use std::fs;
 use std::sync::Arc;
 use tokio::runtime::Handle;
-use tokio::time::sleep;
 use tokio::time::Duration;
+use tokio::time::sleep;
 
 use reqwest::Client;
 use reqwest::Response;
@@ -25,18 +25,22 @@ pub struct ClientRequest {
 
 impl ClientRequest {
     /// Create instance
-    pub fn new(timeout: u64) -> ClientRequest {
+    pub fn new(timeout: Option<u64>) -> ClientRequest {
         let cookie = match ClientRequest::load_cookie(true) {
             Ok(cookie) => std::sync::Arc::clone(&cookie),
             Err(_) => {
                 crash!("ошибка чтение данных")
             }
         };
-        let client = Client::builder()
-            .cookie_provider(std::sync::Arc::clone(&cookie))
-            .timeout(Duration::from_secs(timeout))
-            .build()
-            .unwrap();
+        let client = if let Some(timeout) = timeout {
+            Client::builder()
+                .cookie_provider(std::sync::Arc::clone(&cookie))
+                .timeout(Duration::from_secs(timeout))
+        } else {
+            Client::builder().cookie_provider(std::sync::Arc::clone(&cookie))
+        }
+        .build()
+        .unwrap();
         ClientRequest { client, cookie }
     }
 

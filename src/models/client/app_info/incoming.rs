@@ -2,10 +2,10 @@ use dbus_crossroads::IfaceBuilder;
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::models::client::ClientMethodsKey;
 use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
-use crate::models::client::ClientMethodsKey;
 use crate::service::dbus::server::IfaceData;
 
 use super::outgoing::AppInfoOutgoing;

@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
+use dbus::Message;
+use dbus::Path;
 use dbus::channel::MatchingReceiver;
 use dbus::channel::Sender;
 use dbus::message::MatchRule;
 use dbus::nonblock::SyncConnection;
-use dbus::Message;
-use dbus::Path;
 use dbus_crossroads::Crossroads;
 use dbus_crossroads::IfaceBuilder;
 use dbus_tokio::connection;
@@ -21,6 +21,7 @@ use crate::models::client::emulator_record_stop::incoming::EmulatorRecordStopInc
 use crate::models::client::emulator_screenshot::incoming::EmulatorScreenshotIncoming;
 use crate::models::client::emulator_sync::incoming::EmulatorSyncIncoming;
 use crate::models::client::emulator_terminal::incoming::EmulatorTerminalIncoming;
+use crate::models::client::emulator_upload::incoming::EmulatorUploadIncoming;
 use crate::models::client::flutter_available::incoming::FlutterAvailableIncoming;
 use crate::models::client::flutter_info::incoming::FlutterInfoIncoming;
 use crate::models::client::flutter_sync::incoming::FlutterSyncIncoming;
@@ -84,6 +85,10 @@ impl ServerDbus {
             EmulatorSyncIncoming::dbus_method_run(builder);
             EmulatorTerminalIncoming::dbus_method_run(builder);
             EmulatorTerminalIncoming::dbus_method_run_by_id(builder);
+            EmulatorUploadIncoming::dbus_method_run_path(builder);
+            EmulatorUploadIncoming::dbus_method_run_path_by_id(builder);
+            EmulatorUploadIncoming::dbus_method_run_url(builder);
+            EmulatorUploadIncoming::dbus_method_run_url_by_id(builder);
             // Flutter
             FlutterAvailableIncoming::dbus_method_run(builder);
             FlutterInfoIncoming::dbus_method_run(builder);

@@ -1,12 +1,12 @@
 use serde::Serialize;
 
+use crate::models::TraitModel;
 use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
 use crate::models::client::selector::outgoing::incoming::SelectorIncoming;
 use crate::models::client::selector::outgoing::outgoing::SelectorOutgoing;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
-use crate::models::TraitModel;
 use crate::tools::macros::tr;
 
 use super::model::DeviceModel;

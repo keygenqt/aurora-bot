@@ -2,11 +2,11 @@ use dbus_crossroads::IfaceBuilder;
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::models::client::ClientMethodsKey;
 use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
-use crate::models::client::ClientMethodsKey;
 use crate::models::emulator::model::EmulatorModel;
 use crate::models::emulator::select::EmulatorModelSelect;
 use crate::service::command::exec;

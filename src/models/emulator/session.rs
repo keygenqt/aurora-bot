@@ -54,6 +54,11 @@ impl EmulatorSession {
         })
     }
 
+    pub fn file_upload(&self, path: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
+        tokio::task::block_in_place(|| Handle::current().block_on(self.session.upload(path)))?;
+        Ok(())
+    }
+
     pub fn close(&self) -> Result<(), Box<dyn std::error::Error>> {
         tokio::task::block_in_place(|| Handle::current().block_on(self.session.close()))?;
         Ok(())

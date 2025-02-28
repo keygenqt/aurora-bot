@@ -6,6 +6,7 @@ use regex::Regex;
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::models::client::ClientMethodsKey;
 use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
@@ -13,7 +14,6 @@ use crate::models::client::sdk_available::outgoing::SdkAvailableItemOutgoing;
 use crate::models::client::sdk_available::outgoing::SdkBuildType;
 use crate::models::client::sdk_available::outgoing::SdkInstallType;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
-use crate::models::client::ClientMethodsKey;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
 use crate::tools::single;

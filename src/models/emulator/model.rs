@@ -4,8 +4,8 @@ use serde::Serialize;
 
 use super::session::EmulatorSession;
 use super::session::EmulatorSessionType;
-use crate::models::configuration::emulator::EmulatorConfig;
 use crate::models::TraitModel;
+use crate::models::configuration::emulator::EmulatorConfig;
 use crate::service::command::exec;
 use crate::tools::macros::print_info;
 use crate::tools::programs;

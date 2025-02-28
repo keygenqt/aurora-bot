@@ -1,9 +1,9 @@
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::models::client::ClientMethodsState;
 use crate::models::client::outgoing::DataOutgoing;
 use crate::models::client::outgoing::TraitOutgoing;
-use crate::models::client::ClientMethodsState;
 use crate::tools::macros::print_error;
 use crate::tools::macros::print_info;
 use crate::tools::macros::print_state;

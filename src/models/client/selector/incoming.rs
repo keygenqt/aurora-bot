@@ -2,8 +2,8 @@ use colored::Colorize;
 use dialoguer::Select;
 use serde::Deserialize;
 
-use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::ClientMethodsKey;
+use crate::models::client::incoming::TraitIncoming;
 
 #[derive(Deserialize, Clone)]
 pub struct SelectorCmdIncoming {

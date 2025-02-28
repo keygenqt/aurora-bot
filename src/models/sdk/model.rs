@@ -1,7 +1,7 @@
 use colored::Colorize;
 
-use crate::models::configuration::sdk::SdkConfig;
 use crate::models::TraitModel;
+use crate::models::configuration::sdk::SdkConfig;
 use crate::tools::macros::print_info;
 use crate::tools::utils;
 use serde::Deserialize;

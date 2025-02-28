@@ -1,10 +1,10 @@
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::models::TraitModel;
 use crate::models::client::outgoing::DataOutgoing;
 use crate::models::client::outgoing::TraitOutgoing;
 use crate::models::psdk::model::PsdkModel;
-use crate::models::TraitModel;
 
 use super::incoming::PsdkInfoIncoming;
 

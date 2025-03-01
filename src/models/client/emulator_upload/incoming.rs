@@ -23,7 +23,6 @@ pub struct EmulatorUploadIncoming {
     url: Option<String>,
 }
 
-// @todo - server
 impl EmulatorUploadIncoming {
     pub fn name() -> String {
         serde_variant::to_variant_name(&ClientMethodsKey::EmulatorUpload)
@@ -140,6 +139,10 @@ impl EmulatorUploadIncoming {
         send_type: &OutgoingType,
         url: &String,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+        let url = match utils::get_https_url(url.to_string()) {
+            Some(url) => url,
+            None => Err("не удалось скачать файл")?,
+        };
         StateMessageOutgoing::new_state(tr!("скачиваем файл...")).send(send_type);
         let path = single::get_request()
             .download_file(url.to_string(), StateMessageOutgoing::get_state_callback(send_type))?;

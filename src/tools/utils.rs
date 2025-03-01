@@ -14,6 +14,7 @@ use walkdir::WalkDir;
 
 use crate::tools::macros::crash;
 
+use super::constants;
 use super::macros::tr;
 
 /// Main help app
@@ -203,14 +204,19 @@ pub fn path_to_absolute_str(path: &str) -> Option<PathBuf> {
 
 /// Check is Url
 pub fn get_https_url(url: String) -> Option<String> {
-    match Url::parse(&url) {
-        Ok(url) => {
-            if url.scheme() == "https" {
-                Some(url.to_string())
-            } else {
-                None
+    let re = Regex::new(r"^/uploads*").unwrap();
+    if re.captures(&url).is_some() {
+        Some(format!("{}{}", constants::URL_API, url))
+    } else {
+        match Url::parse(&url) {
+            Ok(url) => {
+                if url.scheme() == "https" {
+                    Some(url.to_string())
+                } else {
+                    None
+                }
             }
+            Err(_) => None,
         }
-        Err(_) => None,
     }
 }

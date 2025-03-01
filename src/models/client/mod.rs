@@ -106,7 +106,6 @@ pub enum ClientMethodsState {
     State,
     Success,
     Warning,
-    // @todo
     Progress,
 }
 

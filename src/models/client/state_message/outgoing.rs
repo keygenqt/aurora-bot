@@ -88,7 +88,7 @@ impl StateMessageOutgoing {
         } else {
             match send_type {
                 OutgoingType::Websocket => {
-                    if progress % 10 == 0 {
+                    if progress % 25 == 0 {
                         StateMessageOutgoing::new_progress(progress.to_string()).send(send_type);
                     }
                 }

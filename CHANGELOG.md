@@ -1,15 +1,30 @@
-## Updated: 02/21/2025 20:44:25 PM
+## Updated: 03/01/2025 15:04:03 PM
 
 ## Info
 
-- Last tag: 0.0.3
-- Released: 3
+- Last tag: 0.0.4
+- Released: 4
 
 ## Versions
 
+- Version: 0.0.4 (01/03/2025)
 - Version: 0.0.3 (21/02/2025)
 - Version: 0.0.2 (15/02/2025)
 - Version: 0.0.1 (06/02/2025)
+
+### Version: 0.0.4 (01/03/2025)
+
+#### Feature
+
+- Convert video to Gif.
+- Convert video to Mp4.
+- Flutter available.
+- Platform SDK available.
+- Аврора SDK available.
+- State progress.
+- Upload file to emulator.
+- Upload file by Url to emulator.
+- Upload file from Telegram.
 
 ### Version: 0.0.3 (21/02/2025)
 

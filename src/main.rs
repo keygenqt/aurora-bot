@@ -96,28 +96,9 @@ fn run_debug() {
     // development of an easy-to-access method
 
     use std::time::SystemTime;
-
-    use models::client::outgoing::TraitOutgoing;
-    use models::client::state_message::outgoing::StateMessageOutgoing;
-    use tools::single;
-
-    let list = vec![
-        "https://sdk-repo.omprussia.ru/sdk/installers/5.1.3/5.1.3.85-release/AuroraPSDK/Aurora_OS-5.1.3.85-MB2-Aurora_Platform_SDK_Chroot-x86_64.tar.bz2".to_string(),
-        "https://sdk-repo.omprussia.ru/sdk/installers/5.1.3/5.1.3.85-release/AuroraPSDK/Aurora_OS-5.1.3.85-MB2-Aurora_SDK_Target-aarch64.tar.7z".to_string(),
-        "https://sdk-repo.omprussia.ru/sdk/installers/5.1.3/5.1.3.85-release/AuroraPSDK/Aurora_OS-5.1.3.85-MB2-Aurora_SDK_Target-armv7hl.tar.7z".to_string(),
-        "https://sdk-repo.omprussia.ru/sdk/installers/5.1.3/5.1.3.85-release/AuroraPSDK/Aurora_OS-5.1.3.85-MB2-Aurora_SDK_Target-x86_64.tar.7z".to_string(),
-        "https://sdk-repo.omprussia.ru/sdk/installers/5.1.3/5.1.3.85-release/AuroraPSDK/Aurora_OS-5.1.3.85-MB2-Aurora_SDK_Tooling-x86_64.tar.7z".to_string(),
-    ];
-
     let start = SystemTime::now();
 
-    match single::get_request().download_files(list, |progress: i32| {
-        // @todo progress problem
-        StateMessageOutgoing::new_progress(progress.to_string()).send(&OutgoingType::Cli)
-    }) {
-        Ok(value) => println!("{:?}", value),
-        Err(error) => panic!("{}", error),
-    }
+    // do something
 
     let end = SystemTime::now();
     let duration = end.duration_since(start).unwrap();

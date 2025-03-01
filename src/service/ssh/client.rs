@@ -1,4 +1,6 @@
 use std::borrow::Cow;
+use std::fs::File;
+use std::os::unix::fs::MetadataExt;
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -107,7 +109,11 @@ impl SshSession {
         Ok(response)
     }
 
-    pub async fn upload(&self, path: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn upload<F: Fn(i32) + Send + Copy + Sync + 'static>(
+        &self,
+        path: &PathBuf,
+        state: F,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         // Get name
         let file_name = match path.file_name() {
             Some(name) => format!("Downloads/{}", name.to_string_lossy()),
@@ -126,8 +132,15 @@ impl SshSession {
             .await
             .unwrap();
         // Write data
-        let data_file = fs::read(path)?;
-        sftp_file.write_all(&data_file).await.unwrap();
+        let mut progress = 0;
+
+        let file = File::open(path)?;
+        let chunk = file.metadata()?.size() / 100;
+        for data in fs::read(path)?.chunks(chunk as usize) {
+            state(progress);
+            sftp_file.write_all(data).await.unwrap();
+            progress += 1;
+        }
         Ok(())
     }
 

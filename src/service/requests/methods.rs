@@ -3,6 +3,7 @@ use futures::stream::FuturesUnordered;
 use std::env;
 use std::fs::File;
 use std::io::Write;
+use std::os::unix::fs::MetadataExt;
 use std::path::PathBuf;
 use std::sync::Mutex;
 
@@ -218,7 +219,7 @@ impl ClientRequest {
         for url in urls {
             tasks.push(tokio::spawn(async move {
                 match ClientRequest::new(None)
-                    .download_file(url.clone(), move |_| {
+                    ._download_file(url.clone(), move |_| {
                         *common_progress.lock().unwrap() += 1;
                         let value = *common_progress.lock().unwrap() / len;
                         if value < 100 && *save_progress.lock().unwrap() != value {
@@ -244,7 +245,7 @@ impl ClientRequest {
     }
 
     /// Download file
-    pub async fn download_file<F: Fn(i32) + Send + Copy + Sync + 'static>(
+    pub fn download_file<F: Fn(i32) + Send + Copy + Sync + 'static>(
         &self,
         url: String,
         state: F,
@@ -263,10 +264,6 @@ impl ClientRequest {
             Some(value) => value,
             None => Err("не удалось получит название файла")?,
         };
-        // Create file
-        let mut path = env::temp_dir();
-        path.push(file_name);
-        let mut file = File::create(&path)?;
         // Request
         let response = match self.client.get(url.clone()).send().await {
             Ok(response) => response,
@@ -277,6 +274,19 @@ impl ClientRequest {
             Some(value) => value,
             None => Err("не удалось получить размер файла")?,
         };
+        // Get path
+        let mut path = env::temp_dir();
+        path.push(file_name);
+        // Create file
+        let mut file = if path.exists() {
+            File::open(&path)?
+        } else {
+            File::create(&path)?
+        };
+        // Check size
+        if file.metadata()?.size() == total_size {
+            return Ok(path);
+        }
         // Get stream
         let mut stream = response.bytes_stream();
         let mut save_pos: u64 = 0;

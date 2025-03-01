@@ -13,6 +13,7 @@ use crate::models::emulator::model::EmulatorModel;
 use crate::models::emulator::select::EmulatorModelSelect;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
+use crate::tools::single;
 use crate::tools::utils;
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -122,29 +123,30 @@ impl EmulatorUploadIncoming {
         );
     }
 
-    // @todo
-    #[allow(unused)]
     fn upload_by_path(
         emulator: &EmulatorModel,
         send_type: &OutgoingType,
         path: &PathBuf,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         StateMessageOutgoing::new_state(tr!("начинаем загрузку...")).send(send_type);
-        emulator.session_user()?.file_upload(path)?;
+        emulator
+            .session_user()?
+            .file_upload(path, StateMessageOutgoing::get_state_callback(send_type))?;
         Ok(StateMessageOutgoing::new_success(tr!("файл успешно загружен")))
     }
 
-    // @todo
-    #[allow(unused)]
     fn upload_by_url(
         emulator: &EmulatorModel,
         send_type: &OutgoingType,
         url: &String,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         StateMessageOutgoing::new_state(tr!("скачиваем файл...")).send(send_type);
-        // @download file by url
+        let path = single::get_request()
+            .download_file(url.to_string(), StateMessageOutgoing::get_state_callback(send_type))?;
         StateMessageOutgoing::new_state(tr!("начинаем загрузку...")).send(send_type);
-        // emulator.session_user()?.file_upload(path)?;
+        emulator
+            .session_user()?
+            .file_upload(&path, StateMessageOutgoing::get_state_callback(send_type))?;
         Ok(StateMessageOutgoing::new_success(tr!("файл успешно загружен")))
     }
 }

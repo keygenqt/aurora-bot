@@ -3,6 +3,7 @@ use serde::Serialize;
 
 use crate::models::client::ClientMethodsState;
 use crate::models::client::outgoing::DataOutgoing;
+use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
 use crate::tools::macros::print_error;
 use crate::tools::macros::print_info;
@@ -60,6 +61,40 @@ impl StateMessageOutgoing {
             state: ClientMethodsState::Progress,
             message,
         })
+    }
+
+    pub fn get_state_callback(send_type: &OutgoingType) -> fn(i32) {
+        match send_type {
+            OutgoingType::Cli => |progress| {
+                Self::send_state_common(progress, &OutgoingType::Cli);
+            },
+            OutgoingType::Dbus => |progress| {
+                Self::send_state_common(progress, &OutgoingType::Dbus);
+            },
+            OutgoingType::Websocket => |progress| {
+                Self::send_state_common(progress, &OutgoingType::Websocket);
+            },
+        }
+    }
+
+    fn send_state_common(progress: i32, send_type: &'static OutgoingType) {
+        if progress < 0 {
+            match progress {
+                -1 => StateMessageOutgoing::new_state(tr!("получение данных...")).send(send_type),
+                -2 => StateMessageOutgoing::new_state(tr!("причесываем данные...")).send(send_type),
+                -3 => StateMessageOutgoing::new_state(tr!("запускаем процесс...")).send(send_type),
+                _ => {}
+            }
+        } else {
+            match send_type {
+                OutgoingType::Websocket => {
+                    if progress % 10 == 0 {
+                        StateMessageOutgoing::new_progress(progress.to_string()).send(send_type);
+                    }
+                }
+                _ => StateMessageOutgoing::new_progress(progress.to_string()).send(send_type),
+            }
+        }
     }
 }
 

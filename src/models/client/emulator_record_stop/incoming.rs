@@ -116,7 +116,7 @@ impl EmulatorRecordStopIncoming {
                 EmulatorRecordStopOutgoing::new(path_raw.to_string_lossy().to_string(), None)
             }
             EmulatorRecordStopType::Mp4 => {
-                match ffmpeg_utils::webm_to_mp4(&path_raw, Self::get_state_callback(&send_type)) {
+                match ffmpeg_utils::webm_to_mp4(&path_raw, StateMessageOutgoing::get_state_callback(&send_type)) {
                     Ok(value) => EmulatorRecordStopOutgoing::new(
                         value.to_string_lossy().to_string(),
                         utils::file_to_base64_by_path(value.to_str()),
@@ -125,61 +125,13 @@ impl EmulatorRecordStopIncoming {
                 }
             }
             EmulatorRecordStopType::Gif => {
-                match ffmpeg_utils::webm_to_gif(&path_raw, Self::get_state_callback(&send_type)) {
+                match ffmpeg_utils::webm_to_gif(&path_raw, StateMessageOutgoing::get_state_callback(&send_type)) {
                     Ok(value) => EmulatorRecordStopOutgoing::new(value.to_string_lossy().to_string(), None),
                     Err(_) => EmulatorRecordStopOutgoing::new(path_raw.to_string_lossy().to_string(), None),
                 }
             }
         };
         Ok(outgoing)
-    }
-
-    fn get_state_callback(send_type: &OutgoingType) -> fn(i32) {
-        match send_type {
-            OutgoingType::Cli => |progress| {
-                if progress < 0 {
-                    match progress {
-                        -1 => StateMessageOutgoing::new_state(tr!("получение данных...")).send(&OutgoingType::Cli),
-                        -2 => StateMessageOutgoing::new_state(tr!("причесываем данные...")).send(&OutgoingType::Cli),
-                        -3 => StateMessageOutgoing::new_state(tr!("начинаем конвертацию")).send(&OutgoingType::Cli),
-                        _ => {}
-                    }
-                } else {
-                    StateMessageOutgoing::new_progress(progress.to_string()).send(&OutgoingType::Cli);
-                }
-            },
-            OutgoingType::Dbus => |progress| {
-                if progress < 0 {
-                    match progress {
-                        -1 => StateMessageOutgoing::new_state(tr!("получение данных...")).send(&OutgoingType::Dbus),
-                        -2 => StateMessageOutgoing::new_state(tr!("причесываем данные...")).send(&OutgoingType::Dbus),
-                        -3 => StateMessageOutgoing::new_state(tr!("начинаем конвертацию")).send(&OutgoingType::Dbus),
-                        _ => {}
-                    }
-                } else {
-                    StateMessageOutgoing::new_progress(progress.to_string()).send(&OutgoingType::Dbus);
-                }
-            },
-            OutgoingType::Websocket => {
-                |progress| {
-                    if progress < 0 {
-                        match progress {
-                            -1 => StateMessageOutgoing::new_state(tr!("получение данных..."))
-                                .send(&OutgoingType::Websocket),
-                            -2 => StateMessageOutgoing::new_state(tr!("причесываем данные..."))
-                                .send(&OutgoingType::Websocket),
-                            -3 => StateMessageOutgoing::new_state(tr!("начинаем конвертацию"))
-                                .send(&OutgoingType::Websocket),
-                            _ => {}
-                        }
-                    } else {
-                        if progress % 10 == 0 {
-                            StateMessageOutgoing::new_progress(progress.to_string()).send(&OutgoingType::Websocket);
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 

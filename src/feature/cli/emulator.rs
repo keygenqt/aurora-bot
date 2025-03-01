@@ -36,6 +36,9 @@ pub struct EmulatorArgs {
     /// Сделать скриншот
     #[arg(short, long, default_value_t = false)]
     screenshot: bool,
+    /// Скачать файл в каталог ~/Download
+    #[arg(short, long, value_name = "url")]
+    download: Option<String>,
     /// Загрузить файл в каталог ~/Download
     #[arg(short, long, value_name = "path")]
     upload: Option<PathBuf>,
@@ -114,6 +117,13 @@ pub fn run(arg: EmulatorArgs) {
     }
     if arg.screenshot {
         EmulatorScreenshotIncoming::new().run(OutgoingType::Cli).print();
+        return;
+    }
+    if let Some(url) = arg.download {
+        match utils::get_https_url(url) {
+            Some(url) => EmulatorUploadIncoming::new_url(url).run(OutgoingType::Cli).print(),
+            None => print_error!("проверьте url файла"),
+        }
         return;
     }
     if let Some(path) = arg.upload {

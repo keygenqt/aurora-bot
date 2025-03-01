@@ -174,12 +174,12 @@ impl TraitIncoming for EmulatorUploadIncoming {
                     if self.path.as_ref().is_some() {
                         match Self::upload_by_path(emulator, &send_type, self.path.as_ref().unwrap()) {
                             Ok(value) => value,
-                            Err(_) => StateMessageOutgoing::new_error(tr!("не удалось загрузить файл")),
+                            Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
                         }
                     } else {
                         match Self::upload_by_url(emulator, &send_type, self.url.as_ref().unwrap()) {
                             Ok(value) => value,
-                            Err(_) => StateMessageOutgoing::new_error(tr!("не удалось загрузить файл")),
+                            Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
                         }
                     }
                 }

@@ -8,6 +8,7 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
+use url::Url;
 use walkdir::DirEntry;
 use walkdir::WalkDir;
 
@@ -198,4 +199,18 @@ pub fn path_to_absolute(path: &PathBuf) -> Option<PathBuf> {
 /// Get absolute path to file from str
 pub fn path_to_absolute_str(path: &str) -> Option<PathBuf> {
     path_to_absolute(&Path::new(path).to_path_buf())
+}
+
+/// Check is Url
+pub fn get_https_url(url: String) -> Option<String> {
+    match Url::parse(&url) {
+        Ok(url) => {
+            if url.scheme() == "https" {
+                Some(url.to_string())
+            } else {
+                None
+            }
+        }
+        Err(_) => None,
+    }
 }

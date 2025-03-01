@@ -119,6 +119,12 @@ impl SshSession {
             Some(name) => format!("Downloads/{}", name.to_string_lossy()),
             None => Err("error load file name")?,
         };
+        // Get data
+        let file = File::open(path)?;
+        let size = file.metadata()?.size();
+        if size == 0 {
+            Err("файл не содержит данных")?
+        }
         // Get connect
         let channel = self.session.channel_open_session().await?;
         channel.request_subsystem(true, "sftp").await.unwrap();
@@ -133,8 +139,6 @@ impl SshSession {
             .unwrap();
         // Write data
         let mut progress = 0;
-
-        let file = File::open(path)?;
         let chunk = file.metadata()?.size() / 100;
         for data in fs::read(path)?.chunks(chunk as usize) {
             state(progress);

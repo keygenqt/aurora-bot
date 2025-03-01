@@ -274,6 +274,9 @@ impl ClientRequest {
             Some(value) => value,
             None => Err("не удалось получить размер файла")?,
         };
+        if total_size == 0 {
+            Err("не удалось получить размер файла")?
+        }
         // Get path
         let mut path = env::temp_dir();
         path.push(file_name);

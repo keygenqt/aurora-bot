@@ -91,6 +91,7 @@ impl ServerDbus {
             EmulatorUploadIncoming::dbus_method_run_url_by_id(builder);
             // Flutter
             FlutterAvailableIncoming::dbus_method_run(builder);
+            FlutterAvailableIncoming::dbus_method_run_by_id(builder);
             FlutterInfoIncoming::dbus_method_run(builder);
             FlutterInfoIncoming::dbus_method_run_by_id(builder);
             FlutterSyncIncoming::dbus_method_run(builder);
@@ -98,6 +99,7 @@ impl ServerDbus {
             FlutterTerminalIncoming::dbus_method_run_by_id(builder);
             // Psdk
             PsdkAvailableIncoming::dbus_method_run(builder);
+            PsdkAvailableIncoming::dbus_method_run_by_id(builder);
             PsdkInfoIncoming::dbus_method_run(builder);
             PsdkInfoIncoming::dbus_method_run_by_id(builder);
             PsdkSyncIncoming::dbus_method_run(builder);
@@ -105,6 +107,7 @@ impl ServerDbus {
             PsdkTerminalIncoming::dbus_method_run_by_id(builder);
             // Sdk
             SdkAvailableIncoming::dbus_method_run(builder);
+            SdkAvailableIncoming::dbus_method_run_by_id(builder);
             SdkInfoIncoming::dbus_method_run(builder);
             SdkInfoIncoming::dbus_method_run_by_id(builder);
             SdkSyncIncoming::dbus_method_run(builder);

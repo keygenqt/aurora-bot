@@ -10,7 +10,7 @@ use super::incoming::SdkAvailableIncoming;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct SdkAvailableOutgoing {
-    models: Vec<SdkAvailableItemOutgoing>,
+    model: SdkAvailableItemOutgoing,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
@@ -35,37 +35,39 @@ pub struct SdkAvailableItemOutgoing {
 }
 
 impl SdkAvailableOutgoing {
-    pub fn new(models: Vec<SdkAvailableItemOutgoing>) -> Box<SdkAvailableOutgoing> {
-        Box::new(Self { models })
+    pub fn new(model: SdkAvailableItemOutgoing) -> Box<SdkAvailableOutgoing> {
+        Box::new(Self { model })
+    }
+}
+
+impl SdkAvailableItemOutgoing {
+    pub fn name_build_type(&self) -> String {
+        if self.build_type == SdkBuildType::BT {
+            "Build Tools".to_string()
+        } else {
+            "MB2".to_string()
+        }
+    }
+
+    pub fn name_install_type(&self) -> String {
+        if self.install_type == SdkInstallType::Online {
+            "Online".to_string()
+        } else {
+            "Offline".to_string()
+        }
     }
 }
 
 impl TraitOutgoing for SdkAvailableOutgoing {
     fn print(&self) {
-        let mut data: Vec<String> = vec![];
-        for item in self.models.clone() {
-            let message = tr!(
-                "Аврора SDK: {}\nТип сборки: {}\nТип установки: {}\nСсылка: {}",
-                item.version_full.bold().white(),
-                (if item.build_type == SdkBuildType::BT {
-                    "Build Tools"
-                } else {
-                    "MB2"
-                })
-                .bold()
-                .white(),
-                (if item.install_type == SdkInstallType::Online {
-                    "Online"
-                } else {
-                    "Offline"
-                })
-                .bold()
-                .white(),
-                item.url.to_string().bright_blue(),
-            );
-            data.push(message);
-        }
-        println!("{}", data.join("\n\n"));
+        let message = tr!(
+            "Аврора SDK: {}\nТип сборки: {}\nТип установки: {}\nСсылка: {}",
+            self.model.version_full.bold().white(),
+            self.model.name_build_type().bold().white(),
+            self.model.name_install_type().bold().white(),
+            self.model.url.to_string().bright_blue(),
+        );
+        println!("{}", message);
     }
 
     fn to_json(&self) -> String {

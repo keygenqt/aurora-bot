@@ -54,7 +54,7 @@ macro_rules! tr {
 }
 pub(crate) use tr;
 
-/// Text tr
+/// Print error and exit
 macro_rules! crash {
     ($arg:tt) => {{
         println!("{}", format!("\x1b[1m\x1b[91merror\x1b[0m: {}", $arg));

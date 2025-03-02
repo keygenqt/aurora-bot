@@ -74,7 +74,7 @@ impl EmulatorUploadIncoming {
             ("path",),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (path,): (String,)| async move {
-                let outgoing = match utils::path_to_absolute_str(&path) {
+                let outgoing = match utils::path_to_absolute(&PathBuf::from(path)) {
                     Some(path) => Self::new_path(path).run(OutgoingType::Dbus),
                     None => StateMessageOutgoing::new_error(tr!("проверьте путь к файлу")),
                 };
@@ -89,7 +89,7 @@ impl EmulatorUploadIncoming {
             ("id", "path"),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (id, path): (String, String)| async move {
-                let outgoing = match utils::path_to_absolute_str(&path) {
+                let outgoing = match utils::path_to_absolute(&PathBuf::from(path)) {
                     Some(path) => Self::new_path_id(id, path).run(OutgoingType::Dbus),
                     None => StateMessageOutgoing::new_error(tr!("проверьте путь к файлу")),
                 };

@@ -11,7 +11,7 @@ use super::incoming::FlutterAvailableIncoming;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct FlutterAvailableOutgoing {
-    models: Vec<FlutterAvailableItemOutgoing>,
+    model: FlutterAvailableItemOutgoing,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -25,29 +25,27 @@ pub struct FlutterAvailableItemOutgoing {
 }
 
 impl FlutterAvailableOutgoing {
-    pub fn new(models: Vec<FlutterAvailableItemOutgoing>) -> Box<FlutterAvailableOutgoing> {
-        Box::new(Self { models })
+    pub fn new(model: FlutterAvailableItemOutgoing) -> Box<FlutterAvailableOutgoing> {
+        Box::new(Self { model })
     }
 }
 
 impl TraitOutgoing for FlutterAvailableOutgoing {
     fn print(&self) {
         let mut data: Vec<String> = vec![];
-        for item in self.models.clone() {
-            let created_at = match DateTime::parse_from_rfc3339(&item.created_at) {
-                Ok(value) => value.format("%Y-%m-%d").to_string(),
-                Err(_) => item.created_at,
-            };
-            let message = tr!(
-                "Flutter SDK: {}\nДата релиза: {}\nGitLab: {}\nСсылка (zip): {}\nСсылка (tar.gz): {}",
-                item.version.bold().white(),
-                created_at.bold().white(),
-                item.url_gitlab.to_string().bright_blue(),
-                item.url_zip.to_string().bright_blue(),
-                item.url_tar_gz.to_string().bright_blue(),
-            );
-            data.push(message);
-        }
+        let created_at = match DateTime::parse_from_rfc3339(&self.model.created_at) {
+            Ok(value) => value.format("%Y-%m-%d").to_string(),
+            Err(_) => self.model.created_at.clone(),
+        };
+        let message = tr!(
+            "Flutter SDK: {}\nДата релиза: {}\nGitLab: {}\nСсылка (zip): {}\nСсылка (tar.gz): {}",
+            self.model.version.bold().white(),
+            created_at.bold().white(),
+            self.model.url_gitlab.to_string().bright_blue(),
+            self.model.url_zip.to_string().bright_blue(),
+            self.model.url_tar_gz.to_string().bright_blue(),
+        );
+        data.push(message);
         println!("{}", data.join("\n\n"));
     }
 

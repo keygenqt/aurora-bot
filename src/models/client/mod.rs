@@ -43,6 +43,7 @@ pub mod emulator_upload {
 pub mod flutter_available {
     pub mod incoming;
     pub mod outgoing;
+    pub mod select;
 }
 pub mod flutter_info {
     pub mod incoming;
@@ -57,6 +58,7 @@ pub mod flutter_terminal {
 pub mod psdk_available {
     pub mod incoming;
     pub mod outgoing;
+    pub mod select;
 }
 pub mod psdk_info {
     pub mod incoming;
@@ -71,6 +73,7 @@ pub mod psdk_terminal {
 pub mod sdk_available {
     pub mod incoming;
     pub mod outgoing;
+    pub mod select;
 }
 pub mod sdk_info {
     pub mod incoming;

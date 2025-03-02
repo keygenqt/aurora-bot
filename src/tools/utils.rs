@@ -52,44 +52,6 @@ pub fn config_get_bool(params: &Vec<String>, key: &str, find: &str) -> Result<bo
     }
 }
 
-/// Get home folder without HOME
-pub fn get_home_folder_path() -> PathBuf {
-    match env::var("HOME") {
-        Ok(path_home) => Path::new(&path_home).to_path_buf(),
-        Err(_) => env::current_dir().unwrap_or_else(|_| crash!("директория конфигурации не найдена")),
-    }
-}
-
-/// Get path for save config-file
-pub fn get_file_save_path(file_name: &str) -> PathBuf {
-    get_home_folder_path().join(file_name)
-}
-
-/// Gen path for screenshot
-pub fn get_screenshot_save_path() -> PathBuf {
-    let start = SystemTime::now();
-    let timestamp = start
-        .duration_since(UNIX_EPOCH)
-        .expect("Time went backwards")
-        .as_millis();
-    let file_name = format!("Screenshot_{}.png", timestamp.to_string());
-    let en_path = get_home_folder_path().join("Pictures").join("Screenshots");
-    if en_path.exists() {
-        en_path.join(file_name)
-    } else {
-        get_home_folder_path().join(file_name)
-    }
-}
-
-/// Check is file
-pub fn is_file(entry: &DirEntry) -> bool {
-    if let Ok(metadata) = entry.metadata() {
-        metadata.is_file()
-    } else {
-        false
-    }
-}
-
 /// Search file by PC
 pub fn search_files(path: &str) -> Vec<String> {
     let reg = format!("^.*{}$", path);
@@ -173,20 +135,53 @@ pub fn file_to_base64_by_path(path: Option<&str>) -> Option<String> {
     }
 }
 
-/// Change path by lambda to actual path
-pub fn path_lambda_home(path: &PathBuf) -> PathBuf {
-    let path_str = path.to_string_lossy();
-    if path_str.contains("~/") {
-        let path_home = format!("{}/", get_home_folder_path().to_string_lossy());
-        let path_new = path_str.replace("~/", &path_home);
-        return Path::new(&path_new).to_path_buf();
+/// Get home folder without HOME
+pub fn get_home_folder_path() -> PathBuf {
+    match env::var("HOME") {
+        Ok(path_home) => Path::new(&path_home).to_path_buf(),
+        Err(_) => env::current_dir().unwrap_or_else(|_| crash!("директория конфигурации не найдена")),
     }
-    path.clone()
+}
+
+/// Get path for save config-file
+pub fn get_file_save_path(file_name: &str) -> PathBuf {
+    get_home_folder_path().join(file_name)
+}
+
+/// Gen path for screenshot
+pub fn get_screenshot_save_path() -> PathBuf {
+    let start = SystemTime::now();
+    let timestamp = start
+        .duration_since(UNIX_EPOCH)
+        .expect("Time went backwards")
+        .as_millis();
+    let file_name = format!("Screenshot_{}.png", timestamp.to_string());
+    let en_path = get_home_folder_path().join("Pictures").join("Screenshots");
+    if en_path.exists() {
+        en_path.join(file_name)
+    } else {
+        get_home_folder_path().join(file_name)
+    }
+}
+
+/// Check is file
+pub fn is_file(entry: &DirEntry) -> bool {
+    if let Ok(metadata) = entry.metadata() {
+        metadata.is_file()
+    } else {
+        false
+    }
 }
 
 /// Get absolute path to file
 pub fn path_to_absolute(path: &PathBuf) -> Option<PathBuf> {
-    let path = path_lambda_home(path);
+    let path_str = path.to_string_lossy();
+    let path = if path_str.contains("~/") {
+        let path_home = format!("{}/", get_home_folder_path().to_string_lossy());
+        &PathBuf::from(path_str.replace("~/", &path_home))
+    } else {
+        path
+    };
     if !path.exists() || !path.is_file() {
         None
     } else {
@@ -197,12 +192,7 @@ pub fn path_to_absolute(path: &PathBuf) -> Option<PathBuf> {
     }
 }
 
-/// Get absolute path to file from str
-pub fn path_to_absolute_str(path: &str) -> Option<PathBuf> {
-    path_to_absolute(&Path::new(path).to_path_buf())
-}
-
-/// Check is Url
+/// Check is Url and convert API Url
 pub fn get_https_url(url: String) -> Option<String> {
     let re = Regex::new(r"^/uploads*").unwrap();
     if re.captures(&url).is_some() {

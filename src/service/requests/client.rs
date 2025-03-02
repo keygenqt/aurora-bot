@@ -185,7 +185,9 @@ impl ClientRequest {
     }
 
     async fn _get_request(&self, url: String) -> Result<Response, Box<dyn std::error::Error>> {
-        match self.client.get(&url).send().await {
+        match self.client
+            .get(&url)
+            .send().await {
             Ok(response) => {
                 if StatusCode::UNAUTHORIZED == response.status() {
                     match self.auth() {

@@ -29,7 +29,7 @@ impl FlutterAvailableSelect {
                 .iter()
                 .map(|e| SelectorIncoming {
                     name: tr!("Flutter SDK: {}", e.version),
-                    incoming: incoming(e.tag.clone()),
+                    incoming: incoming(e.get_id()),
                 })
                 .collect::<Vec<SelectorIncoming<T>>>(),
         }
@@ -78,7 +78,7 @@ impl FlutterAvailableSelect {
             });
         }
         if let Some(id) = id {
-            models.iter().filter(|e| e.tag == id.clone()).cloned().collect()
+            models.iter().filter(|e| e.get_id() == id.clone()).cloned().collect()
         } else {
             models
         }

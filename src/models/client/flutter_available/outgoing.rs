@@ -30,6 +30,12 @@ impl FlutterAvailableOutgoing {
     }
 }
 
+impl FlutterAvailableItemOutgoing {
+    pub fn get_id(&self) -> String {
+        format!("{:x}", md5::compute(self.version.as_bytes()))
+    }
+}
+
 impl TraitOutgoing for FlutterAvailableOutgoing {
     fn print(&self) {
         let mut data: Vec<String> = vec![];

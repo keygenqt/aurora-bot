@@ -1,5 +1,6 @@
 use base64::Engine;
 use base64::engine::general_purpose;
+use cached::proc_macro::once;
 use colored::Colorize;
 use regex::Regex;
 use std::env;
@@ -13,6 +14,7 @@ use walkdir::DirEntry;
 use walkdir::WalkDir;
 
 use crate::tools::macros::crash;
+use crate::tools::single;
 
 use super::constants;
 use super::macros::tr;
@@ -208,5 +210,23 @@ pub fn get_https_url(url: String) -> Option<String> {
             }
             Err(_) => None,
         }
+    }
+}
+
+/// Get list urls sdk
+#[once(time=300)]
+pub fn get_repo_url_sdk() -> Vec<String> {
+    match single::get_request().get_repo_url_files(&vec!["AuroraSDK"], None) {
+        Ok(value) => value,
+        Err(_) => vec![],
+    }
+}
+
+/// Get list urls psdk
+#[once(time=300)]
+pub fn get_repo_url_psdk() -> Vec<String> {
+    match single::get_request().get_repo_url_files(&vec!["PlatformSDK", "AuroraPSDK"], None) {
+        Ok(value) => value,
+        Err(_) => vec![],
     }
 }

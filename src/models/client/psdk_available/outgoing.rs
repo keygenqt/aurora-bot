@@ -26,6 +26,12 @@ impl PsdkAvailableOutgoing {
     }
 }
 
+impl PsdkAvailableItemOutgoing {
+    pub fn get_id(&self) -> String {
+        format!("{:x}", md5::compute(self.version_full.as_bytes()))
+    }
+}
+
 impl TraitOutgoing for PsdkAvailableOutgoing {
     fn print(&self) {
         let mut message_lines: Vec<String> = vec![tr!("Platform SDK: {}", self.model.version_full.bold().white())];

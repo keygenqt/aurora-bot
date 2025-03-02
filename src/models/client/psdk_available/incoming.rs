@@ -70,7 +70,7 @@ impl TraitIncoming for PsdkAvailableIncoming {
         // Search
         let key = PsdkAvailableIncoming::name();
         let models: Vec<PsdkAvailableItemOutgoing> =
-            PsdkAvailableSelect::search(&self.id, &send_type, tr!("получаем список..."), tr!("получаем модель..."));
+            PsdkAvailableSelect::search(&self.id, &send_type, tr!("получаем список..."));
         // Select
         match models.iter().count() {
             1 => PsdkAvailableOutgoing::new(models.first().unwrap().clone()),

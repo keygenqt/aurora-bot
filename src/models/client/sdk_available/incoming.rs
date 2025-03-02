@@ -70,7 +70,7 @@ impl TraitIncoming for SdkAvailableIncoming {
         // Search
         let key = SdkAvailableIncoming::name();
         let models: Vec<SdkAvailableItemOutgoing> =
-            SdkAvailableSelect::search(&self.id, &send_type, tr!("получаем список..."), tr!("получаем модель..."));
+            SdkAvailableSelect::search(&self.id, &send_type, tr!("получаем список..."));
         // Select
         match models.iter().count() {
             1 => SdkAvailableOutgoing::new(models.first().unwrap().clone()),

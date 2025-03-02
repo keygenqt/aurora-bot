@@ -11,7 +11,7 @@ use crate::models::client::selector::outgoing::incoming::SelectorIncoming;
 use crate::models::client::selector::outgoing::outgoing::SelectorOutgoing;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::tools::macros::tr;
-use crate::tools::single;
+use crate::tools::utils;
 
 use super::outgoing::PsdkAvailableItemOutgoing;
 
@@ -29,19 +29,17 @@ impl PsdkAvailableSelect {
                 .iter()
                 .map(|e| SelectorIncoming {
                     name: tr!("Platform SDK: {}", e.version_full),
-                    incoming: incoming(e.version_full.clone()),
+                    incoming: incoming(e.get_id()),
                 })
                 .collect::<Vec<SelectorIncoming<T>>>(),
         }
     }
 
-    pub fn search(id: &Option<String>, send_type: &OutgoingType, text_select: String, text_model: String) -> Vec<PsdkAvailableItemOutgoing> {
+    pub fn search(id: &Option<String>, send_type: &OutgoingType, text: String) -> Vec<PsdkAvailableItemOutgoing> {
         if id.is_none() {
-            StateMessageOutgoing::new_state(text_select).send(send_type);
-        } else {
-            StateMessageOutgoing::new_state(text_model).send(send_type);
+            StateMessageOutgoing::new_state(text).send(send_type);
         }
-        let url_files = single::get_request().get_repo_url_psdk();
+        let url_files = utils::get_repo_url_psdk();
         // Squash urls by full version
         let mut versions: Vec<String> = vec![];
         let mut version_urls: HashMap<String, Vec<String>> = HashMap::new();
@@ -82,7 +80,7 @@ impl PsdkAvailableSelect {
             });
         }
         if let Some(id) = id {
-            models.iter().filter(|e| e.version_full == id.clone()).cloned().collect()
+            models.iter().filter(|e| e.get_id() == id.clone()).cloned().collect()
         } else {
             models
         }

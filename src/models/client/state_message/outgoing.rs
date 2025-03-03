@@ -63,21 +63,35 @@ impl StateMessageOutgoing {
         })
     }
 
-    pub fn get_state_callback(send_type: &OutgoingType) -> fn(i32) {
+    pub fn get_state_callback_file_big(send_type: &OutgoingType) -> fn(i32) {
         match send_type {
             OutgoingType::Cli => |progress| {
-                Self::send_state_common(progress, &OutgoingType::Cli);
+                Self::send_state_common(progress, &OutgoingType::Cli, 0);
             },
             OutgoingType::Dbus => |progress| {
-                Self::send_state_common(progress, &OutgoingType::Dbus);
+                Self::send_state_common(progress, &OutgoingType::Dbus, 0);
             },
             OutgoingType::Websocket => |progress| {
-                Self::send_state_common(progress, &OutgoingType::Websocket);
+                Self::send_state_common(progress, &OutgoingType::Websocket, 0);
             },
         }
     }
 
-    fn send_state_common(progress: i32, send_type: &'static OutgoingType) {
+    pub fn get_state_callback_file_small(send_type: &OutgoingType) -> fn(i32) {
+        match send_type {
+            OutgoingType::Cli => |progress| {
+                Self::send_state_common(progress, &OutgoingType::Cli, 0);
+            },
+            OutgoingType::Dbus => |progress| {
+                Self::send_state_common(progress, &OutgoingType::Dbus, 0);
+            },
+            OutgoingType::Websocket => |progress| {
+                Self::send_state_common(progress, &OutgoingType::Websocket, 10);
+            },
+        }
+    }
+
+    fn send_state_common(progress: i32, send_type: &'static OutgoingType, size: i32) {
         if progress < 0 {
             match progress {
                 -1 => StateMessageOutgoing::new_state(tr!("получение данных...")).send(send_type),
@@ -86,13 +100,12 @@ impl StateMessageOutgoing {
                 _ => {}
             }
         } else {
-            match send_type {
-                OutgoingType::Websocket => {
-                    if progress % 25 == 0 {
-                        StateMessageOutgoing::new_progress(progress.to_string()).send(send_type);
-                    }
+            if size > 0 {
+                if progress % size == 0 {
+                    StateMessageOutgoing::new_progress(progress.to_string()).send(send_type)
                 }
-                _ => StateMessageOutgoing::new_progress(progress.to_string()).send(send_type),
+            } else {
+                StateMessageOutgoing::new_progress(progress.to_string()).send(send_type)
             }
         }
     }

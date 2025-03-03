@@ -69,8 +69,12 @@ impl TraitIncoming for SdkAvailableIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = SdkAvailableIncoming::name();
-        let models: Vec<SdkAvailableItemOutgoing> =
-            SdkAvailableSelect::search(&self.id, &send_type, tr!("получаем список..."));
+        let models: Vec<SdkAvailableItemOutgoing> = SdkAvailableSelect::search(
+            &self.id,
+            &send_type,
+            tr!("получаем список..."),
+            tr!("получаем данные..."),
+        );
         // Select
         match models.iter().count() {
             1 => SdkAvailableOutgoing::new(models.first().unwrap().clone()),

@@ -3,6 +3,7 @@ use clap::Args;
 use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::psdk_available::incoming::PsdkAvailableIncoming;
+use crate::models::client::psdk_download::incoming::PsdkDownloadIncoming;
 use crate::models::client::psdk_info::incoming::PsdkInfoIncoming;
 use crate::models::client::psdk_terminal::incoming::PsdkTerminalIncoming;
 
@@ -16,6 +17,9 @@ pub struct PsdkArgs {
     /// Информация по установленным Platform SDK
     #[arg(short, long, default_value_t = false)]
     info: bool,
+    /// Скачать Platform SDK
+    #[arg(short, long, default_value_t = false)]
+    download: bool,
     /// Открыть терминал с окружением Platform SDK
     #[arg(short, long, default_value_t = false)]
     terminal: bool,
@@ -31,6 +35,10 @@ pub fn run(arg: PsdkArgs) {
     }
     if arg.info {
         PsdkInfoIncoming::new().run(OutgoingType::Cli).print();
+        return;
+    }
+    if arg.download {
+        PsdkDownloadIncoming::new().run(OutgoingType::Cli).print();
         return;
     }
     if arg.terminal {

@@ -55,6 +55,9 @@ enum EmulatorArgsGroup {
     /// Запись видео
     #[command(short_flag = 'r')]
     Record(EmulatorRecordArgs),
+    /// Работа с пакетами
+    #[command(short_flag = 'p')]
+    Package(EmulatorPackageArgs),
     /// Открыть терминал
     #[command(short_flag = 't')]
     Terminal(EmulatorTerminalArgs),
@@ -85,6 +88,25 @@ pub struct EmulatorRecordArgs {
     /// Остановить запись и создать Gif
     #[arg(short, long, default_value_t = false)]
     gif_stop: bool,
+    /// Показать это сообщение и выйти
+    #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
+    help: Option<bool>,
+}
+
+#[derive(Args)]
+#[group(multiple = false)]
+#[command(arg_required_else_help = true)]
+
+pub struct EmulatorPackageArgs {
+    /// Установить пакет
+    #[arg(short, long, value_name = "path")]
+    install: Option<PathBuf>,
+    /// Удалить пакет
+    #[arg(short, long, value_name = "package-name")]
+    uninstall: Option<String>,
+    /// Запустить пакет
+    #[arg(short, long, value_name = "package-name")]
+    run: Option<String>,
     /// Показать это сообщение и выйти
     #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
     help: Option<bool>,
@@ -161,6 +183,23 @@ pub fn run(arg: EmulatorArgs) {
                     return;
                 }
                 EmulatorRecordStartIncoming::new().run(OutgoingType::Cli).print();
+            }
+            EmulatorArgsGroup::Package(arg) => {
+                if let Some(path) = arg.install {
+                    match utils::path_to_absolute(&path) {
+                        Some(path) => println!("@todo install {}...", path.to_string_lossy()),
+                        None => print_error!("проверьте путь к файлу"),
+                    }
+                    return;
+                }
+                if let Some(package) = arg.uninstall {
+                    println!("@todo uninstall {}...", package);
+                    return;
+                }
+                if let Some(package) = arg.run {
+                    println!("@todo run {}...", package);
+                    return;
+                }
             }
             EmulatorArgsGroup::Terminal(arg) => {
                 EmulatorTerminalIncoming::new(arg.root).run(OutgoingType::Cli).print();

@@ -184,7 +184,7 @@ pub fn path_to_absolute(path: &PathBuf) -> Option<PathBuf> {
     } else {
         path
     };
-    if !path.exists() || !path.is_file() {
+    if !path.exists() {
         None
     } else {
         match path.canonicalize() {
@@ -192,6 +192,32 @@ pub fn path_to_absolute(path: &PathBuf) -> Option<PathBuf> {
             Err(_) => None,
         }
     }
+}
+
+/// Move files to ~Download PC
+pub fn move_to_downloads(paths: Vec<PathBuf>) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
+    let mut result: Vec<PathBuf> = vec![];
+    let path_en = path_to_absolute(&PathBuf::from("~/Downloads"));
+    let path_ru = path_to_absolute(&PathBuf::from("~/Загрузки"));
+    let path_download = if path_ru.is_some() {
+        path_ru.unwrap()
+    } else {
+        if path_en.is_none() {
+            let mut create_dir = get_home_folder_path();
+            create_dir.push("Downloads");
+            fs::create_dir(&create_dir)?;
+            create_dir
+        } else {
+            path_en.unwrap()
+        }
+    };
+    for path in paths {
+        let mut copy_to = path_download.clone();
+        copy_to.push(path.file_name().unwrap());
+        fs::rename(path, &copy_to)?;
+        result.push(copy_to);
+    }
+    Ok(result)
 }
 
 /// Check is Url and convert API Url
@@ -214,7 +240,7 @@ pub fn get_https_url(url: String) -> Option<String> {
 }
 
 /// Get list urls sdk
-#[once(time=300)]
+#[once(time = 300)]
 pub fn get_repo_url_sdk() -> Vec<String> {
     match single::get_request().get_repo_url_files(&vec!["AuroraSDK"], None) {
         Ok(value) => value,
@@ -223,7 +249,7 @@ pub fn get_repo_url_sdk() -> Vec<String> {
 }
 
 /// Get list urls psdk
-#[once(time=300)]
+#[once(time = 300)]
 pub fn get_repo_url_psdk() -> Vec<String> {
     match single::get_request().get_repo_url_files(&vec!["PlatformSDK", "AuroraPSDK"], None) {
         Ok(value) => value,

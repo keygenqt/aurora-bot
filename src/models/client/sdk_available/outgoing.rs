@@ -42,7 +42,18 @@ impl SdkAvailableOutgoing {
 
 impl SdkAvailableItemOutgoing {
     pub fn get_id(&self) -> String {
-        format!("{:x}", md5::compute(format!("{}:{}:{}", self.version_full, self.name_build_type(), self.name_install_type()).as_bytes()))
+        format!(
+            "{:x}",
+            md5::compute(
+                format!(
+                    "{}:{}:{}",
+                    self.version_full,
+                    self.name_build_type(),
+                    self.name_install_type()
+                )
+                .as_bytes()
+            )
+        )
     }
 
     pub fn name_build_type(&self) -> String {

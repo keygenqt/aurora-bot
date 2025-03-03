@@ -35,9 +35,16 @@ impl PsdkAvailableSelect {
         }
     }
 
-    pub fn search(id: &Option<String>, send_type: &OutgoingType, text: String) -> Vec<PsdkAvailableItemOutgoing> {
+    pub fn search(
+        id: &Option<String>,
+        send_type: &OutgoingType,
+        text_select: String,
+        text_model: String,
+    ) -> Vec<PsdkAvailableItemOutgoing> {
         if id.is_none() {
-            StateMessageOutgoing::new_state(text).send(send_type);
+            StateMessageOutgoing::new_state(text_select).send(send_type);
+        } else {
+            StateMessageOutgoing::new_state(text_model).send(send_type);
         }
         let url_files = utils::get_repo_url_psdk();
         // Squash urls by full version

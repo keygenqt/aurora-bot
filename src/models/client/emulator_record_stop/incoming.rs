@@ -116,7 +116,10 @@ impl EmulatorRecordStopIncoming {
                 EmulatorRecordStopOutgoing::new(path_raw.to_string_lossy().to_string(), None)
             }
             EmulatorRecordStopType::Mp4 => {
-                match ffmpeg_utils::webm_to_mp4(&path_raw, StateMessageOutgoing::get_state_callback(&send_type)) {
+                match ffmpeg_utils::webm_to_mp4(
+                    &path_raw,
+                    StateMessageOutgoing::get_state_callback_file_small(&send_type),
+                ) {
                     Ok(value) => EmulatorRecordStopOutgoing::new(
                         value.to_string_lossy().to_string(),
                         utils::file_to_base64_by_path(value.to_str()),
@@ -125,7 +128,10 @@ impl EmulatorRecordStopIncoming {
                 }
             }
             EmulatorRecordStopType::Gif => {
-                match ffmpeg_utils::webm_to_gif(&path_raw, StateMessageOutgoing::get_state_callback(&send_type)) {
+                match ffmpeg_utils::webm_to_gif(
+                    &path_raw,
+                    StateMessageOutgoing::get_state_callback_file_small(&send_type),
+                ) {
                     Ok(value) => EmulatorRecordStopOutgoing::new(value.to_string_lossy().to_string(), None),
                     Err(_) => EmulatorRecordStopOutgoing::new(path_raw.to_string_lossy().to_string(), None),
                 }

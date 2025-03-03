@@ -69,8 +69,12 @@ impl TraitIncoming for FlutterAvailableIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = FlutterAvailableIncoming::name();
-        let models: Vec<FlutterAvailableItemOutgoing> =
-            FlutterAvailableSelect::search(&self.id, &send_type, tr!("получаем список..."), tr!("получаем модель..."));
+        let models: Vec<FlutterAvailableItemOutgoing> = FlutterAvailableSelect::search(
+            &self.id,
+            &send_type,
+            tr!("получаем список..."),
+            tr!("получаем модель..."),
+        );
         // Select
         match models.iter().count() {
             1 => FlutterAvailableOutgoing::new(models.first().unwrap().clone()),

@@ -35,7 +35,12 @@ impl FlutterAvailableSelect {
         }
     }
 
-    pub fn search(id: &Option<String>, send_type: &OutgoingType, text_select: String, text_model: String) -> Vec<FlutterAvailableItemOutgoing> {
+    pub fn search(
+        id: &Option<String>,
+        send_type: &OutgoingType,
+        text_select: String,
+        text_model: String,
+    ) -> Vec<FlutterAvailableItemOutgoing> {
         if id.is_none() {
             StateMessageOutgoing::new_state(text_select).send(send_type);
         } else {

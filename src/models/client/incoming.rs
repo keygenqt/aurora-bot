@@ -16,16 +16,19 @@ use super::emulator_sync::incoming::EmulatorSyncIncoming;
 use super::emulator_terminal::incoming::EmulatorTerminalIncoming;
 use super::emulator_upload::incoming::EmulatorUploadIncoming;
 use super::flutter_available::incoming::FlutterAvailableIncoming;
+use super::flutter_download::incoming::FlutterDownloadIncoming;
 use super::flutter_info::incoming::FlutterInfoIncoming;
 use super::flutter_sync::incoming::FlutterSyncIncoming;
 use super::flutter_terminal::incoming::FlutterTerminalIncoming;
 use super::outgoing::OutgoingType;
 use super::outgoing::TraitOutgoing;
 use super::psdk_available::incoming::PsdkAvailableIncoming;
+use super::psdk_download::incoming::PsdkDownloadIncoming;
 use super::psdk_info::incoming::PsdkInfoIncoming;
 use super::psdk_sync::incoming::PsdkSyncIncoming;
 use super::psdk_terminal::incoming::PsdkTerminalIncoming;
 use super::sdk_available::incoming::SdkAvailableIncoming;
+use super::sdk_download::incoming::SdkDownloadIncoming;
 use super::sdk_info::incoming::SdkInfoIncoming;
 use super::sdk_sync::incoming::SdkSyncIncoming;
 use super::sdk_tools::incoming::SdkToolsIncoming;
@@ -99,6 +102,10 @@ impl ClientMethodsKey {
                 let model = serde_json::from_str::<FlutterAvailableIncoming>(&value)?;
                 Ok(Box::new(model))
             }
+            ClientMethodsKey::FlutterDownload => {
+                let model = serde_json::from_str::<FlutterDownloadIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
             ClientMethodsKey::FlutterInfo => {
                 let model = serde_json::from_str::<FlutterInfoIncoming>(&value)?;
                 Ok(Box::new(model))
@@ -115,6 +122,10 @@ impl ClientMethodsKey {
                 let model = serde_json::from_str::<PsdkAvailableIncoming>(&value)?;
                 Ok(Box::new(model))
             }
+            ClientMethodsKey::PsdkDownload => {
+                let model = serde_json::from_str::<PsdkDownloadIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
             ClientMethodsKey::PsdkInfo => {
                 let model = serde_json::from_str::<PsdkInfoIncoming>(&value)?;
                 Ok(Box::new(model))
@@ -129,6 +140,10 @@ impl ClientMethodsKey {
             }
             ClientMethodsKey::SdkAvailable => {
                 let model = serde_json::from_str::<SdkAvailableIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::SdkDownload => {
+                let model = serde_json::from_str::<SdkDownloadIncoming>(&value)?;
                 Ok(Box::new(model))
             }
             ClientMethodsKey::SdkInfo => {

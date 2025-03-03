@@ -21,6 +21,7 @@ use crate::service::responses::gitlab_tags::GitlabTagsResponse;
 use crate::service::responses::user::UserResponse;
 use crate::tools::constants;
 use crate::tools::macros::crash;
+use crate::tools::macros::tr;
 
 impl ClientRequest {
     /// Get data user
@@ -166,7 +167,6 @@ impl ClientRequest {
         }
     }
 
-    #[allow(dead_code)]
     /// Download files
     pub fn download_files<T: Fn(i32) + Send + Copy + Sync + 'static>(
         &self,
@@ -188,13 +188,9 @@ impl ClientRequest {
         let save_progress: &'static Mutex<i32> = Box::leak(Box::new(Mutex::new(0)));
         // Check exist files with size
         for url in &urls {
-            match self.client.get(url).send().await {
-                Ok(response) => {
-                    if response.content_length().is_none() {
-                        Err("не удалось получить размер файла")?
-                    }
-                }
-                Err(_) => Err("не удалось получить данные файла")?,
+            match self.client.head(url).send().await {
+                Ok(_) => {}
+                Err(_) => Err(tr!("не удалось получить данные файла"))?,
             };
         }
         // Send start progress
@@ -214,8 +210,9 @@ impl ClientRequest {
                     .await
                 {
                     Ok(value) => value,
-                    Err(_) => {
-                        crash!("ошибка при скачивании файла")
+                    Err(error) => {
+                        let message = tr!("{}", error);
+                        crash!(message)
                     }
                 }
             }));
@@ -256,37 +253,40 @@ impl ClientRequest {
         // Get size file
         let total_size = match response.content_length() {
             Some(value) => value,
-            None => Err("не удалось получить размер файла")?,
+            None => 0,
         };
-        if total_size == 0 {
-            Err("не удалось получить размер файла")?
-        }
         // Get path
         let mut path = env::temp_dir();
         path.push(file_name);
         // Create file
-        let mut file = if path.exists() {
+        let file = if path.exists() && total_size != 0 {
             File::open(&path)?
         } else {
             File::create(&path)?
         };
         // Check size
-        if file.metadata()?.size() == total_size {
+        let mut file = if total_size != 0 && file.metadata()?.size() == total_size {
             return Ok(path);
-        }
+        } else {
+            File::create(&path)?
+        };
         // Get stream
         let mut stream = response.bytes_stream();
         let mut save_pos: u64 = 0;
         let mut save_per: u64 = 0;
-        state(0);
+        if total_size != 0 {
+            state(0);
+        }
         while let Some(item) = stream.next().await {
-            let chunk = item.or(Err(format!("Error while downloading file")))?;
-            file.write_all(&chunk).or(Err(format!("Error while writing to file")))?;
+            let chunk = item.or(Err(format!("ошибка при загрузке файла")))?;
+            file.write_all(&chunk).or(Err(format!("ошибка при записи в файл")))?;
             save_pos = save_pos + (chunk.len() as u64);
-            let per = save_pos * 100 / total_size;
-            if per != save_per {
-                save_per = per;
-                state(per as i32);
+            if total_size != 0 {
+                let per = save_pos * 100 / total_size;
+                if per != save_per {
+                    save_per = per;
+                    state(per as i32);
+                }
             }
         }
         // Result path if ok

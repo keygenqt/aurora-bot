@@ -45,6 +45,9 @@ pub mod flutter_available {
     pub mod outgoing;
     pub mod select;
 }
+pub mod flutter_download {
+    pub mod incoming;
+}
 pub mod flutter_info {
     pub mod incoming;
     pub mod outgoing;
@@ -60,6 +63,9 @@ pub mod psdk_available {
     pub mod outgoing;
     pub mod select;
 }
+pub mod psdk_download {
+    pub mod incoming;
+}
 pub mod psdk_info {
     pub mod incoming;
     pub mod outgoing;
@@ -74,6 +80,9 @@ pub mod sdk_available {
     pub mod incoming;
     pub mod outgoing;
     pub mod select;
+}
+pub mod sdk_download {
+    pub mod incoming;
 }
 pub mod sdk_info {
     pub mod incoming;
@@ -126,14 +135,17 @@ pub enum ClientMethodsKey {
     EmulatorTerminal,
     EmulatorUpload,
     FlutterAvailable,
+    FlutterDownload,
     FlutterInfo,
     FlutterSync,
     FlutterTerminal,
     PsdkAvailable,
+    PsdkDownload,
     PsdkInfo,
     PsdkSync,
     PsdkTerminal,
     SdkAvailable,
+    SdkDownload,
     SdkInfo,
     SdkSync,
     SdkTools,

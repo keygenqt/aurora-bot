@@ -30,16 +30,28 @@ impl SdkAvailableSelect {
             variants: models
                 .iter()
                 .map(|e| SelectorIncoming {
-                    name: tr!("Аврора SDK: {} ({}, {})", e.version_full, e.name_build_type(), e.name_install_type()),
+                    name: tr!(
+                        "Аврора SDK: {} ({}, {})",
+                        e.version_full,
+                        e.name_build_type(),
+                        e.name_install_type()
+                    ),
                     incoming: incoming(e.get_id()),
                 })
                 .collect::<Vec<SelectorIncoming<T>>>(),
         }
     }
 
-    pub fn search(id: &Option<String>, send_type: &OutgoingType, text: String) -> Vec<SdkAvailableItemOutgoing> {
+    pub fn search(
+        id: &Option<String>,
+        send_type: &OutgoingType,
+        text_select: String,
+        text_model: String,
+    ) -> Vec<SdkAvailableItemOutgoing> {
         if id.is_none() {
-            StateMessageOutgoing::new_state(text).send(send_type);
+            StateMessageOutgoing::new_state(text_select).send(send_type);
+        } else {
+            StateMessageOutgoing::new_state(text_model).send(send_type);
         }
         let url_files = utils::get_repo_url_sdk();
         // Squash urls by full version

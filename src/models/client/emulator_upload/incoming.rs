@@ -130,7 +130,7 @@ impl EmulatorUploadIncoming {
         StateMessageOutgoing::new_state(tr!("начинаем загрузку...")).send(send_type);
         emulator
             .session_user()?
-            .file_upload(path, StateMessageOutgoing::get_state_callback(send_type))?;
+            .file_upload(path, StateMessageOutgoing::get_state_callback_file_small(send_type))?;
         Ok(StateMessageOutgoing::new_success(tr!("файл успешно загружен")))
     }
 
@@ -144,12 +144,14 @@ impl EmulatorUploadIncoming {
             None => Err("не удалось скачать файл")?,
         };
         StateMessageOutgoing::new_state(tr!("скачиваем файл...")).send(send_type);
-        let path = single::get_request()
-            .download_file(url.to_string(), StateMessageOutgoing::get_state_callback(send_type))?;
+        let path = single::get_request().download_file(
+            url.to_string(),
+            StateMessageOutgoing::get_state_callback_file_small(send_type),
+        )?;
         StateMessageOutgoing::new_state(tr!("начинаем загрузку...")).send(send_type);
         emulator
             .session_user()?
-            .file_upload(&path, StateMessageOutgoing::get_state_callback(send_type))?;
+            .file_upload(&path, StateMessageOutgoing::get_state_callback_file_small(send_type))?;
         Ok(StateMessageOutgoing::new_success(tr!("файл успешно загружен")))
     }
 }

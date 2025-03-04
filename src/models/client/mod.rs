@@ -20,6 +20,9 @@ pub mod emulator_info {
 pub mod emulator_open {
     pub mod incoming;
 }
+pub mod emulator_package_run {
+    pub mod incoming;
+}
 pub mod emulator_record_start {
     pub mod incoming;
 }
@@ -43,7 +46,6 @@ pub mod emulator_upload {
 pub mod flutter_available {
     pub mod incoming;
     pub mod outgoing;
-    pub mod select;
 }
 pub mod flutter_download {
     pub mod incoming;
@@ -61,7 +63,6 @@ pub mod flutter_terminal {
 pub mod psdk_available {
     pub mod incoming;
     pub mod outgoing;
-    pub mod select;
 }
 pub mod psdk_download {
     pub mod incoming;
@@ -79,7 +80,6 @@ pub mod psdk_terminal {
 pub mod sdk_available {
     pub mod incoming;
     pub mod outgoing;
-    pub mod select;
 }
 pub mod sdk_download {
     pub mod incoming;
@@ -128,6 +128,7 @@ pub enum ClientMethodsKey {
     EmulatorClose,
     EmulatorInfo,
     EmulatorOpen,
+    EmulatorPackageRun,
     EmulatorRecordStart,
     EmulatorRecordStop,
     EmulatorScreenshot,

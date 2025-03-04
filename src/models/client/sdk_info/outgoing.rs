@@ -4,17 +4,17 @@ use serde::Serialize;
 use crate::models::TraitModel;
 use crate::models::client::outgoing::DataOutgoing;
 use crate::models::client::outgoing::TraitOutgoing;
-use crate::models::sdk::model::SdkModel;
+use crate::models::sdk_installed::model::SdkInstalledModel;
 
 use super::incoming::SdkInfoIncoming;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct SdkInfoOutgoing {
-    model: SdkModel,
+    model: SdkInstalledModel,
 }
 
 impl SdkInfoOutgoing {
-    pub fn new(model: SdkModel) -> Box<SdkInfoOutgoing> {
+    pub fn new(model: SdkInstalledModel) -> Box<SdkInfoOutgoing> {
         Box::new(Self { model })
     }
 }

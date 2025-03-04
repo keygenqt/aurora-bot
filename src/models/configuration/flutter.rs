@@ -1,5 +1,5 @@
 use crate::models::configuration::Config;
-use crate::models::flutter::model::FlutterModel;
+use crate::models::flutter_installed::model::FlutterInstalledModel;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -14,7 +14,7 @@ pub struct FlutterConfig {
 }
 
 impl FlutterConfig {
-    pub fn load_models() -> Vec<FlutterModel> {
+    pub fn load_models() -> Vec<FlutterInstalledModel> {
         let flutter = Config::load().flutter;
         if flutter.is_empty() {
             let update = Self::search();
@@ -26,7 +26,7 @@ impl FlutterConfig {
     }
 
     pub fn search() -> Vec<FlutterConfig> {
-        match FlutterModel::search_full() {
+        match FlutterInstalledModel::search_full() {
             Ok(models) => models
                 .iter()
                 .map(|e| FlutterConfig {
@@ -42,8 +42,8 @@ impl FlutterConfig {
         }
     }
 
-    pub fn to_model(&self) -> FlutterModel {
-        FlutterModel {
+    pub fn to_model(&self) -> FlutterInstalledModel {
+        FlutterInstalledModel {
             dir: self.dir.clone(),
             flutter: self.flutter.clone(),
             dart: self.dart.clone(),

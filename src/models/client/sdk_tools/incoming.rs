@@ -10,8 +10,8 @@ use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
 use crate::models::client::sdk_info::incoming::SdkInfoIncoming;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
-use crate::models::sdk::model::SdkModel;
-use crate::models::sdk::select::SdkModelSelect;
+use crate::models::sdk_installed::model::SdkInstalledModel;
+use crate::models::sdk_installed::select::SdkInstalledModelSelect;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
 
@@ -70,13 +70,13 @@ impl TraitIncoming for SdkToolsIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = SdkInfoIncoming::name();
-        let models: Vec<SdkModel> = SdkModelSelect::search(
+        let models: Vec<SdkInstalledModel> = SdkInstalledModelSelect::search(
             &self.id,
             tr!("ищем Аврора SDK для открытия Maintenance tools"),
             &send_type,
         );
         // Exec fun
-        fn _run(model: SdkModel) -> Box<dyn TraitOutgoing> {
+        fn _run(model: SdkInstalledModel) -> Box<dyn TraitOutgoing> {
             if let Ok(_) = Command::new(model.tools).spawn() {
                 StateMessageOutgoing::new_success(tr!("Аврора SDK Maintenance tools запущено"))
             } else {
@@ -87,7 +87,7 @@ impl TraitIncoming for SdkToolsIncoming {
         match models.iter().count() {
             1 => _run(models.first().unwrap().clone()),
             0 => StateMessageOutgoing::new_info(tr!("Аврора SDK не найдены")),
-            _ => Box::new(SdkModelSelect::select(key, models, |id| self.select(id))),
+            _ => Box::new(SdkInstalledModelSelect::select(key, models, |id| self.select(id))),
         }
     }
 }

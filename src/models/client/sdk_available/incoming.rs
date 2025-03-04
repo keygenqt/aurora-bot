@@ -6,13 +6,13 @@ use crate::models::client::ClientMethodsKey;
 use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
-use crate::models::client::sdk_available::outgoing::SdkAvailableItemOutgoing;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
+use crate::models::sdk_available::model::SdkAvailableModel;
+use crate::models::sdk_available::select::SdkAvailableModelSelect;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
 
 use super::outgoing::SdkAvailableOutgoing;
-use super::select::SdkAvailableSelect;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct SdkAvailableIncoming {
@@ -69,17 +69,13 @@ impl TraitIncoming for SdkAvailableIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = SdkAvailableIncoming::name();
-        let models: Vec<SdkAvailableItemOutgoing> = SdkAvailableSelect::search(
-            &self.id,
-            &send_type,
-            tr!("получаем список..."),
-            tr!("получаем данные..."),
-        );
+        let models: Vec<SdkAvailableModel> =
+            SdkAvailableModelSelect::search(&self.id, tr!("получаем список..."), &send_type);
         // Select
         match models.iter().count() {
             1 => SdkAvailableOutgoing::new(models.first().unwrap().clone()),
             0 => StateMessageOutgoing::new_info(tr!("не удалось получить данные")),
-            _ => Box::new(SdkAvailableSelect::select(key, models, |id| self.select(id))),
+            _ => Box::new(SdkAvailableModelSelect::select(key, models, |id| self.select(id))),
         }
     }
 }

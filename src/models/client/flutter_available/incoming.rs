@@ -7,12 +7,12 @@ use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
+use crate::models::flutter_available::model::FlutterAvailableModel;
+use crate::models::flutter_available::select::FlutterAvailableModelSelect;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
 
-use super::outgoing::FlutterAvailableItemOutgoing;
 use super::outgoing::FlutterAvailableOutgoing;
-use super::select::FlutterAvailableSelect;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct FlutterAvailableIncoming {
@@ -69,17 +69,13 @@ impl TraitIncoming for FlutterAvailableIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = FlutterAvailableIncoming::name();
-        let models: Vec<FlutterAvailableItemOutgoing> = FlutterAvailableSelect::search(
-            &self.id,
-            &send_type,
-            tr!("получаем список..."),
-            tr!("получаем модель..."),
-        );
+        let models: Vec<FlutterAvailableModel> =
+            FlutterAvailableModelSelect::search(&self.id, tr!("получаем список..."), &send_type);
         // Select
         match models.iter().count() {
             1 => FlutterAvailableOutgoing::new(models.first().unwrap().clone()),
             0 => StateMessageOutgoing::new_info(tr!("не удалось получить данные")),
-            _ => Box::new(FlutterAvailableSelect::select(key, models, |id| self.select(id))),
+            _ => Box::new(FlutterAvailableModelSelect::select(key, models, |id| self.select(id))),
         }
     }
 }

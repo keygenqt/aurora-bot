@@ -4,17 +4,17 @@ use serde::Serialize;
 use crate::models::TraitModel;
 use crate::models::client::outgoing::DataOutgoing;
 use crate::models::client::outgoing::TraitOutgoing;
-use crate::models::flutter::model::FlutterModel;
+use crate::models::flutter_installed::model::FlutterInstalledModel;
 
 use super::incoming::FlutterInfoIncoming;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct FlutterInfoOutgoing {
-    model: FlutterModel,
+    model: FlutterInstalledModel,
 }
 
 impl FlutterInfoOutgoing {
-    pub fn new(model: FlutterModel) -> Box<FlutterInfoOutgoing> {
+    pub fn new(model: FlutterInstalledModel) -> Box<FlutterInfoOutgoing> {
         Box::new(Self { model })
     }
 }

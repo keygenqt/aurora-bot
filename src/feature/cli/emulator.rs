@@ -6,6 +6,7 @@ use clap::Subcommand;
 use crate::models::client::emulator_close::incoming::EmulatorCloseIncoming;
 use crate::models::client::emulator_info::incoming::EmulatorInfoIncoming;
 use crate::models::client::emulator_open::incoming::EmulatorOpenIncoming;
+use crate::models::client::emulator_package_run::incoming::EmulatorPackageRunIncoming;
 use crate::models::client::emulator_record_start::incoming::EmulatorRecordStartIncoming;
 use crate::models::client::emulator_record_stop::incoming::EmulatorRecordStopIncoming;
 use crate::models::client::emulator_record_stop::incoming::EmulatorRecordStopType;
@@ -105,8 +106,8 @@ pub struct EmulatorPackageArgs {
     #[arg(short, long, value_name = "package-name")]
     uninstall: Option<String>,
     /// Запустить пакет
-    #[arg(short, long, value_name = "package-name")]
-    run: Option<String>,
+    #[arg(short, long, default_value_t = false)]
+    run: bool,
     /// Показать это сообщение и выйти
     #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
     help: Option<bool>,
@@ -196,8 +197,8 @@ pub fn run(arg: EmulatorArgs) {
                     println!("@todo uninstall {}...", package);
                     return;
                 }
-                if let Some(package) = arg.run {
-                    println!("@todo run {}...", package);
+                if arg.run {
+                    EmulatorPackageRunIncoming::new().run(OutgoingType::Cli).print();
                     return;
                 }
             }

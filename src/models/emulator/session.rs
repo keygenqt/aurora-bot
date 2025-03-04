@@ -63,6 +63,22 @@ impl EmulatorSession {
         Ok(())
     }
 
+    pub fn get_install_packages(&self) -> Vec<String> {
+        match self.session.call("find /usr/bin -name '*.*.*'") {
+            Ok(value) => if let Some(line) = value.first() {
+                line.split("\n").filter(|e| !e.is_empty() && !e.contains("perl")).map(|e| e.replace("/usr/bin/", "")).collect()
+            } else {
+                vec![]
+            },
+            Err(_) => vec![],
+        }
+    }
+
+    pub fn run_package(&self, package: String) -> Result<(), Box<dyn std::error::Error>> {
+        self.session.run(&format!("invoker --type=qt5 {package}"))?;
+        Ok(())
+    }
+
     pub fn close(&self) -> Result<(), Box<dyn std::error::Error>> {
         tokio::task::block_in_place(|| Handle::current().block_on(self.session.close()))?;
         Ok(())

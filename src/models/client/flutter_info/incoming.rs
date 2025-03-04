@@ -7,8 +7,8 @@ use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
-use crate::models::flutter::model::FlutterModel;
-use crate::models::flutter::select::FlutterModelSelect;
+use crate::models::flutter_installed::model::FlutterInstalledModel;
+use crate::models::flutter_installed::select::FlutterInstalledModelSelect;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
 
@@ -69,13 +69,13 @@ impl TraitIncoming for FlutterInfoIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = FlutterInfoIncoming::name();
-        let models: Vec<FlutterModel> =
-            FlutterModelSelect::search(&self.id, tr!("получаем информацию о Flutter SDK"), &send_type);
+        let models: Vec<FlutterInstalledModel> =
+            FlutterInstalledModelSelect::search(&self.id, tr!("получаем информацию о Flutter SDK"), &send_type);
         // Select
         match models.iter().count() {
             1 => FlutterInfoOutgoing::new(models.first().unwrap().clone()),
             0 => StateMessageOutgoing::new_info(tr!("Flutter SDK не найдены")),
-            _ => Box::new(FlutterModelSelect::select(key, models, |id| self.select(id))),
+            _ => Box::new(FlutterInstalledModelSelect::select(key, models, |id| self.select(id))),
         }
     }
 }

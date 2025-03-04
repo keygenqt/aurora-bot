@@ -46,7 +46,7 @@ impl SshSession {
     ) -> Result<Self, Box<dyn std::error::Error>> {
         let key_pair = load_secret_key(key_path, None)?;
         let config = client::Config {
-            inactivity_timeout: Some(Duration::from_secs(5)),
+            inactivity_timeout: Some(Duration::from_secs(1)),
             preferred: Preferred {
                 kex: Cow::Owned(vec![
                     russh::kex::CURVE25519_PRE_RFC_8731,
@@ -107,6 +107,37 @@ impl SshSession {
             Err("произошла ошибка при выполнении команды")?
         }
         Ok(response)
+    }
+
+    pub fn run(&self, command: &str) -> Result<(), Box<dyn std::error::Error>> {
+        tokio::task::block_in_place(|| Handle::current().block_on(self._run(command)))
+    }
+
+    async fn _run(&self, command: &str) -> Result<(), Box<dyn std::error::Error>> {
+        // @todo
+        // check error
+        // custom timeout
+        let mut channel = self.session.channel_open_session().await?;
+        channel.exec(true, command).await?;
+        loop {
+            let Some(msg) = channel.wait().await else {
+                break;
+            };
+            match msg {
+                ChannelMsg::Data { ref data } => {
+                    match str::from_utf8(data.as_ref()) {
+                        Ok(out_line) => {
+                            if !out_line.is_empty() {
+                                println!("{}", out_line)
+                            }
+                        },
+                        Err(_) => Err("не удалось обработать данные ssh соединения")?,
+                    };
+                }
+                _ => {}
+            }
+        }
+        Ok(())
     }
 
     pub async fn upload<F: Fn(i32) + Send + Copy + Sync + 'static>(

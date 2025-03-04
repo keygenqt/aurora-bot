@@ -7,8 +7,8 @@ use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
-use crate::models::psdk::model::PsdkModel;
-use crate::models::psdk::select::PsdkModelSelect;
+use crate::models::psdk_installed::model::PsdkInstalledModel;
+use crate::models::psdk_installed::select::PsdkInstalledModelSelect;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
 use crate::tools::terminal;
@@ -68,17 +68,17 @@ impl TraitIncoming for PsdkTerminalIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = PsdkTerminalIncoming::name();
-        let models: Vec<PsdkModel> =
-            PsdkModelSelect::search(&self.id, tr!("ищем Platform SDK для открытия терминала"), &send_type);
+        let models: Vec<PsdkInstalledModel> =
+            PsdkInstalledModelSelect::search(&self.id, tr!("ищем Platform SDK для открытия терминала"), &send_type);
         // Exec fun
-        fn _run(model: PsdkModel) -> Box<dyn TraitOutgoing> {
+        fn _run(model: PsdkInstalledModel) -> Box<dyn TraitOutgoing> {
             terminal::open(model.chroot)
         }
         // Select
         match models.iter().count() {
             1 => _run(models.first().unwrap().clone()),
             0 => StateMessageOutgoing::new_info(tr!("Platform SDK не найдены")),
-            _ => Box::new(PsdkModelSelect::select(key, models, |id| self.select(id))),
+            _ => Box::new(PsdkInstalledModelSelect::select(key, models, |id| self.select(id))),
         }
     }
 }

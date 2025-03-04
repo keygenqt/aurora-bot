@@ -9,14 +9,14 @@ use crate::models::client::selector::outgoing::outgoing::SelectorOutgoing;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::tools::macros::tr;
 
-use super::model::SdkModel;
+use super::model::FlutterInstalledModel;
 
-pub struct SdkModelSelect {}
+pub struct FlutterInstalledModelSelect {}
 
-impl SdkModelSelect {
+impl FlutterInstalledModelSelect {
     pub fn select<T: TraitIncoming + Serialize + Clone, F: Fn(String) -> T>(
         key: String,
-        models: Vec<SdkModel>,
+        models: Vec<FlutterInstalledModel>,
         incoming: F,
     ) -> SelectorOutgoing<T> {
         SelectorOutgoing {
@@ -24,19 +24,19 @@ impl SdkModelSelect {
             variants: models
                 .iter()
                 .map(|e| SelectorIncoming {
-                    name: tr!("Аврора SDK: {} ({})", e.version, e.get_key()),
+                    name: tr!("Flutter SDK: {} ({})", e.flutter_version, e.get_key()),
                     incoming: incoming(e.get_id()),
                 })
                 .collect::<Vec<SelectorIncoming<T>>>(),
         }
     }
 
-    pub fn search(id: &Option<String>, text: String, send_type: &OutgoingType) -> Vec<SdkModel> {
+    pub fn search(id: &Option<String>, text: String, send_type: &OutgoingType) -> Vec<FlutterInstalledModel> {
         if let Some(id) = id {
-            SdkModel::search_filter(|e| e.get_id() == id.clone())
+            FlutterInstalledModel::search_filter(|e| e.get_id() == id.clone())
         } else {
             StateMessageOutgoing::new_state(text).send(send_type);
-            SdkModel::search()
+            FlutterInstalledModel::search()
         }
     }
 }

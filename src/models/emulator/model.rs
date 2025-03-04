@@ -57,6 +57,13 @@ impl EmulatorModel {
         Ok(EmulatorSession::new(EmulatorSessionType::Root, &self.key)?)
     }
 
+    pub fn get_install_packages(&self) -> Vec<String> {
+        match self.session_user() {
+            Ok(value) => value.get_install_packages(),
+            Err(_) => vec![],
+        }
+    }
+
     pub fn start(&self) -> Result<(), Box<dyn std::error::Error>> {
         let program = programs::get_vboxmanage()?;
         let output = exec::exec_wait_args(&program, ["startvm", self.uuid.as_str()])?;

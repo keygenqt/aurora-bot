@@ -7,12 +7,12 @@ use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
+use crate::models::psdk_available::model::PsdkAvailableModel;
+use crate::models::psdk_available::select::PsdkAvailableModelSelect;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
 
-use super::outgoing::PsdkAvailableItemOutgoing;
 use super::outgoing::PsdkAvailableOutgoing;
-use super::select::PsdkAvailableSelect;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct PsdkAvailableIncoming {
@@ -69,17 +69,13 @@ impl TraitIncoming for PsdkAvailableIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = PsdkAvailableIncoming::name();
-        let models: Vec<PsdkAvailableItemOutgoing> = PsdkAvailableSelect::search(
-            &self.id,
-            &send_type,
-            tr!("получаем список..."),
-            tr!("получаем данные..."),
-        );
+        let models: Vec<PsdkAvailableModel> =
+            PsdkAvailableModelSelect::search(&self.id, tr!("получаем список..."), &send_type);
         // Select
         match models.iter().count() {
             1 => PsdkAvailableOutgoing::new(models.first().unwrap().clone()),
             0 => StateMessageOutgoing::new_info(tr!("не удалось получить данные")),
-            _ => Box::new(PsdkAvailableSelect::select(key, models, |id| self.select(id))),
+            _ => Box::new(PsdkAvailableModelSelect::select(key, models, |id| self.select(id))),
         }
     }
 }

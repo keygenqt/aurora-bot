@@ -7,8 +7,8 @@ use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
-use crate::models::sdk::model::SdkModel;
-use crate::models::sdk::select::SdkModelSelect;
+use crate::models::sdk_installed::model::SdkInstalledModel;
+use crate::models::sdk_installed::select::SdkInstalledModelSelect;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
 
@@ -69,13 +69,13 @@ impl TraitIncoming for SdkInfoIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = SdkInfoIncoming::name();
-        let models: Vec<SdkModel> =
-            SdkModelSelect::search(&self.id, tr!("получаем информацию о Аврора SDK"), &send_type);
+        let models: Vec<SdkInstalledModel> =
+            SdkInstalledModelSelect::search(&self.id, tr!("получаем информацию о Аврора SDK"), &send_type);
         // Select
         match models.iter().count() {
             1 => SdkInfoOutgoing::new(models.first().unwrap().clone()),
             0 => StateMessageOutgoing::new_info(tr!("Аврора SDK не найдены")),
-            _ => Box::new(SdkModelSelect::select(key, models, |id| self.select(id))),
+            _ => Box::new(SdkInstalledModelSelect::select(key, models, |id| self.select(id))),
         }
     }
 }

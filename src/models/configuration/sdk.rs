@@ -1,5 +1,5 @@
 use crate::models::configuration::Config;
-use crate::models::sdk::model::SdkModel;
+use crate::models::sdk_installed::model::SdkInstalledModel;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -11,7 +11,7 @@ pub struct SdkConfig {
 }
 
 impl SdkConfig {
-    pub fn load_models() -> Vec<SdkModel> {
+    pub fn load_models() -> Vec<SdkInstalledModel> {
         let sdk = Config::load().sdk;
         if sdk.is_empty() {
             let update = Self::search();
@@ -23,7 +23,7 @@ impl SdkConfig {
     }
 
     pub fn search() -> Vec<SdkConfig> {
-        match SdkModel::search_full() {
+        match SdkInstalledModel::search_full() {
             Ok(models) => models
                 .iter()
                 .map(|e| SdkConfig {
@@ -36,8 +36,8 @@ impl SdkConfig {
         }
     }
 
-    pub fn to_model(&self) -> SdkModel {
-        SdkModel {
+    pub fn to_model(&self) -> SdkInstalledModel {
+        SdkInstalledModel {
             dir: self.dir.clone(),
             tools: self.tools.clone(),
             version: self.version.clone(),

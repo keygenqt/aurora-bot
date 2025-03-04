@@ -16,6 +16,7 @@ use crate::models::client::app_info::incoming::AppInfoIncoming;
 use crate::models::client::emulator_close::incoming::EmulatorCloseIncoming;
 use crate::models::client::emulator_info::incoming::EmulatorInfoIncoming;
 use crate::models::client::emulator_open::incoming::EmulatorOpenIncoming;
+use crate::models::client::emulator_package_run::incoming::EmulatorPackageRunIncoming;
 use crate::models::client::emulator_record_start::incoming::EmulatorRecordStartIncoming;
 use crate::models::client::emulator_record_stop::incoming::EmulatorRecordStopIncoming;
 use crate::models::client::emulator_screenshot::incoming::EmulatorScreenshotIncoming;
@@ -79,6 +80,9 @@ impl ServerDbus {
             EmulatorOpenIncoming::dbus_method_run_by_id(builder);
             EmulatorOpenIncoming::dbus_method_run_vnc(builder);
             EmulatorOpenIncoming::dbus_method_run_vnc_by_id(builder);
+            EmulatorPackageRunIncoming::dbus_method_run(builder);
+            EmulatorPackageRunIncoming::dbus_method_run_by_id(builder);
+            EmulatorPackageRunIncoming::dbus_method_run_by_id_package(builder);
             EmulatorRecordStartIncoming::dbus_method_run(builder);
             EmulatorRecordStartIncoming::dbus_method_run_by_id(builder);
             EmulatorRecordStopIncoming::dbus_method_run(builder);

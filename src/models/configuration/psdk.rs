@@ -1,5 +1,5 @@
 use crate::models::configuration::Config;
-use crate::models::psdk::model::PsdkModel;
+use crate::models::psdk_installed::model::PsdkInstalledModel;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -13,7 +13,7 @@ pub struct PsdkConfig {
 }
 
 impl PsdkConfig {
-    pub fn load_models() -> Vec<PsdkModel> {
+    pub fn load_models() -> Vec<PsdkInstalledModel> {
         let psdk = Config::load().psdk;
         if psdk.is_empty() {
             let update = Self::search();
@@ -25,7 +25,7 @@ impl PsdkConfig {
     }
 
     pub fn search() -> Vec<PsdkConfig> {
-        match PsdkModel::search_full() {
+        match PsdkInstalledModel::search_full() {
             Ok(models) => models
                 .iter()
                 .map(|e| PsdkConfig {
@@ -40,8 +40,8 @@ impl PsdkConfig {
         }
     }
 
-    pub fn to_model(&self) -> PsdkModel {
-        PsdkModel {
+    pub fn to_model(&self) -> PsdkInstalledModel {
+        PsdkInstalledModel {
             dir: self.dir.clone(),
             chroot: self.chroot.clone(),
             version: self.version.clone(),

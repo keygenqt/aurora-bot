@@ -9,7 +9,7 @@ use serde::Serialize;
 use std::fs;
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct PsdkModel {
+pub struct PsdkInstalledModel {
     pub dir: String,
     pub chroot: String,
     pub version: String,
@@ -17,7 +17,7 @@ pub struct PsdkModel {
     pub build: u8,
 }
 
-impl TraitModel for PsdkModel {
+impl TraitModel for PsdkInstalledModel {
     fn get_id(&self) -> String {
         format!("{:x}", md5::compute(self.chroot.as_bytes()))
     }
@@ -36,12 +36,12 @@ impl TraitModel for PsdkModel {
     }
 }
 
-impl PsdkModel {
-    pub fn search() -> Vec<PsdkModel> {
+impl PsdkInstalledModel {
+    pub fn search() -> Vec<PsdkInstalledModel> {
         PsdkConfig::load_models()
     }
 
-    pub fn search_filter<T: Fn(&PsdkModel) -> bool>(filter: T) -> Vec<PsdkModel> {
+    pub fn search_filter<T: Fn(&PsdkInstalledModel) -> bool>(filter: T) -> Vec<PsdkInstalledModel> {
         PsdkConfig::load_models()
             .iter()
             .filter(|e| filter(e))
@@ -49,8 +49,8 @@ impl PsdkModel {
             .collect()
     }
 
-    pub fn search_full() -> Result<Vec<PsdkModel>, Box<dyn std::error::Error>> {
-        let mut models: Vec<PsdkModel> = vec![];
+    pub fn search_full() -> Result<Vec<PsdkInstalledModel>, Box<dyn std::error::Error>> {
+        let mut models: Vec<PsdkInstalledModel> = vec![];
         let psdks_path = utils::search_files("aurora_psdk/sdk-chroot");
         for chroot in psdks_path {
             let psdk_dir = chroot.replace("/sdk-chroot", "");
@@ -71,7 +71,7 @@ impl PsdkModel {
                 Ok(s) => s.parse::<u8>().unwrap_or_else(|_| 0),
                 Err(_) => continue,
             };
-            models.push(PsdkModel {
+            models.push(PsdkInstalledModel {
                 dir: psdk_dir,
                 chroot: chroot.clone(),
                 version_id,

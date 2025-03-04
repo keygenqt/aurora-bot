@@ -5,12 +5,12 @@ use serde::Deserialize;
 use serde::Serialize;
 
 use crate::models::client::ClientMethodsKey;
-use crate::models::client::flutter_available::outgoing::FlutterAvailableItemOutgoing;
-use crate::models::client::flutter_available::select::FlutterAvailableSelect;
 use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
+use crate::models::flutter_available::model::FlutterAvailableModel;
+use crate::models::flutter_available::select::FlutterAvailableModelSelect;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
 use crate::tools::single;
@@ -72,15 +72,11 @@ impl TraitIncoming for FlutterDownloadIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = FlutterDownloadIncoming::name();
-        let models: Vec<FlutterAvailableItemOutgoing> = FlutterAvailableSelect::search(
-            &self.id,
-            &send_type,
-            tr!("получаем список..."),
-            tr!("получаем данные..."),
-        );
+        let models: Vec<FlutterAvailableModel> =
+            FlutterAvailableModelSelect::search(&self.id, tr!("получаем список..."), &send_type);
         // Exec fun
         fn _run(
-            model: FlutterAvailableItemOutgoing,
+            model: FlutterAvailableModel,
             send_type: &OutgoingType,
         ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
             StateMessageOutgoing::new_state(tr!("начинаем загрузку...")).send(send_type);
@@ -108,7 +104,7 @@ impl TraitIncoming for FlutterDownloadIncoming {
                 Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
             },
             0 => StateMessageOutgoing::new_info(tr!("Flutter SDK не найдены")),
-            _ => Box::new(FlutterAvailableSelect::select(key, models, |id| self.select(id))),
+            _ => Box::new(FlutterAvailableModelSelect::select(key, models, |id| self.select(id))),
         }
     }
 }

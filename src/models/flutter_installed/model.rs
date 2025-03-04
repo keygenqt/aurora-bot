@@ -9,7 +9,7 @@ use serde::Deserialize;
 use serde::Serialize;
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct FlutterModel {
+pub struct FlutterInstalledModel {
     pub dir: String,
     pub flutter: String,
     pub dart: String,
@@ -18,7 +18,7 @@ pub struct FlutterModel {
     pub dart_version: String,
 }
 
-impl TraitModel for FlutterModel {
+impl TraitModel for FlutterInstalledModel {
     fn get_id(&self) -> String {
         format!("{:x}", md5::compute(self.flutter.as_bytes()))
     }
@@ -39,12 +39,12 @@ impl TraitModel for FlutterModel {
     }
 }
 
-impl FlutterModel {
-    pub fn search() -> Vec<FlutterModel> {
+impl FlutterInstalledModel {
+    pub fn search() -> Vec<FlutterInstalledModel> {
         FlutterConfig::load_models()
     }
 
-    pub fn search_filter<T: Fn(&FlutterModel) -> bool>(filter: T) -> Vec<FlutterModel> {
+    pub fn search_filter<T: Fn(&FlutterInstalledModel) -> bool>(filter: T) -> Vec<FlutterInstalledModel> {
         FlutterConfig::load_models()
             .iter()
             .filter(|e| filter(e))
@@ -52,8 +52,8 @@ impl FlutterModel {
             .collect()
     }
 
-    pub fn search_full() -> Result<Vec<FlutterModel>, Box<dyn std::error::Error>> {
-        let mut models: Vec<FlutterModel> = vec![];
+    pub fn search_full() -> Result<Vec<FlutterInstalledModel>, Box<dyn std::error::Error>> {
+        let mut models: Vec<FlutterInstalledModel> = vec![];
         let flutters_path = utils::search_files("bin/flutter");
         for flutter in flutters_path {
             let dir = flutter.clone().replace("/bin/flutter", "");
@@ -101,7 +101,7 @@ impl FlutterModel {
             if flutter_version.is_empty() || dart_version.is_empty() || tools_version.is_empty() {
                 continue;
             }
-            models.push(FlutterModel {
+            models.push(FlutterInstalledModel {
                 dir,
                 flutter: flutter.clone(),
                 dart: flutter.replace("bin/flutter", "bin/dart").to_string(),

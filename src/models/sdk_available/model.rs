@@ -1,58 +1,103 @@
 use std::collections::HashMap;
 
-use human_sort::sort;
-use regex::Regex;
-use serde::Serialize;
-
-use crate::models::client::incoming::TraitIncoming;
-use crate::models::client::outgoing::OutgoingType;
-use crate::models::client::outgoing::TraitOutgoing;
-use crate::models::client::selector::outgoing::incoming::SelectorIncoming;
-use crate::models::client::selector::outgoing::outgoing::SelectorOutgoing;
-use crate::models::client::state_message::outgoing::StateMessageOutgoing;
+use crate::models::TraitModel;
 use crate::tools::macros::tr;
 use crate::tools::utils;
+use colored::Colorize;
+use human_sort::sort;
+use regex::Regex;
+use serde::Deserialize;
+use serde::Serialize;
 
-use super::outgoing::SdkAvailableItemOutgoing;
-use super::outgoing::SdkBuildType;
-use super::outgoing::SdkInstallType;
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub enum SdkInstallType {
+    Online,
+    Offline,
+}
 
-pub struct SdkAvailableSelect {}
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub enum SdkBuildType {
+    BT,
+    MB2,
+}
 
-impl SdkAvailableSelect {
-    pub fn select<T: TraitIncoming + Serialize + Clone, F: Fn(String) -> T>(
-        key: String,
-        models: Vec<SdkAvailableItemOutgoing>,
-        incoming: F,
-    ) -> SelectorOutgoing<T> {
-        SelectorOutgoing {
-            key,
-            variants: models
-                .iter()
-                .map(|e| SelectorIncoming {
-                    name: tr!(
-                        "Аврора SDK: {} ({}, {})",
-                        e.version_full,
-                        e.name_build_type(),
-                        e.name_install_type()
-                    ),
-                    incoming: incoming(e.get_id()),
-                })
-                .collect::<Vec<SelectorIncoming<T>>>(),
+#[derive(Serialize, Deserialize, Clone)]
+pub struct SdkAvailableModel {
+    pub url: String,
+    pub version_major: String,
+    pub version_full: String,
+    pub build_type: SdkBuildType,
+    pub install_type: SdkInstallType,
+}
+
+impl TraitModel for SdkAvailableModel {
+    fn get_id(&self) -> String {
+        format!(
+            "{:x}",
+            md5::compute(
+                format!(
+                    "{}:{}:{}",
+                    self.version_full,
+                    self.name_build_type(),
+                    self.name_install_type()
+                )
+                .as_bytes()
+            )
+        )
+    }
+
+    fn get_key(&self) -> String {
+        format!(
+            "{} ({}, {})",
+            self.version_full,
+            self.name_build_type(),
+            self.name_install_type()
+        )
+    }
+
+    fn print(&self) {
+        println!(
+            "{}",
+            tr!(
+                "Аврора SDK: {}\nТип сборки: {}\nТип установки: {}\nСсылка: {}",
+                self.version_full.bold().white(),
+                self.name_build_type().bold().white(),
+                self.name_install_type().bold().white(),
+                self.url.to_string().bright_blue(),
+            )
+        );
+    }
+}
+
+impl SdkAvailableModel {
+    pub fn search() -> Vec<SdkAvailableModel> {
+        match Self::search_full() {
+            Ok(value) => value,
+            Err(_) => vec![],
         }
     }
 
-    pub fn search(
-        id: &Option<String>,
-        send_type: &OutgoingType,
-        text_select: String,
-        text_model: String,
-    ) -> Vec<SdkAvailableItemOutgoing> {
-        if id.is_none() {
-            StateMessageOutgoing::new_state(text_select).send(send_type);
+    pub fn search_filter<T: Fn(&SdkAvailableModel) -> bool>(filter: T) -> Vec<SdkAvailableModel> {
+        Self::search().iter().filter(|e| filter(e)).cloned().collect()
+    }
+
+    pub fn name_build_type(&self) -> String {
+        if self.build_type == SdkBuildType::BT {
+            "Build Tools".to_string()
         } else {
-            StateMessageOutgoing::new_state(text_model).send(send_type);
+            "MB2".to_string()
         }
+    }
+
+    pub fn name_install_type(&self) -> String {
+        if self.install_type == SdkInstallType::Online {
+            "Online".to_string()
+        } else {
+            "Offline".to_string()
+        }
+    }
+
+    fn search_full() -> Result<Vec<SdkAvailableModel>, Box<dyn std::error::Error>> {
         let url_files = utils::get_repo_url_sdk();
         // Squash urls by full version
         let mut versions: Vec<String> = vec![];
@@ -83,7 +128,7 @@ impl SdkAvailableSelect {
         sort(&mut versions);
         let reverse = versions.iter().copied().rev().collect::<Vec<&str>>();
         // Map to model
-        let mut models: Vec<SdkAvailableItemOutgoing> = vec![];
+        let mut models: Vec<SdkAvailableModel> = vec![];
         for version_full in reverse {
             let urls = version_urls.get(version_full).unwrap().clone();
             for url in urls {
@@ -110,7 +155,7 @@ impl SdkAvailableSelect {
                 } else {
                     SdkInstallType::Online
                 };
-                models.push(SdkAvailableItemOutgoing {
+                models.push(SdkAvailableModel {
                     url,
                     version_major,
                     version_full,
@@ -119,10 +164,6 @@ impl SdkAvailableSelect {
                 });
             }
         }
-        if let Some(id) = id {
-            models.iter().filter(|e| e.get_id() == id.clone()).cloned().collect()
-        } else {
-            models
-        }
+        Ok(models)
     }
 }

@@ -8,10 +8,10 @@ use crate::models::client::ClientMethodsKey;
 use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
-use crate::models::client::sdk_available::outgoing::SdkAvailableItemOutgoing;
-use crate::models::client::sdk_available::outgoing::SdkInstallType;
-use crate::models::client::sdk_available::select::SdkAvailableSelect;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
+use crate::models::sdk_available::model::SdkAvailableModel;
+use crate::models::sdk_available::model::SdkInstallType;
+use crate::models::sdk_available::select::SdkAvailableModelSelect;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
 use crate::tools::single;
@@ -73,15 +73,11 @@ impl TraitIncoming for SdkDownloadIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = SdkDownloadIncoming::name();
-        let models: Vec<SdkAvailableItemOutgoing> = SdkAvailableSelect::search(
-            &self.id,
-            &send_type,
-            tr!("получаем список..."),
-            tr!("получаем данные..."),
-        );
+        let models: Vec<SdkAvailableModel> =
+            SdkAvailableModelSelect::search(&self.id, tr!("получаем список..."), &send_type);
         // Exec fun
         fn _run(
-            model: SdkAvailableItemOutgoing,
+            model: SdkAvailableModel,
             send_type: &OutgoingType,
         ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
             StateMessageOutgoing::new_state(tr!("начинаем загрузку...")).send(send_type);
@@ -114,7 +110,7 @@ impl TraitIncoming for SdkDownloadIncoming {
                 Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
             },
             0 => StateMessageOutgoing::new_info(tr!("Flutter SDK не найдены")),
-            _ => Box::new(SdkAvailableSelect::select(key, models, |id| self.select(id))),
+            _ => Box::new(SdkAvailableModelSelect::select(key, models, |id| self.select(id))),
         }
     }
 }

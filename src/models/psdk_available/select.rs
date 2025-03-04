@@ -9,14 +9,14 @@ use crate::models::client::selector::outgoing::outgoing::SelectorOutgoing;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::tools::macros::tr;
 
-use super::model::FlutterModel;
+use super::model::PsdkAvailableModel;
 
-pub struct FlutterModelSelect {}
+pub struct PsdkAvailableModelSelect {}
 
-impl FlutterModelSelect {
+impl PsdkAvailableModelSelect {
     pub fn select<T: TraitIncoming + Serialize + Clone, F: Fn(String) -> T>(
         key: String,
-        models: Vec<FlutterModel>,
+        models: Vec<PsdkAvailableModel>,
         incoming: F,
     ) -> SelectorOutgoing<T> {
         SelectorOutgoing {
@@ -24,19 +24,19 @@ impl FlutterModelSelect {
             variants: models
                 .iter()
                 .map(|e| SelectorIncoming {
-                    name: tr!("Flutter SDK: {} ({})", e.flutter_version, e.get_key()),
+                    name: tr!("Platform SDK: {}", e.get_key()),
                     incoming: incoming(e.get_id()),
                 })
                 .collect::<Vec<SelectorIncoming<T>>>(),
         }
     }
 
-    pub fn search(id: &Option<String>, text: String, send_type: &OutgoingType) -> Vec<FlutterModel> {
+    pub fn search(id: &Option<String>, text: String, send_type: &OutgoingType) -> Vec<PsdkAvailableModel> {
         if let Some(id) = id {
-            FlutterModel::search_filter(|e| e.get_id() == id.clone())
+            PsdkAvailableModel::search_filter(|e| e.get_id() == id.clone())
         } else {
             StateMessageOutgoing::new_state(text).send(send_type);
-            FlutterModel::search()
+            PsdkAvailableModel::search()
         }
     }
 }

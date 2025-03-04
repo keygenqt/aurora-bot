@@ -8,9 +8,9 @@ use crate::models::client::ClientMethodsKey;
 use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
-use crate::models::client::psdk_available::outgoing::PsdkAvailableItemOutgoing;
-use crate::models::client::psdk_available::select::PsdkAvailableSelect;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
+use crate::models::psdk_available::model::PsdkAvailableModel;
+use crate::models::psdk_available::select::PsdkAvailableModelSelect;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
 use crate::tools::single;
@@ -72,15 +72,11 @@ impl TraitIncoming for PsdkDownloadIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = PsdkDownloadIncoming::name();
-        let models: Vec<PsdkAvailableItemOutgoing> = PsdkAvailableSelect::search(
-            &self.id,
-            &send_type,
-            tr!("получаем список..."),
-            tr!("получаем данные..."),
-        );
+        let models: Vec<PsdkAvailableModel> =
+            PsdkAvailableModelSelect::search(&self.id, tr!("получаем список..."), &send_type);
         // Exec fun
         fn _run(
-            model: PsdkAvailableItemOutgoing,
+            model: PsdkAvailableModel,
             send_type: &OutgoingType,
         ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
             StateMessageOutgoing::new_state(tr!("начинаем загрузку...")).send(send_type);
@@ -108,7 +104,7 @@ impl TraitIncoming for PsdkDownloadIncoming {
                 Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
             },
             0 => StateMessageOutgoing::new_info(tr!("Platform SDK не найдено")),
-            _ => Box::new(PsdkAvailableSelect::select(key, models, |id| self.select(id))),
+            _ => Box::new(PsdkAvailableModelSelect::select(key, models, |id| self.select(id))),
         }
     }
 }

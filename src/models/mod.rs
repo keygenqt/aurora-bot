@@ -11,15 +11,27 @@ pub mod device {
     pub mod model;
     pub mod select;
 }
-pub mod flutter {
+pub mod flutter_available {
     pub mod model;
     pub mod select;
 }
-pub mod psdk {
+pub mod flutter_installed {
     pub mod model;
     pub mod select;
 }
-pub mod sdk {
+pub mod psdk_available {
+    pub mod model;
+    pub mod select;
+}
+pub mod psdk_installed {
+    pub mod model;
+    pub mod select;
+}
+pub mod sdk_available {
+    pub mod model;
+    pub mod select;
+}
+pub mod sdk_installed {
     pub mod model;
     pub mod select;
 }

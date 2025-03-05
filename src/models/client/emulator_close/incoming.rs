@@ -72,8 +72,8 @@ impl TraitIncoming for EmulatorCloseIncoming {
         // Exec fun
         fn _run(emulator: EmulatorModel) -> Box<dyn TraitOutgoing> {
             match emulator.close() {
-                Ok(_) => StateMessageOutgoing::new_info(tr!("эмулятор закрыт успешно")),
-                Err(_) => StateMessageOutgoing::new_info(tr!("не удалось закрыть эмулятор")),
+                Ok(_) => StateMessageOutgoing::new_success(tr!("эмулятор закрыт успешно")),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось закрыть эмулятор")),
             }
         }
         // Select

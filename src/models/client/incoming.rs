@@ -9,7 +9,9 @@ use super::app_info::incoming::AppInfoIncoming;
 use super::emulator_close::incoming::EmulatorCloseIncoming;
 use super::emulator_info::incoming::EmulatorInfoIncoming;
 use super::emulator_open::incoming::EmulatorOpenIncoming;
+use super::emulator_package_install::incoming::EmulatorPackageInstallIncoming;
 use super::emulator_package_run::incoming::EmulatorPackageRunIncoming;
+use super::emulator_package_uninstall::incoming::EmulatorPackageUninstallIncoming;
 use super::emulator_record_start::incoming::EmulatorRecordStartIncoming;
 use super::emulator_record_stop::incoming::EmulatorRecordStopIncoming;
 use super::emulator_screenshot::incoming::EmulatorScreenshotIncoming;
@@ -75,8 +77,16 @@ impl ClientMethodsKey {
                 let model = serde_json::from_str::<EmulatorOpenIncoming>(&value)?;
                 Ok(Box::new(model))
             }
+            ClientMethodsKey::EmulatorPackageInstall => {
+                let model = serde_json::from_str::<EmulatorPackageInstallIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
             ClientMethodsKey::EmulatorPackageRun => {
                 let model = serde_json::from_str::<EmulatorPackageRunIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::EmulatorPackageUninstall => {
+                let model = serde_json::from_str::<EmulatorPackageUninstallIncoming>(&value)?;
                 Ok(Box::new(model))
             }
             ClientMethodsKey::EmulatorRecordStart => {

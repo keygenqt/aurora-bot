@@ -16,7 +16,9 @@ use crate::models::client::app_info::incoming::AppInfoIncoming;
 use crate::models::client::emulator_close::incoming::EmulatorCloseIncoming;
 use crate::models::client::emulator_info::incoming::EmulatorInfoIncoming;
 use crate::models::client::emulator_open::incoming::EmulatorOpenIncoming;
+use crate::models::client::emulator_package_install::incoming::EmulatorPackageInstallIncoming;
 use crate::models::client::emulator_package_run::incoming::EmulatorPackageRunIncoming;
+use crate::models::client::emulator_package_uninstall::incoming::EmulatorPackageUninstallIncoming;
 use crate::models::client::emulator_record_start::incoming::EmulatorRecordStartIncoming;
 use crate::models::client::emulator_record_stop::incoming::EmulatorRecordStopIncoming;
 use crate::models::client::emulator_screenshot::incoming::EmulatorScreenshotIncoming;
@@ -67,64 +69,104 @@ impl ServerDbus {
 
         // Init api
         let signal_state = cr.register(constants::DBUS_NAME, |builder| {
+            /////////////////
             // Signals
             ServerDbus::add_signal("listen", builder);
+
+            /////////////////
             // App
             AppInfoIncoming::dbus_method_run(builder);
+
+            /////////////////
             // Emulator
             EmulatorCloseIncoming::dbus_method_run(builder);
             EmulatorCloseIncoming::dbus_method_run_by_id(builder);
+
             EmulatorInfoIncoming::dbus_method_run(builder);
             EmulatorInfoIncoming::dbus_method_run_by_id(builder);
+
             EmulatorOpenIncoming::dbus_method_run(builder);
             EmulatorOpenIncoming::dbus_method_run_by_id(builder);
             EmulatorOpenIncoming::dbus_method_run_vnc(builder);
             EmulatorOpenIncoming::dbus_method_run_vnc_by_id(builder);
+
+            EmulatorPackageInstallIncoming::dbus_method_run_path(builder);
+            EmulatorPackageInstallIncoming::dbus_method_run_path_by_id(builder);
+
             EmulatorPackageRunIncoming::dbus_method_run(builder);
             EmulatorPackageRunIncoming::dbus_method_run_by_id(builder);
             EmulatorPackageRunIncoming::dbus_method_run_by_package(builder);
             EmulatorPackageRunIncoming::dbus_method_run_by_id_package(builder);
+
+            EmulatorPackageUninstallIncoming::dbus_method_run(builder);
+            EmulatorPackageUninstallIncoming::dbus_method_run_by_id(builder);
+            EmulatorPackageUninstallIncoming::dbus_method_run_by_package(builder);
+            EmulatorPackageUninstallIncoming::dbus_method_run_by_id_package(builder);
+
             EmulatorRecordStartIncoming::dbus_method_run(builder);
             EmulatorRecordStartIncoming::dbus_method_run_by_id(builder);
+
             EmulatorRecordStopIncoming::dbus_method_run(builder);
             EmulatorRecordStopIncoming::dbus_method_run_by_id(builder);
+
             EmulatorScreenshotIncoming::dbus_method_run(builder);
             EmulatorScreenshotIncoming::dbus_method_run_by_id(builder);
+
             EmulatorSyncIncoming::dbus_method_run(builder);
+
             EmulatorTerminalIncoming::dbus_method_run(builder);
             EmulatorTerminalIncoming::dbus_method_run_by_id(builder);
+
             EmulatorUploadIncoming::dbus_method_run_path(builder);
             EmulatorUploadIncoming::dbus_method_run_path_by_id(builder);
             EmulatorUploadIncoming::dbus_method_run_url(builder);
             EmulatorUploadIncoming::dbus_method_run_url_by_id(builder);
+
+            /////////////////
             // Flutter
             FlutterAvailableIncoming::dbus_method_run(builder);
             FlutterAvailableIncoming::dbus_method_run_by_id(builder);
+
             FlutterDownloadIncoming::dbus_method_run(builder);
             FlutterDownloadIncoming::dbus_method_run_by_id(builder);
+
             FlutterInfoIncoming::dbus_method_run(builder);
             FlutterInfoIncoming::dbus_method_run_by_id(builder);
+
             FlutterSyncIncoming::dbus_method_run(builder);
+
             FlutterTerminalIncoming::dbus_method_run(builder);
             FlutterTerminalIncoming::dbus_method_run_by_id(builder);
+
+            /////////////////
             // Psdk
             PsdkAvailableIncoming::dbus_method_run(builder);
             PsdkAvailableIncoming::dbus_method_run_by_id(builder);
+
             PsdkDownloadIncoming::dbus_method_run(builder);
             PsdkDownloadIncoming::dbus_method_run_by_id(builder);
+
             PsdkInfoIncoming::dbus_method_run(builder);
             PsdkInfoIncoming::dbus_method_run_by_id(builder);
+
             PsdkSyncIncoming::dbus_method_run(builder);
+
             PsdkTerminalIncoming::dbus_method_run(builder);
             PsdkTerminalIncoming::dbus_method_run_by_id(builder);
+
+            /////////////////
             // Sdk
             SdkAvailableIncoming::dbus_method_run(builder);
             SdkAvailableIncoming::dbus_method_run_by_id(builder);
+
             SdkDownloadIncoming::dbus_method_run(builder);
             SdkDownloadIncoming::dbus_method_run_by_id(builder);
+
             SdkInfoIncoming::dbus_method_run(builder);
             SdkInfoIncoming::dbus_method_run_by_id(builder);
+
             SdkSyncIncoming::dbus_method_run(builder);
+
             SdkToolsIncoming::dbus_method_run(builder);
             SdkToolsIncoming::dbus_method_run_by_id(builder);
         });

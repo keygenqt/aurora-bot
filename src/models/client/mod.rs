@@ -20,7 +20,13 @@ pub mod emulator_info {
 pub mod emulator_open {
     pub mod incoming;
 }
+pub mod emulator_package_install {
+    pub mod incoming;
+}
 pub mod emulator_package_run {
+    pub mod incoming;
+}
+pub mod emulator_package_uninstall {
     pub mod incoming;
 }
 pub mod emulator_record_start {
@@ -139,7 +145,9 @@ pub enum ClientMethodsKey {
     EmulatorClose,
     EmulatorInfo,
     EmulatorOpen,
+    EmulatorPackageInstall,
     EmulatorPackageRun,
+    EmulatorPackageUninstall,
     EmulatorRecordStart,
     EmulatorRecordStop,
     EmulatorScreenshot,

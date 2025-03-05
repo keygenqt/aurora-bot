@@ -6,7 +6,9 @@ use clap::Subcommand;
 use crate::models::client::emulator_close::incoming::EmulatorCloseIncoming;
 use crate::models::client::emulator_info::incoming::EmulatorInfoIncoming;
 use crate::models::client::emulator_open::incoming::EmulatorOpenIncoming;
+use crate::models::client::emulator_package_install::incoming::EmulatorPackageInstallIncoming;
 use crate::models::client::emulator_package_run::incoming::EmulatorPackageRunIncoming;
+use crate::models::client::emulator_package_uninstall::incoming::EmulatorPackageUninstallIncoming;
 use crate::models::client::emulator_record_start::incoming::EmulatorRecordStartIncoming;
 use crate::models::client::emulator_record_stop::incoming::EmulatorRecordStopIncoming;
 use crate::models::client::emulator_record_stop::incoming::EmulatorRecordStopType;
@@ -196,17 +198,19 @@ pub fn run(arg: EmulatorArgs) {
             EmulatorArgsGroup::Package(arg) => {
                 if let Some(path) = arg.install {
                     match utils::path_to_absolute(&path) {
-                        Some(path) => println!("@todo install {}...", path.to_string_lossy()),
+                        Some(path) => EmulatorPackageInstallIncoming::new(path).run(OutgoingType::Cli).print(),
                         None => print_error!("проверьте путь к файлу"),
                     }
                     return;
                 }
                 if let Some(package) = arg.uninstall_name {
-                    println!("@todo uninstall {}...", package);
+                    EmulatorPackageUninstallIncoming::new_package(package)
+                        .run(OutgoingType::Cli)
+                        .print();
                     return;
                 }
                 if arg.uninstall {
-                    println!("@todo uninstall select...");
+                    EmulatorPackageUninstallIncoming::new().run(OutgoingType::Cli).print();
                     return;
                 }
                 if let Some(package) = arg.run_name {

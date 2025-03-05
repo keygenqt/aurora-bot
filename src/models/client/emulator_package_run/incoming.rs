@@ -2,16 +2,14 @@ use dbus_crossroads::IfaceBuilder;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::models::client::selector::outgoing::incoming::SelectorIncoming;
-use crate::models::client::selector::outgoing::outgoing::SelectorOutgoing;
 use crate::models::client::ClientMethodsKey;
 use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
+use crate::models::client::selector::selects::select_emulator::EmulatorModelSelect;
+use crate::models::client::selector::selects::select_emulator_packages::EmulatorPackageSelect;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::models::emulator::model::EmulatorModel;
-use crate::models::emulator::select::EmulatorModelSelect;
-use crate::models::TraitModel;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
 
@@ -19,8 +17,10 @@ use crate::tools::macros::tr;
 pub struct EmulatorPackageRunIncoming {
     id: Option<String>,
     package: Option<String>,
+    is_listen: bool,
 }
 
+// @todo add to server
 impl EmulatorPackageRunIncoming {
     pub fn name() -> String {
         serde_variant::to_variant_name(&ClientMethodsKey::EmulatorPackageRun)
@@ -28,16 +28,36 @@ impl EmulatorPackageRunIncoming {
             .to_string()
     }
 
-    pub fn new() -> Box<EmulatorPackageRunIncoming> {
-        Box::new(Self { id: None, package: None })
+    pub fn new(is_listen: bool) -> Box<EmulatorPackageRunIncoming> {
+        Box::new(Self {
+            id: None,
+            package: None,
+            is_listen,
+        })
     }
 
-    pub fn new_id(id: String) -> Box<EmulatorPackageRunIncoming> {
-        Box::new(Self { id: Some(id), package: None  })
+    pub fn new_id(id: String, is_listen: bool) -> Box<EmulatorPackageRunIncoming> {
+        Box::new(Self {
+            id: Some(id),
+            package: None,
+            is_listen,
+        })
     }
 
-    pub fn new_id_package(id: String, package: String) -> Box<EmulatorPackageRunIncoming> {
-        Box::new(Self { id: Some(id), package: Some(package) })
+    pub fn new_package(package: String, is_listen: bool) -> Box<EmulatorPackageRunIncoming> {
+        Box::new(Self {
+            id: None,
+            package: Some(package),
+            is_listen,
+        })
+    }
+
+    pub fn new_id_package(id: String, package: String, is_listen: bool) -> Box<EmulatorPackageRunIncoming> {
+        Box::new(Self {
+            id: Some(id),
+            package: Some(package),
+            is_listen,
+        })
     }
 
     fn select(&self, id: String) -> EmulatorPackageRunIncoming {
@@ -56,10 +76,10 @@ impl EmulatorPackageRunIncoming {
     pub fn dbus_method_run(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             Self::name(),
-            (),
+            ("is_listen",),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (): ()| async move {
-                let outgoing = Self::new().run(OutgoingType::Dbus);
+            move |mut ctx: dbus_crossroads::Context, _, (is_listen,): (bool,)| async move {
+                let outgoing = Self::new(is_listen).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
@@ -68,10 +88,22 @@ impl EmulatorPackageRunIncoming {
     pub fn dbus_method_run_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "ById"),
-            ("id",),
+            ("id", "is_listen",),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (id,): (String,)| async move {
-                let outgoing = Self::new_id(id).run(OutgoingType::Dbus);
+            move |mut ctx: dbus_crossroads::Context, _, (id, is_listen,): (String, bool,)| async move {
+                let outgoing = Self::new_id(id, is_listen).run(OutgoingType::Dbus);
+                ctx.reply(Ok((outgoing.to_json(),)))
+            },
+        );
+    }
+
+    pub fn dbus_method_run_by_package(builder: &mut IfaceBuilder<IfaceData>) {
+        builder.method_with_cr_async(
+            format!("{}{}", Self::name(), "ByPackage"),
+            ("package", "is_listen",),
+            ("result",),
+            move |mut ctx: dbus_crossroads::Context, _, (package, is_listen,): (String, bool,)| async move {
+                let outgoing = Self::new_package(package, is_listen).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
@@ -80,22 +112,36 @@ impl EmulatorPackageRunIncoming {
     pub fn dbus_method_run_by_id_package(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "ByIdPackage"),
-            ("id", "package",),
+            ("id", "package", "is_listen",),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (id, package,): (String, String,)| async move {
-                let outgoing = Self::new_id_package(id, package).run(OutgoingType::Dbus);
+            move |mut ctx: dbus_crossroads::Context, _, (id, package, is_listen,): (String, String, bool, )| async move {
+                let outgoing = Self::new_id_package(id, package, is_listen).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
     }
 
-    fn run_package(emulator: EmulatorModel, package: String) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+    fn run_package(
+        emulator: EmulatorModel,
+        package: String,
+        is_listen: bool
+    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         if !emulator.is_running {
             return Ok(StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен")));
         }
-        // @todo handle errors
-        emulator.session_user()?.run_package(package)?;
-        Ok(StateMessageOutgoing::new_success(tr!("приложение запущено")))
+        let result = if is_listen {
+            emulator.session_user()?.run_package_listen(package)
+        } else {
+            emulator.session_user()?.run_package(package)
+        };
+        if result.is_err() {
+            Err(tr!("не удалось запустить приложение"))?
+        }
+        if is_listen {
+            Ok(StateMessageOutgoing::new_success(tr!("приложение остановлено")))
+        } else {
+            Ok(StateMessageOutgoing::new_success(tr!("приложение запущено")))
+        }
     }
 }
 
@@ -103,29 +149,33 @@ impl TraitIncoming for EmulatorPackageRunIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = EmulatorPackageRunIncoming::name();
-        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(&self.id, &send_type, tr!("ищем эмулятор"), Some(true));
+        let models: Vec<EmulatorModel> =
+            EmulatorModelSelect::search(&self.id, &send_type, tr!("ищем эмулятор"), Some(true));
         // Select
         match models.iter().count() {
-            1 => if let Some(package) = self.package.clone() {
-                match Self::run_package(models.first().unwrap().clone(), package) {
-                    Ok(result) => result,
-                    Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
+            1 => {
+                if let Some(model) = models.first() {
+                    if let Some(package) = self.package.clone() {
+                        match Self::run_package(model.clone(), package, self.is_listen) {
+                            Ok(result) => result,
+                            Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
+                        }
+                    } else {
+                        match EmulatorPackageSelect::select(key, model, |id, package| self.select_package(id, package))
+                        {
+                            Ok(value) => Box::new(value),
+                            Err(_) => StateMessageOutgoing::new_error(tr!("не удалось найти пакеты")),
+                        }
+                    }
+                } else {
+                    panic!("ошибка получения данных")
                 }
-            } else {
-                let model = models.first().unwrap();
-                Box::new(SelectorOutgoing {
-                    key,
-                    variants: model.get_install_packages()
-                        .iter()
-                        .map(|e| SelectorIncoming {
-                            name: tr!("Пакет: {}", e),
-                            incoming: self.select_package(model.get_id(), e.to_string()),
-                        })
-                        .collect::<Vec<SelectorIncoming<EmulatorPackageRunIncoming>>>(),
-                })
-            },
+            }
             0 => StateMessageOutgoing::new_info(tr!("запущенные эмуляторы не найдены")),
-            _ => Box::new(EmulatorModelSelect::select(key, models, |id| self.select(id))),
+            _ => match EmulatorModelSelect::select(key, models, |id| self.select(id)) {
+                Ok(value) => Box::new(value),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить эмулятор")),
+            },
         }
     }
 }

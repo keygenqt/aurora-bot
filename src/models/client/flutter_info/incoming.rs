@@ -6,9 +6,9 @@ use crate::models::client::ClientMethodsKey;
 use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
+use crate::models::client::selector::selects::select_flutter_installed::FlutterInstalledModelSelect;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::models::flutter_installed::model::FlutterInstalledModel;
-use crate::models::flutter_installed::select::FlutterInstalledModelSelect;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
 
@@ -75,7 +75,10 @@ impl TraitIncoming for FlutterInfoIncoming {
         match models.iter().count() {
             1 => FlutterInfoOutgoing::new(models.first().unwrap().clone()),
             0 => StateMessageOutgoing::new_info(tr!("Flutter SDK не найдены")),
-            _ => Box::new(FlutterInstalledModelSelect::select(key, models, |id| self.select(id))),
+            _ => match FlutterInstalledModelSelect::select(key, models, |id| self.select(id)) {
+                Ok(value) => Box::new(value),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Flutter SDK")),
+            },
         }
     }
 }

@@ -8,9 +8,9 @@ use crate::models::client::ClientMethodsKey;
 use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
+use crate::models::client::selector::selects::select_psdk_available::PsdkAvailableModelSelect;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::models::psdk_available::model::PsdkAvailableModel;
-use crate::models::psdk_available::select::PsdkAvailableModelSelect;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
 use crate::tools::single;
@@ -104,7 +104,10 @@ impl TraitIncoming for PsdkDownloadIncoming {
                 Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
             },
             0 => StateMessageOutgoing::new_info(tr!("Platform SDK не найдено")),
-            _ => Box::new(PsdkAvailableModelSelect::select(key, models, |id| self.select(id))),
+            _ => match PsdkAvailableModelSelect::select(key, models, |id| self.select(id)) {
+                Ok(value) => Box::new(value),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить эмулятор")),
+            },
         }
     }
 }

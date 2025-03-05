@@ -8,9 +8,9 @@ use crate::models::client::ClientMethodsKey;
 use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
+use crate::models::client::selector::selects::select_flutter_available::FlutterAvailableModelSelect;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::models::flutter_available::model::FlutterAvailableModel;
-use crate::models::flutter_available::select::FlutterAvailableModelSelect;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
 use crate::tools::single;
@@ -104,7 +104,10 @@ impl TraitIncoming for FlutterDownloadIncoming {
                 Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
             },
             0 => StateMessageOutgoing::new_info(tr!("Flutter SDK не найдены")),
-            _ => Box::new(FlutterAvailableModelSelect::select(key, models, |id| self.select(id))),
+            _ => match FlutterAvailableModelSelect::select(key, models, |id| self.select(id)) {
+                Ok(value) => Box::new(value),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Flutter SDK")),
+            },
         }
     }
 }

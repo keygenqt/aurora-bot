@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use regex::Regex;
 use tokio::runtime::Handle;
 
 use crate::service::ssh::client::SshSession;
@@ -19,6 +20,7 @@ pub struct EmulatorSession {
     pub os_name: String,
     pub os_version: String,
     session: SshSession,
+    session_listen: SshSession,
 }
 
 impl EmulatorSession {
@@ -30,7 +32,8 @@ impl EmulatorSession {
             "defaultuser"
         };
         let port = 2223;
-        let session = SshSession::connect(PathBuf::from(key), user, (host, port))?;
+        let session_listen = SshSession::connect(PathBuf::from(key), user, (host, port), None)?;
+        let session = SshSession::connect(PathBuf::from(key), user, (host, port), Some(3))?;
         let output = session.call("cat /etc/os-release")?;
         let lines = match output.first() {
             Some(s) => s.split("\n").map(|e| e.to_string()).collect::<Vec<String>>(),
@@ -51,6 +54,7 @@ impl EmulatorSession {
             os_name,
             os_version,
             session,
+            session_listen,
         })
     }
 
@@ -63,19 +67,43 @@ impl EmulatorSession {
         Ok(())
     }
 
-    pub fn get_install_packages(&self) -> Vec<String> {
+    pub fn get_install_packages(&self) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        let re = Regex::new(r"/usr/bin/[A-z]+.[A-z]+.[A-z]+")?;
         match self.session.call("find /usr/bin -name '*.*.*'") {
-            Ok(value) => if let Some(line) = value.first() {
-                line.split("\n").filter(|e| !e.is_empty() && !e.contains("perl")).map(|e| e.replace("/usr/bin/", "")).collect()
-            } else {
-                vec![]
-            },
-            Err(_) => vec![],
+            Ok(value) => {
+                if let Some(line) = value.first() {
+                    let packages: Vec<String> = line
+                        .split("\n")
+                        .filter(|e| {
+                            if e.is_empty() {
+                                return false;
+                            }
+                            match re.captures(e) {
+                                Some(_) => true,
+                                None => false,
+                            }
+                        })
+                        .map(|e| e.replace("/usr/bin/", ""))
+                        .collect();
+                    if packages.len() == 0 {
+                        Err("ничего не найдено")?
+                    }
+                    Ok(packages)
+                } else {
+                    Err("не удалось получить пакеты")?
+                }
+            }
+            Err(_) => Err("при запросе пакетов возникла ошибка")?,
         }
     }
 
     pub fn run_package(&self, package: String) -> Result<(), Box<dyn std::error::Error>> {
         self.session.run(&format!("invoker --type=qt5 {package}"))?;
+        Ok(())
+    }
+
+    pub fn run_package_listen(&self, package: String) -> Result<(), Box<dyn std::error::Error>> {
+        self.session_listen.run(&format!("invoker --type=qt5 {package}"))?;
         Ok(())
     }
 

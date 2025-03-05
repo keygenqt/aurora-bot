@@ -7,45 +7,36 @@ use crate::models::client::outgoing::TraitOutgoing;
 use crate::models::client::selector::outgoing::incoming::SelectorIncoming;
 use crate::models::client::selector::outgoing::outgoing::SelectorOutgoing;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
+use crate::models::device::model::DeviceModel;
 use crate::tools::macros::tr;
 
-use super::model::EmulatorModel;
+pub struct DeviceModelSelect {}
 
-pub struct EmulatorModelSelect {}
-
-impl EmulatorModelSelect {
+#[allow(dead_code)]
+impl DeviceModelSelect {
     pub fn select<T: TraitIncoming + Serialize + Clone, F: Fn(String) -> T>(
         key: String,
-        models: Vec<EmulatorModel>,
+        models: Vec<DeviceModel>,
         incoming: F,
-    ) -> SelectorOutgoing<T> {
-        SelectorOutgoing {
+    ) -> Result<SelectorOutgoing<T>, Box<dyn std::error::Error>> {
+        Ok(SelectorOutgoing {
             key,
             variants: models
                 .iter()
                 .map(|e| SelectorIncoming {
-                    name: tr!("Эмулятор: {}", e.get_key()),
+                    name: tr!("Устройство: {}", e.get_key()),
                     incoming: incoming(e.get_id()),
                 })
                 .collect::<Vec<SelectorIncoming<T>>>(),
-        }
+        })
     }
 
-    pub fn search(
-        id: &Option<String>,
-        send_type: &OutgoingType,
-        text: String,
-        is_running: Option<bool>,
-    ) -> Vec<EmulatorModel> {
+    pub fn search(id: &Option<String>, text: String, send_type: &OutgoingType) -> Vec<DeviceModel> {
         if let Some(id) = id {
-            EmulatorModel::search_filter(|e| e.get_id() == id.clone())
+            DeviceModel::search_filter(|e| e.get_id() == id.clone())
         } else {
             StateMessageOutgoing::new_state(text).send(send_type);
-            if let Some(is_running) = is_running {
-                EmulatorModel::search_filter(|e| e.is_running == is_running)
-            } else {
-                EmulatorModel::search()
-            }
+            DeviceModel::search()
         }
     }
 }

@@ -28,6 +28,7 @@ impl client::Handler for SshClient {
 
 pub struct SshSession {
     session: client::Handle<SshClient>,
+    is_listen: bool
 }
 
 impl SshSession {
@@ -35,18 +36,24 @@ impl SshSession {
         key_path: P,
         user: impl Into<String>,
         addrs: A,
+        timeout: Option<u64>,
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        tokio::task::block_in_place(|| Handle::current().block_on(Self::_connect(key_path, user, addrs)))
+        tokio::task::block_in_place(|| Handle::current().block_on(Self::_connect(key_path, user, addrs, timeout)))
     }
 
     async fn _connect<P: AsRef<Path>, A: ToSocketAddrs>(
         key_path: P,
         user: impl Into<String>,
         addrs: A,
+        timeout: Option<u64>,
     ) -> Result<Self, Box<dyn std::error::Error>> {
         let key_pair = load_secret_key(key_path, None)?;
         let config = client::Config {
-            inactivity_timeout: Some(Duration::from_secs(1)),
+            inactivity_timeout: if let Some(timeout) = timeout {
+                Some(Duration::from_secs(timeout))
+            } else {
+                None
+            },
             preferred: Preferred {
                 kex: Cow::Owned(vec![
                     russh::kex::CURVE25519_PRE_RFC_8731,
@@ -74,7 +81,7 @@ impl SshSession {
             Err("ошибка подключения по ssh")?
         }
 
-        Ok(Self { session })
+        Ok(Self { session, is_listen: timeout.is_none() })
     }
 
     pub fn call(&self, command: &str) -> Result<Vec<String>, Box<dyn std::error::Error>> {
@@ -103,8 +110,10 @@ impl SshSession {
                 _ => {}
             }
         }
-        if code.is_none() {
-            Err("произошла ошибка при выполнении команды")?
+        if let Some(code) = code {
+            if code == 1 {
+                Err("произошла ошибка при выполнении команды")?
+            }
         }
         Ok(response)
     }
@@ -114,9 +123,7 @@ impl SshSession {
     }
 
     async fn _run(&self, command: &str) -> Result<(), Box<dyn std::error::Error>> {
-        // @todo
-        // check error
-        // custom timeout
+        let mut code = None;
         let mut channel = self.session.channel_open_session().await?;
         channel.exec(true, command).await?;
         loop {
@@ -125,16 +132,26 @@ impl SshSession {
             };
             match msg {
                 ChannelMsg::Data { ref data } => {
-                    match str::from_utf8(data.as_ref()) {
-                        Ok(out_line) => {
-                            if !out_line.is_empty() {
-                                println!("{}", out_line)
+                    if self.is_listen {
+                        match str::from_utf8(data.as_ref()) {
+                            Ok(out_line) => {
+                                if !out_line.is_empty() {
+                                    println!("{}", out_line.trim_matches('\n'))
+                                }
                             }
-                        },
-                        Err(_) => Err("не удалось обработать данные ssh соединения")?,
-                    };
+                            Err(_) => Err("не удалось обработать данные ssh соединения")?,
+                        };
+                    }
+                }
+                ChannelMsg::ExitStatus { exit_status } => {
+                    code = Some(exit_status);
                 }
                 _ => {}
+            }
+        }
+        if let Some(code) = code {
+            if code == 1 {
+                Err("произошла ошибка при выполнении команды")?
             }
         }
         Ok(())

@@ -100,6 +100,17 @@ pub mod selector {
         pub mod incoming;
         pub mod outgoing;
     }
+    pub mod selects {
+        pub mod select_device;
+        pub mod select_emulator;
+        pub mod select_emulator_packages;
+        pub mod select_flutter_available;
+        pub mod select_flutter_installed;
+        pub mod select_psdk_available;
+        pub mod select_psdk_installed;
+        pub mod select_sdk_available;
+        pub mod select_sdk_installed;
+    }
 }
 pub mod state_message {
     pub mod incoming;

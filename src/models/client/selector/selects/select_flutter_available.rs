@@ -7,9 +7,8 @@ use crate::models::client::outgoing::TraitOutgoing;
 use crate::models::client::selector::outgoing::incoming::SelectorIncoming;
 use crate::models::client::selector::outgoing::outgoing::SelectorOutgoing;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
+use crate::models::flutter_available::model::FlutterAvailableModel;
 use crate::tools::macros::tr;
-
-use super::model::FlutterAvailableModel;
 
 pub struct FlutterAvailableModelSelect {}
 
@@ -18,8 +17,8 @@ impl FlutterAvailableModelSelect {
         key: String,
         models: Vec<FlutterAvailableModel>,
         incoming: F,
-    ) -> SelectorOutgoing<T> {
-        SelectorOutgoing {
+    ) -> Result<SelectorOutgoing<T>, Box<dyn std::error::Error>> {
+        Ok(SelectorOutgoing {
             key,
             variants: models
                 .iter()
@@ -28,7 +27,7 @@ impl FlutterAvailableModelSelect {
                     incoming: incoming(e.get_id()),
                 })
                 .collect::<Vec<SelectorIncoming<T>>>(),
-        }
+        })
     }
 
     pub fn search(id: &Option<String>, text: String, send_type: &OutgoingType) -> Vec<FlutterAvailableModel> {

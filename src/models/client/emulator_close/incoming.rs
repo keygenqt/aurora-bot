@@ -6,9 +6,9 @@ use crate::models::client::ClientMethodsKey;
 use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
+use crate::models::client::selector::selects::select_emulator::EmulatorModelSelect;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::models::emulator::model::EmulatorModel;
-use crate::models::emulator::select::EmulatorModelSelect;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
 
@@ -80,7 +80,10 @@ impl TraitIncoming for EmulatorCloseIncoming {
         match models.iter().count() {
             1 => _run(models.first().unwrap().clone()),
             0 => StateMessageOutgoing::new_info(tr!("запущенные эмуляторы не найдены")),
-            _ => Box::new(EmulatorModelSelect::select(key, models, |id| self.select(id))),
+            _ => match EmulatorModelSelect::select(key, models, |id| self.select(id)) {
+                Ok(value) => Box::new(value),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить эмулятор")),
+            },
         }
     }
 }

@@ -6,9 +6,9 @@ use crate::models::client::ClientMethodsKey;
 use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
+use crate::models::client::selector::selects::select_psdk_installed::PsdkInstalledModelSelect;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::models::psdk_installed::model::PsdkInstalledModel;
-use crate::models::psdk_installed::select::PsdkInstalledModelSelect;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
 
@@ -75,7 +75,10 @@ impl TraitIncoming for PsdkInfoIncoming {
         match models.iter().count() {
             1 => PsdkInfoOutgoing::new(models.first().unwrap().clone()),
             0 => StateMessageOutgoing::new_info(tr!("Platform SDK не найдены")),
-            _ => Box::new(PsdkInstalledModelSelect::select(key, models, |id| self.select(id))),
+            _ => match PsdkInstalledModelSelect::select(key, models, |id| self.select(id)) {
+                Ok(value) => Box::new(value),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Platform SDK")),
+            },
         }
     }
 }

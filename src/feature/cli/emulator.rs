@@ -97,17 +97,25 @@ pub struct EmulatorRecordArgs {
 #[derive(Args)]
 #[group(multiple = false)]
 #[command(arg_required_else_help = true)]
-
 pub struct EmulatorPackageArgs {
     /// Установить пакет
     #[arg(short, long, value_name = "path")]
     install: Option<PathBuf>,
-    /// Удалить пакет
-    #[arg(short, long, value_name = "package-name")]
-    uninstall: Option<String>,
-    /// Запустить пакет
+
+    /// Удалить пакет c автоматическим поиском
+    #[arg(short, long, default_value_t = false)]
+    uninstall: bool,
+    /// Удалить пакет по package-name
+    #[arg(long, value_name = "package")]
+    uninstall_name: Option<String>,
+
+    /// Запустить пакет c автоматическим поиском
     #[arg(short, long, default_value_t = false)]
     run: bool,
+    /// Запустить пакет по package-name
+    #[arg(long, value_name = "package")]
+    run_name: Option<String>,
+
     /// Показать это сообщение и выйти
     #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
     help: Option<bool>,
@@ -193,12 +201,20 @@ pub fn run(arg: EmulatorArgs) {
                     }
                     return;
                 }
-                if let Some(package) = arg.uninstall {
+                if let Some(package) = arg.uninstall_name {
                     println!("@todo uninstall {}...", package);
                     return;
                 }
+                if arg.uninstall {
+                    println!("@todo uninstall select...");
+                    return;
+                }
+                if let Some(package) = arg.run_name {
+                    EmulatorPackageRunIncoming::new_package(package, true).run(OutgoingType::Cli).print();
+                    return;
+                }
                 if arg.run {
-                    EmulatorPackageRunIncoming::new().run(OutgoingType::Cli).print();
+                    EmulatorPackageRunIncoming::new(true).run(OutgoingType::Cli).print();
                     return;
                 }
             }

@@ -6,9 +6,9 @@ use crate::models::client::ClientMethodsKey;
 use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
+use crate::models::client::selector::selects::select_sdk_installed::SdkInstalledModelSelect;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::models::sdk_installed::model::SdkInstalledModel;
-use crate::models::sdk_installed::select::SdkInstalledModelSelect;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
 
@@ -75,7 +75,10 @@ impl TraitIncoming for SdkInfoIncoming {
         match models.iter().count() {
             1 => SdkInfoOutgoing::new(models.first().unwrap().clone()),
             0 => StateMessageOutgoing::new_info(tr!("Аврора SDK не найдены")),
-            _ => Box::new(SdkInstalledModelSelect::select(key, models, |id| self.select(id))),
+            _ => match SdkInstalledModelSelect::select(key, models, |id| self.select(id)) {
+                Ok(value) => Box::new(value),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Аврора SDK")),
+            },
         }
     }
 }

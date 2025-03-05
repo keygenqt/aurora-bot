@@ -82,6 +82,7 @@ impl ServerDbus {
             EmulatorOpenIncoming::dbus_method_run_vnc_by_id(builder);
             EmulatorPackageRunIncoming::dbus_method_run(builder);
             EmulatorPackageRunIncoming::dbus_method_run_by_id(builder);
+            EmulatorPackageRunIncoming::dbus_method_run_by_package(builder);
             EmulatorPackageRunIncoming::dbus_method_run_by_id_package(builder);
             EmulatorRecordStartIncoming::dbus_method_run(builder);
             EmulatorRecordStartIncoming::dbus_method_run_by_id(builder);

@@ -88,9 +88,9 @@ impl EmulatorPackageRunIncoming {
     pub fn dbus_method_run_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "ById"),
-            ("id", "is_listen",),
+            ("id", "is_listen"),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (id, is_listen,): (String, bool,)| async move {
+            move |mut ctx: dbus_crossroads::Context, _, (id, is_listen): (String, bool)| async move {
                 let outgoing = Self::new_id(id, is_listen).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
@@ -100,9 +100,9 @@ impl EmulatorPackageRunIncoming {
     pub fn dbus_method_run_by_package(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "ByPackage"),
-            ("package", "is_listen",),
+            ("package", "is_listen"),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (package, is_listen,): (String, bool,)| async move {
+            move |mut ctx: dbus_crossroads::Context, _, (package, is_listen): (String, bool)| async move {
                 let outgoing = Self::new_package(package, is_listen).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
@@ -112,9 +112,9 @@ impl EmulatorPackageRunIncoming {
     pub fn dbus_method_run_by_id_package(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "ByIdPackage"),
-            ("id", "package", "is_listen",),
+            ("id", "package", "is_listen"),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (id, package, is_listen,): (String, String, bool, )| async move {
+            move |mut ctx: dbus_crossroads::Context, _, (id, package, is_listen): (String, String, bool)| async move {
                 let outgoing = Self::new_id_package(id, package, is_listen).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
@@ -124,7 +124,7 @@ impl EmulatorPackageRunIncoming {
     fn run_package(
         emulator: EmulatorModel,
         package: String,
-        is_listen: bool
+        is_listen: bool,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         if !emulator.is_running {
             return Ok(StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен")));

@@ -210,7 +210,9 @@ pub fn run(arg: EmulatorArgs) {
                     return;
                 }
                 if let Some(package) = arg.run_name {
-                    EmulatorPackageRunIncoming::new_package(package, true).run(OutgoingType::Cli).print();
+                    EmulatorPackageRunIncoming::new_package(package, true)
+                        .run(OutgoingType::Cli)
+                        .print();
                     return;
                 }
                 if arg.run {

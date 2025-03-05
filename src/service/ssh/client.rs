@@ -28,7 +28,7 @@ impl client::Handler for SshClient {
 
 pub struct SshSession {
     session: client::Handle<SshClient>,
-    is_listen: bool
+    is_listen: bool,
 }
 
 impl SshSession {
@@ -81,7 +81,10 @@ impl SshSession {
             Err("ошибка подключения по ssh")?
         }
 
-        Ok(Self { session, is_listen: timeout.is_none() })
+        Ok(Self {
+            session,
+            is_listen: timeout.is_none(),
+        })
     }
 
     pub fn call(&self, command: &str) -> Result<Vec<String>, Box<dyn std::error::Error>> {

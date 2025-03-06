@@ -28,13 +28,14 @@ impl client::Handler for SshClient {
 
 pub struct SshSession {
     session: client::Handle<SshClient>,
+    user: String,
     is_listen: bool,
 }
 
 impl SshSession {
     pub fn connect<P: AsRef<Path>, A: ToSocketAddrs>(
         key_path: P,
-        user: impl Into<String>,
+        user: impl Into<String> + Copy,
         addrs: A,
         timeout: Option<u64>,
     ) -> Result<Self, Box<dyn std::error::Error>> {
@@ -43,7 +44,7 @@ impl SshSession {
 
     async fn _connect<P: AsRef<Path>, A: ToSocketAddrs>(
         key_path: P,
-        user: impl Into<String>,
+        user: impl Into<String> + Copy,
         addrs: A,
         timeout: Option<u64>,
     ) -> Result<Self, Box<dyn std::error::Error>> {
@@ -69,7 +70,7 @@ impl SshSession {
         let mut session = client::connect(config, addrs, sh).await?;
         let auth_res = session
             .authenticate_publickey(
-                user,
+                user.into(),
                 PrivateKeyWithHashAlg::new(
                     Arc::new(key_pair),
                     session.best_supported_rsa_hash().await.unwrap().flatten(),
@@ -83,6 +84,7 @@ impl SshSession {
 
         Ok(Self {
             session,
+            user: user.into(),
             is_listen: timeout.is_none(),
         })
     }
@@ -164,7 +166,7 @@ impl SshSession {
         &self,
         path: &PathBuf,
         state: F,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    ) -> Result<String, Box<dyn std::error::Error>> {
         // Get name
         let file_name = match path.file_name() {
             Some(name) => format!("Downloads/{}", name.to_string_lossy()),
@@ -183,7 +185,7 @@ impl SshSession {
         // Open file
         let mut sftp_file = sftp
             .open_with_flags(
-                file_name,
+                file_name.clone(),
                 OpenFlags::CREATE | OpenFlags::TRUNCATE | OpenFlags::WRITE | OpenFlags::READ,
             )
             .await
@@ -196,7 +198,7 @@ impl SshSession {
             sftp_file.write_all(data).await.unwrap();
             progress += 1;
         }
-        Ok(())
+        Ok(format!("/home/{}/{}", self.user, file_name))
     }
 
     pub async fn close(&self) -> Result<(), Box<dyn std::error::Error>> {

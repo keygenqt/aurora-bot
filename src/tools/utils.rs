@@ -147,7 +147,9 @@ pub fn get_home_folder_path() -> PathBuf {
 
 /// Get path for save config-file
 pub fn get_file_save_path(file_name: &str) -> PathBuf {
-    get_home_folder_path().join(file_name)
+    let path = get_home_folder_path().join(constants::CONFIGURATION_DIR);
+    let _ = fs::create_dir(&path);
+    path.join(file_name)
 }
 
 /// Gen path for screenshot
@@ -254,5 +256,17 @@ pub fn get_repo_url_psdk() -> Vec<String> {
     match single::get_request().get_repo_url_files(&vec!["PlatformSDK", "AuroraPSDK"], None) {
         Ok(value) => value,
         Err(_) => vec![],
+    }
+}
+
+/// Get package_name from path rpm
+pub fn get_package_name(path: &PathBuf) -> Option<String> {
+    let package = match rpm::Package::open(path) {
+        Ok(value) => value,
+        Err(_) => return None,
+    };
+    match package.metadata.get_name() {
+        Ok(value) => Some(value.to_string()),
+        Err(_) => None,
     }
 }

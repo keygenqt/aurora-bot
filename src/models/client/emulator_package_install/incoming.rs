@@ -11,6 +11,7 @@ use crate::models::client::outgoing::TraitOutgoing;
 use crate::models::client::selector::selects::select_emulator::EmulatorModelSelect;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::models::emulator::model::EmulatorModel;
+use crate::models::psdk_installed::model::PsdkInstalledModel;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
 use crate::tools::utils;
@@ -79,7 +80,6 @@ impl EmulatorPackageInstallIncoming {
         );
     }
 
-    #[allow(unused)]
     fn run_install(
         emulator: &EmulatorModel,
         send_type: &OutgoingType,
@@ -88,7 +88,28 @@ impl EmulatorPackageInstallIncoming {
         if !emulator.is_running {
             return Ok(StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен")));
         }
-        // @todo
+        // Check and sign package
+        let psdk = match PsdkInstalledModel::get_latest() {
+            Some(value) => value,
+            None => Err(tr!("для проверки и подписи пакете необходим установить Platform SDK"))?,
+        };
+        if !psdk.package_is_sign(path) && !psdk.package_sign(path) {
+            Err(tr!("не удалось провалидировать подпись"))?;
+        }
+        // Get package name from rpm
+        let package_name = utils::get_package_name(path);
+        if package_name.is_none() {
+            Err("не удалось получить название пакета")?;
+        }
+        // Get session
+        let session = emulator.session_user()?;
+        // Upload file
+        StateMessageOutgoing::new_state(tr!("загружаем пакет...")).send(send_type);
+        let path_remote = &session.file_upload(path, StateMessageOutgoing::get_state_callback_file_small(send_type))?;
+        // Install by apm
+        StateMessageOutgoing::new_state(tr!("установка пакета")).send(send_type);
+        session.install_package(path_remote.clone(), package_name)?;
+        // Success result
         Ok(StateMessageOutgoing::new_success(tr!("пакет успешно установлен")))
     }
 }

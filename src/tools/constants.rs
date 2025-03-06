@@ -14,14 +14,25 @@ pub const WSS_API: &str = "wss://aurora-cos.keygenqt.com/api/connect";
 /// D-Bus API name
 pub const DBUS_NAME: &str = "com.keygenqt.aurora_bot";
 
+/// Folder for save config files
+pub const CONFIGURATION_DIR: &str = ".aurora-bot";
+
 /// File name for save session cookie
-pub const SESSION_FILE: &str = ".aurora-bot.session";
+pub const SESSION_FILE: &str = "aurora-bot.session";
 
 /// File name for save configuration
-pub const CONFIGURATION_FILE: &str = ".aurora-bot.configuration";
+pub const CONFIGURATION_FILE: &str = "aurora-bot.configuration";
 
 /// File name for save environment bash
-pub const ENVIRONMENT_FILE: &str = ".aurora-bot.environment";
+pub const ENVIRONMENT_FILE: &str = "aurora-bot.environment";
+
+/// Files for sign rpm package
+pub const SIGN_REG_KEY: &str = "regular_key.pem";
+pub const SIGN_REG_CERT: &str = "regular_cert.pem";
+
+/// Download keys for sign rpm package
+pub const SIGN_REG_KEY_URL: &str = "https://developer.auroraos.ru/static/regular_key.pem";
+pub const SIGN_REG_CERT_URL: &str = "https://developer.auroraos.ru/static/regular_cert.pem";
 
 /// Version application
 pub const VERSION_APP: &str = "0.0.4";

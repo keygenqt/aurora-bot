@@ -62,9 +62,9 @@ impl EmulatorSession {
         &self,
         path: &PathBuf,
         state: F,
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        tokio::task::block_in_place(|| Handle::current().block_on(self.session.upload(path, state)))?;
-        Ok(())
+    ) -> Result<String, Box<dyn std::error::Error>> {
+        let path_remote = tokio::task::block_in_place(|| Handle::current().block_on(self.session.upload(path, state)))?;
+        Ok(path_remote)
     }
 
     pub fn get_install_packages(&self) -> Result<Vec<String>, Box<dyn std::error::Error>> {
@@ -94,6 +94,43 @@ impl EmulatorSession {
                 }
             }
             Err(_) => Err("при запросе пакетов возникла ошибка")?,
+        }
+    }
+
+    pub fn install_package(
+        &self,
+        path_remote: String,
+        package_name: Option<String>,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        // Try remove
+        if let Some(package_name) = package_name {
+            let _ = self.remove_package(package_name, false);
+        }
+        // Install
+        let prompt = "\"{}\"";
+        let command = format!(
+            "gdbus call --system --dest ru.omp.APM --object-path /ru/omp/APM --method ru.omp.APM.Install \"{path_remote}\" {}",
+            prompt
+        );
+        match self.session.call(&command) {
+            Ok(_) => Ok(()),
+            Err(_) => Err("произошла ошибка при установке пакета")?,
+        }
+    }
+
+    pub fn remove_package(&self, package_name: String, is_remove_data: bool) -> Result<(), Box<dyn std::error::Error>> {
+        let prompt = if is_remove_data {
+            "\"{}\""
+        } else {
+            "\"{'KeepUserData': <true>}\""
+        };
+        let command = format!(
+            "gdbus call --system --dest ru.omp.APM --object-path /ru/omp/APM --method ru.omp.APM.Remove \"{package_name}\" {}",
+            prompt
+        );
+        match self.session.call(&command) {
+            Ok(_) => Ok(()),
+            Err(_) => Err("произошла ошибка при удалении пакета")?,
         }
     }
 

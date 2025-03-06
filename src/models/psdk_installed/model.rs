@@ -1,12 +1,18 @@
 use colored::Colorize;
+use human_sort::sort;
 
 use crate::models::TraitModel;
 use crate::models::configuration::psdk::PsdkConfig;
+use crate::service::command::exec;
+use crate::tools::constants;
 use crate::tools::macros::print_info;
+use crate::tools::single;
 use crate::tools::utils;
 use serde::Deserialize;
 use serde::Serialize;
+use std::collections::HashMap;
 use std::fs;
+use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct PsdkInstalledModel {
@@ -37,6 +43,10 @@ impl TraitModel for PsdkInstalledModel {
 }
 
 impl PsdkInstalledModel {
+    pub fn get_latest() -> Option<PsdkInstalledModel> {
+        PsdkConfig::load_models().first().cloned()
+    }
+
     pub fn search() -> Vec<PsdkInstalledModel> {
         PsdkConfig::load_models()
     }
@@ -51,6 +61,9 @@ impl PsdkInstalledModel {
 
     pub fn search_full() -> Result<Vec<PsdkInstalledModel>, Box<dyn std::error::Error>> {
         let mut models: Vec<PsdkInstalledModel> = vec![];
+        let mut models_by_version: HashMap<String, PsdkInstalledModel> = HashMap::new();
+        let mut versions: Vec<String> = vec![];
+
         let psdks_path = utils::search_files("aurora_psdk/sdk-chroot");
         for chroot in psdks_path {
             let psdk_dir = chroot.replace("/sdk-chroot", "");
@@ -71,14 +84,87 @@ impl PsdkInstalledModel {
                 Ok(s) => s.parse::<u8>().unwrap_or_else(|_| 0),
                 Err(_) => continue,
             };
-            models.push(PsdkInstalledModel {
+            let model = PsdkInstalledModel {
                 dir: psdk_dir,
                 chroot: chroot.clone(),
-                version_id,
+                version_id: version_id.clone(),
                 version,
                 build,
-            });
+            };
+            models_by_version.insert(version_id.clone(), model);
+            versions.push(version_id);
+        }
+        // Sort version
+        let mut versions = versions.iter().map(|e| e.as_str()).collect::<Vec<&str>>();
+        sort(&mut versions);
+        let reverse = versions.iter().copied().rev().collect::<Vec<&str>>();
+        // Make result
+        for version in reverse {
+            models.push(models_by_version.get(version).unwrap().clone());
         }
         Ok(models)
+    }
+
+    pub fn package_is_sign(&self, path: &PathBuf) -> bool {
+        let output = match exec::exec_wait_args(&self.chroot, ["rpmsign-external", "verify", &path.to_string_lossy()]) {
+            Ok(value) => value,
+            Err(_) => return false,
+        };
+        let lines = utils::parse_output(output.stdout);
+        !lines.is_empty() && lines.last().unwrap().contains("successfully")
+    }
+
+    pub fn package_sign(&self, path: &PathBuf) -> bool {
+        let path_key = self.get_regular_key();
+        if path_key.is_none() {
+            return false;
+        }
+        let path_cert = self.get_regular_cert();
+        if path_cert.is_none() {
+            return false;
+        }
+        let _ = match exec::exec_wait_args(
+            &self.chroot,
+            [
+                "rpmsign-external",
+                "sign",
+                "--force",
+                &format!("--key={}", path_key.unwrap().to_string_lossy()),
+                &format!("--cert={}", path_cert.unwrap().to_string_lossy()),
+                &path.to_string_lossy(),
+            ],
+        ) {
+            Ok(value) => value,
+            Err(_) => return false,
+        };
+        self.package_is_sign(path)
+    }
+
+    fn get_regular_key(&self) -> Option<PathBuf> {
+        let path = utils::get_file_save_path(constants::SIGN_REG_KEY);
+        if !path.exists() {
+            match single::get_request().download_file(constants::SIGN_REG_KEY_URL.to_string(), |_| {}) {
+                Ok(value) => match fs::rename(value, &path) {
+                    Ok(_) => {}
+                    Err(_) => return None,
+                },
+                Err(_) => return None,
+            };
+        }
+        Some(path)
+    }
+
+    fn get_regular_cert(&self) -> Option<PathBuf> {
+        let path = utils::get_file_save_path(constants::SIGN_REG_CERT);
+        if !path.exists() {
+            match single::get_request().download_file(constants::SIGN_REG_CERT_URL.to_string(), |_| {}) {
+                Ok(value) => match fs::rename(value, &path) {
+                    Ok(_) => {}
+                    Err(_) => return None,
+                },
+                Err(_) => return None,
+            };
+        }
+        Some(path)
     }
 }

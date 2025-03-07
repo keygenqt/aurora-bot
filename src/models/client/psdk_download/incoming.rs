@@ -21,7 +21,7 @@ pub struct PsdkDownloadIncoming {
     id: Option<String>,
 }
 
-// @todo to server
+// @todo add to server
 impl PsdkDownloadIncoming {
     pub fn name() -> String {
         serde_variant::to_variant_name(&ClientMethodsKey::PsdkDownload)

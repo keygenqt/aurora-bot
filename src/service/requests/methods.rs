@@ -1,5 +1,6 @@
 use futures::StreamExt;
 use futures::stream::FuturesUnordered;
+use std::collections::HashMap;
 use std::env;
 use std::fs::File;
 use std::io::Write;
@@ -15,6 +16,8 @@ use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::selector::incoming::SelectorCmdIncoming;
 use crate::service::requests::client::ClientRequest;
 use crate::service::responses::common::CommonResponse;
+use crate::service::responses::demo_releases::DemoAppResponse;
+use crate::service::responses::demo_releases::DemoReleasesResponse;
 use crate::service::responses::faq::FaqResponse;
 use crate::service::responses::faq::FaqResponses;
 use crate::service::responses::gitlab_tags::GitlabTagsResponse;
@@ -165,6 +168,83 @@ impl ClientRequest {
             Ok(value) => value,
             Err(_) => vec![],
         }
+    }
+
+    // Get demos applications from repo
+    pub fn get_demo_apps(&self) -> Vec<DemoReleasesResponse> {
+        // Get info all packages async
+        async fn get_packages_info(
+            packages: Vec<DemoReleasesResponse>,
+        ) -> Vec<Option<HashMap<String, Option<DemoAppResponse>>>> {
+            let tasks = FuturesUnordered::new();
+            for package in packages {
+                tasks.push(tokio::spawn(async move {
+                    let package_name = package.tag_name.split("-").next().unwrap();
+                    let url = format!("https://raw.githubusercontent.com/keygenqt/aurora-apps/refs/heads/main/apps/{package_name}/spec.json");
+                    let response = match ClientRequest::new(None).get_request(url) {
+                        Ok(response) => response,
+                        Err(_) => return None,
+                    };
+                    let body = match response.text().await {
+                        Ok(value) => value,
+                        Err(_) => return None,
+                    };
+                    let info = match serde_json::from_str::<DemoAppResponse>(&body) {
+                        Ok(value) => Some(value),
+                        Err(_) => None,
+                    };
+                    let mut result: HashMap<String, Option<DemoAppResponse>> = HashMap::new();
+                    result.insert(package_name.to_string(), info);
+                    Some(result)
+                }));
+            }
+            let mut outputs = Vec::with_capacity(tasks.len());
+            for task in tasks {
+                outputs.push(task.await.unwrap());
+            }
+            outputs
+        }
+        // Get packages
+        let url = "https://api.github.com/repos/keygenqt/aurora-apps/releases".to_string();
+        let response = match self.get_request(url) {
+            Ok(response) => response,
+            Err(_) => return vec![],
+        };
+        let body = match tokio::task::block_in_place(|| Handle::current().block_on(response.text())) {
+            Ok(value) => value,
+            Err(_) => return vec![],
+        };
+        let packages = match serde_json::from_str::<Vec<DemoReleasesResponse>>(&body) {
+            Ok(value) => value,
+            Err(error) => {
+                println!("{}", error);
+                vec![]
+            }
+        };
+        // Get result
+        let mut result: Vec<DemoReleasesResponse> = vec![];
+        let packages_with_info =
+            tokio::task::block_in_place(|| Handle::current().block_on(get_packages_info(packages.clone())));
+        for mut package in packages {
+            let package_name = package.tag_name.split("-").next().unwrap();
+            for list in &packages_with_info {
+                let data = match list {
+                    Some(value) => value,
+                    None => continue,
+                };
+                let info = match data.get(package_name) {
+                    Some(value) => value.clone(),
+                    None => continue,
+                };
+                if info.is_none() {
+                    continue;
+                }
+                package.info = info;
+            }
+            result.push(package);
+        }
+        // Done
+        result
     }
 
     /// Download files

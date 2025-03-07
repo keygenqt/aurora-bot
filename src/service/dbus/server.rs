@@ -92,6 +92,9 @@ impl ServerDbus {
 
             EmulatorPackageInstallIncoming::dbus_method_run_path(builder);
             EmulatorPackageInstallIncoming::dbus_method_run_path_by_id(builder);
+            EmulatorPackageInstallIncoming::dbus_method_run_url(builder);
+            EmulatorPackageInstallIncoming::dbus_method_run_url_by_id(builder);
+            EmulatorPackageInstallIncoming::dbus_method_run_demo(builder);
 
             EmulatorPackageRunIncoming::dbus_method_run(builder);
             EmulatorPackageRunIncoming::dbus_method_run_by_id(builder);

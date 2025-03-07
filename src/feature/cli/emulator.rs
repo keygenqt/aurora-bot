@@ -103,6 +103,12 @@ pub struct EmulatorPackageArgs {
     /// Установить пакет
     #[arg(short, long, value_name = "path")]
     install: Option<PathBuf>,
+    /// Скачать и установить пакет
+    #[arg(long, value_name = "url")]
+    install_url: Option<String>,
+    /// Установить демо приложение
+    #[arg(long, default_value_t = false)]
+    install_demo: bool,
 
     /// Удалить пакет c автоматическим поиском
     #[arg(short, long, default_value_t = false)]
@@ -198,9 +204,26 @@ pub fn run(arg: EmulatorArgs) {
             EmulatorArgsGroup::Package(arg) => {
                 if let Some(path) = arg.install {
                     match utils::path_to_absolute(&path) {
-                        Some(path) => EmulatorPackageInstallIncoming::new(path).run(OutgoingType::Cli).print(),
+                        Some(path) => EmulatorPackageInstallIncoming::new_path(path)
+                            .run(OutgoingType::Cli)
+                            .print(),
                         None => print_error!("проверьте путь к файлу"),
                     }
+                    return;
+                }
+                if let Some(url) = arg.install_url {
+                    match utils::get_https_url(url) {
+                        Some(url) => EmulatorPackageInstallIncoming::new_url(url)
+                            .run(OutgoingType::Cli)
+                            .print(),
+                        None => print_error!("проверьте url файла"),
+                    }
+                    return;
+                }
+                if arg.install_demo {
+                    EmulatorPackageInstallIncoming::new_demo()
+                        .run(OutgoingType::Cli)
+                        .print();
                     return;
                 }
                 if let Some(package) = arg.uninstall_name {

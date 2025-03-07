@@ -1,4 +1,5 @@
 use color_eyre::owo_colors::OwoColorize;
+use reqwest::header;
 use std::fs;
 use std::sync::Arc;
 use tokio::runtime::Handle;
@@ -26,21 +27,33 @@ pub struct ClientRequest {
 impl ClientRequest {
     /// Create instance
     pub fn new(timeout: Option<u64>) -> ClientRequest {
+        // Get cookie
         let cookie = match ClientRequest::load_cookie(true) {
             Ok(cookie) => std::sync::Arc::clone(&cookie),
             Err(_) => {
                 crash!("ошибка чтение данных")
             }
         };
+        // Get default headers
+        let mut headers = header::HeaderMap::new();
+        headers.insert(
+            "User-Agent",
+            header::HeaderValue::from_static("AuroraBot (X11; Linux x86_64) rust/reqwest."),
+        );
+        // Get client
         let client = if let Some(timeout) = timeout {
             Client::builder()
                 .cookie_provider(std::sync::Arc::clone(&cookie))
+                .default_headers(headers)
                 .timeout(Duration::from_secs(timeout))
         } else {
-            Client::builder().cookie_provider(std::sync::Arc::clone(&cookie))
+            Client::builder()
+                .cookie_provider(std::sync::Arc::clone(&cookie))
+                .default_headers(headers)
         }
         .build()
         .unwrap();
+        // Done
         ClientRequest { client, cookie }
     }
 

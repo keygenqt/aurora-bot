@@ -6,6 +6,9 @@ pub mod emulator {
     pub mod model;
     pub mod session;
 }
+pub mod demo_app {
+    pub mod model;
+}
 pub mod device {
     pub mod model;
 }

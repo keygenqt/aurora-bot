@@ -22,7 +22,7 @@ pub struct SdkDownloadIncoming {
     id: Option<String>,
 }
 
-// @todo to server
+// @todo add to server
 impl SdkDownloadIncoming {
     pub fn name() -> String {
         serde_variant::to_variant_name(&ClientMethodsKey::SdkDownload)

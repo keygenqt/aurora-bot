@@ -107,6 +107,7 @@ pub mod selector {
         pub mod outgoing;
     }
     pub mod selects {
+        pub mod select_demo_app;
         pub mod select_device;
         pub mod select_emulator;
         pub mod select_emulator_packages;

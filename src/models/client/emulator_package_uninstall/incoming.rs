@@ -19,7 +19,6 @@ pub struct EmulatorPackageUninstallIncoming {
     package: Option<String>,
 }
 
-// @todo add to server
 impl EmulatorPackageUninstallIncoming {
     pub fn name() -> String {
         serde_variant::to_variant_name(&ClientMethodsKey::EmulatorPackageUninstall)
@@ -139,7 +138,7 @@ impl TraitIncoming for EmulatorPackageUninstallIncoming {
         // Search
         let key = EmulatorPackageUninstallIncoming::name();
         let models: Vec<EmulatorModel> =
-            EmulatorModelSelect::search(&self.id, &send_type, tr!("ищем эмулятор"), Some(true));
+            EmulatorModelSelect::search(&self.id, &send_type, tr!("ищем запущенный эмулятор"), Some(true));
         // Select
         match models.iter().count() {
             1 => {

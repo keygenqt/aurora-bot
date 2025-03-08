@@ -28,7 +28,6 @@ pub struct EmulatorPackageInstallIncoming {
     is_demo: bool,
 }
 
-// @todo add to server
 impl EmulatorPackageInstallIncoming {
     pub fn name() -> String {
         serde_variant::to_variant_name(&ClientMethodsKey::EmulatorPackageInstall)

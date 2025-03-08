@@ -20,7 +20,6 @@ pub struct EmulatorPackageRunIncoming {
     is_listen: bool,
 }
 
-// @todo add to server
 impl EmulatorPackageRunIncoming {
     pub fn name() -> String {
         serde_variant::to_variant_name(&ClientMethodsKey::EmulatorPackageRun)
@@ -150,7 +149,7 @@ impl TraitIncoming for EmulatorPackageRunIncoming {
         // Search
         let key = EmulatorPackageRunIncoming::name();
         let models: Vec<EmulatorModel> =
-            EmulatorModelSelect::search(&self.id, &send_type, tr!("ищем эмулятор"), Some(true));
+            EmulatorModelSelect::search(&self.id, &send_type, tr!("ищем запущенный эмулятор"), Some(true));
         // Select
         match models.iter().count() {
             1 => {

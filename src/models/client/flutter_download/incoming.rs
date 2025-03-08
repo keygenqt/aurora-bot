@@ -21,7 +21,6 @@ pub struct FlutterDownloadIncoming {
     id: Option<String>,
 }
 
-// @todo add to server
 impl FlutterDownloadIncoming {
     pub fn name() -> String {
         serde_variant::to_variant_name(&ClientMethodsKey::FlutterDownload)

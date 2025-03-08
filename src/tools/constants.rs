@@ -15,6 +15,10 @@ pub const WSS_API: &str = "wss://aurora-cos.keygenqt.com/api/connect";
 pub const DBUS_NAME: &str = "com.keygenqt.aurora_bot";
 
 /// Folder for save config files
+#[cfg(debug_assertions)]
+pub const CONFIGURATION_DIR: &str = ".aurora-bot-debug";
+
+#[cfg(not(debug_assertions))]
 pub const CONFIGURATION_DIR: &str = ".aurora-bot";
 
 /// File name for save session cookie

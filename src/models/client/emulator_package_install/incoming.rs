@@ -184,8 +184,6 @@ impl EmulatorPackageInstallIncoming {
         // Upload file
         StateMessageOutgoing::new_state(tr!("загружаем пакет...")).send(send_type);
         let path_remote = &session.file_upload(path, StateMessageOutgoing::get_state_callback_file_small(send_type))?;
-        // Remove file after upload
-        let _ = fs::remove_file(path);
         // Install by apm
         StateMessageOutgoing::new_state(tr!("установка пакета")).send(send_type);
         session.install_package(path_remote.clone(), package_name)?;

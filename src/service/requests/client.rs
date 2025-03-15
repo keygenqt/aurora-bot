@@ -193,21 +193,30 @@ impl ClientRequest {
         Ok(())
     }
 
-    /// Common GET request with auth
+    /// Common GET request
     pub fn get_request(&self, url: String) -> Result<Response, Box<dyn std::error::Error>> {
-        tokio::task::block_in_place(|| Handle::current().block_on(self._get_request(url)))
+        tokio::task::block_in_place(|| Handle::current().block_on(self._get_request(url, false)))
     }
 
-    async fn _get_request(&self, url: String) -> Result<Response, Box<dyn std::error::Error>> {
+    /// Common GET request with auth
+    pub fn get_request_auth(&self, url: String) -> Result<Response, Box<dyn std::error::Error>> {
+        tokio::task::block_in_place(|| Handle::current().block_on(self._get_request(url, true)))
+    }
+
+    async fn _get_request(&self, url: String, is_auth: bool) -> Result<Response, Box<dyn std::error::Error>> {
         match self.client.get(&url).send().await {
             Ok(response) => {
                 if StatusCode::UNAUTHORIZED == response.status() {
-                    match self.auth() {
-                        Ok(_) => match self.client.get(&url).send().await {
-                            Ok(response) => Ok(response),
+                    if is_auth {
+                        match self.auth() {
+                            Ok(_) => match self.client.get(&url).send().await {
+                                Ok(response) => Ok(response),
+                                Err(error) => Err(error)?,
+                            },
                             Err(error) => Err(error)?,
-                        },
-                        Err(error) => Err(error)?,
+                        }
+                    } else {
+                        Err(tr!("требуется авторизация"))?
                     }
                 } else {
                     Ok(response)

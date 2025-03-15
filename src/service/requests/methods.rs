@@ -28,7 +28,6 @@ use crate::tools::macros::tr;
 
 impl ClientRequest {
     /// Get data user
-    #[allow(dead_code)]
     pub fn get_user(&self) -> Result<UserResponse, Box<dyn std::error::Error>> {
         let url = format!("{}/user/info", constants::URL_API);
         let response = match self.get_request(url) {
@@ -51,7 +50,7 @@ impl ClientRequest {
     /// AI Command line
     pub fn get_command(&self, value: String) -> Result<Box<dyn TraitIncoming>, Box<dyn std::error::Error>> {
         let url = format!("{}/cli-dataset/command/{}", constants::URL_API, value);
-        let response = match self.get_request(url) {
+        let response = match self.get_request_auth(url) {
             Ok(value) => value,
             Err(_) => Err(tr!("ошибка соединения"))?,
         };
@@ -72,7 +71,7 @@ impl ClientRequest {
     /// Get answer
     pub fn get_search(&self, value: String) -> Result<FaqResponses, Box<dyn std::error::Error>> {
         let url = format!("{}/aurora-dataset/search/data/{}", constants::URL_API, value);
-        let response = match self.get_request(url) {
+        let response = match self.get_request_auth(url) {
             Ok(response) => response,
             Err(error) => Err(error)?,
         };
@@ -114,7 +113,7 @@ impl ClientRequest {
             Some(value) => value,
             None => url_default,
         };
-        let response = match self.get_request(url_level.clone()) {
+        let response = match self.get_request_auth(url_level.clone()) {
             Ok(response) => response,
             Err(error) => Err(error)?,
         };
@@ -156,7 +155,7 @@ impl ClientRequest {
     // Get info about Flutter from gitlab tags repo
     pub fn get_repo_tags_flutter(&self) -> Vec<GitlabTagsResponse> {
         let url = "https://gitlab.com/api/v4/projects/53055476/repository/tags?per_page=100".to_string();
-        let response = match self.get_request(url) {
+        let response = match self.get_request_auth(url) {
             Ok(response) => response,
             Err(_) => return vec![],
         };
@@ -181,7 +180,7 @@ impl ClientRequest {
                 tasks.push(tokio::spawn(async move {
                     let package_name = package.tag_name.split("-").next().unwrap();
                     let url = format!("https://raw.githubusercontent.com/keygenqt/aurora-apps/refs/heads/main/apps/{package_name}/spec.json");
-                    let response = match ClientRequest::new(None).get_request(url) {
+                    let response = match ClientRequest::new(None).get_request_auth(url) {
                         Ok(response) => response,
                         Err(_) => return None,
                     };
@@ -206,7 +205,7 @@ impl ClientRequest {
         }
         // Get packages
         let url = "https://api.github.com/repos/keygenqt/aurora-apps/releases".to_string();
-        let response = match self.get_request(url) {
+        let response = match self.get_request_auth(url) {
             Ok(response) => response,
             Err(_) => return vec![],
         };

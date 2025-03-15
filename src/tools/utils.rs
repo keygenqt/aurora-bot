@@ -42,7 +42,7 @@ pub fn config_get_string(params: &Vec<String>, key: &str, split: &str) -> Result
             .trim()
             .trim_matches(&['"'] as &[_])
             .to_string()),
-        None => Err("не удалось найти ключ")?,
+        None => Err(tr!("не удалось найти ключ"))?,
     }
 }
 
@@ -50,7 +50,7 @@ pub fn config_get_string(params: &Vec<String>, key: &str, split: &str) -> Result
 pub fn config_get_bool(params: &Vec<String>, key: &str, find: &str) -> Result<bool, Box<dyn std::error::Error>> {
     match params.iter().filter(|e| e.contains(key)).next() {
         Some(option) => Ok(option.contains(find)),
-        None => Err("не удалось найти ключ")?,
+        None => Err(tr!("не удалось найти ключ"))?,
     }
 }
 

@@ -1,3 +1,5 @@
+use crate::models::client::app_auth_login::incoming::AppAuthLoginIncoming;
+use crate::models::client::app_auth_logout::incoming::AppAuthLogoutIncoming;
 use crate::models::client::emulator_sync::incoming::EmulatorSyncIncoming;
 use crate::models::client::flutter_sync::incoming::FlutterSyncIncoming;
 use crate::models::client::incoming::TraitIncoming;
@@ -7,7 +9,6 @@ use crate::models::client::sdk_sync::incoming::SdkSyncIncoming;
 use crate::service::dbus::server::ServerDbus;
 use crate::tools::macros::print_error;
 use crate::tools::macros::print_info;
-use crate::tools::macros::print_success;
 use crate::tools::single;
 use clap::Args;
 use clap::Subcommand;
@@ -96,17 +97,11 @@ pub fn run(arg: SvcArgs) {
         return;
     }
     if arg.logout {
-        match single::get_request().logout() {
-            Ok(_) => print_success!("сессия удалена успешно"),
-            Err(_) => print_error!("сессия не найдена"),
-        }
+        AppAuthLogoutIncoming::new().run(OutgoingType::Cli).print();
         return;
     }
     if let Some(token) = arg.auth {
-        match single::get_request().auth_ping_token(token) {
-            Ok(_) => print_success!("авторизация выполнена успешно"),
-            Err(_) => print_error!("авторизация по токену не удалась"),
-        }
+        AppAuthLoginIncoming::new(token).run(OutgoingType::Cli).print();
         return;
     }
     if let Some(sync) = arg.sync {

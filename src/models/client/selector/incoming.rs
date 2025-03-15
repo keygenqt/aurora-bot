@@ -4,6 +4,7 @@ use serde::Deserialize;
 
 use crate::models::client::ClientMethodsKey;
 use crate::models::client::incoming::TraitIncoming;
+use crate::tools::macros::tr;
 
 #[derive(Deserialize, Clone)]
 pub struct SelectorCmdIncoming {
@@ -28,7 +29,7 @@ impl SelectorCmdIncoming {
             items.push(format!("{}. {}", i + 1, item.name_data));
         }
         let index = Select::new()
-            .with_prompt("Выберите вариант".blue().to_string())
+            .with_prompt(tr!("Выберите вариант").blue().to_string())
             .default(0)
             .items(&items)
             .interact()

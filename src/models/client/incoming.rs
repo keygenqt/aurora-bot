@@ -5,6 +5,8 @@ use crate::tools::macros::print_debug;
 use crate::tools::utils;
 
 use super::ClientMethodsKey;
+use super::app_auth_login::incoming::AppAuthLoginIncoming;
+use super::app_auth_logout::incoming::AppAuthLogoutIncoming;
 use super::app_info::incoming::AppInfoIncoming;
 use super::emulator_close::incoming::EmulatorCloseIncoming;
 use super::emulator_info::incoming::EmulatorInfoIncoming;
@@ -61,6 +63,14 @@ impl ClientMethodsKey {
         }
         let value = utils::clear_to_model_body(value)?;
         match self {
+            ClientMethodsKey::AppAuthLogin => {
+                let model = serde_json::from_str::<AppAuthLoginIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::AppAuthLogout => {
+                let model = serde_json::from_str::<AppAuthLogoutIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
             ClientMethodsKey::AppInfo => {
                 let model = serde_json::from_str::<AppInfoIncoming>(&value)?;
                 Ok(Box::new(model))

@@ -17,7 +17,7 @@ impl EmulatorPackageSelect {
     ) -> Result<SelectorOutgoing<T>, Box<dyn std::error::Error>> {
         let session = match model.session_user() {
             Ok(value) => value,
-            Err(_) => Err("не удалось получить доступ")?,
+            Err(_) => Err(tr!("не удалось получить доступ"))?,
         };
         let packages = match session.get_install_packages() {
             Ok(value) => value,

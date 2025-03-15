@@ -141,7 +141,7 @@ impl EmulatorUploadIncoming {
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         let url = match utils::get_https_url(url.to_string()) {
             Some(url) => url,
-            None => Err("не удалось скачать файл")?,
+            None => Err(tr!("не удалось скачать файл"))?,
         };
         StateMessageOutgoing::new_state(tr!("скачиваем файл...")).send(send_type);
         let path = single::get_request().download_file(

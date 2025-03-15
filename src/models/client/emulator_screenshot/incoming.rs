@@ -76,7 +76,7 @@ impl EmulatorScreenshotIncoming {
         let program = programs::get_vboxmanage()?;
         let output = exec::exec_wait_args(&program, ["controlvm", uuid, "screenshotpng", &path])?;
         if !output.status.success() {
-            Err("не удалось сделать скриншот")?
+            Err(tr!("не удалось сделать скриншот"))?
         }
         Ok(EmulatorScreenshotOutgoing::new(
             path.clone(),

@@ -3,6 +3,8 @@ use std::process::Command;
 use std::process::Output;
 use std::process::Stdio;
 
+use crate::tools::macros::tr;
+
 #[allow(dead_code)]
 pub fn exec_wait(program: &str) -> Result<Output, Box<dyn std::error::Error>> {
     match Command::new(program)
@@ -11,7 +13,7 @@ pub fn exec_wait(program: &str) -> Result<Output, Box<dyn std::error::Error>> {
         .output()
     {
         Ok(output) => Ok(output),
-        Err(_) => Err("команда завершилась неудачей")?,
+        Err(_) => Err(tr!("команда завершилась неудачей"))?,
     }
 }
 
@@ -27,6 +29,6 @@ where
         .output()
     {
         Ok(output) => Ok(output),
-        Err(_) => Err("команда завершилась неудачей")?,
+        Err(_) => Err(tr!("команда завершилась неудачей"))?,
     }
 }

@@ -4,6 +4,7 @@ use crate::models::configuration::flutter::FlutterConfig;
 use crate::models::configuration::psdk::PsdkConfig;
 use crate::models::configuration::sdk::SdkConfig;
 use crate::tools::constants;
+use crate::tools::macros::tr;
 use crate::tools::utils;
 use serde::Deserialize;
 use serde::Serialize;
@@ -42,14 +43,14 @@ impl Config {
             let path = utils::get_file_save_path(constants::CONFIGURATION_FILE);
             let data = match fs::read_to_string(path) {
                 Ok(value) => value,
-                Err(_) => Err("не удалось прочитать конфигурацию")?,
+                Err(_) => Err(tr!("не удалось прочитать конфигурацию"))?,
             };
             let config = match serde_json::from_str::<Config>(&data) {
                 Ok(config) => config,
-                Err(_) => Err("не удалось получить конфигурацию")?,
+                Err(_) => Err(tr!("не удалось получить конфигурацию"))?,
             };
             if config.version != Config::new().version {
-                Err("версия конфигурации изменилась")?
+                Err(tr!("версия конфигурации изменилась"))?
             }
             Ok(config)
         }
@@ -60,11 +61,13 @@ impl Config {
         fn _exec(config: Config) -> Result<(), Box<dyn std::error::Error>> {
             let value_for_save = match serde_json::to_string_pretty(&config) {
                 Ok(config) => config,
-                Err(_) => Err("не удалось получить конфигурацию")?,
+                Err(_) => Err(tr!("не удалось получить конфигурацию"))?,
             };
             let path = utils::get_file_save_path(constants::CONFIGURATION_FILE);
-            fs::write(path, value_for_save).expect("не удалось записать файл");
-            Ok(())
+            match fs::write(path, value_for_save) {
+                Ok(_) => Ok(()),
+                Err(_) => Err(tr!("не удалось записать файл"))?,
+            }
         }
         match _exec(self) {
             Ok(_) => true,

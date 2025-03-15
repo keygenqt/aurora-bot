@@ -103,7 +103,7 @@ impl EmulatorRecordStopIncoming {
         let program = programs::get_vboxmanage()?;
         let output = exec::exec_wait_args(&program, ["controlvm", uuid, "recording", "off"])?;
         if !output.status.success() {
-            Err("не удалось остановить запись видео")?
+            Err(tr!("не удалось остановить запись видео"))?
         }
         let name = emulator.name;
         let path_raw = Path::new(&emulator.dir)

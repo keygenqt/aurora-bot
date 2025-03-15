@@ -53,16 +53,16 @@ impl ClientRequest {
         let url = format!("{}/cli-dataset/command/{}", constants::URL_API, value);
         let response = match self.get_request(url) {
             Ok(value) => value,
-            Err(_) => Err("ошибка соединения")?,
+            Err(_) => Err(tr!("ошибка соединения"))?,
         };
         let body = match tokio::task::block_in_place(|| Handle::current().block_on(response.text())) {
             Ok(value) => value,
-            Err(_) => Err("не удалось прочитать данные ответа")?,
+            Err(_) => Err(tr!("не удалось прочитать данные ответа"))?,
         };
         // Cmd selector API interface [SelectorCmdIncoming]
         if body.contains("stringData") {
             serde_json::from_str::<SelectorCmdIncoming>(&body)
-                .expect("ошибка приема данных")
+                .expect("getting data model failed")
                 .select()
         } else {
             DataIncoming::deserialize(&body)?.deserialize(&body)
@@ -81,7 +81,7 @@ impl ClientRequest {
             Err(error) => Err(error)?,
         };
         match body.chars().nth(0) {
-            None => Err("нет соединения")?,
+            None => Err(tr!("нет соединения"))?,
             Some(char) => {
                 if char == '[' {
                     match serde_json::from_str::<Vec<FaqResponse>>(&body) {
@@ -323,12 +323,12 @@ impl ClientRequest {
         // Get name from url
         let file_name = match url.split("/").last() {
             Some(value) => value,
-            None => Err("не удалось получит название файла")?,
+            None => Err(tr!("не удалось получит название файла"))?,
         };
         // Request
         let response = match self.client.get(url.clone()).send().await {
             Ok(response) => response,
-            Err(_) => Err("не удалось получить данные файла")?,
+            Err(_) => Err(tr!("не удалось получить данные файла"))?,
         };
         // Get size file
         let total_size = match response.content_length() {

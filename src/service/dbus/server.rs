@@ -12,6 +12,8 @@ use dbus_tokio::connection;
 use futures::future;
 use tokio::runtime::Handle;
 
+use crate::models::client::app_auth_login::incoming::AppAuthLoginIncoming;
+use crate::models::client::app_auth_logout::incoming::AppAuthLogoutIncoming;
 use crate::models::client::app_info::incoming::AppInfoIncoming;
 use crate::models::client::emulator_close::incoming::EmulatorCloseIncoming;
 use crate::models::client::emulator_info::incoming::EmulatorInfoIncoming;
@@ -75,6 +77,8 @@ impl ServerDbus {
 
             /////////////////
             // App
+            AppAuthLoginIncoming::dbus_method_run(builder);
+            AppAuthLogoutIncoming::dbus_method_run(builder);
             AppInfoIncoming::dbus_method_run(builder);
 
             /////////////////

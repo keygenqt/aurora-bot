@@ -6,6 +6,12 @@ pub mod incoming;
 pub mod outgoing;
 
 /// Methods import
+pub mod app_auth_login {
+    pub mod incoming;
+}
+pub mod app_auth_logout {
+    pub mod incoming;
+}
 pub mod app_info {
     pub mod incoming;
     pub mod outgoing;
@@ -142,6 +148,8 @@ pub enum ClientMethodsState {
 /// Common keys client
 #[derive(Serialize, Deserialize, Clone)]
 pub enum ClientMethodsKey {
+    AppAuthLogin,
+    AppAuthLogout,
     AppInfo,
     EmulatorClose,
     EmulatorInfo,

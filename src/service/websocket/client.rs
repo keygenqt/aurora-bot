@@ -11,6 +11,7 @@ use crate::tools::constants;
 use crate::tools::macros::crash;
 use crate::tools::macros::print_error;
 use crate::tools::macros::print_warning;
+use crate::tools::macros::tr;
 use crate::tools::single;
 use futures_util::SinkExt;
 use futures_util::TryStreamExt;
@@ -105,10 +106,10 @@ impl ClientWebsocket {
                             websocket.send(Message::Text(json)).await?;
                         }
                     }
-                    Err(_) => Err("не удалось получить incoming")?,
+                    Err(_) => Err(tr!("не удалось получить incoming"))?,
                 }
             }
         }
-        Err("соединение закрыто")?
+        Err(tr!("соединение закрыто"))?
     }
 }

@@ -17,6 +17,7 @@ use crate::tools::constants;
 use crate::tools::macros::crash;
 use crate::tools::macros::print_info;
 use crate::tools::macros::print_success;
+use crate::tools::macros::tr;
 use crate::tools::utils;
 
 pub struct ClientRequest {
@@ -106,7 +107,7 @@ impl ClientRequest {
                     );
                     let token = match value.message.split("=").last() {
                         Some(value) => value,
-                        None => Err("токен не найден")?,
+                        None => Err(tr!("токен не найден"))?,
                     };
                     match self.auth_ping_token(String::from(token)) {
                         Ok(_) => {
@@ -116,7 +117,7 @@ impl ClientRequest {
                         Err(error) => Err(error)?,
                     }
                 } else {
-                    Err("не удалось получить токен")?
+                    Err(tr!("не удалось получить токен"))?
                 }
             }
             Err(error) => Err(error)?,
@@ -152,7 +153,7 @@ impl ClientRequest {
     /// Waiting for authorization
     async fn auth_ping(&self, token: String, counter: u64) -> Result<(), Box<dyn std::error::Error>> {
         if counter >= 15 {
-            Err("тайм-аут подключения к серверу")?
+            Err(tr!("тайм-аут подключения к серверу"))?
         }
         let response = match self
             .client
@@ -172,9 +173,9 @@ impl ClientRequest {
                 if value.code == 200 {
                     true
                 } else if value.code == 415 {
-                    Err("это не токен")?
+                    Err(tr!("это не токен"))?
                 } else if value.code == 400 {
-                    Err("токен устарел")?
+                    Err(tr!("токен устарел"))?
                 } else {
                     false
                 }

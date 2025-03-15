@@ -176,7 +176,7 @@ impl EmulatorPackageInstallIncoming {
         // Get package name from rpm
         let package_name = utils::get_package_name(path);
         if package_name.is_none() {
-            Err("не удалось получить название пакета")?;
+            Err(tr!("не удалось получить название пакета"))?;
         }
         // Get session
         let session = emulator.session_user()?;
@@ -197,7 +197,7 @@ impl EmulatorPackageInstallIncoming {
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         let url = match utils::get_https_url(url.to_string()) {
             Some(url) => url,
-            None => Err("не удалось скачать файл")?,
+            None => Err(tr!("не удалось скачать файл"))?,
         };
         StateMessageOutgoing::new_state(tr!("скачиваем файл...")).send(send_type);
         let path = single::get_request().download_file(

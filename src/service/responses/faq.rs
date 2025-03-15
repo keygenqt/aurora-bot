@@ -5,6 +5,8 @@ use regex::Regex;
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::tools::macros::tr;
+
 #[derive(Deserialize, Serialize)]
 pub struct FaqResponse {
     hash: String,
@@ -112,7 +114,7 @@ impl FaqResponses {
                 items.push(format!("{}. {}", i + 1, item.title));
             }
             let index = Select::new()
-                .with_prompt("Выберите вариант".blue().to_string())
+                .with_prompt(tr!("Выберите вариант").blue().to_string())
                 .default(0)
                 .items(&items)
                 .interact()

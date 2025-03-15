@@ -75,7 +75,7 @@ impl EmulatorRecordStartIncoming {
         let program = programs::get_vboxmanage()?;
         let output = exec::exec_wait_args(&program, ["controlvm", uuid, "recording", "on"])?;
         if !output.status.success() {
-            Err("не удалось активировать запись видео")?
+            Err(tr!("не удалось активировать запись видео"))?
         }
         Ok(StateMessageOutgoing::new_success(tr!("запись видео активирована")))
     }

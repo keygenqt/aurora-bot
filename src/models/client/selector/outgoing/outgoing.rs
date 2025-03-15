@@ -7,6 +7,7 @@ use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::DataOutgoing;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
+use crate::tools::macros::tr;
 
 use super::incoming::SelectorIncoming;
 
@@ -23,7 +24,7 @@ impl<T: TraitIncoming + Serialize + Clone> TraitOutgoing for SelectorOutgoing<T>
             items.push(format!("{}. {}", i + 1, item.name));
         }
         let index = Select::new()
-            .with_prompt("Выберите вариант".blue().to_string())
+            .with_prompt(tr!("Выберите вариант").blue().to_string())
             .default(0)
             .items(&items)
             .interact()

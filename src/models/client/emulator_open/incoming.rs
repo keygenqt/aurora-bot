@@ -154,7 +154,7 @@ impl EmulatorOpenIncoming {
             let program = programs::get_vboxmanage()?;
             let output = exec::exec_wait_args(&program, ["setproperty", "vrdeextpack", "VNC"])?;
             if !output.status.success() {
-                Err("не удалось изменить настройки")?
+                Err(tr!("не удалось изменить настройки"))?
             } else {
                 StateMessageOutgoing::new_state(tr!("включен VirtualBox VNC")).send(send_type);
             }
@@ -164,24 +164,24 @@ impl EmulatorOpenIncoming {
                 ["modifyvm", uuid, "--vrdeproperty", &format!("VNCPassword={}", password)],
             )?;
             if !output.status.success() {
-                Err("не удалось установить пароль")?
+                Err(tr!("не удалось установить пароль"))?
             } else {
                 StateMessageOutgoing::new_info(tr!("установлен пароль: <code>{}</code>", password)).send(send_type);
             }
             let port = &port.unwrap_or_else(|| 3389).to_string();
             let output = exec::exec_wait_args(&program, ["modifyvm", uuid, "--vrde-port", port])?;
             if !output.status.success() {
-                Err("не удалось установить порт")?
+                Err(tr!("не удалось установить порт"))?
             } else {
                 StateMessageOutgoing::new_info(tr!("установлен порт: <code>{}</code>", port)).send(send_type);
             }
             let output = exec::exec_wait_args(&program, ["modifyvm", uuid, "--vrde", "on"])?;
             if !output.status.success() {
-                Err("не удалось включить vrde")?
+                Err(tr!("не удалось включить vrde"))?
             }
             let output = exec::exec_wait_args(&program, ["startvm", uuid, "--type", "headless"])?;
             if !output.status.success() {
-                Err("не удалось запустить эмулятор headless")?
+                Err(tr!("не удалось запустить эмулятор headless"))?
             }
             Ok(StateMessageOutgoing::new_success(tr!("эмулятор успешно запущен")))
         }

@@ -8,6 +8,7 @@ use crate::models::TraitModel;
 use crate::models::configuration::emulator::EmulatorConfig;
 use crate::service::command::exec;
 use crate::tools::macros::print_info;
+use crate::tools::macros::tr;
 use crate::tools::programs;
 use crate::tools::utils;
 
@@ -63,7 +64,7 @@ impl EmulatorModel {
         if output.status.success() {
             Ok(())
         } else {
-            Err("запустить эмулятор не удалось")?
+            Err(tr!("запустить эмулятор не удалось"))?
         }
     }
 
@@ -73,7 +74,7 @@ impl EmulatorModel {
         if output.status.success() {
             Ok(())
         } else {
-            Err("не удалось остановить эмулятор")?
+            Err(tr!("не удалось остановить эмулятор"))?
         }
     }
 

@@ -16,6 +16,8 @@ use tokio::io::AsyncWriteExt;
 use tokio::net::ToSocketAddrs;
 use tokio::runtime::Handle;
 
+use crate::tools::macros::tr;
+
 struct SshClient {}
 
 impl client::Handler for SshClient {
@@ -79,7 +81,7 @@ impl SshSession {
             .await?;
 
         if !auth_res.success() {
-            Err("ошибка подключения по ssh")?
+            Err(tr!("ошибка подключения по ssh"))?
         }
 
         Ok(Self {
@@ -106,7 +108,7 @@ impl SshSession {
                 ChannelMsg::Data { ref data } => {
                     match str::from_utf8(data.as_ref()) {
                         Ok(out_line) => response.push(out_line.into()),
-                        Err(_) => Err("не удалось обработать данные ssh соединения")?,
+                        Err(_) => Err(tr!("не удалось обработать данные ssh соединения"))?,
                     };
                 }
                 ChannelMsg::ExitStatus { exit_status } => {
@@ -117,7 +119,7 @@ impl SshSession {
         }
         if let Some(code) = code {
             if code == 1 {
-                Err("произошла ошибка при выполнении команды")?
+                Err(tr!("произошла ошибка при выполнении команды"))?
             }
         }
         Ok(response)
@@ -144,7 +146,7 @@ impl SshSession {
                                     println!("{}", out_line.trim_matches('\n'))
                                 }
                             }
-                            Err(_) => Err("не удалось обработать данные ssh соединения")?,
+                            Err(_) => Err(tr!("не удалось обработать данные ssh соединения"))?,
                         };
                     }
                 }
@@ -156,7 +158,7 @@ impl SshSession {
         }
         if let Some(code) = code {
             if code == 1 {
-                Err("произошла ошибка при выполнении команды")?
+                Err(tr!("произошла ошибка при выполнении команды"))?
             }
         }
         Ok(())
@@ -176,7 +178,7 @@ impl SshSession {
         let file = File::open(path)?;
         let size = file.metadata()?.size();
         if size == 0 {
-            Err("файл не содержит данных")?
+            Err(tr!("файл не содержит данных"))?
         }
         // Get connect
         let channel = self.session.channel_open_session().await?;

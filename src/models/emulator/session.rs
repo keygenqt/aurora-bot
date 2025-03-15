@@ -4,6 +4,7 @@ use regex::Regex;
 use tokio::runtime::Handle;
 
 use crate::service::ssh::client::SshSession;
+use crate::tools::macros::tr;
 use crate::tools::utils;
 
 #[derive(PartialEq)]
@@ -37,7 +38,7 @@ impl EmulatorSession {
         let output = session.call("cat /etc/os-release")?;
         let lines = match output.first() {
             Some(s) => s.split("\n").map(|e| e.to_string()).collect::<Vec<String>>(),
-            None => Err("ошибка при получении данных")?,
+            None => Err(tr!("ошибка при получении данных"))?,
         };
         let os_name = match utils::config_get_string(&lines, "PRETTY_NAME", "=") {
             Ok(s) => s,
@@ -86,14 +87,14 @@ impl EmulatorSession {
                         .map(|e| e.replace("/usr/bin/", ""))
                         .collect();
                     if packages.len() == 0 {
-                        Err("ничего не найдено")?
+                        Err(tr!("ничего не найдено"))?
                     }
                     Ok(packages)
                 } else {
-                    Err("не удалось получить пакеты")?
+                    Err(tr!("не удалось получить пакеты"))?
                 }
             }
-            Err(_) => Err("при запросе пакетов возникла ошибка")?,
+            Err(_) => Err(tr!("при запросе пакетов возникла ошибка"))?,
         }
     }
 
@@ -114,7 +115,7 @@ impl EmulatorSession {
         );
         match self.session.call(&command) {
             Ok(_) => Ok(()),
-            Err(_) => Err("произошла ошибка при установке пакета")?,
+            Err(_) => Err(tr!("произошла ошибка при установке пакета"))?,
         }
     }
 
@@ -130,7 +131,7 @@ impl EmulatorSession {
         );
         match self.session.call(&command) {
             Ok(_) => Ok(()),
-            Err(_) => Err("произошла ошибка при удалении пакета")?,
+            Err(_) => Err(tr!("произошла ошибка при удалении пакета"))?,
         }
     }
 

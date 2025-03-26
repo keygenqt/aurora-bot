@@ -128,6 +128,7 @@ impl SdkAvailableModel {
         sort(&mut versions);
         let reverse = versions.iter().copied().rev().collect::<Vec<&str>>();
         // Map to model
+        let mut ids: Vec<String> = vec![];
         let mut models: Vec<SdkAvailableModel> = vec![];
         for version_full in reverse {
             let urls = version_urls.get(version_full).unwrap().clone();
@@ -155,13 +156,19 @@ impl SdkAvailableModel {
                 } else {
                     SdkInstallType::Online
                 };
-                models.push(SdkAvailableModel {
+                let model = SdkAvailableModel {
                     url,
                     version_major,
                     version_full,
                     build_type,
                     install_type,
-                });
+                };
+                let id = model.get_id();
+                if ids.contains(&id) {
+                    continue;
+                }
+                ids.push(id);
+                models.push(model);
             }
         }
         Ok(models)

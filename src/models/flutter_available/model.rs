@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::models::TraitModel;
 use crate::service::responses::gitlab_tags::GitlabTagsResponse;
 use crate::tools::macros::tr;
-use crate::tools::single;
+use crate::tools::utils;
 use chrono::DateTime;
 use colored::Colorize;
 use human_sort::sort;
@@ -61,7 +61,7 @@ impl FlutterAvailableModel {
     }
 
     fn search_full() -> Result<Vec<FlutterAvailableModel>, Box<dyn std::error::Error>> {
-        let tags_flutter = single::get_request().get_repo_tags_flutter();
+        let tags_flutter = utils::get_repo_flutter();
         // Clear tags version
         let mut versions: Vec<String> = vec![];
         let mut version_tags: HashMap<String, GitlabTagsResponse> = HashMap::new();

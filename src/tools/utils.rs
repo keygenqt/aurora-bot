@@ -13,6 +13,7 @@ use url::Url;
 use walkdir::DirEntry;
 use walkdir::WalkDir;
 
+use crate::service::responses::gitlab_tags::GitlabTagsResponse;
 use crate::tools::macros::crash;
 use crate::tools::single;
 
@@ -257,6 +258,12 @@ pub fn get_repo_url_psdk() -> Vec<String> {
         Ok(value) => value,
         Err(_) => vec![],
     }
+}
+
+/// Get list flutters
+#[once(time = 300)]
+pub fn get_repo_flutter() -> Vec<GitlabTagsResponse> {
+    single::get_request().get_repo_tags_flutter()
 }
 
 /// Get package_name from path rpm

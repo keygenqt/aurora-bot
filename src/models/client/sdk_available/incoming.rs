@@ -54,7 +54,7 @@ impl SdkAvailableIncoming {
 
     pub fn dbus_method_run_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
-            Self::name(),
+            format!("{}{}", Self::name(), "ById"),
             ("id",),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (id,): (String,)| async move {

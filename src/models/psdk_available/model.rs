@@ -96,15 +96,22 @@ impl PsdkAvailableModel {
         sort(&mut versions);
         let reverse = versions.iter().copied().rev().collect::<Vec<&str>>();
         // Map to model
+        let mut ids: Vec<String> = vec![];
         let mut models: Vec<PsdkAvailableModel> = vec![];
         for version_full in reverse {
             let urls = version_urls.get(version_full).unwrap().clone();
             let version_major = version_full.split(".").take(3).collect::<Vec<&str>>().join(".");
-            models.push(PsdkAvailableModel {
+            let model = PsdkAvailableModel {
                 version_major,
                 version_full: version_full.to_string(),
                 urls,
-            });
+            };
+            let id = model.get_id();
+            if ids.contains(&id) {
+                continue;
+            }
+            ids.push(id);
+            models.push(model);
         }
         Ok(models)
     }

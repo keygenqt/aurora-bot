@@ -13,9 +13,9 @@ use url::Url;
 use walkdir::DirEntry;
 use walkdir::WalkDir;
 
+use crate::service::requests::client::ClientRequest;
 use crate::service::responses::gitlab_tags::GitlabTagsResponse;
 use crate::tools::macros::crash;
-use crate::tools::single;
 
 use super::constants;
 use super::macros::tr;
@@ -245,7 +245,7 @@ pub fn get_https_url(url: String) -> Option<String> {
 /// Get list urls sdk
 #[once(time = 300)]
 pub fn get_repo_url_sdk() -> Vec<String> {
-    match single::get_request().get_repo_url_files(&vec!["AuroraSDK"], None) {
+    match ClientRequest::new(None).get_repo_url_files(&vec!["AuroraSDK"], None) {
         Ok(value) => value,
         Err(_) => vec![],
     }
@@ -254,7 +254,7 @@ pub fn get_repo_url_sdk() -> Vec<String> {
 /// Get list urls psdk
 #[once(time = 300)]
 pub fn get_repo_url_psdk() -> Vec<String> {
-    match single::get_request().get_repo_url_files(&vec!["PlatformSDK", "AuroraPSDK"], None) {
+    match ClientRequest::new(None).get_repo_url_files(&vec!["PlatformSDK", "AuroraPSDK"], None) {
         Ok(value) => value,
         Err(_) => vec![],
     }
@@ -263,7 +263,7 @@ pub fn get_repo_url_psdk() -> Vec<String> {
 /// Get list flutters
 #[once(time = 300)]
 pub fn get_repo_flutter() -> Vec<GitlabTagsResponse> {
-    single::get_request().get_repo_tags_flutter()
+    ClientRequest::new(None).get_repo_tags_flutter()
 }
 
 /// Get package_name from path rpm

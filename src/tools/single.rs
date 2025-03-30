@@ -10,6 +10,7 @@ use super::macros::print_error;
 /// Singleton client requests
 static CLIENT_H: LazyLock<Mutex<ClientRequest>> = LazyLock::new(|| Mutex::new(ClientRequest::new(None)));
 
+// @todo error multithread query - lock
 pub fn get_request() -> std::sync::MutexGuard<'static, ClientRequest> {
     if let Ok(client) = CLIENT_H.lock() {
         client

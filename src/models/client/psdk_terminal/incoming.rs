@@ -10,6 +10,7 @@ use crate::models::client::selector::selects::select_psdk_installed::PsdkInstall
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::models::psdk_installed::model::PsdkInstalledModel;
 use crate::service::dbus::server::IfaceData;
+use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 use crate::tools::terminal;
 
@@ -26,10 +27,12 @@ impl PsdkTerminalIncoming {
     }
 
     pub fn new() -> Box<PsdkTerminalIncoming> {
+        print_debug!("> {}: new()", Self::name());
         Box::new(Self { id: None })
     }
 
     pub fn new_id(id: String) -> Box<PsdkTerminalIncoming> {
+        print_debug!("> {}: new_id(id: {})", Self::name(), id);
         Box::new(Self { id: Some(id) })
     }
 

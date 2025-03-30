@@ -10,6 +10,7 @@ use crate::models::client::selector::selects::select_sdk_available::SdkAvailable
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::models::sdk_available::model::SdkAvailableModel;
 use crate::service::dbus::server::IfaceData;
+use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 
 use super::outgoing::SdkAvailableOutgoing;
@@ -27,10 +28,12 @@ impl SdkAvailableIncoming {
     }
 
     pub fn new() -> Box<SdkAvailableIncoming> {
+        print_debug!("> {}: new()", Self::name());
         Box::new(Self { id: None })
     }
 
     pub fn new_id(id: String) -> Box<SdkAvailableIncoming> {
+        print_debug!("> {}: new_id(id: {})", Self::name(), id);
         Box::new(Self { id: Some(id) })
     }
 

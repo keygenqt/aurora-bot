@@ -10,6 +10,7 @@ use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::models::configuration::Config;
 use crate::models::configuration::sdk::SdkConfig;
 use crate::service::dbus::server::IfaceData;
+use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -23,6 +24,7 @@ impl SdkSyncIncoming {
     }
 
     pub fn new() -> Box<SdkSyncIncoming> {
+        print_debug!("> {}: new()", Self::name());
         Box::new(Self {})
     }
 

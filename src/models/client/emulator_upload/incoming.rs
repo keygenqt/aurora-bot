@@ -12,6 +12,7 @@ use crate::models::client::selector::selects::select_emulator::EmulatorModelSele
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::models::emulator::model::EmulatorModel;
 use crate::service::dbus::server::IfaceData;
+use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 use crate::tools::single;
 use crate::tools::utils;
@@ -31,6 +32,7 @@ impl EmulatorUploadIncoming {
     }
 
     pub fn new_path(path: PathBuf) -> Box<EmulatorUploadIncoming> {
+        print_debug!("> {}: new_path(path: {})", Self::name(), path.to_string_lossy());
         Box::new(Self {
             id: None,
             path: Some(path),
@@ -39,6 +41,7 @@ impl EmulatorUploadIncoming {
     }
 
     pub fn new_path_id(id: String, path: PathBuf) -> Box<EmulatorUploadIncoming> {
+        print_debug!("> {}: new_path_id(id: {}, path: {})", Self::name(), id, path.to_string_lossy());
         Box::new(Self {
             id: Some(id),
             path: Some(path),
@@ -47,6 +50,7 @@ impl EmulatorUploadIncoming {
     }
 
     pub fn new_url(url: String) -> Box<EmulatorUploadIncoming> {
+        print_debug!("> {}: new_url(url: {})", Self::name(), url);
         Box::new(Self {
             id: None,
             path: None,
@@ -55,6 +59,7 @@ impl EmulatorUploadIncoming {
     }
 
     pub fn new_url_id(id: String, url: String) -> Box<EmulatorUploadIncoming> {
+        print_debug!("> {}: new_url_id(id: {}, url: {})", Self::name(), id, url);
         Box::new(Self {
             id: Some(id),
             path: None,

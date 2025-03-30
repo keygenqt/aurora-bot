@@ -10,6 +10,7 @@ use crate::models::client::selector::selects::select_emulator::EmulatorModelSele
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::models::emulator::model::EmulatorModel;
 use crate::service::dbus::server::IfaceData;
+use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 use crate::tools::terminal;
 
@@ -27,10 +28,12 @@ impl EmulatorTerminalIncoming {
     }
 
     pub fn new(is_root: bool) -> Box<EmulatorTerminalIncoming> {
+        print_debug!("> {}: new(is_root: {})", Self::name(), is_root);
         Box::new(Self { id: None, is_root })
     }
 
     pub fn new_id(id: String, is_root: bool) -> Box<EmulatorTerminalIncoming> {
+        print_debug!("> {}: new_id(id: {}, is_root: {})", Self::name(), id, is_root);
         Box::new(Self { id: Some(id), is_root })
     }
 

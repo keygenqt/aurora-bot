@@ -15,6 +15,7 @@ use crate::models::demo_app::model::DemoAppModel;
 use crate::models::emulator::model::EmulatorModel;
 use crate::models::psdk_installed::model::PsdkInstalledModel;
 use crate::service::dbus::server::IfaceData;
+use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 use crate::tools::single;
 use crate::tools::utils;
@@ -35,6 +36,7 @@ impl EmulatorPackageInstallIncoming {
     }
 
     pub fn new_path(path: PathBuf) -> Box<EmulatorPackageInstallIncoming> {
+        print_debug!("> {}: new_path(path: {})", Self::name(), path.to_string_lossy());
         Box::new(Self {
             id: None,
             path: Some(path),
@@ -44,6 +46,7 @@ impl EmulatorPackageInstallIncoming {
     }
 
     pub fn new_path_id(id: String, path: PathBuf) -> Box<EmulatorPackageInstallIncoming> {
+        print_debug!("> {}: new_path_id(id: {}, path: {})", Self::name(), id, path.to_string_lossy());
         Box::new(Self {
             id: Some(id),
             path: Some(path),
@@ -53,6 +56,7 @@ impl EmulatorPackageInstallIncoming {
     }
 
     pub fn new_url(url: String) -> Box<EmulatorPackageInstallIncoming> {
+        print_debug!("> {}: new_url(url: {})", Self::name(), url);
         Box::new(Self {
             id: None,
             path: None,
@@ -62,6 +66,7 @@ impl EmulatorPackageInstallIncoming {
     }
 
     pub fn new_url_id(id: String, url: String) -> Box<EmulatorPackageInstallIncoming> {
+        print_debug!("> {}: new_url_id(id: {}, url: {})", Self::name(), id, url);
         Box::new(Self {
             id: Some(id),
             path: None,
@@ -71,6 +76,7 @@ impl EmulatorPackageInstallIncoming {
     }
 
     pub fn new_demo() -> Box<EmulatorPackageInstallIncoming> {
+        print_debug!("> {}: new_demo()", Self::name());
         Box::new(Self {
             id: None,
             path: None,

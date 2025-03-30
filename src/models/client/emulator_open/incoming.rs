@@ -11,6 +11,7 @@ use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::models::emulator::model::EmulatorModel;
 use crate::service::command::exec;
 use crate::service::dbus::server::IfaceData;
+use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 use crate::tools::programs;
 
@@ -30,6 +31,7 @@ impl EmulatorOpenIncoming {
     }
 
     pub fn new() -> Box<EmulatorOpenIncoming> {
+        print_debug!("> {}: new()", Self::name());
         Box::new(Self {
             id: None,
             is_vnc: false,
@@ -39,6 +41,7 @@ impl EmulatorOpenIncoming {
     }
 
     pub fn new_id(id: String) -> Box<EmulatorOpenIncoming> {
+        print_debug!("> {}: new_id(id: {})", Self::name(), id);
         Box::new(Self {
             id: Some(id),
             is_vnc: false,
@@ -48,6 +51,7 @@ impl EmulatorOpenIncoming {
     }
 
     pub fn new_vnc(password: String, port: u64) -> Box<EmulatorOpenIncoming> {
+        print_debug!("> {}: new_vnc(password: {}, port: {})", Self::name(), password, port);
         Box::new(Self {
             id: None,
             is_vnc: true,
@@ -57,6 +61,7 @@ impl EmulatorOpenIncoming {
     }
 
     pub fn new_vnc_id(id: String, password: String, port: u64) -> Box<EmulatorOpenIncoming> {
+        print_debug!("> {}: new_vnc_id(id: {}, password: {}, port: {})", Self::name(), id, password, port);
         Box::new(Self {
             id: Some(id),
             is_vnc: true,

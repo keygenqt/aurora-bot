@@ -14,6 +14,7 @@ use crate::models::emulator::model::EmulatorModel;
 use crate::service::command::exec;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::ffmpeg_utils;
+use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 use crate::tools::programs;
 use crate::tools::utils;
@@ -21,6 +22,7 @@ use crate::tools::utils;
 use super::outgoing::EmulatorRecordStopOutgoing;
 
 /// Common state client
+#[derive(Debug)]
 #[derive(Deserialize, Serialize, Clone, PartialEq)]
 pub enum EmulatorRecordStopType {
     Raw,
@@ -42,10 +44,12 @@ impl EmulatorRecordStopIncoming {
     }
 
     pub fn new(stop_type: EmulatorRecordStopType) -> Box<EmulatorRecordStopIncoming> {
+        print_debug!("> {}: new(stop_type: {:?})", Self::name(), stop_type);
         Box::new(Self { id: None, stop_type })
     }
 
     pub fn new_id(id: String, stop_type: EmulatorRecordStopType) -> Box<EmulatorRecordStopIncoming> {
+        print_debug!("> {}: new(id: {}, stop_type: {:?})", Self::name(), id, stop_type);
         Box::new(Self {
             id: Some(id),
             stop_type,

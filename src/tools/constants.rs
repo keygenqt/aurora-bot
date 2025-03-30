@@ -49,10 +49,10 @@ pub const VERSION_CONFIGURATION: &str = "1";
 
 /// Debug log json
 #[cfg(debug_assertions)]
-pub const DEBUG_JSON: bool = false;
+pub const PRINT_DEBUG: bool = false;
 
 #[cfg(not(debug_assertions))]
-pub const DEBUG_JSON: bool = false;
+pub const PRINT_DEBUG: bool = false;
 
 /// See also `clap_cargo::style::CLAP_STYLING`
 pub const CLAP_STYLING: clap::builder::styling::Styles = clap::builder::styling::Styles::styled()

@@ -11,6 +11,7 @@ use crate::models::client::selector::selects::select_emulator_packages::Emulator
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::models::emulator::model::EmulatorModel;
 use crate::service::dbus::server::IfaceData;
+use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -28,6 +29,7 @@ impl EmulatorPackageRunIncoming {
     }
 
     pub fn new(is_listen: bool) -> Box<EmulatorPackageRunIncoming> {
+        print_debug!("> {}: new(is_listen: {})", Self::name(), is_listen);
         Box::new(Self {
             id: None,
             package: None,
@@ -36,6 +38,7 @@ impl EmulatorPackageRunIncoming {
     }
 
     pub fn new_id(id: String, is_listen: bool) -> Box<EmulatorPackageRunIncoming> {
+        print_debug!("> {}: new_id(id: {}, is_listen: {})", Self::name(), id, is_listen);
         Box::new(Self {
             id: Some(id),
             package: None,
@@ -44,6 +47,7 @@ impl EmulatorPackageRunIncoming {
     }
 
     pub fn new_package(package: String, is_listen: bool) -> Box<EmulatorPackageRunIncoming> {
+        print_debug!("> {}: new_package(package: {}, is_listen: {})", Self::name(), package, is_listen);
         Box::new(Self {
             id: None,
             package: Some(package),
@@ -52,6 +56,7 @@ impl EmulatorPackageRunIncoming {
     }
 
     pub fn new_id_package(id: String, package: String, is_listen: bool) -> Box<EmulatorPackageRunIncoming> {
+        print_debug!("> {}: new_id_package(id: {}, package: {}, is_listen: {})", Self::name(), id, package, is_listen);
         Box::new(Self {
             id: Some(id),
             package: Some(package),

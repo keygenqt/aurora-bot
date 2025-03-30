@@ -10,6 +10,7 @@ use crate::models::client::selector::selects::select_sdk_installed::SdkInstalled
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::models::sdk_installed::model::SdkInstalledModel;
 use crate::service::dbus::server::IfaceData;
+use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 
 use super::outgoing::SdkInfoOutgoing;
@@ -27,10 +28,12 @@ impl SdkInfoIncoming {
     }
 
     pub fn new() -> Box<SdkInfoIncoming> {
+        print_debug!("> {}: new()", Self::name());
         Box::new(Self { id: None })
     }
 
     pub fn new_id(id: String) -> Box<SdkInfoIncoming> {
+        print_debug!("> {}: new_id(id: {})", Self::name(), id);
         Box::new(Self { id: Some(id) })
     }
 

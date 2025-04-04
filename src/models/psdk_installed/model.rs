@@ -16,6 +16,7 @@ use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct PsdkInstalledModel {
+    pub id: String,
     pub dir: String,
     pub chroot: String,
     pub version: String,
@@ -23,9 +24,15 @@ pub struct PsdkInstalledModel {
     pub build: u8,
 }
 
+impl PsdkInstalledModel {
+    pub fn get_id(chroot: &str) -> String {
+        format!("{:x}", md5::compute(chroot.as_bytes()))
+    }
+}
+
 impl TraitModel for PsdkInstalledModel {
     fn get_id(&self) -> String {
-        format!("{:x}", md5::compute(self.chroot.as_bytes()))
+        PsdkInstalledModel::get_id(&self.chroot)
     }
 
     fn get_key(&self) -> String {
@@ -85,6 +92,7 @@ impl PsdkInstalledModel {
                 Err(_) => continue,
             };
             let model = PsdkInstalledModel {
+                id: PsdkInstalledModel::get_id(&chroot),
                 dir: psdk_dir,
                 chroot: chroot.clone(),
                 version_id: version_id.clone(),

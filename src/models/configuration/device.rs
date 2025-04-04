@@ -36,6 +36,7 @@ impl DeviceConfig {
 
     pub fn to_model(&self) -> DeviceModel {
         DeviceModel {
+            id: DeviceModel::get_id(&self.ip),
             ip: self.ip.clone(),
             port: self.port,
         }

@@ -38,6 +38,7 @@ impl SdkConfig {
 
     pub fn to_model(&self) -> SdkInstalledModel {
         SdkInstalledModel {
+            id: SdkInstalledModel::get_id(&self.dir),
             dir: self.dir.clone(),
             tools: self.tools.clone(),
             version: self.version.clone(),

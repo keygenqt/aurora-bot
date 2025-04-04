@@ -33,3 +33,10 @@ pub fn get_vscode() -> Result<String, Box<dyn std::error::Error>> {
     }
     Err(tr!("не найден Visual Studio Code"))?
 }
+
+pub fn get_xdg_open() -> Result<String, Box<dyn std::error::Error>> {
+    if let Ok(_) = exec::exec_wait_args("xdg-open", ["--version"]) {
+        return Ok("xdg-open".into());
+    }
+    Err(tr!("не найден xdg-open"))?
+}

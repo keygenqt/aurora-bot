@@ -1,5 +1,6 @@
 use serde::Deserialize;
 
+use crate::models::client::app_open_dir::incoming::AppOpenDirIncoming;
 use crate::tools::macros::print_debug;
 use crate::tools::utils;
 
@@ -72,6 +73,11 @@ impl ClientMethodsKey {
             ClientMethodsKey::AppInfo => {
                 print_debug!("> AppInfo: {}", value);
                 let model = serde_json::from_str::<AppInfoIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::AppOpenDir => {
+                print_debug!("> AppOpenDir: {}", value);
+                let model = serde_json::from_str::<AppOpenDirIncoming>(&value)?;
                 Ok(Box::new(model))
             }
             ClientMethodsKey::EmulatorClose => {

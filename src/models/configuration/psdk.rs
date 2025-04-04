@@ -42,6 +42,7 @@ impl PsdkConfig {
 
     pub fn to_model(&self) -> PsdkInstalledModel {
         PsdkInstalledModel {
+            id: PsdkInstalledModel::get_id(&self.chroot),
             dir: self.dir.clone(),
             chroot: self.chroot.clone(),
             version: self.version.clone(),

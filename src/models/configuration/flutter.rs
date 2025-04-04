@@ -44,6 +44,7 @@ impl FlutterConfig {
 
     pub fn to_model(&self) -> FlutterInstalledModel {
         FlutterInstalledModel {
+            id: FlutterInstalledModel::get_id(&self.flutter),
             dir: self.dir.clone(),
             flutter: self.flutter.clone(),
             dart: self.dart.clone(),

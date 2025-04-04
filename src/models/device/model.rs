@@ -9,13 +9,20 @@ use crate::tools::macros::print_info;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct DeviceModel {
+    pub id: String,
     pub ip: String,
     pub port: u8,
 }
 
+impl DeviceModel {
+    pub fn get_id(ip: &str) -> String {
+        format!("{:x}", md5::compute(ip.as_bytes()))
+    }
+}
+
 impl TraitModel for DeviceModel {
     fn get_id(&self) -> String {
-        format!("{:x}", md5::compute(self.ip.as_bytes()))
+        DeviceModel::get_id(&self.ip)
     }
 
     fn get_key(&self) -> String {

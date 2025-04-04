@@ -49,6 +49,7 @@ impl EmulatorConfig {
             Ok(uuids.contains(uuid))
         }
         EmulatorModel {
+            id: EmulatorModel::get_id(&self.uuid),
             dir: self.dir.clone(),
             key: self.key.clone(),
             uuid: self.uuid.clone(),

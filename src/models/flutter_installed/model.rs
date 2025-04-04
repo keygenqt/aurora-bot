@@ -10,6 +10,7 @@ use serde::Serialize;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct FlutterInstalledModel {
+    pub id: String,
     pub dir: String,
     pub flutter: String,
     pub dart: String,
@@ -18,9 +19,15 @@ pub struct FlutterInstalledModel {
     pub dart_version: String,
 }
 
+impl FlutterInstalledModel {
+    pub fn get_id(flutter: &str) -> String {
+        format!("{:x}", md5::compute(flutter.as_bytes()))
+    }
+}
+
 impl TraitModel for FlutterInstalledModel {
     fn get_id(&self) -> String {
-        format!("{:x}", md5::compute(self.flutter.as_bytes()))
+        FlutterInstalledModel::get_id(&self.flutter)
     }
 
     fn get_key(&self) -> String {
@@ -102,6 +109,7 @@ impl FlutterInstalledModel {
                 continue;
             }
             models.push(FlutterInstalledModel {
+                id: FlutterInstalledModel::get_id(&flutter),
                 dir,
                 flutter: flutter.clone(),
                 dart: flutter.replace("bin/flutter", "bin/dart").to_string(),

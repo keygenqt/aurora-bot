@@ -15,6 +15,7 @@ use tokio::runtime::Handle;
 use crate::models::client::app_auth_login::incoming::AppAuthLoginIncoming;
 use crate::models::client::app_auth_logout::incoming::AppAuthLogoutIncoming;
 use crate::models::client::app_info::incoming::AppInfoIncoming;
+use crate::models::client::app_open_dir::incoming::AppOpenDirIncoming;
 use crate::models::client::emulator_close::incoming::EmulatorCloseIncoming;
 use crate::models::client::emulator_info::incoming::EmulatorInfoIncoming;
 use crate::models::client::emulator_open::incoming::EmulatorOpenIncoming;
@@ -80,6 +81,7 @@ impl ServerDbus {
             AppAuthLoginIncoming::dbus_method_run(builder);
             AppAuthLogoutIncoming::dbus_method_run(builder);
             AppInfoIncoming::dbus_method_run(builder);
+            AppOpenDirIncoming::dbus_method_run(builder);
 
             /////////////////
             // Emulator

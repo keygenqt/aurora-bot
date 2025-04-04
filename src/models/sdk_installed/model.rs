@@ -10,14 +10,21 @@ use std::fs;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct SdkInstalledModel {
+    pub id: String,
     pub dir: String,
     pub tools: String,
     pub version: String,
 }
 
+impl SdkInstalledModel {
+    pub fn get_id(dir: &str) -> String {
+        format!("{:x}", md5::compute(dir.as_bytes()))
+    }
+}
+
 impl TraitModel for SdkInstalledModel {
     fn get_id(&self) -> String {
-        format!("{:x}", md5::compute(self.dir.as_bytes()))
+        SdkInstalledModel::get_id(&self.dir)
     }
 
     fn get_key(&self) -> String {
@@ -58,6 +65,7 @@ impl SdkInstalledModel {
                 Err(_) => continue,
             };
             models.push(SdkInstalledModel {
+                id: SdkInstalledModel::get_id(&sdk_dir),
                 dir: sdk_dir,
                 tools: tools.clone(),
                 version,

@@ -14,6 +14,7 @@ use crate::tools::utils;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct EmulatorModel {
+    pub id: String,
     pub dir: String,
     pub key: String,
     pub uuid: String,
@@ -21,9 +22,15 @@ pub struct EmulatorModel {
     pub is_running: bool,
 }
 
+impl EmulatorModel {
+    pub fn get_id(uuid: &str) -> String {
+        format!("{:x}", md5::compute(uuid.as_bytes()))
+    }
+}
+
 impl TraitModel for EmulatorModel {
     fn get_id(&self) -> String {
-        format!("{:x}", md5::compute(self.uuid.as_bytes()))
+        EmulatorModel::get_id(&self.uuid)
     }
 
     fn get_key(&self) -> String {
@@ -142,6 +149,7 @@ impl EmulatorModel {
                 Err(_) => continue,
             };
             emulators.push(EmulatorModel {
+                id: EmulatorModel::get_id(uuid),
                 dir: dir.clone(),
                 key: format!("{}/vmshare/ssh/private_keys/sdk", dir),
                 uuid: uuid.to_string(),

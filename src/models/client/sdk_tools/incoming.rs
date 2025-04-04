@@ -83,7 +83,7 @@ impl TraitIncoming for SdkToolsIncoming {
             if let Ok(_) = Command::new(model.tools).spawn() {
                 StateMessageOutgoing::new_success(tr!("Аврора SDK Maintenance tools запущено"))
             } else {
-                StateMessageOutgoing::new_success(tr!("ошибка при запуске Аврора SDK Maintenance tools"))
+                StateMessageOutgoing::new_error(tr!("ошибка при запуске Аврора SDK Maintenance tools"))
             }
         }
         // Select

@@ -2,10 +2,12 @@ use colored::Colorize;
 
 use crate::models::TraitModel;
 use crate::models::configuration::sdk::SdkConfig;
+use crate::service::command::exec;
 use crate::tools::macros::print_info;
 use crate::tools::utils;
 use serde::Deserialize;
 use serde::Serialize;
+use std::error::Error;
 use std::fs;
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -14,6 +16,9 @@ pub struct SdkInstalledModel {
     pub dir: String,
     pub tools: String,
     pub version: String,
+    pub qt_creator_version: String,
+    pub qt_version: String,
+    pub build_date: String,
 }
 
 impl SdkInstalledModel {
@@ -64,11 +69,33 @@ impl SdkInstalledModel {
                 Ok(s) => s,
                 Err(_) => continue,
             };
+
+            fn _get_qt_creator_version(sdk_dir: &String) -> Result<String, Box<dyn Error>> {
+                let output = exec::exec_wait_args(&format!("{sdk_dir}/bin/qtcreator"), ["-version"])?;
+                let lines = utils::parse_output(output.stderr);
+                Ok(utils::config_get_string_index(&lines, "Qt Creator", " ", 2)?)
+            }
+
+            fn _get_qt_version(sdk_dir: &String) -> Result<String, Box<dyn Error>> {
+                let output = exec::exec_wait_args(&format!("{sdk_dir}/bin/qtcreator"), ["-version"])?;
+                let lines = utils::parse_output(output.stderr);
+                Ok(utils::config_get_string_index(&lines, "Qt Creator", " ", -1)?)
+            }
+
+            fn _get_build_date(sdk_dir: &String) -> Result<String, Box<dyn Error>> {
+                let output = exec::exec_wait_args(&format!("{sdk_dir}/SDKMaintenanceTool"), ["--version"])?;
+                let lines = utils::parse_output(output.stdout);
+                Ok(utils::config_get_string_index(&lines, "Build date", ":", -1)?)
+            }
+
             models.push(SdkInstalledModel {
                 id: SdkInstalledModel::get_id(&sdk_dir),
-                dir: sdk_dir,
+                dir: sdk_dir.clone(),
                 tools: tools.clone(),
                 version,
+                qt_creator_version: _get_qt_creator_version(&sdk_dir).unwrap_or_else(|_| "undefined".to_string()),
+                qt_version: _get_qt_version(&sdk_dir).unwrap_or_else(|_| "undefined".to_string()),
+                build_date: _get_build_date(&sdk_dir).unwrap_or_else(|_| "undefined".to_string()),
             });
         }
         Ok(models)

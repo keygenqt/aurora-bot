@@ -8,6 +8,9 @@ pub struct SdkConfig {
     pub dir: String,
     pub tools: String,
     pub version: String,
+    pub qt_creator_version: String,
+    pub qt_version: String,
+    pub build_date: String,
 }
 
 impl SdkConfig {
@@ -30,6 +33,9 @@ impl SdkConfig {
                     dir: e.dir.clone(),
                     tools: e.tools.clone(),
                     version: e.version.clone(),
+                    qt_creator_version: e.qt_creator_version.clone(),
+                    qt_version: e.qt_version.clone(),
+                    build_date: e.build_date.clone(),
                 })
                 .collect(),
             Err(_) => vec![],
@@ -42,6 +48,9 @@ impl SdkConfig {
             dir: self.dir.clone(),
             tools: self.tools.clone(),
             version: self.version.clone(),
+            qt_creator_version: self.qt_creator_version.clone(),
+            qt_version: self.qt_version.clone(),
+            build_date: self.build_date.clone(),
         }
     }
 }

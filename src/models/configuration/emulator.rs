@@ -2,6 +2,7 @@ use crate::models::configuration::Config;
 use crate::models::emulator::model::EmulatorModel;
 use crate::service::command::exec;
 use crate::tools::programs;
+use crate::tools::utils;
 use serde::Deserialize;
 use serde::Serialize;
 use std::error::Error;
@@ -12,6 +13,7 @@ pub struct EmulatorConfig {
     pub key: String,
     pub uuid: String,
     pub name: String,
+    pub arch: String,
 }
 
 impl EmulatorConfig {
@@ -35,6 +37,7 @@ impl EmulatorConfig {
                     key: e.key.clone(),
                     uuid: e.uuid.clone(),
                     name: e.name.clone(),
+                    arch: e.arch.clone(),
                 })
                 .collect(),
             Err(_) => vec![],
@@ -48,13 +51,21 @@ impl EmulatorConfig {
             let uuids: String = String::from_utf8(output.stdout)?;
             Ok(uuids.contains(uuid))
         }
+        fn _get_dimensions(uuid: &String) -> Result<String, Box<dyn Error>> {
+            let program = programs::get_vboxmanage()?;
+            let output = exec::exec_wait_args(&program, ["showvminfo", uuid])?;
+            let lines = utils::parse_output(output.stdout);
+            Ok(utils::config_get_string(&lines, "Video dimensions:", "Video dimensions:")?)
+        }
         EmulatorModel {
             id: EmulatorModel::get_id(&self.uuid),
             dir: self.dir.clone(),
             key: self.key.clone(),
             uuid: self.uuid.clone(),
             name: self.name.clone(),
+            arch: self.arch.clone(),
             is_running: _is_running(&self.uuid).unwrap_or_else(|_| false),
+            dimensions: _get_dimensions(&self.uuid).unwrap_or_else(|_| "undefined".to_string()),
         }
     }
 }

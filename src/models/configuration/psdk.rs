@@ -10,6 +10,7 @@ pub struct PsdkConfig {
     pub version: String,
     pub version_id: String,
     pub build: u8,
+    pub home_url: String,
 }
 
 impl PsdkConfig {
@@ -34,6 +35,7 @@ impl PsdkConfig {
                     version: e.version.clone(),
                     version_id: e.version_id.clone(),
                     build: e.build,
+                    home_url: e.home_url.clone(),
                 })
                 .collect(),
             Err(_) => vec![],
@@ -48,6 +50,7 @@ impl PsdkConfig {
             version: self.version.clone(),
             version_id: self.version_id.clone(),
             build: self.build,
+            home_url: self.home_url.clone(),
         }
     }
 }

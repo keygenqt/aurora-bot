@@ -22,6 +22,7 @@ pub struct PsdkInstalledModel {
     pub version: String,
     pub version_id: String,
     pub build: u8,
+    pub home_url: String,
 }
 
 impl PsdkInstalledModel {
@@ -91,6 +92,10 @@ impl PsdkInstalledModel {
                 Ok(s) => s.parse::<u8>().unwrap_or_else(|_| 0),
                 Err(_) => continue,
             };
+            let home_url = match utils::config_get_string(&data, "HOME_URL", "=") {
+                Ok(s) => s,
+                Err(_) => continue,
+            };
             let model = PsdkInstalledModel {
                 id: PsdkInstalledModel::get_id(&chroot),
                 dir: psdk_dir,
@@ -98,6 +103,7 @@ impl PsdkInstalledModel {
                 version_id: version_id.clone(),
                 version,
                 build,
+                home_url,
             };
             models_by_version.insert(version_id.clone(), model);
             versions.push(version_id);

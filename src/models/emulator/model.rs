@@ -20,6 +20,8 @@ pub struct EmulatorModel {
     pub uuid: String,
     pub name: String,
     pub is_running: bool,
+    pub dimensions: String,
+    pub arch: String,
 }
 
 impl EmulatorModel {
@@ -135,6 +137,10 @@ impl EmulatorModel {
             let name = line.split_whitespace().next().unwrap().trim().trim_matches('"');
             let output = exec::exec_wait_args(&program, ["showvminfo", &uuid])?;
             let lines = utils::parse_output(output.stdout);
+            let dimensions = match utils::config_get_string(&lines, "Video dimensions:", " ") {
+                Ok(value) => value,
+                Err(_) => continue,
+            };
             let is_running = match utils::config_get_bool(&lines, "State:", "running") {
                 Ok(value) => value,
                 Err(_) => continue,
@@ -155,6 +161,8 @@ impl EmulatorModel {
                 uuid: uuid.to_string(),
                 name: name.to_string(),
                 is_running,
+                dimensions,
+                arch: "x86_64".to_string(), // now only x86_64
             });
         }
         // Result

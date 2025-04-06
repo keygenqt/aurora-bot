@@ -145,7 +145,7 @@ impl EmulatorModel {
                 Ok(value) => value,
                 Err(_) => continue,
             };
-            let dir = match utils::config_get_string(&lines, "Snapshot folder:", " ") {
+            let dir = match utils::config_get_string(&lines, "Snapshot folder:", ":") {
                 Ok(s) => s
                     .split("/")
                     .skip(1)

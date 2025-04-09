@@ -22,8 +22,7 @@ use crate::tools::utils;
 use super::outgoing::EmulatorRecordStopOutgoing;
 
 /// Common state client
-#[derive(Debug)]
-#[derive(Deserialize, Serialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub enum EmulatorRecordStopType {
     Raw,
     Mp4,

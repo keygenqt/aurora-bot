@@ -49,14 +49,16 @@ impl AppOpenDirIncoming {
         let path = PathBuf::from(path);
         let path = match utils::path_to_absolute(&path) {
             Some(value) => value,
-            None => Err(tr!("проверьте путь к директории"))?
+            None => Err(tr!("проверьте путь к директории"))?,
         };
         let program = programs::get_xdg_open()?;
         let output = exec::exec_wait_args(&program, [path])?;
         if !output.status.success() {
             Err(tr!("не удалось активировать запись видео"))?
         }
-        Ok(StateMessageOutgoing::new_success(tr!("файловый менеджер открыт успешно")))
+        Ok(StateMessageOutgoing::new_success(tr!(
+            "файловый менеджер открыт успешно"
+        )))
     }
 }
 

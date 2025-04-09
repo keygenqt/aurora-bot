@@ -55,7 +55,11 @@ impl EmulatorConfig {
             let program = programs::get_vboxmanage()?;
             let output = exec::exec_wait_args(&program, ["showvminfo", uuid])?;
             let lines = utils::parse_output(output.stdout);
-            Ok(utils::config_get_string(&lines, "Video dimensions:", "Video dimensions:")?)
+            Ok(utils::config_get_string(
+                &lines,
+                "Video dimensions:",
+                "Video dimensions:",
+            )?)
         }
         EmulatorModel {
             id: EmulatorModel::get_id(&self.uuid),

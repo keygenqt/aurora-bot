@@ -41,7 +41,12 @@ impl EmulatorUploadIncoming {
     }
 
     pub fn new_path_id(id: String, path: PathBuf) -> Box<EmulatorUploadIncoming> {
-        print_debug!("> {}: new_path_id(id: {}, path: {})", Self::name(), id, path.to_string_lossy());
+        print_debug!(
+            "> {}: new_path_id(id: {}, path: {})",
+            Self::name(),
+            id,
+            path.to_string_lossy()
+        );
         Box::new(Self {
             id: Some(id),
             path: Some(path),

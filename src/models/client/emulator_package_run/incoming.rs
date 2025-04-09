@@ -47,7 +47,12 @@ impl EmulatorPackageRunIncoming {
     }
 
     pub fn new_package(package: String, is_listen: bool) -> Box<EmulatorPackageRunIncoming> {
-        print_debug!("> {}: new_package(package: {}, is_listen: {})", Self::name(), package, is_listen);
+        print_debug!(
+            "> {}: new_package(package: {}, is_listen: {})",
+            Self::name(),
+            package,
+            is_listen
+        );
         Box::new(Self {
             id: None,
             package: Some(package),
@@ -56,7 +61,13 @@ impl EmulatorPackageRunIncoming {
     }
 
     pub fn new_id_package(id: String, package: String, is_listen: bool) -> Box<EmulatorPackageRunIncoming> {
-        print_debug!("> {}: new_id_package(id: {}, package: {}, is_listen: {})", Self::name(), id, package, is_listen);
+        print_debug!(
+            "> {}: new_id_package(id: {}, package: {}, is_listen: {})",
+            Self::name(),
+            id,
+            package,
+            is_listen
+        );
         Box::new(Self {
             id: Some(id),
             package: Some(package),

@@ -34,11 +34,7 @@ pub fn app_about() -> String {
 }
 
 /// Search string value by any text-config
-pub fn config_get_string(
-    params: &Vec<String>,
-    key: &str,
-    split: &str
-) -> Result<String, Box<dyn std::error::Error>> {
+pub fn config_get_string(params: &Vec<String>, key: &str, split: &str) -> Result<String, Box<dyn std::error::Error>> {
     Ok(config_get_string_index(params, key, split, 1)?)
 }
 
@@ -48,8 +44,7 @@ pub fn config_get_string_index(
     split: &str,
     index: i32,
 ) -> Result<String, Box<dyn std::error::Error>> {
-
-    match params.iter().filter(|e | e.contains(key)).next() {
+    match params.iter().filter(|e| e.contains(key)).next() {
         Some(option) => {
             let nth = if index < 0 {
                 let i_nth = (option.trim().split(split).count() as i32) + index;
@@ -57,11 +52,16 @@ pub fn config_get_string_index(
             } else {
                 index as usize
             };
-            Ok(option.trim().split(split).nth(nth).into_iter().collect::<String>()
-            .trim()
-            .trim_matches(&['"'] as &[_])
-            .to_string())
-        },
+            Ok(option
+                .trim()
+                .split(split)
+                .nth(nth)
+                .into_iter()
+                .collect::<String>()
+                .trim()
+                .trim_matches(&['"'] as &[_])
+                .to_string())
+        }
         None => Err(tr!("не удалось найти ключ"))?,
     }
 }

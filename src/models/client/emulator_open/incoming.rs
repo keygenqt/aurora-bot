@@ -61,7 +61,13 @@ impl EmulatorOpenIncoming {
     }
 
     pub fn new_vnc_id(id: String, password: String, port: u64) -> Box<EmulatorOpenIncoming> {
-        print_debug!("> {}: new_vnc_id(id: {}, password: {}, port: {})", Self::name(), id, password, port);
+        print_debug!(
+            "> {}: new_vnc_id(id: {}, password: {}, port: {})",
+            Self::name(),
+            id,
+            password,
+            port
+        );
         Box::new(Self {
             id: Some(id),
             is_vnc: true,

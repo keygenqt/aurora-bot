@@ -4,6 +4,9 @@ pub mod command {
 }
 pub mod dbus {
     pub mod server;
+    pub mod methods {
+        pub mod faq;
+    }
 }
 pub mod requests {
     pub mod client;

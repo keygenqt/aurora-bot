@@ -10,6 +10,7 @@ use dbus_crossroads::Crossroads;
 use dbus_crossroads::IfaceBuilder;
 use dbus_tokio::connection;
 use futures::future;
+use serde::Serialize;
 use tokio::runtime::Handle;
 
 use crate::models::client::app_auth_login::incoming::AppAuthLoginIncoming;
@@ -46,9 +47,16 @@ use crate::models::client::sdk_tools::incoming::SdkToolsIncoming;
 use crate::tools::constants;
 use crate::tools::macros::print_success;
 use crate::tools::single;
+use crate::service::dbus::methods::faq;
 
 // gdbus call --timeout=99999 --session --dest com.keygenqt.aurora_bot --object-path /api --method com.keygenqt.aurora_bot.{KEY}
 // gdbus monitor --session --dest com.keygenqt.aurora_bot --object-path /api com.keygenqt.aurora_bot.listen
+
+/// Common state client
+#[derive(Serialize, Clone)]
+pub enum DbusOnly {
+    FaqSearch,
+}
 
 pub struct IfaceData {}
 
@@ -178,6 +186,10 @@ impl ServerDbus {
 
             SdkToolsIncoming::dbus_method_run(builder);
             SdkToolsIncoming::dbus_method_run_by_id(builder);
+
+            /////////////////
+            // Methods only for D-Bus
+            faq::FaqDbusMethods::search(builder);
         });
 
         // Add api

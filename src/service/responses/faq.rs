@@ -5,9 +5,11 @@ use regex::Regex;
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::models::client::outgoing::DataOutgoing;
+use crate::models::client::outgoing::TraitOutgoing;
 use crate::tools::macros::tr;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Clone)]
 pub struct FaqResponse {
     hash: String,
     url: String,
@@ -21,8 +23,8 @@ pub struct FaqResponse {
     image: Option<String>,
 }
 
-impl FaqResponse {
-    pub fn print(&self) {
+impl TraitOutgoing for FaqResponse {
+    fn print(&self) {
         println!(
             "🔖 {}\n\n{}\n\n⭐ {:.2} {} {}, {}",
             self.title.bold().cyan(),
@@ -34,6 +36,12 @@ impl FaqResponse {
         )
     }
 
+    fn to_json(&self) -> String {
+        DataOutgoing::serialize("FaqResponse".to_string(), self.clone())
+    }
+}
+
+impl FaqResponse {
     fn dataset_text_clear(&self) -> String {
         let clear_html = self.html_nipper();
         let clear_lines = Regex::new(r"[\n]{3,}")
@@ -102,10 +110,11 @@ impl FaqResponse {
     }
 }
 
+#[derive(Serialize, Clone)]
 pub struct FaqResponses(pub Vec<FaqResponse>);
 
-impl FaqResponses {
-    pub fn print(&self) {
+impl TraitOutgoing for FaqResponses {
+    fn print(&self) {
         if self.0.len() == 1 {
             self.0.first().unwrap().print();
         } else {
@@ -122,5 +131,9 @@ impl FaqResponses {
             println!();
             self.0[index].print();
         }
+    }
+
+    fn to_json(&self) -> String {
+        DataOutgoing::serialize("FaqResponses".to_string(), self.clone())
     }
 }

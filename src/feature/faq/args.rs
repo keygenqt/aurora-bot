@@ -1,3 +1,4 @@
+use crate::models::client::outgoing::TraitOutgoing;
 use crate::tools::macros::print_error;
 use crate::tools::single;
 

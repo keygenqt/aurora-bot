@@ -4,6 +4,8 @@ use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::sdk_available::incoming::SdkAvailableIncoming;
 use crate::models::client::sdk_download::incoming::SdkDownloadIncoming;
+use crate::models::client::sdk_ide_close::incoming::SdkIdeCloseIncoming;
+use crate::models::client::sdk_ide_open::incoming::SdkIdeOpenIncoming;
 use crate::models::client::sdk_info::incoming::SdkInfoIncoming;
 use crate::models::client::sdk_tools::incoming::SdkToolsIncoming;
 
@@ -17,6 +19,12 @@ pub struct SdkArgs {
     /// Информация по установленным Аврора SDK
     #[arg(short, long, default_value_t = false)]
     info: bool,
+    /// Открыть IDE
+    #[arg(short, long, default_value_t = false)]
+    open: bool,
+    /// Закрыть IDE
+    #[arg(short, long, default_value_t = false)]
+    close: bool,
     /// Скачать Аврора SDK
     #[arg(short, long, default_value_t = false)]
     download: bool,
@@ -35,6 +43,14 @@ pub fn run(arg: SdkArgs) {
     }
     if arg.info {
         SdkInfoIncoming::new().run(OutgoingType::Cli).print();
+        return;
+    }
+    if arg.open {
+        SdkIdeOpenIncoming::new().run(OutgoingType::Cli).print();
+        return;
+    }
+    if arg.close {
+        SdkIdeCloseIncoming::new().run(OutgoingType::Cli).print();
         return;
     }
     if arg.download {

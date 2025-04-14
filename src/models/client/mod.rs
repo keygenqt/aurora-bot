@@ -99,6 +99,12 @@ pub mod sdk_available {
 pub mod sdk_download {
     pub mod incoming;
 }
+pub mod sdk_ide_close {
+    pub mod incoming;
+}
+pub mod sdk_ide_open {
+    pub mod incoming;
+}
 pub mod sdk_info {
     pub mod incoming;
     pub mod outgoing;
@@ -179,6 +185,8 @@ pub enum ClientMethodsKey {
     PsdkTerminal,
     SdkAvailable,
     SdkDownload,
+    SdkIdeClose,
+    SdkIdeOpen,
     SdkInfo,
     SdkSync,
     SdkTools,

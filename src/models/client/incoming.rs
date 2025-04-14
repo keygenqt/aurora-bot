@@ -1,6 +1,8 @@
 use serde::Deserialize;
 
 use crate::models::client::app_open_dir::incoming::AppOpenDirIncoming;
+use crate::models::client::sdk_ide_close::incoming::SdkIdeCloseIncoming;
+use crate::models::client::sdk_ide_open::incoming::SdkIdeOpenIncoming;
 use crate::tools::macros::print_debug;
 use crate::tools::utils;
 
@@ -198,6 +200,16 @@ impl ClientMethodsKey {
             ClientMethodsKey::SdkDownload => {
                 print_debug!("> SdkDownload: {}", value);
                 let model = serde_json::from_str::<SdkDownloadIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::SdkIdeClose => {
+                print_debug!("> SdkIdeClose: {}", value);
+                let model = serde_json::from_str::<SdkIdeCloseIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::SdkIdeOpen => {
+                print_debug!("> SdkIdeOpen: {}", value);
+                let model = serde_json::from_str::<SdkIdeOpenIncoming>(&value)?;
                 Ok(Box::new(model))
             }
             ClientMethodsKey::SdkInfo => {

@@ -19,6 +19,7 @@ pub struct SdkInstalledModel {
     pub qt_creator_version: String,
     pub qt_version: String,
     pub build_date: String,
+    pub is_running: bool,
 }
 
 impl SdkInstalledModel {
@@ -47,6 +48,27 @@ impl TraitModel for SdkInstalledModel {
 }
 
 impl SdkInstalledModel {
+    pub fn start_ide(&self) -> Result<(), Box<dyn std::error::Error>> {
+        exec::exec_detach(&format!("{}/bin/qtcreator.sh", self.dir), 3)?;
+        Ok(())
+    }
+
+    pub fn close_ide(&self) -> Result<(), Box<dyn std::error::Error>> {
+        // Get pid
+        let output = exec::exec_wait_args("ps", ["ax"])?;
+        let lines = utils::parse_output(output.stdout);
+        let pid = utils::config_get_string_index(&lines, &format!("{}/bin/qtcreator", self.dir), " ", 0)?;
+        // Close
+        let _ = exec::exec_wait_args("kill", ["-9", &pid])?;
+        // Success
+        Ok(())
+    }
+
+    pub fn start_tools(&self) -> Result<(), Box<dyn std::error::Error>> {
+        exec::exec_detach(&self.tools, 1)?;
+        Ok(())
+    }
+
     pub fn search() -> Vec<SdkInstalledModel> {
         SdkConfig::load_models()
     }
@@ -88,6 +110,12 @@ impl SdkInstalledModel {
                 Ok(utils::config_get_string_index(&lines, "Build date", ":", -1)?)
             }
 
+            fn _get_is_running(sdk_dir: &String) -> Result<bool, Box<dyn Error>> {
+                let output = exec::exec_wait_args("ps", ["ax"])?;
+                let lines = utils::parse_output(output.stdout);
+                Ok(lines.iter().any(|e| e.contains(&format!("{}/bin/qtcreator", sdk_dir))))
+            }
+
             models.push(SdkInstalledModel {
                 id: SdkInstalledModel::get_id(&sdk_dir),
                 dir: sdk_dir.clone(),
@@ -96,6 +124,7 @@ impl SdkInstalledModel {
                 qt_creator_version: _get_qt_creator_version(&sdk_dir).unwrap_or_else(|_| "undefined".to_string()),
                 qt_version: _get_qt_version(&sdk_dir).unwrap_or_else(|_| "undefined".to_string()),
                 build_date: _get_build_date(&sdk_dir).unwrap_or_else(|_| "undefined".to_string()),
+                is_running: _get_is_running(&sdk_dir).unwrap_or_else(|_| false),
             });
         }
         Ok(models)

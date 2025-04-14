@@ -41,6 +41,8 @@ use crate::models::client::psdk_sync::incoming::PsdkSyncIncoming;
 use crate::models::client::psdk_terminal::incoming::PsdkTerminalIncoming;
 use crate::models::client::sdk_available::incoming::SdkAvailableIncoming;
 use crate::models::client::sdk_download::incoming::SdkDownloadIncoming;
+use crate::models::client::sdk_ide_close::incoming::SdkIdeCloseIncoming;
+use crate::models::client::sdk_ide_open::incoming::SdkIdeOpenIncoming;
 use crate::models::client::sdk_info::incoming::SdkInfoIncoming;
 use crate::models::client::sdk_sync::incoming::SdkSyncIncoming;
 use crate::models::client::sdk_tools::incoming::SdkToolsIncoming;
@@ -178,6 +180,12 @@ impl ServerDbus {
 
             SdkDownloadIncoming::dbus_method_run(builder);
             SdkDownloadIncoming::dbus_method_run_by_id(builder);
+
+            SdkIdeCloseIncoming::dbus_method_run(builder);
+            SdkIdeCloseIncoming::dbus_method_run_by_id(builder);
+
+            SdkIdeOpenIncoming::dbus_method_run(builder);
+            SdkIdeOpenIncoming::dbus_method_run_by_id(builder);
 
             SdkInfoIncoming::dbus_method_run(builder);
             SdkInfoIncoming::dbus_method_run_by_id(builder);

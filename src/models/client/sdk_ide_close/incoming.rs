@@ -6,7 +6,6 @@ use crate::models::client::ClientMethodsKey;
 use crate::models::client::incoming::TraitIncoming;
 use crate::models::client::outgoing::OutgoingType;
 use crate::models::client::outgoing::TraitOutgoing;
-use crate::models::client::sdk_info::incoming::SdkInfoIncoming;
 use crate::models::client::selector::selects::select_sdk_installed::SdkInstalledModelSelect;
 use crate::models::client::state_message::outgoing::StateMessageOutgoing;
 use crate::models::sdk_installed::model::SdkInstalledModel;
@@ -15,28 +14,28 @@ use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct SdkToolsIncoming {
+pub struct SdkIdeCloseIncoming {
     id: Option<String>,
 }
 
-impl SdkToolsIncoming {
+impl SdkIdeCloseIncoming {
     pub fn name() -> String {
-        serde_variant::to_variant_name(&ClientMethodsKey::SdkTools)
+        serde_variant::to_variant_name(&ClientMethodsKey::SdkIdeClose)
             .unwrap()
             .to_string()
     }
 
-    pub fn new() -> Box<SdkToolsIncoming> {
+    pub fn new() -> Box<SdkIdeCloseIncoming> {
         print_debug!("> {}: new()", Self::name());
         Box::new(Self { id: None })
     }
 
-    pub fn new_id(id: String) -> Box<SdkToolsIncoming> {
+    pub fn new_id(id: String) -> Box<SdkIdeCloseIncoming> {
         print_debug!("> {}: new_id(id: {})", Self::name(), id);
         Box::new(Self { id: Some(id) })
     }
 
-    fn select(&self, id: String) -> SdkToolsIncoming {
+    fn select(&self, id: String) -> SdkIdeCloseIncoming {
         let mut select = self.clone();
         select.id = Some(id);
         select
@@ -66,35 +65,36 @@ impl SdkToolsIncoming {
         );
     }
 
-    fn run_tools(
+    fn close_ide(
         model: SdkInstalledModel,
         send_type: &OutgoingType,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-        StateMessageOutgoing::new_state(tr!("открываем Maintenance tools")).send(send_type);
-        model.start_tools()?;
-        Ok(StateMessageOutgoing::new_success(tr!("Maintenance tools успешно запущено")))
+        if model.is_running {
+            StateMessageOutgoing::new_state(tr!("закрываем IDE")).send(send_type);
+            model.close_ide()?;
+            Ok(StateMessageOutgoing::new_success(tr!("IDE остановлено успешно")))
+        } else {
+            Ok(StateMessageOutgoing::new_info(tr!("IDE уже закрыто")))
+        }
     }
 }
 
-impl TraitIncoming for SdkToolsIncoming {
+impl TraitIncoming for SdkIdeCloseIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
-        let key = SdkInfoIncoming::name();
-        let models: Vec<SdkInstalledModel> = SdkInstalledModelSelect::search(
-            &self.id,
-            tr!("ищем Аврора SDK для открытия Maintenance tools"),
-            &send_type,
-        );
+        let key = SdkIdeCloseIncoming::name();
+        let models: Vec<SdkInstalledModel> =
+            SdkInstalledModelSelect::search(&self.id, tr!("ищем чего бы остановить"), &send_type);
         // Select
         match models.iter().count() {
-            1 => match Self::run_tools(models.first().unwrap().clone(), &send_type) {
+            1 => match Self::close_ide(models.first().unwrap().clone(), &send_type) {
                 Ok(result) => result,
-                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось открыть Maintenance tools")),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось закрыть IDE")),
             },
-            0 => StateMessageOutgoing::new_info(tr!("Аврора SDK не найдены")),
+            0 => StateMessageOutgoing::new_info(tr!("Аврора SDK не найдено")),
             _ => match SdkInstalledModelSelect::select(key, models, |id| self.select(id)) {
                 Ok(value) => Box::new(value),
-                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Аврора SDK")),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось закрыть IDE")),
             },
         }
     }

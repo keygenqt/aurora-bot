@@ -46,7 +46,7 @@ use crate::models::client::sdk_ide_open::incoming::SdkIdeOpenIncoming;
 use crate::models::client::sdk_info::incoming::SdkInfoIncoming;
 use crate::models::client::sdk_sync::incoming::SdkSyncIncoming;
 use crate::models::client::sdk_tools::incoming::SdkToolsIncoming;
-use crate::service::dbus::methods::faq;
+use crate::service::dbus::methods;
 use crate::tools::constants;
 use crate::tools::macros::print_success;
 use crate::tools::single;
@@ -58,6 +58,7 @@ use crate::tools::single;
 #[derive(Serialize, Clone)]
 pub enum DbusOnly {
     FaqSearch,
+    CanYouCPlusPlusDoThat,
 }
 
 pub struct IfaceData {}
@@ -197,7 +198,8 @@ impl ServerDbus {
 
             /////////////////
             // Methods only for D-Bus
-            faq::FaqDbusMethods::search(builder);
+            methods::OnlyDbusMethods::search(builder);
+            methods::OnlyDbusMethods::fun_can_you_c_plus_plus_do_that(builder);
         });
 
         // Add api

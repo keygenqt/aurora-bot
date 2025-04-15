@@ -18,6 +18,24 @@ Fast, smart, lightweight, client of the Aurora Bot project.
 - `faq` - Answers on the Aurora OS ecosystem.
 - `svc` - Services: dbus api, telegram client.
 
+### Todo
+
+- Targets model (new model).
+- Target install package (psdk_target_package_install).
+- Target remove package (psdk_target_package_uninstall).
+- Sign package (psdk_package_sign).
+- Add sudoers (psdk_sudoers_add).
+- Remove sudoers (psdk_sudoers_remove).
+- Format Qt/C++ (sdk_project_format).
+- Format Dart/C++ (flutter_project_format).
+- Get report plugins (flutter_project_report).
+- Remove sdk (sdk_remove).
+- Remove psdk (psdk_remove).
+- Remove flutter (flutter_remove).
+- Install sdk (sdk_install).
+- Install psdk (psdk_install).
+- Install flutter (flutter_install).
+
 ### Architecture
 
 ![preview](data/preview2.png)

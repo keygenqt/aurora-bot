@@ -35,9 +35,7 @@ impl OnlyDbusMethods {
             OnlyDbusMethods::name(DbusOnly::CanYouCPlusPlusDoThat),
             (),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (): ()| async move {
-                ctx.reply(Ok(("I don't think so",)))
-            },
+            move |mut ctx: dbus_crossroads::Context, _, (): ()| async move { ctx.reply(Ok(("I don't think so",))) },
         );
     }
 }

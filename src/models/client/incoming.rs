@@ -1,8 +1,22 @@
 use serde::Deserialize;
 
 use crate::models::client::app_open_dir::incoming::AppOpenDirIncoming;
+use crate::models::client::flutter_install::incoming::FlutterInstallIncoming;
+use crate::models::client::flutter_project_format::incoming::FlutterProjectFormatIncoming;
+use crate::models::client::flutter_project_report::incoming::FlutterProjectReportIncoming;
+use crate::models::client::flutter_remove::incoming::FlutterRemoveIncoming;
+use crate::models::client::psdk_install::incoming::PsdkInstallIncoming;
+use crate::models::client::psdk_package_sign::incoming::PsdkPackageSignIncoming;
+use crate::models::client::psdk_remove::incoming::PsdkRemoveIncoming;
+use crate::models::client::psdk_sudoers_add::incoming::PsdkSudoersAddIncoming;
+use crate::models::client::psdk_sudoers_remove::incoming::PsdkSudoersRemoveIncoming;
+use crate::models::client::psdk_target_package_install::incoming::PsdkTargetPackageInstallIncoming;
+use crate::models::client::psdk_target_package_uninstall::incoming::PsdkTargetPackageUninstallIncoming;
 use crate::models::client::sdk_ide_close::incoming::SdkIdeCloseIncoming;
 use crate::models::client::sdk_ide_open::incoming::SdkIdeOpenIncoming;
+use crate::models::client::sdk_install::incoming::SdkInstallIncoming;
+use crate::models::client::sdk_project_format::incoming::SdkProjectFormatIncoming;
+use crate::models::client::sdk_remove::incoming::SdkRemoveIncoming;
 use crate::tools::macros::print_debug;
 use crate::tools::utils;
 
@@ -157,6 +171,26 @@ impl ClientMethodsKey {
                 let model = serde_json::from_str::<FlutterInfoIncoming>(&value)?;
                 Ok(Box::new(model))
             }
+            ClientMethodsKey::FlutterInstall => {
+                print_debug!("> FlutterInstall: {}", value);
+                let model = serde_json::from_str::<FlutterInstallIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::FlutterProjectFormat => {
+                print_debug!("> FlutterProjectFormat: {}", value);
+                let model = serde_json::from_str::<FlutterProjectFormatIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::FlutterProjectReport => {
+                print_debug!("> FlutterProjectReport: {}", value);
+                let model = serde_json::from_str::<FlutterProjectReportIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::FlutterRemove => {
+                print_debug!("> FlutterRemove: {}", value);
+                let model = serde_json::from_str::<FlutterRemoveIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
             ClientMethodsKey::FlutterSync => {
                 print_debug!("> FlutterSync: {}", value);
                 let model = serde_json::from_str::<FlutterSyncIncoming>(&value)?;
@@ -182,9 +216,44 @@ impl ClientMethodsKey {
                 let model = serde_json::from_str::<PsdkInfoIncoming>(&value)?;
                 Ok(Box::new(model))
             }
+            ClientMethodsKey::PsdkInstall => {
+                print_debug!("> PsdkInstall: {}", value);
+                let model = serde_json::from_str::<PsdkInstallIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::PsdkPackageSign => {
+                print_debug!("> PsdkPackageSign: {}", value);
+                let model = serde_json::from_str::<PsdkPackageSignIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::PsdkRemove => {
+                print_debug!("> PsdkRemove: {}", value);
+                let model = serde_json::from_str::<PsdkRemoveIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::PsdkSudoersAdd => {
+                print_debug!("> PsdkSudoersAdd: {}", value);
+                let model = serde_json::from_str::<PsdkSudoersAddIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::PsdkSudoersRemove => {
+                print_debug!("> PsdkSudoersRemove: {}", value);
+                let model = serde_json::from_str::<PsdkSudoersRemoveIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
             ClientMethodsKey::PsdkSync => {
                 print_debug!("> PsdkSync: {}", value);
                 let model = serde_json::from_str::<PsdkSyncIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::PsdkTargetPackageInstall => {
+                print_debug!("> PsdkTargetPackageInstall: {}", value);
+                let model = serde_json::from_str::<PsdkTargetPackageInstallIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::PsdkTargetPackageUninstall => {
+                print_debug!("> PsdkTargetPackageUninstall: {}", value);
+                let model = serde_json::from_str::<PsdkTargetPackageUninstallIncoming>(&value)?;
                 Ok(Box::new(model))
             }
             ClientMethodsKey::PsdkTerminal => {
@@ -215,6 +284,21 @@ impl ClientMethodsKey {
             ClientMethodsKey::SdkInfo => {
                 print_debug!("> SdkInfo: {}", value);
                 let model = serde_json::from_str::<SdkInfoIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::SdkInstall => {
+                print_debug!("> SdkInstall: {}", value);
+                let model = serde_json::from_str::<SdkInstallIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::SdkProjectFormat => {
+                print_debug!("> SdkProjectFormat: {}", value);
+                let model = serde_json::from_str::<SdkProjectFormatIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::SdkRemove => {
+                print_debug!("> SdkRemove: {}", value);
+                let model = serde_json::from_str::<SdkRemoveIncoming>(&value)?;
                 Ok(Box::new(model))
             }
             ClientMethodsKey::SdkSync => {

@@ -3,8 +3,8 @@ pub mod command {
     pub mod exec;
 }
 pub mod dbus {
-    pub mod server;
     pub mod methods;
+    pub mod server;
 }
 pub mod requests {
     pub mod client;

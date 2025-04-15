@@ -69,6 +69,18 @@ pub mod flutter_info {
     pub mod incoming;
     pub mod outgoing;
 }
+pub mod flutter_install {
+    pub mod incoming;
+}
+pub mod flutter_project_format {
+    pub mod incoming;
+}
+pub mod flutter_project_report {
+    pub mod incoming;
+}
+pub mod flutter_remove {
+    pub mod incoming;
+}
 pub mod flutter_sync {
     pub mod incoming;
 }
@@ -86,7 +98,28 @@ pub mod psdk_info {
     pub mod incoming;
     pub mod outgoing;
 }
+pub mod psdk_install {
+    pub mod incoming;
+}
+pub mod psdk_package_sign {
+    pub mod incoming;
+}
+pub mod psdk_remove {
+    pub mod incoming;
+}
+pub mod psdk_sudoers_add {
+    pub mod incoming;
+}
+pub mod psdk_sudoers_remove {
+    pub mod incoming;
+}
 pub mod psdk_sync {
+    pub mod incoming;
+}
+pub mod psdk_target_package_install {
+    pub mod incoming;
+}
+pub mod psdk_target_package_uninstall {
     pub mod incoming;
 }
 pub mod psdk_terminal {
@@ -108,6 +141,15 @@ pub mod sdk_ide_open {
 pub mod sdk_info {
     pub mod incoming;
     pub mod outgoing;
+}
+pub mod sdk_install {
+    pub mod incoming;
+}
+pub mod sdk_project_format {
+    pub mod incoming;
+}
+pub mod sdk_remove {
+    pub mod incoming;
 }
 pub mod sdk_sync {
     pub mod incoming;
@@ -176,18 +218,32 @@ pub enum ClientMethodsKey {
     FlutterAvailable,
     FlutterDownload,
     FlutterInfo,
+    FlutterInstall,
+    FlutterProjectFormat,
+    FlutterProjectReport,
+    FlutterRemove,
     FlutterSync,
     FlutterTerminal,
     PsdkAvailable,
     PsdkDownload,
     PsdkInfo,
+    PsdkInstall,
+    PsdkPackageSign,
+    PsdkRemove,
+    PsdkSudoersAdd,
+    PsdkSudoersRemove,
     PsdkSync,
+    PsdkTargetPackageInstall,
+    PsdkTargetPackageUninstall,
     PsdkTerminal,
     SdkAvailable,
     SdkDownload,
     SdkIdeClose,
     SdkIdeOpen,
     SdkInfo,
+    SdkInstall,
+    SdkProjectFormat,
+    SdkRemove,
     SdkSync,
     SdkTools,
     StateMessage,

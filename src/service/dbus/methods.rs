@@ -1,8 +1,8 @@
 use dbus_crossroads::IfaceBuilder;
 
-use crate::models::client::outgoing::DataOutgoing;
-use crate::models::client::outgoing::TraitOutgoing;
-use crate::models::client::state_message::outgoing::StateMessageOutgoing;
+use crate::feature::outgoing::DataOutgoing;
+use crate::feature::outgoing::TraitOutgoing;
+use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::service::dbus::server::DbusOnly;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;

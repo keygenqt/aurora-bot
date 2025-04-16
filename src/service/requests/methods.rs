@@ -11,9 +11,9 @@ use std::sync::Mutex;
 use nipper::Document;
 use tokio::runtime::Handle;
 
-use crate::models::client::incoming::DataIncoming;
-use crate::models::client::incoming::TraitIncoming;
-use crate::models::client::selector::incoming::SelectorCmdIncoming;
+use crate::feature::incoming::DataIncoming;
+use crate::feature::incoming::TraitIncoming;
+use crate::feature::selector::incoming::SelectorCmdIncoming;
 use crate::service::requests::client::ClientRequest;
 use crate::service::responses::common::CommonResponse;
 use crate::service::responses::demo_releases::DemoAppResponse;

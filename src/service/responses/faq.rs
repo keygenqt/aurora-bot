@@ -5,8 +5,8 @@ use regex::Regex;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::models::client::outgoing::DataOutgoing;
-use crate::models::client::outgoing::TraitOutgoing;
+use crate::feature::outgoing::DataOutgoing;
+use crate::feature::outgoing::TraitOutgoing;
 use crate::tools::macros::tr;
 
 #[derive(Deserialize, Serialize, Clone)]

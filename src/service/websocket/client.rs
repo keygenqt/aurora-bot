@@ -2,10 +2,10 @@ use std::thread;
 use std::time::Duration;
 use std::time::{self};
 
-use crate::models::client::incoming::DataIncoming;
-use crate::models::client::outgoing::OutgoingType;
-use crate::models::client::outgoing::TraitOutgoing;
-use crate::models::client::ws_ping::outgoing::WsPingOutgoing;
+use crate::feature::incoming::DataIncoming;
+use crate::feature::outgoing::OutgoingType;
+use crate::feature::outgoing::TraitOutgoing;
+use crate::feature::ws_ping::outgoing::WsPingOutgoing;
 use crate::service::requests::client::ClientRequest;
 use crate::tools::constants;
 use crate::tools::macros::crash;

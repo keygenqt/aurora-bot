@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use std::fs;
 
-use crate::models::client::outgoing::TraitOutgoing;
-use crate::models::client::state_message::outgoing::StateMessageOutgoing;
+use crate::feature::outgoing::TraitOutgoing;
+use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::service::command::exec;
 
 use super::constants;

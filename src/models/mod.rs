@@ -1,5 +1,4 @@
 /// Application data models
-pub mod client;
 pub mod configuration;
 
 pub mod emulator {

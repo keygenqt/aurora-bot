@@ -1,16 +1,20 @@
 use clap::Parser;
 use clap::Subcommand;
-use feature::cli::args::CliArgs;
-use feature::svc::args::SvcArgs;
-use models::client::app_info::incoming::AppInfoIncoming;
-use models::client::incoming::TraitIncoming;
-use models::client::outgoing::OutgoingType;
+use cli::args::CliArgs;
+use feature::app_info::incoming::AppInfoIncoming;
+use feature::incoming::TraitIncoming;
+use feature::outgoing::OutgoingType;
+use svc::args::SvcArgs;
 use tools::constants;
 use tools::utils;
 
+mod cli;
+mod cmd;
+mod faq;
 mod feature;
 mod models;
 mod service;
+mod svc;
 mod tools;
 
 /// Main clap
@@ -82,10 +86,10 @@ async fn main() {
         AppInfoIncoming::new().run(OutgoingType::Cli).print();
     } else {
         match App::parse().command.unwrap() {
-            Commands::Cli(arg) => feature::cli::args::run(arg),
-            Commands::Cmd { command, help: _ } => feature::cmd::args::run(command),
-            Commands::Faq { search, help: _ } => feature::faq::args::run(search),
-            Commands::Svc(arg) => feature::svc::args::run(arg),
+            Commands::Cli(arg) => cli::args::run(arg),
+            Commands::Cmd { command, help: _ } => cmd::args::run(command),
+            Commands::Faq { search, help: _ } => faq::args::run(search),
+            Commands::Svc(arg) => svc::args::run(arg),
         }
     }
 }

@@ -23,6 +23,9 @@ pub mod psdk_available {
 pub mod psdk_installed {
     pub mod model;
 }
+pub mod psdk_target {
+    pub mod model;
+}
 pub mod sdk_available {
     pub mod model;
 }

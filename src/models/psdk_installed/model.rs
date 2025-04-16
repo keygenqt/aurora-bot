@@ -1,6 +1,7 @@
 use colored::Colorize;
 use human_sort::sort;
 
+use crate::models::psdk_target::model::PsdkTargetModel;
 use crate::models::TraitModel;
 use crate::models::configuration::psdk::PsdkConfig;
 use crate::service::command::exec;
@@ -23,6 +24,7 @@ pub struct PsdkInstalledModel {
     pub version_id: String,
     pub build: u8,
     pub home_url: String,
+    pub targets: Vec<PsdkTargetModel>,
 }
 
 impl PsdkInstalledModel {
@@ -96,6 +98,10 @@ impl PsdkInstalledModel {
                 Ok(s) => s,
                 Err(_) => continue,
             };
+            let targets = match PsdkTargetModel::search_full(chroot.clone()) {
+                Ok(value) => value,
+                Err(_) => [].to_vec(),
+            };
             let model = PsdkInstalledModel {
                 id: PsdkInstalledModel::get_id(&chroot),
                 dir: psdk_dir,
@@ -104,6 +110,7 @@ impl PsdkInstalledModel {
                 version,
                 build,
                 home_url,
+                targets,
             };
             models_by_version.insert(version_id.clone(), model);
             versions.push(version_id);

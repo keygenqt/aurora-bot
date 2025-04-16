@@ -1,5 +1,6 @@
 use crate::models::configuration::Config;
 use crate::models::psdk_installed::model::PsdkInstalledModel;
+use crate::models::psdk_target::model::PsdkTargetModel;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -11,6 +12,7 @@ pub struct PsdkConfig {
     pub version_id: String,
     pub build: u8,
     pub home_url: String,
+    pub targets: Vec<PsdkTargetModel>,
 }
 
 impl PsdkConfig {
@@ -36,6 +38,7 @@ impl PsdkConfig {
                     version_id: e.version_id.clone(),
                     build: e.build,
                     home_url: e.home_url.clone(),
+                    targets: e.targets.clone(),
                 })
                 .collect(),
             Err(_) => vec![],
@@ -51,6 +54,7 @@ impl PsdkConfig {
             version_id: self.version_id.clone(),
             build: self.build,
             home_url: self.home_url.clone(),
+            targets: self.targets.clone(),
         }
     }
 }

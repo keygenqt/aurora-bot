@@ -6,7 +6,7 @@ use crate::tools::utils;
 use serde::Deserialize;
 use serde::Serialize;
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct PsdkTargetModel {
     pub id: String,
     pub name: String,
@@ -40,9 +40,12 @@ impl TraitModel for PsdkTargetModel {
 }
 
 impl PsdkTargetModel {
-    #[allow(dead_code)]
-    #[allow(unused_mut)]
-    pub fn search_full() -> Result<Vec<PsdkTargetModel>, Box<dyn std::error::Error>> {
+    // @todo
+    // 1. search targets
+    // 2. check in psdk config
+    // 3. get targets in toolbox
+    // 4. get targets from cache by id psdk & id target
+    pub fn search_full(chroot: String) -> Result<Vec<PsdkTargetModel>, Box<dyn std::error::Error>> {
         let mut models: Vec<PsdkTargetModel> = vec![];
         // @todo
         Ok(models)

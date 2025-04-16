@@ -76,7 +76,7 @@ impl TraitIncoming for SdkProjectFormatIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         match Self::run(&send_type) {
             Ok(value) => value,
-            Err(_) => StateMessageOutgoing::new_error(tr!("@todo")),
+            Err(_) => StateMessageOutgoing::new_error(tr!("произошла ошибка при форматировании проекта")),
         }
     }
 }

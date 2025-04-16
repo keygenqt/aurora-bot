@@ -169,11 +169,11 @@ impl EmulatorPackageInstallIncoming {
     }
 
     fn run_install_by_path(
-        emulator: &EmulatorModel,
+        model: &EmulatorModel,
         send_type: &OutgoingType,
         path: &PathBuf,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-        if !emulator.is_running {
+        if !model.is_running {
             return Ok(StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен")));
         }
         // Check and sign package
@@ -190,7 +190,7 @@ impl EmulatorPackageInstallIncoming {
             Err(tr!("не удалось получить название пакета"))?;
         }
         // Get session
-        let session = emulator.session_user()?;
+        let session = model.session_user()?;
         // Upload file
         StateMessageOutgoing::new_state(tr!("загружаем пакет...")).send(send_type);
         let path_remote = &session.file_upload(path, StateMessageOutgoing::get_state_callback_file_small(send_type))?;
@@ -202,7 +202,7 @@ impl EmulatorPackageInstallIncoming {
     }
 
     fn run_install_by_url(
-        emulator: &EmulatorModel,
+        model: &EmulatorModel,
         send_type: &OutgoingType,
         url: &String,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
@@ -221,7 +221,7 @@ impl EmulatorPackageInstallIncoming {
             Err(_) => Err(tr!("не удалось сохранить файл"))?,
         };
         // Run install
-        Self::run_install_by_path(emulator, send_type, &rpm_path_download)
+        Self::run_install_by_path(model, send_type, &rpm_path_download)
     }
 }
 
@@ -229,7 +229,7 @@ impl TraitIncoming for EmulatorPackageInstallIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = EmulatorPackageInstallIncoming::name();
-        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(
+        let models = EmulatorModelSelect::search(
             &self.id,
             &send_type,
             tr!("ищем запущенный эмулятор для загрузки"),

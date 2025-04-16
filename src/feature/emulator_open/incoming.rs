@@ -130,38 +130,38 @@ impl EmulatorOpenIncoming {
         );
     }
 
-    fn run_emulator(
-        emulator: EmulatorModel,
+    fn run(
+        model: EmulatorModel,
         send_type: &OutgoingType,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-        if !emulator.is_running {
+        if !model.is_running {
             StateMessageOutgoing::new_state(tr!("открываем эмулятор")).send(send_type);
-            emulator.start()?;
+            model.start()?;
         }
         StateMessageOutgoing::new_state(tr!("соединение с эмулятором")).send(send_type);
         // Get emulator connect session
-        let emulator = emulator.session_user()?;
+        let model = model.session_user()?;
         // Close connect
-        emulator.close()?;
+        model.close()?;
         // Done
         Ok(StateMessageOutgoing::new_success(tr!(
             "эмулятор {} готов к работе",
-            emulator.os_name
+            model.os_name
         )))
     }
 
-    fn run_emulator_vnc(
-        emulator: EmulatorModel,
+    fn run_vnc(
+        model: EmulatorModel,
         send_type: &OutgoingType,
         password: Option<String>,
         port: Option<u64>,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-        if emulator.is_running {
+        if model.is_running {
             Ok(StateMessageOutgoing::new_info(tr!("эмулятор уже запущен")))
         } else {
             StateMessageOutgoing::new_state(tr!("открываем эмулятор")).send(send_type);
 
-            let uuid = emulator.uuid.as_str();
+            let uuid = model.uuid.as_str();
             let program = programs::get_vboxmanage()?;
             let output = exec::exec_wait_args(&program, ["setproperty", "vrdeextpack", "VNC"])?;
             if !output.status.success() {
@@ -203,7 +203,7 @@ impl TraitIncoming for EmulatorOpenIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = EmulatorOpenIncoming::name();
-        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(
+        let models = EmulatorModelSelect::search(
             &self.id,
             &send_type,
             tr!("ищем эмулятор который можно открыть"),
@@ -213,7 +213,7 @@ impl TraitIncoming for EmulatorOpenIncoming {
         match models.iter().count() {
             1 => {
                 if self.is_vnc {
-                    match Self::run_emulator_vnc(
+                    match Self::run_vnc(
                         models.first().unwrap().clone(),
                         &send_type,
                         self.password.clone(),
@@ -223,7 +223,7 @@ impl TraitIncoming for EmulatorOpenIncoming {
                         Err(_) => StateMessageOutgoing::new_error(tr!("не удалось открыть эмулятор")),
                     }
                 } else {
-                    match Self::run_emulator(models.first().unwrap().clone(), &send_type) {
+                    match Self::run(models.first().unwrap().clone(), &send_type) {
                         Ok(result) => result,
                         Err(_) => StateMessageOutgoing::new_error(tr!("не удалось открыть эмулятор")),
                     }
@@ -232,7 +232,7 @@ impl TraitIncoming for EmulatorOpenIncoming {
             0 => StateMessageOutgoing::new_info(tr!("эмуляторы не найдены")),
             _ => match EmulatorModelSelect::select(key, models, |id| self.select(id)) {
                 Ok(value) => Box::new(value),
-                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось открыть эмулятор")),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить эмулятор")),
             },
         }
     }

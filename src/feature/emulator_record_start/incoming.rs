@@ -67,14 +67,18 @@ impl EmulatorRecordStartIncoming {
         );
     }
 
-    fn start(emulator: EmulatorModel) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-        if !emulator.is_running {
+    #[allow(unused_variables)]
+    fn run(
+        model: EmulatorModel,
+        send_type: &OutgoingType,
+    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+        if !model.is_running {
             return Ok(StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен")));
         }
-        if emulator.is_recording() {
+        if model.is_recording() {
             return Ok(StateMessageOutgoing::new_info(tr!("запись видео уже активирована")));
         }
-        let uuid = emulator.uuid.as_str();
+        let uuid = model.uuid.as_str();
         let program = programs::get_vboxmanage()?;
         let output = exec::exec_wait_args(&program, ["controlvm", uuid, "recording", "on"])?;
         if !output.status.success() {
@@ -88,7 +92,7 @@ impl TraitIncoming for EmulatorRecordStartIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = EmulatorRecordStartIncoming::name();
-        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(
+        let models = EmulatorModelSelect::search(
             &self.id,
             &send_type,
             tr!("ищем эмулятор для включения записи видео"),
@@ -96,7 +100,7 @@ impl TraitIncoming for EmulatorRecordStartIncoming {
         );
         // Select
         match models.iter().count() {
-            1 => match Self::start(models.first().unwrap().clone()) {
+            1 => match Self::run(models.first().unwrap().clone(), &send_type) {
                 Ok(result) => result,
                 Err(_) => StateMessageOutgoing::new_error(tr!("не удалось активировать запись видео")),
             },

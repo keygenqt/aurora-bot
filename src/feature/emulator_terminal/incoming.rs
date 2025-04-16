@@ -66,36 +66,44 @@ impl EmulatorTerminalIncoming {
             },
         );
     }
+
+    #[allow(unused_variables)]
+    fn run(
+        model: EmulatorModel,
+        send_type: &OutgoingType,
+        is_root: bool,
+    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+        if !model.is_running {
+            Ok(StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен")))
+        } else {
+            let user = if is_root { "root" } else { "defaultuser" };
+            // Run command
+            let command = format!(
+                "ssh -o 'ConnectTimeout=2' -o 'StrictHostKeyChecking=no' {}@localhost -p 2223 -i {}",
+                user, model.key
+            );
+            // Try run terminal
+            Ok(terminal::open(command))
+        }
+    }
 }
 
 impl TraitIncoming for EmulatorTerminalIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = EmulatorTerminalIncoming::name();
-        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(
+        let models = EmulatorModelSelect::search(
             &self.id,
             &send_type,
             tr!("ищем запущенный эмулятор для открытия терминала"),
             Some(true),
         );
-        // Exec fun
-        fn _run(emulator: EmulatorModel, is_root: bool) -> Box<dyn TraitOutgoing> {
-            if !emulator.is_running {
-                return StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен"));
-            } else {
-                let user = if is_root { "root" } else { "defaultuser" };
-                // Run command
-                let command = format!(
-                    "ssh -o 'ConnectTimeout=2' -o 'StrictHostKeyChecking=no' {}@localhost -p 2223 -i {}",
-                    user, emulator.key
-                );
-                // Try run terminal
-                terminal::open(command)
-            }
-        }
         // Select
         match models.iter().count() {
-            1 => _run(models.first().unwrap().clone(), self.is_root),
+            1 => match Self::run(models.first().unwrap().clone(), &send_type, self.is_root) {
+                Ok(value) => value,
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось запустить терминал")),
+            },
             0 => StateMessageOutgoing::new_info(tr!("запущенные эмуляторы не найдены")),
             _ => match EmulatorModelSelect::select(key, models, |id| self.select(id)) {
                 Ok(value) => Box::new(value),

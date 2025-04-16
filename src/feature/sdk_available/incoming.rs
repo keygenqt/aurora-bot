@@ -8,7 +8,6 @@ use crate::feature::outgoing::OutgoingType;
 use crate::feature::outgoing::TraitOutgoing;
 use crate::feature::selector::selects::select_sdk_available::SdkAvailableModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
-use crate::models::sdk_available::model::SdkAvailableModel;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
@@ -72,8 +71,7 @@ impl TraitIncoming for SdkAvailableIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = SdkAvailableIncoming::name();
-        let models: Vec<SdkAvailableModel> =
-            SdkAvailableModelSelect::search(&self.id, tr!("получаем список..."), &send_type);
+        let models = SdkAvailableModelSelect::search(&self.id, tr!("получаем список..."), &send_type);
         // Select
         match models.iter().count() {
             1 => SdkAvailableOutgoing::new(models.first().unwrap().clone()),

@@ -80,18 +80,17 @@ impl TraitIncoming for SdkRemoveIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = SdkRemoveIncoming::name();
-        let models: Vec<SdkInstalledModel> =
-            SdkInstalledModelSelect::search(&self.id, tr!("получаем информацию о Аврора SDK"), &send_type);
+        let models = SdkInstalledModelSelect::search(&self.id, tr!("получаем информацию о Аврора SDK"), &send_type);
         // Select
         match models.iter().count() {
             1 => match Self::run(models.first().unwrap().clone(), &send_type) {
                 Ok(result) => result,
-                Err(_) => StateMessageOutgoing::new_error(tr!("@todo")),
+                Err(_) => StateMessageOutgoing::new_error(tr!("произошла ошибка при удалении Аврора SDK")),
             },
             0 => StateMessageOutgoing::new_info(tr!("Аврора SDK не найдены")),
             _ => match SdkInstalledModelSelect::select(key, models, |id| self.select(id)) {
                 Ok(value) => Box::new(value),
-                Err(_) => StateMessageOutgoing::new_error(tr!("@todo")),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Аврора SDK")),
             },
         }
     }

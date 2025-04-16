@@ -66,7 +66,7 @@ impl SdkToolsIncoming {
         );
     }
 
-    fn run_tools(
+    fn run(
         model: SdkInstalledModel,
         send_type: &OutgoingType,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
@@ -82,14 +82,14 @@ impl TraitIncoming for SdkToolsIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = SdkInfoIncoming::name();
-        let models: Vec<SdkInstalledModel> = SdkInstalledModelSelect::search(
+        let models = SdkInstalledModelSelect::search(
             &self.id,
             tr!("ищем Аврора SDK для открытия Maintenance tools"),
             &send_type,
         );
         // Select
         match models.iter().count() {
-            1 => match Self::run_tools(models.first().unwrap().clone(), &send_type) {
+            1 => match Self::run(models.first().unwrap().clone(), &send_type) {
                 Ok(result) => result,
                 Err(_) => StateMessageOutgoing::new_error(tr!("не удалось открыть Maintenance tools")),
             },

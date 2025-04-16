@@ -66,29 +66,32 @@ impl FlutterTerminalIncoming {
             },
         );
     }
+
+    #[allow(unused_variables)]
+    fn run(
+        model: FlutterInstalledModel,
+        send_type: &OutgoingType,
+    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+        let command = terminal::command_aliases(hashmap! {
+            "flutter" => model.flutter,
+            "dart" => model.dart,
+        })?;
+        Ok(terminal::open(command))
+    }
 }
 
 impl TraitIncoming for FlutterTerminalIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = FlutterTerminalIncoming::name();
-        let models: Vec<FlutterInstalledModel> =
+        let models =
             FlutterInstalledModelSelect::search(&self.id, tr!("ищем Flutter SDK для открытия терминала"), &send_type);
-        // Exec fun
-        fn _run(model: FlutterInstalledModel) -> Box<dyn TraitOutgoing> {
-            let command = terminal::command_aliases(hashmap! {
-                "flutter" => model.flutter,
-                "dart" => model.dart,
-            });
-            if let Ok(command) = command {
-                terminal::open(command)
-            } else {
-                StateMessageOutgoing::new_error(tr!("не удалось открыть терминал"))
-            }
-        }
         // Select
         match models.iter().count() {
-            1 => _run(models.first().unwrap().clone()),
+            1 => match Self::run(models.first().unwrap().clone(), &send_type) {
+                Ok(value) => value,
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось запустить терминал")),
+            },
             0 => StateMessageOutgoing::new_info(tr!("Flutter SDK не найдены")),
             _ => match FlutterInstalledModelSelect::select(key, models, |id| self.select(id)) {
                 Ok(value) => Box::new(value),

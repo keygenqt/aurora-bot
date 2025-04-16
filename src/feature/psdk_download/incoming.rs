@@ -68,47 +68,46 @@ impl PsdkDownloadIncoming {
             },
         );
     }
+
+    fn run(
+        model: PsdkAvailableModel,
+        send_type: &OutgoingType,
+    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+        StateMessageOutgoing::new_state(tr!("начинаем загрузку...")).send(send_type);
+        // Time start
+        let start = SystemTime::now();
+        // Download
+        let urls = model.urls;
+        let paths =
+            single::get_request().download_files(urls, StateMessageOutgoing::get_state_callback_file_big(send_type))?;
+        let _ = utils::move_to_downloads(paths)?;
+        // Time end
+        let end = SystemTime::now();
+        let duration = end.duration_since(start).unwrap();
+        let seconds = duration.as_secs();
+        // Done
+        Ok(StateMessageOutgoing::new_success(tr!(
+            "загрузка успешно выполнена ({}s)",
+            seconds
+        )))
+    }
 }
 
 impl TraitIncoming for PsdkDownloadIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = PsdkDownloadIncoming::name();
-        let models: Vec<PsdkAvailableModel> =
-            PsdkAvailableModelSelect::search(&self.id, tr!("получаем список..."), &send_type);
-        // Exec fun
-        fn _run(
-            model: PsdkAvailableModel,
-            send_type: &OutgoingType,
-        ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-            StateMessageOutgoing::new_state(tr!("начинаем загрузку...")).send(send_type);
-            // Time start
-            let start = SystemTime::now();
-            // Download
-            let urls = model.urls;
-            let paths = single::get_request()
-                .download_files(urls, StateMessageOutgoing::get_state_callback_file_big(send_type))?;
-            let _ = utils::move_to_downloads(paths)?;
-            // Time end
-            let end = SystemTime::now();
-            let duration = end.duration_since(start).unwrap();
-            let seconds = duration.as_secs();
-            // Done
-            Ok(StateMessageOutgoing::new_success(tr!(
-                "загрузка успешно выполнена ({}s)",
-                seconds
-            )))
-        }
+        let models = PsdkAvailableModelSelect::search(&self.id, tr!("получаем список..."), &send_type);
         // Select
         match models.iter().count() {
-            1 => match _run(models.first().unwrap().clone(), &send_type) {
+            1 => match Self::run(models.first().unwrap().clone(), &send_type) {
                 Ok(value) => value,
                 Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
             },
             0 => StateMessageOutgoing::new_info(tr!("Platform SDK не найдено")),
             _ => match PsdkAvailableModelSelect::select(key, models, |id| self.select(id)) {
                 Ok(value) => Box::new(value),
-                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить эмулятор")),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Platform SDK")),
             },
         }
     }

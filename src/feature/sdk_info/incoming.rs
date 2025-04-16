@@ -8,7 +8,6 @@ use crate::feature::outgoing::OutgoingType;
 use crate::feature::outgoing::TraitOutgoing;
 use crate::feature::selector::selects::select_sdk_installed::SdkInstalledModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
-use crate::models::sdk_installed::model::SdkInstalledModel;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
@@ -72,8 +71,7 @@ impl TraitIncoming for SdkInfoIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = SdkInfoIncoming::name();
-        let models: Vec<SdkInstalledModel> =
-            SdkInstalledModelSelect::search(&self.id, tr!("получаем информацию о Аврора SDK"), &send_type);
+        let models = SdkInstalledModelSelect::search(&self.id, tr!("получаем информацию о Аврора SDK"), &send_type);
         // Select
         match models.iter().count() {
             1 => SdkInfoOutgoing::new(models.first().unwrap().clone()),

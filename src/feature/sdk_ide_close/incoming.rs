@@ -65,7 +65,7 @@ impl SdkIdeCloseIncoming {
         );
     }
 
-    fn close_ide(
+    fn run(
         model: SdkInstalledModel,
         send_type: &OutgoingType,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
@@ -83,18 +83,17 @@ impl TraitIncoming for SdkIdeCloseIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = SdkIdeCloseIncoming::name();
-        let models: Vec<SdkInstalledModel> =
-            SdkInstalledModelSelect::search(&self.id, tr!("ищем чего бы остановить"), &send_type);
+        let models = SdkInstalledModelSelect::search(&self.id, tr!("ищем чего бы остановить"), &send_type);
         // Select
         match models.iter().count() {
-            1 => match Self::close_ide(models.first().unwrap().clone(), &send_type) {
+            1 => match Self::run(models.first().unwrap().clone(), &send_type) {
                 Ok(result) => result,
                 Err(_) => StateMessageOutgoing::new_error(tr!("не удалось закрыть IDE")),
             },
             0 => StateMessageOutgoing::new_info(tr!("Аврора SDK не найдено")),
             _ => match SdkInstalledModelSelect::select(key, models, |id| self.select(id)) {
                 Ok(value) => Box::new(value),
-                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось закрыть IDE")),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Аврора SDK")),
             },
         }
     }

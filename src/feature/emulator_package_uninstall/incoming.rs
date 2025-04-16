@@ -120,16 +120,16 @@ impl EmulatorPackageUninstallIncoming {
         );
     }
 
-    fn run_uninstall(
-        emulator: EmulatorModel,
+    fn run(
+        model: EmulatorModel,
         package_name: String,
         send_type: &OutgoingType,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-        if !emulator.is_running {
+        if !model.is_running {
             return Ok(StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен")));
         }
         // Get session
-        let session = emulator.session_user()?;
+        let session = model.session_user()?;
         // Remove by apm
         StateMessageOutgoing::new_state(tr!("удаление пакета")).send(send_type);
         session.remove_package(package_name, true)?;
@@ -142,14 +142,13 @@ impl TraitIncoming for EmulatorPackageUninstallIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = EmulatorPackageUninstallIncoming::name();
-        let models: Vec<EmulatorModel> =
-            EmulatorModelSelect::search(&self.id, &send_type, tr!("ищем запущенный эмулятор"), Some(true));
+        let models = EmulatorModelSelect::search(&self.id, &send_type, tr!("ищем запущенный эмулятор"), Some(true));
         // Select
         match models.iter().count() {
             1 => {
                 if let Some(model) = models.first() {
                     if let Some(package) = self.package.clone() {
-                        match Self::run_uninstall(model.clone(), package, &send_type) {
+                        match Self::run(model.clone(), package, &send_type) {
                             Ok(result) => result,
                             Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
                         }

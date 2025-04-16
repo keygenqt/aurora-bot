@@ -80,18 +80,17 @@ impl TraitIncoming for PsdkInstallIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = PsdkInstallIncoming::name();
-        let models: Vec<PsdkAvailableModel> =
-            PsdkAvailableModelSelect::search(&self.id, tr!("получаем список..."), &send_type);
+        let models = PsdkAvailableModelSelect::search(&self.id, tr!("получаем список..."), &send_type);
         // Select
         match models.iter().count() {
             1 => match Self::run(models.first().unwrap().clone(), &send_type) {
                 Ok(result) => result,
-                Err(_) => StateMessageOutgoing::new_error(tr!("@todo")),
+                Err(_) => StateMessageOutgoing::new_error(tr!("произошла ошибка при установке Platform SDK")),
             },
             0 => StateMessageOutgoing::new_info(tr!("не удалось получить данные")),
             _ => match PsdkAvailableModelSelect::select(key, models, |id| self.select(id)) {
                 Ok(value) => Box::new(value),
-                Err(_) => StateMessageOutgoing::new_error(tr!("@todo")),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Platform SDK")),
             },
         }
     }

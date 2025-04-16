@@ -70,12 +70,16 @@ impl EmulatorScreenshotIncoming {
         );
     }
 
-    fn take_screenshot(emulator: EmulatorModel) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-        if !emulator.is_running {
+    #[allow(unused_variables)]
+    fn run(
+        model: EmulatorModel,
+        send_type: &OutgoingType,
+    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+        if !model.is_running {
             return Ok(StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен")));
         }
         let path = utils::get_screenshot_save_path().to_string_lossy().to_string();
-        let uuid = emulator.uuid.as_str();
+        let uuid = model.uuid.as_str();
         let program = programs::get_vboxmanage()?;
         let output = exec::exec_wait_args(&program, ["controlvm", uuid, "screenshotpng", &path])?;
         if !output.status.success() {
@@ -92,7 +96,7 @@ impl TraitIncoming for EmulatorScreenshotIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = EmulatorScreenshotIncoming::name();
-        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(
+        let models = EmulatorModelSelect::search(
             &self.id,
             &send_type,
             tr!("ищем открытый эмулятор для скриншота"),
@@ -100,7 +104,7 @@ impl TraitIncoming for EmulatorScreenshotIncoming {
         );
         // Select
         match models.iter().count() {
-            1 => match Self::take_screenshot(models.first().unwrap().clone()) {
+            1 => match Self::run(models.first().unwrap().clone(), &send_type) {
                 Ok(result) => result,
                 Err(_) => StateMessageOutgoing::new_error(tr!("не удалось сделать скриншот")),
             },

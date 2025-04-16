@@ -8,7 +8,6 @@ use crate::feature::outgoing::OutgoingType;
 use crate::feature::outgoing::TraitOutgoing;
 use crate::feature::selector::selects::select_psdk_available::PsdkAvailableModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
-use crate::models::psdk_available::model::PsdkAvailableModel;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
@@ -72,15 +71,14 @@ impl TraitIncoming for PsdkAvailableIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = PsdkAvailableIncoming::name();
-        let models: Vec<PsdkAvailableModel> =
-            PsdkAvailableModelSelect::search(&self.id, tr!("получаем список..."), &send_type);
+        let models = PsdkAvailableModelSelect::search(&self.id, tr!("получаем список..."), &send_type);
         // Select
         match models.iter().count() {
             1 => PsdkAvailableOutgoing::new(models.first().unwrap().clone()),
             0 => StateMessageOutgoing::new_info(tr!("не удалось получить данные")),
             _ => match PsdkAvailableModelSelect::select(key, models, |id| self.select(id)) {
                 Ok(value) => Box::new(value),
-                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить эмулятор")),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Platform SDK")),
             },
         }
     }

@@ -80,18 +80,18 @@ impl TraitIncoming for FlutterProjectReportIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = FlutterProjectReportIncoming::name();
-        let models: Vec<FlutterInstalledModel> =
+        let models =
             FlutterInstalledModelSelect::search(&self.id, tr!("получаем информацию о Flutter SDK"), &send_type);
         // Select
         match models.iter().count() {
             1 => match Self::run(models.first().unwrap().clone(), &send_type) {
                 Ok(result) => result,
-                Err(_) => StateMessageOutgoing::new_error(tr!("@todo")),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось создать отчет")),
             },
             0 => StateMessageOutgoing::new_info(tr!("Flutter SDK не найдены")),
             _ => match FlutterInstalledModelSelect::select(key, models, |id| self.select(id)) {
                 Ok(value) => Box::new(value),
-                Err(_) => StateMessageOutgoing::new_error(tr!("@todo")),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Flutter SDK")),
             },
         }
     }

@@ -8,7 +8,6 @@ use crate::feature::outgoing::OutgoingType;
 use crate::feature::outgoing::TraitOutgoing;
 use crate::feature::selector::selects::select_emulator::EmulatorModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
-use crate::models::emulator::model::EmulatorModel;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
@@ -72,15 +71,14 @@ impl TraitIncoming for EmulatorInfoIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = EmulatorInfoIncoming::name();
-        let models: Vec<EmulatorModel> =
-            EmulatorModelSelect::search(&self.id, &send_type, tr!("получаем информацию об эмуляторах"), None);
+        let models = EmulatorModelSelect::search(&self.id, &send_type, tr!("получаем информацию об эмуляторах"), None);
         // Select
         match models.iter().count() {
             1 => EmulatorInfoOutgoing::new(models.first().unwrap().clone()),
             0 => StateMessageOutgoing::new_info(tr!("эмуляторы не найдены")),
             _ => match EmulatorModelSelect::select(key, models, |id| self.select(id)) {
                 Ok(value) => Box::new(value),
-                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить информацию")),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить эмулятор")),
             },
         }
     }

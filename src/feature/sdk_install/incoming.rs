@@ -80,18 +80,17 @@ impl TraitIncoming for SdkInstallIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = SdkInstallIncoming::name();
-        let models: Vec<SdkAvailableModel> =
-            SdkAvailableModelSelect::search(&self.id, tr!("получаем список..."), &send_type);
+        let models = SdkAvailableModelSelect::search(&self.id, tr!("получаем список..."), &send_type);
         // Select
         match models.iter().count() {
             1 => match Self::run(models.first().unwrap().clone(), &send_type) {
                 Ok(result) => result,
-                Err(_) => StateMessageOutgoing::new_error(tr!("@todo")),
+                Err(_) => StateMessageOutgoing::new_error(tr!("произошла ошибка при установке Аврора SDK")),
             },
             0 => StateMessageOutgoing::new_info(tr!("не удалось получить данные")),
             _ => match SdkAvailableModelSelect::select(key, models, |id| self.select(id)) {
                 Ok(value) => Box::new(value),
-                Err(_) => StateMessageOutgoing::new_error(tr!("@todo")),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Аврора SDK")),
             },
         }
     }

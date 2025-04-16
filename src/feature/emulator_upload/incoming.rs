@@ -132,7 +132,7 @@ impl EmulatorUploadIncoming {
         );
     }
 
-    fn upload_by_path(
+    fn run_by_path(
         emulator: &EmulatorModel,
         send_type: &OutgoingType,
         path: &PathBuf,
@@ -144,7 +144,7 @@ impl EmulatorUploadIncoming {
         Ok(StateMessageOutgoing::new_success(tr!("файл успешно загружен")))
     }
 
-    fn upload_by_url(
+    fn run_by_url(
         emulator: &EmulatorModel,
         send_type: &OutgoingType,
         url: &String,
@@ -170,7 +170,7 @@ impl TraitIncoming for EmulatorUploadIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = EmulatorUploadIncoming::name();
-        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(
+        let models = EmulatorModelSelect::search(
             &self.id,
             &send_type,
             tr!("ищем запущенный эмулятор для загрузки"),
@@ -187,12 +187,12 @@ impl TraitIncoming for EmulatorUploadIncoming {
                     StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен"))
                 } else {
                     if self.path.as_ref().is_some() {
-                        match Self::upload_by_path(emulator, &send_type, self.path.as_ref().unwrap()) {
+                        match Self::run_by_path(emulator, &send_type, self.path.as_ref().unwrap()) {
                             Ok(value) => value,
                             Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
                         }
                     } else {
-                        match Self::upload_by_url(emulator, &send_type, self.url.as_ref().unwrap()) {
+                        match Self::run_by_url(emulator, &send_type, self.url.as_ref().unwrap()) {
                             Ok(value) => value,
                             Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
                         }

@@ -64,24 +64,28 @@ impl EmulatorCloseIncoming {
             },
         );
     }
+
+    #[allow(unused_variables)]
+    fn run(
+        model: EmulatorModel,
+        send_type: &OutgoingType,
+    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+        model.close()?;
+        Ok(StateMessageOutgoing::new_success(tr!("эмулятор закрыт успешно")))
+    }
 }
 
 impl TraitIncoming for EmulatorCloseIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = EmulatorCloseIncoming::name();
-        let models: Vec<EmulatorModel> =
-            EmulatorModelSelect::search(&self.id, &send_type, tr!("ищем чего бы остановить"), Some(true));
-        // Exec fun
-        fn _run(emulator: EmulatorModel) -> Box<dyn TraitOutgoing> {
-            match emulator.close() {
-                Ok(_) => StateMessageOutgoing::new_success(tr!("эмулятор закрыт успешно")),
-                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось закрыть эмулятор")),
-            }
-        }
+        let models = EmulatorModelSelect::search(&self.id, &send_type, tr!("ищем чего бы остановить"), Some(true));
         // Select
         match models.iter().count() {
-            1 => _run(models.first().unwrap().clone()),
+            1 => match Self::run(models.first().unwrap().clone(), &send_type) {
+                Ok(result) => result,
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось закрыть эмулятор")),
+            },
             0 => StateMessageOutgoing::new_info(tr!("запущенные эмуляторы не найдены")),
             _ => match EmulatorModelSelect::select(key, models, |id| self.select(id)) {
                 Ok(value) => Box::new(value),

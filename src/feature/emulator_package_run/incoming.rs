@@ -136,18 +136,18 @@ impl EmulatorPackageRunIncoming {
         );
     }
 
-    fn run_package(
-        emulator: EmulatorModel,
+    fn run(
+        model: EmulatorModel,
         package: String,
         is_listen: bool,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-        if !emulator.is_running {
+        if !model.is_running {
             return Ok(StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен")));
         }
         let result = if is_listen {
-            emulator.session_user()?.run_package_listen(package)
+            model.session_user()?.run_package_listen(package)
         } else {
-            emulator.session_user()?.run_package(package)
+            model.session_user()?.run_package(package)
         };
         if result.is_err() {
             Err(tr!("не удалось запустить приложение"))?
@@ -164,14 +164,13 @@ impl TraitIncoming for EmulatorPackageRunIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = EmulatorPackageRunIncoming::name();
-        let models: Vec<EmulatorModel> =
-            EmulatorModelSelect::search(&self.id, &send_type, tr!("ищем запущенный эмулятор"), Some(true));
+        let models = EmulatorModelSelect::search(&self.id, &send_type, tr!("ищем запущенный эмулятор"), Some(true));
         // Select
         match models.iter().count() {
             1 => {
                 if let Some(model) = models.first() {
                     if let Some(package) = self.package.clone() {
-                        match Self::run_package(model.clone(), package, self.is_listen) {
+                        match Self::run(model.clone(), package, self.is_listen) {
                             Ok(result) => result,
                             Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
                         }

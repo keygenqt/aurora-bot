@@ -8,7 +8,6 @@ use crate::feature::outgoing::OutgoingType;
 use crate::feature::outgoing::TraitOutgoing;
 use crate::feature::selector::selects::select_flutter_available::FlutterAvailableModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
-use crate::models::flutter_available::model::FlutterAvailableModel;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
@@ -72,8 +71,7 @@ impl TraitIncoming for FlutterAvailableIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = FlutterAvailableIncoming::name();
-        let models: Vec<FlutterAvailableModel> =
-            FlutterAvailableModelSelect::search(&self.id, tr!("получаем список..."), &send_type);
+        let models = FlutterAvailableModelSelect::search(&self.id, tr!("получаем список..."), &send_type);
         // Select
         match models.iter().count() {
             1 => FlutterAvailableOutgoing::new(models.first().unwrap().clone()),

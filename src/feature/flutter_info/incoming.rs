@@ -8,7 +8,6 @@ use crate::feature::outgoing::OutgoingType;
 use crate::feature::outgoing::TraitOutgoing;
 use crate::feature::selector::selects::select_flutter_installed::FlutterInstalledModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
-use crate::models::flutter_installed::model::FlutterInstalledModel;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
@@ -72,7 +71,7 @@ impl TraitIncoming for FlutterInfoIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = FlutterInfoIncoming::name();
-        let models: Vec<FlutterInstalledModel> =
+        let models =
             FlutterInstalledModelSelect::search(&self.id, tr!("получаем информацию о Flutter SDK"), &send_type);
         // Select
         match models.iter().count() {

@@ -91,25 +91,25 @@ impl EmulatorRecordStopIncoming {
         );
     }
 
-    fn stop(
-        emulator: EmulatorModel,
+    fn run(
+        model: EmulatorModel,
         send_type: &OutgoingType,
         stop_type: &EmulatorRecordStopType,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-        if !emulator.is_running {
+        if !model.is_running {
             return Ok(StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен")));
         }
-        if !emulator.is_recording() {
+        if !model.is_recording() {
             return Ok(StateMessageOutgoing::new_info(tr!("запись видео не активна")));
         }
-        let uuid = emulator.uuid.as_str();
+        let uuid = model.uuid.as_str();
         let program = programs::get_vboxmanage()?;
         let output = exec::exec_wait_args(&program, ["controlvm", uuid, "recording", "off"])?;
         if !output.status.success() {
             Err(tr!("не удалось остановить запись видео"))?
         }
-        let name = emulator.name;
-        let path_raw = Path::new(&emulator.dir)
+        let name = model.name;
+        let path_raw = Path::new(&model.dir)
             .join("emulator")
             .join(&name)
             .join(&name)
@@ -148,7 +148,7 @@ impl TraitIncoming for EmulatorRecordStopIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = EmulatorRecordStopIncoming::name();
-        let models: Vec<EmulatorModel> = EmulatorModelSelect::search(
+        let models = EmulatorModelSelect::search(
             &self.id,
             &send_type,
             tr!("ищем эмулятор для остановки записи видео"),
@@ -156,7 +156,7 @@ impl TraitIncoming for EmulatorRecordStopIncoming {
         );
         // Select
         match models.iter().count() {
-            1 => match Self::stop(models.first().unwrap().clone(), &send_type, &self.stop_type) {
+            1 => match Self::run(models.first().unwrap().clone(), &send_type, &self.stop_type) {
                 Ok(result) => result,
                 Err(_) => StateMessageOutgoing::new_error(tr!("не удалось остановить запись видео")),
             },

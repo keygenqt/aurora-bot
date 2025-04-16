@@ -8,7 +8,6 @@ use crate::feature::outgoing::OutgoingType;
 use crate::feature::outgoing::TraitOutgoing;
 use crate::feature::selector::selects::select_psdk_installed::PsdkInstalledModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
-use crate::models::psdk_installed::model::PsdkInstalledModel;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
@@ -72,8 +71,7 @@ impl TraitIncoming for PsdkInfoIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = PsdkInfoIncoming::name();
-        let models: Vec<PsdkInstalledModel> =
-            PsdkInstalledModelSelect::search(&self.id, tr!("получаем информацию о Platform SDK"), &send_type);
+        let models = PsdkInstalledModelSelect::search(&self.id, tr!("получаем информацию о Platform SDK"), &send_type);
         // Select
         match models.iter().count() {
             1 => PsdkInfoOutgoing::new(models.first().unwrap().clone()),

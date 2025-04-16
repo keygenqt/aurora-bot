@@ -69,45 +69,42 @@ impl SdkDownloadIncoming {
             },
         );
     }
+
+    fn run(
+        model: SdkAvailableModel,
+        send_type: &OutgoingType,
+    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+        StateMessageOutgoing::new_state(tr!("начинаем загрузку...")).send(send_type);
+        // Time start
+        let start = SystemTime::now();
+        // Download
+        let url = model.url;
+        let path = if model.install_type == SdkInstallType::Offline {
+            single::get_request().download_file(url, StateMessageOutgoing::get_state_callback_file_big(send_type))?
+        } else {
+            single::get_request().download_file(url, StateMessageOutgoing::get_state_callback_file_small(send_type))?
+        };
+        let _ = utils::move_to_downloads(vec![path])?;
+        // Time end
+        let end = SystemTime::now();
+        let duration = end.duration_since(start).unwrap();
+        let seconds = duration.as_secs();
+        // Done
+        Ok(StateMessageOutgoing::new_success(tr!(
+            "загрузка успешно выполнена ({}s)",
+            seconds
+        )))
+    }
 }
 
 impl TraitIncoming for SdkDownloadIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = SdkDownloadIncoming::name();
-        let models: Vec<SdkAvailableModel> =
-            SdkAvailableModelSelect::search(&self.id, tr!("получаем список..."), &send_type);
-        // Exec fun
-        fn _run(
-            model: SdkAvailableModel,
-            send_type: &OutgoingType,
-        ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-            StateMessageOutgoing::new_state(tr!("начинаем загрузку...")).send(send_type);
-            // Time start
-            let start = SystemTime::now();
-            // Download
-            let url = model.url;
-            let path = if model.install_type == SdkInstallType::Offline {
-                single::get_request()
-                    .download_file(url, StateMessageOutgoing::get_state_callback_file_big(send_type))?
-            } else {
-                single::get_request()
-                    .download_file(url, StateMessageOutgoing::get_state_callback_file_small(send_type))?
-            };
-            let _ = utils::move_to_downloads(vec![path])?;
-            // Time end
-            let end = SystemTime::now();
-            let duration = end.duration_since(start).unwrap();
-            let seconds = duration.as_secs();
-            // Done
-            Ok(StateMessageOutgoing::new_success(tr!(
-                "загрузка успешно выполнена ({}s)",
-                seconds
-            )))
-        }
+        let models = SdkAvailableModelSelect::search(&self.id, tr!("получаем список..."), &send_type);
         // Select
         match models.iter().count() {
-            1 => match _run(models.first().unwrap().clone(), &send_type) {
+            1 => match Self::run(models.first().unwrap().clone(), &send_type) {
                 Ok(value) => value,
                 Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
             },

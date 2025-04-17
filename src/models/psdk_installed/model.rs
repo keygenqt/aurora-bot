@@ -98,7 +98,7 @@ impl PsdkInstalledModel {
                 Ok(s) => s,
                 Err(_) => continue,
             };
-            let targets = match PsdkTargetModel::search_full(chroot.clone()) {
+            let targets = match PsdkTargetModel::search_full(chroot.clone(), psdk_dir.clone()) {
                 Ok(value) => value,
                 Err(_) => [].to_vec(),
             };

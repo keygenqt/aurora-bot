@@ -20,7 +20,6 @@ Fast, smart, lightweight, client of the Aurora Bot project.
 
 ### Todo
 
-- Targets model (new model).
 - Target install package (psdk_target_package_install).
 - Target remove package (psdk_target_package_uninstall).
 - Sign package (psdk_package_sign).

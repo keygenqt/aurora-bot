@@ -1,6 +1,7 @@
 use colored::Colorize;
 
 use crate::models::TraitModel;
+use crate::service::command::exec;
 use crate::tools::macros::print_info;
 use crate::tools::utils;
 use serde::Deserialize;
@@ -9,6 +10,7 @@ use serde::Serialize;
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct PsdkTargetModel {
     pub id: String,
+    pub dir: String,
     pub name: String,
     pub full_name: String,
     pub arch: String,
@@ -22,11 +24,11 @@ impl PsdkTargetModel {
 
 impl TraitModel for PsdkTargetModel {
     fn get_id(&self) -> String {
-        PsdkTargetModel::get_id(&self.full_name)
+        PsdkTargetModel::get_id(&self.dir)
     }
 
     fn get_key(&self) -> String {
-        utils::key_from_path(&self.full_name)
+        utils::key_from_path(&self.dir)
     }
 
     fn print(&self) {
@@ -40,14 +42,44 @@ impl TraitModel for PsdkTargetModel {
 }
 
 impl PsdkTargetModel {
-    // @todo
-    // 1. search targets
-    // 2. check in psdk config
-    // 3. get targets in toolbox
-    // 4. get targets from cache by id psdk & id target
-    pub fn search_full(chroot: String) -> Result<Vec<PsdkTargetModel>, Box<dyn std::error::Error>> {
+    pub fn search_full(chroot: String, dir: String) -> Result<Vec<PsdkTargetModel>, Box<dyn std::error::Error>> {
         let mut models: Vec<PsdkTargetModel> = vec![];
-        // @todo
+        let mut targets: Vec<String> = vec![];
+        let output = exec::exec_wait_args(&chroot, ["sdk-assistant", "list", "--slow"])?;
+        let lines = utils::parse_output(output.stdout);
+        match utils::config_get_string(&lines, "aarch64", "─") {
+            Ok(value) => targets.push(value),
+            Err(_) => {},
+        };
+        match utils::config_get_string(&lines, "armv7hl", "─") {
+            Ok(value) => targets.push(value),
+            Err(_) => {},
+        };
+        match utils::config_get_string(&lines, "x86_64", "─") {
+            Ok(value) => targets.push(value),
+            Err(_) => {},
+        };
+        match utils::config_get_string(&lines, "i486", "─") {
+            Ok(value) => targets.push(value),
+            Err(_) => {},
+        };
+        for full_name in &targets {
+            let dir = format!("{dir}/targets/{full_name}").replace("/sdks/aurora_psdk", "");
+            let arch = match full_name.split("-").last() {
+                Some(value) => value,
+                None => continue,
+            };
+            if arch != "aarch64" && arch != "armv7hl" && arch != "x86_64" && arch != "i486" {
+                continue;
+            }
+            models.push(PsdkTargetModel {
+                id: PsdkTargetModel::get_id(&dir),
+                dir,
+                name: full_name.replace(&format!("-{arch}"), ""),
+                full_name: full_name.clone(),
+                arch: arch.to_string(),
+            });
+        }
         Ok(models)
     }
 }

@@ -8,10 +8,8 @@ use crate::feature::ClientMethodsKey;
 use crate::feature::incoming::TraitIncoming;
 use crate::feature::outgoing::OutgoingType;
 use crate::feature::outgoing::TraitOutgoing;
-use crate::feature::selector::selects::select_demo_app::DemoAppModelSelect;
 use crate::feature::selector::selects::select_emulator::EmulatorModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
-use crate::models::demo_app::model::DemoAppModel;
 use crate::models::emulator::model::EmulatorModel;
 use crate::models::psdk_installed::model::PsdkInstalledModel;
 use crate::service::dbus::server::IfaceData;
@@ -25,7 +23,6 @@ pub struct EmulatorPackageInstallIncoming {
     id: Option<String>,
     path: Option<PathBuf>,
     url: Option<String>,
-    is_demo: bool,
 }
 
 impl EmulatorPackageInstallIncoming {
@@ -41,7 +38,6 @@ impl EmulatorPackageInstallIncoming {
             id: None,
             path: Some(path),
             url: None,
-            is_demo: false,
         })
     }
 
@@ -56,7 +52,6 @@ impl EmulatorPackageInstallIncoming {
             id: Some(id),
             path: Some(path),
             url: None,
-            is_demo: false,
         })
     }
 
@@ -66,7 +61,6 @@ impl EmulatorPackageInstallIncoming {
             id: None,
             path: None,
             url: Some(url),
-            is_demo: false,
         })
     }
 
@@ -76,29 +70,12 @@ impl EmulatorPackageInstallIncoming {
             id: Some(id),
             path: None,
             url: Some(url),
-            is_demo: false,
-        })
-    }
-
-    pub fn new_demo() -> Box<EmulatorPackageInstallIncoming> {
-        print_debug!("> {}: new_demo()", Self::name());
-        Box::new(Self {
-            id: None,
-            path: None,
-            url: None,
-            is_demo: true,
         })
     }
 
     fn select(&self, id: String) -> EmulatorPackageInstallIncoming {
         let mut select = self.clone();
         select.id = Some(id);
-        select
-    }
-
-    fn select_url(&self, url: String) -> EmulatorPackageInstallIncoming {
-        let mut select = self.clone();
-        select.url = Some(url);
         select
     }
 
@@ -156,18 +133,6 @@ impl EmulatorPackageInstallIncoming {
         );
     }
 
-    pub fn dbus_method_run_demo(builder: &mut IfaceBuilder<IfaceData>) {
-        builder.method_with_cr_async(
-            format!("{}{}", Self::name(), "Demo"),
-            (),
-            ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (): ()| async move {
-                let outgoing = Self::new_demo().run(OutgoingType::Dbus);
-                ctx.reply(Ok((outgoing.to_json(),)))
-            },
-        );
-    }
-
     fn run_install_by_path(
         model: &EmulatorModel,
         send_type: &OutgoingType,
@@ -182,7 +147,7 @@ impl EmulatorPackageInstallIncoming {
             None => Err(tr!("для проверки и подписи пакете необходим установить Platform SDK"))?,
         };
         if !psdk.package_is_sign(path) && !psdk.package_sign(path) {
-            Err(tr!("не удалось провалидировать подпись"))?;
+            Err(tr!("валидация пакета не удалось"))?;
         }
         // Get package name from rpm
         let package_name = utils::get_package_name(path);
@@ -235,7 +200,7 @@ impl TraitIncoming for EmulatorPackageInstallIncoming {
             tr!("ищем запущенный эмулятор для загрузки"),
             Some(true),
         );
-        if self.is_demo == false && self.path.as_ref().is_none() && self.url.as_ref().is_none() {
+        if self.path.as_ref().is_none() && self.url.as_ref().is_none() {
             return StateMessageOutgoing::new_error(tr!("нужно указать путь или url к файлу"));
         }
         // Select
@@ -245,24 +210,15 @@ impl TraitIncoming for EmulatorPackageInstallIncoming {
                 if !emulator.is_running {
                     StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен"))
                 } else {
-                    if self.is_demo && self.url.as_ref().is_none() {
-                        let packages: Vec<DemoAppModel> =
-                            DemoAppModelSelect::search(&self.id, tr!("ищем доступные приложения"), &send_type);
-                        match DemoAppModelSelect::select(key, packages, |url| self.select_url(url)) {
-                            Ok(value) => Box::new(value),
-                            Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить эмулятор")),
+                    if self.path.as_ref().is_some() {
+                        match Self::run_install_by_path(emulator, &send_type, self.path.as_ref().unwrap()) {
+                            Ok(value) => value,
+                            Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
                         }
                     } else {
-                        if self.path.as_ref().is_some() {
-                            match Self::run_install_by_path(emulator, &send_type, self.path.as_ref().unwrap()) {
-                                Ok(value) => value,
-                                Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
-                            }
-                        } else {
-                            match Self::run_install_by_url(emulator, &send_type, self.url.as_ref().unwrap()) {
-                                Ok(value) => value,
-                                Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
-                            }
+                        match Self::run_install_by_url(emulator, &send_type, self.url.as_ref().unwrap()) {
+                            Ok(value) => value,
+                            Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
                         }
                     }
                 }

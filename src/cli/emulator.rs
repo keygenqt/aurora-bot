@@ -221,9 +221,10 @@ pub fn run(arg: EmulatorArgs) {
                     return;
                 }
                 if arg.install_demo {
-                    EmulatorPackageInstallIncoming::new_demo()
-                        .run(OutgoingType::Cli)
-                        .print();
+                    // @todo new demo app method
+                    // EmulatorPackageInstallIncoming::new_demo()
+                    //     .run(OutgoingType::Cli)
+                    //     .print();
                     return;
                 }
                 if let Some(package) = arg.uninstall_name {

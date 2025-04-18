@@ -1,6 +1,7 @@
 use serde::Deserialize;
 
 use crate::feature::app_open_dir::incoming::AppOpenDirIncoming;
+use crate::feature::demo_app_info::incoming::DemoAppInfoIncoming;
 use crate::feature::flutter_install::incoming::FlutterInstallIncoming;
 use crate::feature::flutter_project_format::incoming::FlutterProjectFormatIncoming;
 use crate::feature::flutter_project_report::incoming::FlutterProjectReportIncoming;
@@ -94,6 +95,11 @@ impl ClientMethodsKey {
             ClientMethodsKey::AppOpenDir => {
                 print_debug!("> AppOpenDir: {}", value);
                 let model = serde_json::from_str::<AppOpenDirIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::DemoAppInfo => {
+                print_debug!("> DemoAppInfo: {}", value);
+                let model = serde_json::from_str::<DemoAppInfoIncoming>(&value)?;
                 Ok(Box::new(model))
             }
             ClientMethodsKey::EmulatorClose => {

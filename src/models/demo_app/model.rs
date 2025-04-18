@@ -1,11 +1,12 @@
 use crate::models::TraitModel;
 use crate::tools::enums::PlatformArch;
-use crate::tools::single;
+use crate::tools::utils;
 use serde::Deserialize;
 use serde::Serialize;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct DemoAppModel {
+    pub id: String,
     pub name: String,
     pub icon: String,
     pub desc: String,
@@ -13,13 +14,19 @@ pub struct DemoAppModel {
     pub url: String,
 }
 
+impl DemoAppModel {
+    pub fn get_id(key: &str) -> String {
+        format!("{:x}", md5::compute(key.as_bytes()))
+    }
+}
+
 impl TraitModel for DemoAppModel {
     fn get_id(&self) -> String {
-        self.url.clone()
+        DemoAppModel::get_id(&self.url)
     }
 
     fn get_key(&self) -> String {
-        self.name.clone()
+        utils::key_from_path(&self.url)
     }
 
     fn print(&self) {
@@ -41,7 +48,7 @@ impl DemoAppModel {
 
     fn search_full() -> Result<Vec<DemoAppModel>, Box<dyn std::error::Error>> {
         let mut models: Vec<DemoAppModel> = vec![];
-        let packages = single::get_request().get_demo_apps();
+        let packages = utils::get_demo_apps();
         for package in packages {
             let info = match package.info.clone() {
                 Some(value) => value,
@@ -52,6 +59,7 @@ impl DemoAppModel {
                 None => continue,
             };
             models.push(DemoAppModel {
+                id: DemoAppModel::get_id(&asset.browser_download_url),
                 url: asset.browser_download_url.clone(),
                 name: info.name,
                 icon: info.icon,

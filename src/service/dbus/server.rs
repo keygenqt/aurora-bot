@@ -17,6 +17,7 @@ use crate::feature::app_auth_login::incoming::AppAuthLoginIncoming;
 use crate::feature::app_auth_logout::incoming::AppAuthLogoutIncoming;
 use crate::feature::app_info::incoming::AppInfoIncoming;
 use crate::feature::app_open_dir::incoming::AppOpenDirIncoming;
+use crate::feature::demo_app_info::incoming::DemoAppInfoIncoming;
 use crate::feature::emulator_close::incoming::EmulatorCloseIncoming;
 use crate::feature::emulator_info::incoming::EmulatorInfoIncoming;
 use crate::feature::emulator_open::incoming::EmulatorOpenIncoming;
@@ -95,6 +96,11 @@ impl ServerDbus {
             AppOpenDirIncoming::dbus_method_run(builder);
 
             /////////////////
+            // Demo App
+            DemoAppInfoIncoming::dbus_method_run(builder);
+            DemoAppInfoIncoming::dbus_method_run_by_id(builder);
+
+            /////////////////
             // Emulator
             EmulatorCloseIncoming::dbus_method_run(builder);
             EmulatorCloseIncoming::dbus_method_run_by_id(builder);
@@ -111,7 +117,6 @@ impl ServerDbus {
             EmulatorPackageInstallIncoming::dbus_method_run_path_by_id(builder);
             EmulatorPackageInstallIncoming::dbus_method_run_url(builder);
             EmulatorPackageInstallIncoming::dbus_method_run_url_by_id(builder);
-            EmulatorPackageInstallIncoming::dbus_method_run_demo(builder);
 
             EmulatorPackageRunIncoming::dbus_method_run(builder);
             EmulatorPackageRunIncoming::dbus_method_run_by_id(builder);

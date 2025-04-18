@@ -14,6 +14,7 @@ use walkdir::DirEntry;
 use walkdir::WalkDir;
 
 use crate::service::requests::client::ClientRequest;
+use crate::service::responses::demo_releases::DemoReleasesResponse;
 use crate::service::responses::gitlab_tags::GitlabTagsResponse;
 use crate::tools::macros::crash;
 
@@ -283,6 +284,12 @@ pub fn get_repo_url_psdk() -> Vec<String> {
 #[once(time = 300)]
 pub fn get_repo_flutter() -> Vec<GitlabTagsResponse> {
     ClientRequest::new(None).get_repo_tags_flutter()
+}
+
+/// Get list demo app from repo
+#[once(time = 300)]
+pub fn get_demo_apps() -> Vec<DemoReleasesResponse> {
+    ClientRequest::new(None).get_demo_apps()
 }
 
 /// Get package_name from path rpm

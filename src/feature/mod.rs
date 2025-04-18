@@ -19,6 +19,10 @@ pub mod app_info {
 pub mod app_open_dir {
     pub mod incoming;
 }
+pub mod demo_app_info {
+    pub mod incoming;
+    pub mod outgoing;
+}
 pub mod emulator_close {
     pub mod incoming;
 }
@@ -203,6 +207,7 @@ pub enum ClientMethodsKey {
     AppAuthLogout,
     AppInfo,
     AppOpenDir,
+    DemoAppInfo,
     EmulatorClose,
     EmulatorInfo,
     EmulatorOpen,

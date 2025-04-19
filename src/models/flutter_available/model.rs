@@ -18,6 +18,7 @@ pub struct FlutterAvailableModel {
     pub url_gitlab: String,
     pub url_zip: String,
     pub url_tar_gz: String,
+    pub url_repo: Option<String>,
 }
 
 impl TraitModel for FlutterAvailableModel {
@@ -35,7 +36,7 @@ impl TraitModel for FlutterAvailableModel {
             Ok(value) => value.format("%Y-%m-%d").to_string(),
             Err(_) => self.created_at.clone(),
         };
-        let message = tr!(
+        let mut message = tr!(
             "Flutter SDK: {}\nДата релиза: {}\nGitLab: {}\nСсылка (zip): {}\nСсылка (tar.gz): {}",
             self.version.bold().white(),
             created_at.bold().white(),
@@ -43,6 +44,9 @@ impl TraitModel for FlutterAvailableModel {
             self.url_zip.to_string().bright_blue(),
             self.url_tar_gz.to_string().bright_blue(),
         );
+        if let Some(url) = self.url_repo.clone() {
+            message = tr!("{}\nСсылка (repo): {}", message, url.to_string().bright_blue())
+        }
         data.push(message);
         println!("{}", data.join("\n\n"));
     }
@@ -84,17 +88,20 @@ impl FlutterAvailableModel {
                 Some(value) => value,
                 None => model.commit.committed_date.clone(),
             };
+
+            let url_zip =
+                format!("https://gitlab.com/omprussia/flutter/flutter/-/archive/{version}/flutter-{version}.zip");
+            let url_tar_gz =
+                format!("https://gitlab.com/omprussia/flutter/flutter/-/archive/{version}/flutter-{version}.tar.gz");
+
             models.push(FlutterAvailableModel {
                 tag: model.name.clone(),
                 version: version.to_string(),
                 created_at,
                 url_gitlab: format!("https://gitlab.com/omprussia/flutter/flutter/-/tree/{version}"),
-                url_zip: format!(
-                    "https://gitlab.com/omprussia/flutter/flutter/-/archive/{version}/flutter-{version}.zip"
-                ),
-                url_tar_gz: format!(
-                    "https://gitlab.com/omprussia/flutter/flutter/-/archive/{version}/flutter-{version}.tar.gz"
-                ),
+                url_zip,
+                url_tar_gz,
+                url_repo: model.url_repo.clone(),
             });
         }
         Ok(models)

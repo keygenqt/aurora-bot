@@ -3,8 +3,8 @@ use serde::Serialize;
 
 use crate::feature::outgoing::DataOutgoing;
 use crate::feature::outgoing::TraitOutgoing;
-use crate::models::demo_app::model::DemoAppModel;
 use crate::models::TraitModel;
+use crate::models::demo_app::model::DemoAppModel;
 
 use super::incoming::DemoAppInfoIncoming;
 

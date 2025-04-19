@@ -25,6 +25,7 @@ use crate::service::responses::user::UserResponse;
 use crate::tools::constants;
 use crate::tools::macros::crash;
 use crate::tools::macros::tr;
+use crate::tools::utils;
 
 impl ClientRequest {
     /// Get data user
@@ -154,7 +155,7 @@ impl ClientRequest {
 
     // Get info about Flutter from gitlab tags repo
     pub fn get_repo_tags_flutter(&self) -> Vec<GitlabTagsResponse> {
-        let url = "https://gitlab.com/api/v4/projects/53055476/repository/tags?per_page=100".to_string();
+        let url = "https://gitlab.com/api/v4/projects/48571227/repository/tags?per_page=100".to_string();
         let response = match self.get_request_auth(url) {
             Ok(response) => response,
             Err(_) => return vec![],
@@ -163,10 +164,16 @@ impl ClientRequest {
             Ok(value) => value,
             Err(_) => return vec![],
         };
-        match serde_json::from_str::<Vec<GitlabTagsResponse>>(&body) {
+        let mut result = match serde_json::from_str::<Vec<GitlabTagsResponse>>(&body) {
             Ok(value) => value,
             Err(_) => vec![],
+        };
+        for model in & mut result {
+            let version = model.name.replace("aurora", "").trim_matches('-').to_string();
+            let url_repo = format!("https://sdk-repo.omprussia.ru/sdk/flutter/releases/flutter_aurora_{version}.tar.gz");
+            model.url_repo = utils::check_url(url_repo)
         }
+        return result
     }
 
     // Get demos applications from repo
@@ -370,5 +377,13 @@ impl ClientRequest {
         }
         // Result path if ok
         Ok(path)
+    }
+
+    /// Check url exist
+    pub fn check_url(&self, url: String) -> Result<(), Box<dyn std::error::Error>> {
+        match self.head_request(url) {
+            Ok(_) => Ok(()),
+            Err(error) => Err(error)?,
+        }
     }
 }

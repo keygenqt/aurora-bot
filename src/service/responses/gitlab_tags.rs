@@ -5,6 +5,7 @@ pub struct GitlabTagsResponse {
     pub name: String,
     pub commit: GitlabTagCommitResponse,
     pub created_at: Option<String>,
+    pub url_repo: Option<String>
 }
 
 #[derive(Deserialize, Clone)]

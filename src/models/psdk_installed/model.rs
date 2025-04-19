@@ -1,9 +1,9 @@
 use colored::Colorize;
 use human_sort::sort;
 
-use crate::models::psdk_target::model::PsdkTargetModel;
 use crate::models::TraitModel;
 use crate::models::configuration::psdk::PsdkConfig;
+use crate::models::psdk_target::model::PsdkTargetModel;
 use crate::service::command::exec;
 use crate::tools::constants;
 use crate::tools::macros::print_info;

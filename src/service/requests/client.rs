@@ -193,6 +193,24 @@ impl ClientRequest {
         Ok(())
     }
 
+    /// Common HEAD request
+    pub fn head_request(&self, url: String) -> Result<(), Box<dyn std::error::Error>> {
+        tokio::task::block_in_place(|| Handle::current().block_on(self._head_request(url)))
+    }
+
+    async fn _head_request(&self, url: String) -> Result<(), Box<dyn std::error::Error>> {
+        match self.client.head(&url).send().await {
+            Ok(response) => {
+                if StatusCode::OK == response.status() {
+                    Ok(())
+                } else {
+                    Err(format!("Status code: {}", response.status().as_str()))?
+                }
+            },
+            Err(error) => Err(error)?,
+        }
+    }
+
     /// Common GET request
     pub fn get_request(&self, url: String) -> Result<Response, Box<dyn std::error::Error>> {
         tokio::task::block_in_place(|| Handle::current().block_on(self._get_request(url, false)))

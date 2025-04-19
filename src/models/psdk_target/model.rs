@@ -49,19 +49,19 @@ impl PsdkTargetModel {
         let lines = utils::parse_output(output.stdout);
         match utils::config_get_string(&lines, "aarch64", "─") {
             Ok(value) => targets.push(value),
-            Err(_) => {},
+            Err(_) => {}
         };
         match utils::config_get_string(&lines, "armv7hl", "─") {
             Ok(value) => targets.push(value),
-            Err(_) => {},
+            Err(_) => {}
         };
         match utils::config_get_string(&lines, "x86_64", "─") {
             Ok(value) => targets.push(value),
-            Err(_) => {},
+            Err(_) => {}
         };
         match utils::config_get_string(&lines, "i486", "─") {
             Ok(value) => targets.push(value),
-            Err(_) => {},
+            Err(_) => {}
         };
         for full_name in &targets {
             let dir = format!("{dir}/targets/{full_name}").replace("/sdks/aurora_psdk", "");

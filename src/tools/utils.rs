@@ -303,3 +303,11 @@ pub fn get_package_name(path: &PathBuf) -> Option<String> {
         Err(_) => None,
     }
 }
+
+/// Get list demo app from repo
+pub fn check_url(url: String) -> Option<String> {
+    match ClientRequest::new(None).check_url(url.clone()) {
+        Ok(_) => Some(url.clone()),
+        Err(_) => None,
+    }
+}

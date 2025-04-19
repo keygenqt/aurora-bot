@@ -2,11 +2,11 @@ use dbus_crossroads::IfaceBuilder;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::feature::selector::selects::select_demo_app::DemoAppModelSelect;
 use crate::feature::ClientMethodsKey;
 use crate::feature::incoming::TraitIncoming;
 use crate::feature::outgoing::OutgoingType;
 use crate::feature::outgoing::TraitOutgoing;
+use crate::feature::selector::selects::select_demo_app::DemoAppModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::print_debug;
@@ -71,7 +71,7 @@ impl TraitIncoming for DemoAppInfoIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
         let key = DemoAppInfoIncoming::name();
-        let models = DemoAppModelSelect::search(&self.id, tr!("получаем информацию о пакетах"), &send_type,);
+        let models = DemoAppModelSelect::search(&self.id, tr!("получаем информацию о пакетах"), &send_type);
         // Select
         match models.iter().count() {
             1 => DemoAppInfoOutgoing::new(models.first().unwrap().clone()),

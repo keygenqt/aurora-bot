@@ -168,12 +168,13 @@ impl ClientRequest {
             Ok(value) => value,
             Err(_) => vec![],
         };
-        for model in & mut result {
+        for model in &mut result {
             let version = model.name.replace("aurora", "").trim_matches('-').to_string();
-            let url_repo = format!("https://sdk-repo.omprussia.ru/sdk/flutter/releases/flutter_aurora_{version}.tar.gz");
+            let url_repo =
+                format!("https://sdk-repo.omprussia.ru/sdk/flutter/releases/flutter_aurora_{version}.tar.gz");
             model.url_repo = utils::check_url(url_repo)
         }
-        return result
+        return result;
     }
 
     // Get demos applications from repo

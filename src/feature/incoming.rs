@@ -71,11 +71,15 @@ impl DataIncoming {
     pub fn deserialize(value: &String) -> Result<ClientMethodsKey, Box<dyn std::error::Error>> {
         Ok(serde_json::from_str::<DataIncoming>(value)?.key)
     }
+
+    pub fn get_model(value: &String) -> Result<String, Box<dyn std::error::Error>> {
+        utils::clear_to_model_body(value)
+    }
 }
 
 impl ClientMethodsKey {
     pub fn deserialize(&self, value: &String) -> Result<Box<dyn TraitIncoming>, Box<dyn std::error::Error>> {
-        let value = utils::clear_to_model_body(value)?;
+        let value = DataIncoming::get_model(value)?;
         match self {
             ClientMethodsKey::AppAuthLogin => {
                 print_debug!("> AppAuthLogin: {}", value);

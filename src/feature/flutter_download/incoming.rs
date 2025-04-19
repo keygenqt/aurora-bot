@@ -105,7 +105,7 @@ impl TraitIncoming for FlutterDownloadIncoming {
                 Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
             },
             0 => StateMessageOutgoing::new_info(tr!("Flutter SDK не найдены")),
-            _ => match FlutterAvailableModelSelect::select(key, models, |id| self.select(id)) {
+            _ => match FlutterAvailableModelSelect::select(key, &send_type, models, |id| self.select(id)) {
                 Ok(value) => Box::new(value),
                 Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Flutter SDK")),
             },

@@ -3,6 +3,8 @@ use std::path::PathBuf;
 use clap::Args;
 use clap::Subcommand;
 
+use crate::feature::demo_app_info::incoming::DemoAppInfoIncoming;
+use crate::feature::demo_app_info::outgoing::DemoAppInfoOutgoing;
 use crate::feature::emulator_close::incoming::EmulatorCloseIncoming;
 use crate::feature::emulator_info::incoming::EmulatorInfoIncoming;
 use crate::feature::emulator_open::incoming::EmulatorOpenIncoming;
@@ -15,6 +17,7 @@ use crate::feature::emulator_record_stop::incoming::EmulatorRecordStopType;
 use crate::feature::emulator_screenshot::incoming::EmulatorScreenshotIncoming;
 use crate::feature::emulator_terminal::incoming::EmulatorTerminalIncoming;
 use crate::feature::emulator_upload::incoming::EmulatorUploadIncoming;
+use crate::feature::incoming::DataIncoming;
 use crate::feature::incoming::TraitIncoming;
 use crate::feature::outgoing::OutgoingType;
 use crate::tools::macros::print_error;
@@ -221,10 +224,21 @@ pub fn run(arg: EmulatorArgs) {
                     return;
                 }
                 if arg.install_demo {
-                    // @todo new demo app method
-                    // EmulatorPackageInstallIncoming::new_demo()
-                    //     .run(OutgoingType::Cli)
-                    //     .print();
+                    // Relations features via outgoing
+                    let result = DataIncoming::get_model(&DemoAppInfoIncoming::new().run(OutgoingType::Cli).to_json());
+                    if let Ok(json) = result {
+                        match serde_json::from_str::<DemoAppInfoOutgoing>(&json) {
+                            Ok(outgoing) => match utils::get_https_url(outgoing.model.url_x86_64) {
+                                Some(url) => EmulatorPackageInstallIncoming::new_url(url)
+                                    .run(OutgoingType::Cli)
+                                    .print(),
+                                None => print_error!("проверьте url файла"),
+                            },
+                            Err(_) => print_error!("ошибка получения данных"),
+                        }
+                    } else {
+                        print_error!("ошибка получения данных");
+                    }
                     return;
                 }
                 if let Some(package) = arg.uninstall_name {

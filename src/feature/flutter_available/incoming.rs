@@ -76,7 +76,7 @@ impl TraitIncoming for FlutterAvailableIncoming {
         match models.iter().count() {
             1 => FlutterAvailableOutgoing::new(models.first().unwrap().clone()),
             0 => StateMessageOutgoing::new_info(tr!("не удалось получить данные")),
-            _ => match FlutterAvailableModelSelect::select(key, models, |id| self.select(id)) {
+            _ => match FlutterAvailableModelSelect::select(key, &send_type, models, |id| self.select(id)) {
                 Ok(value) => Box::new(value),
                 Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Flutter SDK")),
             },

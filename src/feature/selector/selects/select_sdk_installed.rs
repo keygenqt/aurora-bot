@@ -15,11 +15,13 @@ pub struct SdkInstalledModelSelect {}
 impl SdkInstalledModelSelect {
     pub fn select<T: TraitIncoming + Serialize + Clone, F: Fn(String) -> T>(
         key: String,
+        send_type: &OutgoingType,
         models: Vec<SdkInstalledModel>,
         incoming: F,
     ) -> Result<SelectorOutgoing<T>, Box<dyn std::error::Error>> {
         Ok(SelectorOutgoing {
             key,
+            send_type: send_type.clone(),
             variants: models
                 .iter()
                 .map(|e| SelectorIncoming {

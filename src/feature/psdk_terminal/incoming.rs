@@ -88,7 +88,7 @@ impl TraitIncoming for PsdkTerminalIncoming {
                 Err(_) => StateMessageOutgoing::new_error(tr!("не удалось запустить терминал")),
             },
             0 => StateMessageOutgoing::new_info(tr!("Platform SDK не найдены")),
-            _ => match PsdkInstalledModelSelect::select(key, models, |id| self.select(id)) {
+            _ => match PsdkInstalledModelSelect::select(key, &send_type, models, |id| self.select(id)) {
                 Ok(value) => Box::new(value),
                 Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Platform SDK")),
             },

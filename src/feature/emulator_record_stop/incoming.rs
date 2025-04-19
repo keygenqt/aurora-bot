@@ -161,7 +161,7 @@ impl TraitIncoming for EmulatorRecordStopIncoming {
                 Err(_) => StateMessageOutgoing::new_error(tr!("не удалось остановить запись видео")),
             },
             0 => StateMessageOutgoing::new_info(tr!("запущенные эмуляторы не найдены")),
-            _ => match EmulatorModelSelect::select(key, models, |id| self.select(id)) {
+            _ => match EmulatorModelSelect::select(key, &send_type, models, |id| self.select(id)) {
                 Ok(value) => Box::new(value),
                 Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить эмулятор")),
             },

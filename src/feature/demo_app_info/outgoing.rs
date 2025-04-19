@@ -10,7 +10,7 @@ use super::incoming::DemoAppInfoIncoming;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct DemoAppInfoOutgoing {
-    model: DemoAppModel,
+    pub model: DemoAppModel,
 }
 
 impl DemoAppInfoOutgoing {

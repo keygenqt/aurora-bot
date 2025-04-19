@@ -76,7 +76,7 @@ impl TraitIncoming for SdkInfoIncoming {
         match models.iter().count() {
             1 => SdkInfoOutgoing::new(models.first().unwrap().clone()),
             0 => StateMessageOutgoing::new_info(tr!("Аврора SDK не найдены")),
-            _ => match SdkInstalledModelSelect::select(key, models, |id| self.select(id)) {
+            _ => match SdkInstalledModelSelect::select(key, &send_type, models, |id| self.select(id)) {
                 Ok(value) => Box::new(value),
                 Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Аврора SDK")),
             },

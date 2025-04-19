@@ -1,6 +1,8 @@
 use crate::models::TraitModel;
 use crate::tools::enums::PlatformArch;
+use crate::tools::macros::tr;
 use crate::tools::utils;
+use colored::Colorize;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -11,7 +13,9 @@ pub struct DemoAppModel {
     pub icon: String,
     pub desc: String,
     pub repo: String,
-    pub url: String,
+    pub url_aarch64: String,
+    pub url_armv7hl: String,
+    pub url_x86_64: String,
 }
 
 impl DemoAppModel {
@@ -22,15 +26,26 @@ impl DemoAppModel {
 
 impl TraitModel for DemoAppModel {
     fn get_id(&self) -> String {
-        DemoAppModel::get_id(&self.url)
+        DemoAppModel::get_id(&self.url_aarch64)
     }
 
     fn get_key(&self) -> String {
-        utils::key_from_path(&self.url)
+        self.name.clone()
     }
 
     fn print(&self) {
-        // not need
+        println!(
+            "{}",
+            tr!(
+                "{}\n{}\nРепозиторий: {}\nСсылка (aarch64): {}\nСсылка (armv7hl): {}\nСсылка (x86_64): {}",
+                self.name.bold().white(),
+                self.desc.white(),
+                self.repo.to_string().bright_blue(),
+                self.url_aarch64.to_string().bright_blue(),
+                self.url_armv7hl.to_string().bright_blue(),
+                self.url_x86_64.to_string().bright_blue(),
+            )
+        );
     }
 }
 
@@ -54,17 +69,27 @@ impl DemoAppModel {
                 Some(value) => value,
                 None => continue,
             };
-            let asset = match package.get_asset_platform(PlatformArch::Amd64) {
+            let asset_arm64 = match package.get_asset_platform(PlatformArch::Arm64) {
+                Some(value) => value,
+                None => continue,
+            };
+            let asset_arm32 = match package.get_asset_platform(PlatformArch::Arm32) {
+                Some(value) => value,
+                None => continue,
+            };
+            let asset_amd64 = match package.get_asset_platform(PlatformArch::Amd64) {
                 Some(value) => value,
                 None => continue,
             };
             models.push(DemoAppModel {
-                id: DemoAppModel::get_id(&asset.browser_download_url),
-                url: asset.browser_download_url.clone(),
+                id: DemoAppModel::get_id(&asset_arm64.browser_download_url),
                 name: info.name,
                 icon: info.icon,
                 desc: info.desc_ru,
                 repo: info.repo,
+                url_aarch64: asset_arm64.browser_download_url.clone(),
+                url_armv7hl: asset_arm32.browser_download_url.clone(),
+                url_x86_64: asset_amd64.browser_download_url.clone(),
             })
         }
         Ok(models)

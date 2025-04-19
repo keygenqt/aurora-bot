@@ -76,7 +76,7 @@ impl TraitIncoming for DemoAppInfoIncoming {
         match models.iter().count() {
             1 => DemoAppInfoOutgoing::new(models.first().unwrap().clone()),
             0 => StateMessageOutgoing::new_info(tr!("приложения не найдены")),
-            _ => match DemoAppModelSelect::select(key, models, |id| self.select(id)) {
+            _ => match DemoAppModelSelect::select(key, &send_type, models, |id| self.select(id)) {
                 Ok(value) => Box::new(value),
                 Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить пакеты")),
             },

@@ -1,6 +1,7 @@
 use serde::Serialize;
 
 use crate::feature::incoming::TraitIncoming;
+use crate::feature::outgoing::OutgoingType;
 use crate::feature::selector::outgoing::incoming::SelectorIncoming;
 use crate::feature::selector::outgoing::outgoing::SelectorOutgoing;
 use crate::models::TraitModel;
@@ -12,6 +13,7 @@ pub struct EmulatorPackageSelect {}
 impl EmulatorPackageSelect {
     pub fn select<T: TraitIncoming + Serialize + Clone, F: Fn(String, String) -> T>(
         key: String,
+        send_type: &OutgoingType,
         model: &EmulatorModel,
         incoming: F,
     ) -> Result<SelectorOutgoing<T>, Box<dyn std::error::Error>> {
@@ -25,6 +27,7 @@ impl EmulatorPackageSelect {
         };
         Ok(SelectorOutgoing {
             key,
+            send_type: send_type.clone(),
             variants: packages
                 .iter()
                 .map(|e| SelectorIncoming {

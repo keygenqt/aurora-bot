@@ -153,8 +153,9 @@ impl TraitIncoming for EmulatorPackageUninstallIncoming {
                             Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
                         }
                     } else {
-                        match EmulatorPackageSelect::select(key, model, |id, package| self.select_package(id, package))
-                        {
+                        match EmulatorPackageSelect::select(key, &send_type, model, |id, package| {
+                            self.select_package(id, package)
+                        }) {
                             Ok(value) => Box::new(value),
                             Err(_) => StateMessageOutgoing::new_error(tr!("не удалось найти пакеты")),
                         }
@@ -164,7 +165,7 @@ impl TraitIncoming for EmulatorPackageUninstallIncoming {
                 }
             }
             0 => StateMessageOutgoing::new_info(tr!("запущенные эмуляторы не найдены")),
-            _ => match EmulatorModelSelect::select(key, models, |id| self.select(id)) {
+            _ => match EmulatorModelSelect::select(key, &send_type, models, |id| self.select(id)) {
                 Ok(value) => Box::new(value),
                 Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить эмулятор")),
             },

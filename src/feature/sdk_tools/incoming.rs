@@ -94,7 +94,7 @@ impl TraitIncoming for SdkToolsIncoming {
                 Err(_) => StateMessageOutgoing::new_error(tr!("не удалось открыть Maintenance tools")),
             },
             0 => StateMessageOutgoing::new_info(tr!("Аврора SDK не найдены")),
-            _ => match SdkInstalledModelSelect::select(key, models, |id| self.select(id)) {
+            _ => match SdkInstalledModelSelect::select(key, &send_type, models, |id| self.select(id)) {
                 Ok(value) => Box::new(value),
                 Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Аврора SDK")),
             },

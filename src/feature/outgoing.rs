@@ -7,7 +7,7 @@ use crate::tools::macros::print_debug;
 use crate::tools::utils;
 
 /// Send data type
-#[derive(Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub enum OutgoingType {
     Cli,
     Dbus,

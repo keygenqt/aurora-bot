@@ -76,7 +76,7 @@ impl TraitIncoming for SdkAvailableIncoming {
         match models.iter().count() {
             1 => SdkAvailableOutgoing::new(models.first().unwrap().clone()),
             0 => StateMessageOutgoing::new_info(tr!("не удалось получить данные")),
-            _ => match SdkAvailableModelSelect::select(key, models, |id| self.select(id)) {
+            _ => match SdkAvailableModelSelect::select(key, &send_type, models, |id| self.select(id)) {
                 Ok(value) => Box::new(value),
                 Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Аврора SDK")),
             },

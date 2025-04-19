@@ -105,7 +105,7 @@ impl TraitIncoming for PsdkDownloadIncoming {
                 Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
             },
             0 => StateMessageOutgoing::new_info(tr!("Platform SDK не найдено")),
-            _ => match PsdkAvailableModelSelect::select(key, models, |id| self.select(id)) {
+            _ => match PsdkAvailableModelSelect::select(key, &send_type, models, |id| self.select(id)) {
                 Ok(value) => Box::new(value),
                 Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Platform SDK")),
             },

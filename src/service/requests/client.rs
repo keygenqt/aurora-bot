@@ -206,7 +206,7 @@ impl ClientRequest {
                 } else {
                     Err(format!("Status code: {}", response.status().as_str()))?
                 }
-            },
+            }
             Err(error) => Err(error)?,
         }
     }

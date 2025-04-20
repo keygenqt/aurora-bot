@@ -14,29 +14,29 @@ use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct PsdkTargetPackageUninstallIncoming {
+pub struct PsdkTargetPackageSearchIncoming {
     id: Option<String>,
     package: String,
 }
 
-impl PsdkTargetPackageUninstallIncoming {
+impl PsdkTargetPackageSearchIncoming {
     pub fn name() -> String {
-        serde_variant::to_variant_name(&ClientMethodsKey::PsdkTargetPackageUninstall)
+        serde_variant::to_variant_name(&ClientMethodsKey::PsdkTargetPackageSearch)
             .unwrap()
             .to_string()
     }
 
-    pub fn new_package(package: String) -> Box<PsdkTargetPackageUninstallIncoming> {
+    pub fn new_package(package: String) -> Box<PsdkTargetPackageSearchIncoming> {
         print_debug!("> {}: new_package(package: {})", Self::name(), package);
         Box::new(Self { id: None, package })
     }
 
-    pub fn new_package_id(id: String, package: String) -> Box<PsdkTargetPackageUninstallIncoming> {
+    pub fn new_package_id(id: String, package: String) -> Box<PsdkTargetPackageSearchIncoming> {
         print_debug!("> {}: new_package_id(id: {}, package: {})", Self::name(), id, package,);
         Box::new(Self { id: Some(id), package })
     }
 
-    fn select(&self, id: String) -> PsdkTargetPackageUninstallIncoming {
+    fn select(&self, id: String) -> PsdkTargetPackageSearchIncoming {
         let mut select = self.clone();
         select.id = Some(id);
         select
@@ -76,10 +76,10 @@ impl PsdkTargetPackageUninstallIncoming {
     }
 }
 
-impl TraitIncoming for PsdkTargetPackageUninstallIncoming {
+impl TraitIncoming for PsdkTargetPackageSearchIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
-        let key = PsdkTargetPackageUninstallIncoming::name();
+        let key = PsdkTargetPackageSearchIncoming::name();
         let models = PsdkInstalledModelSelect::search(&self.id, tr!("получаем информацию о Platform SDK"), &send_type);
         // Select
         match models.iter().count() {

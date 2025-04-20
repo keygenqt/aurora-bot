@@ -12,6 +12,7 @@ use crate::feature::psdk_remove::incoming::PsdkRemoveIncoming;
 use crate::feature::psdk_sudoers_add::incoming::PsdkSudoersAddIncoming;
 use crate::feature::psdk_sudoers_remove::incoming::PsdkSudoersRemoveIncoming;
 use crate::feature::psdk_target_package_install::incoming::PsdkTargetPackageInstallIncoming;
+use crate::feature::psdk_target_package_search::incoming::PsdkTargetPackageSearchIncoming;
 use crate::feature::psdk_target_package_uninstall::incoming::PsdkTargetPackageUninstallIncoming;
 use crate::feature::sdk_ide_close::incoming::SdkIdeCloseIncoming;
 use crate::feature::sdk_ide_open::incoming::SdkIdeOpenIncoming;
@@ -259,6 +260,11 @@ impl ClientMethodsKey {
             ClientMethodsKey::PsdkTargetPackageInstall => {
                 print_debug!("> PsdkTargetPackageInstall: {}", value);
                 let model = serde_json::from_str::<PsdkTargetPackageInstallIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::PsdkTargetPackageSearch => {
+                print_debug!("> PsdkTargetPackageSearch: {}", value);
+                let model = serde_json::from_str::<PsdkTargetPackageSearchIncoming>(&value)?;
                 Ok(Box::new(model))
             }
             ClientMethodsKey::PsdkTargetPackageUninstall => {

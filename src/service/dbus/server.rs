@@ -38,7 +38,11 @@ use crate::feature::flutter_terminal::incoming::FlutterTerminalIncoming;
 use crate::feature::psdk_available::incoming::PsdkAvailableIncoming;
 use crate::feature::psdk_download::incoming::PsdkDownloadIncoming;
 use crate::feature::psdk_info::incoming::PsdkInfoIncoming;
+use crate::feature::psdk_package_sign::incoming::PsdkPackageSignIncoming;
 use crate::feature::psdk_sync::incoming::PsdkSyncIncoming;
+use crate::feature::psdk_target_package_install::incoming::PsdkTargetPackageInstallIncoming;
+use crate::feature::psdk_target_package_search::incoming::PsdkTargetPackageSearchIncoming;
+use crate::feature::psdk_target_package_uninstall::incoming::PsdkTargetPackageUninstallIncoming;
 use crate::feature::psdk_terminal::incoming::PsdkTerminalIncoming;
 use crate::feature::sdk_available::incoming::SdkAvailableIncoming;
 use crate::feature::sdk_download::incoming::SdkDownloadIncoming;
@@ -167,6 +171,18 @@ impl ServerDbus {
             // Psdk
             PsdkAvailableIncoming::dbus_method_run(builder);
             PsdkAvailableIncoming::dbus_method_run_by_id(builder);
+
+            PsdkPackageSignIncoming::dbus_method_run_path(builder);
+            PsdkPackageSignIncoming::dbus_method_run_path_by_id(builder);
+
+            PsdkTargetPackageInstallIncoming::dbus_method_run_path(builder);
+            PsdkTargetPackageInstallIncoming::dbus_method_run_path_by_id(builder);
+
+            PsdkTargetPackageSearchIncoming::dbus_method_run_package(builder);
+            PsdkTargetPackageSearchIncoming::dbus_method_run_package_by_id(builder);
+
+            PsdkTargetPackageUninstallIncoming::dbus_method_run_package(builder);
+            PsdkTargetPackageUninstallIncoming::dbus_method_run_package_by_id(builder);
 
             PsdkDownloadIncoming::dbus_method_run(builder);
             PsdkDownloadIncoming::dbus_method_run_by_id(builder);

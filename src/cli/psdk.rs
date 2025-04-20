@@ -9,6 +9,8 @@ use crate::feature::psdk_available::incoming::PsdkAvailableIncoming;
 use crate::feature::psdk_download::incoming::PsdkDownloadIncoming;
 use crate::feature::psdk_info::incoming::PsdkInfoIncoming;
 use crate::feature::psdk_package_sign::incoming::PsdkPackageSignIncoming;
+use crate::feature::psdk_sudoers_add::incoming::PsdkSudoersAddIncoming;
+use crate::feature::psdk_sudoers_remove::incoming::PsdkSudoersRemoveIncoming;
 use crate::feature::psdk_target_package_install::incoming::PsdkTargetPackageInstallIncoming;
 use crate::feature::psdk_target_package_search::incoming::PsdkTargetPackageSearchIncoming;
 use crate::feature::psdk_target_package_uninstall::incoming::PsdkTargetPackageUninstallIncoming;
@@ -35,9 +37,6 @@ pub struct PsdkArgs {
     /// Открыть терминал с окружением Platform SDK
     #[arg(short, long, default_value_t = false)]
     terminal: bool,
-    /// Подписать пакет открытым ключом
-    #[arg(short, long, value_name = "path")]
-    sign: Option<PathBuf>,
     /// Показать это сообщение и выйти
     #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
     help: Option<bool>,
@@ -48,24 +47,43 @@ enum PsdkArgsGroup {
     /// Работа с пакетами
     #[command(short_flag = 'p')]
     Package(PsdkPackageArgs),
+
+    /// Управление записью sudoers
+    #[command(short_flag = 's')]
+    Sudoers(PsdkSudoersArgs),
 }
 
 #[derive(Args)]
 #[group(multiple = false)]
 #[command(arg_required_else_help = true)]
 pub struct PsdkPackageArgs {
+    /// Подписать пакет открытым ключом
+    #[arg(short, long, value_name = "path")]
+    sign: Option<PathBuf>,
     /// Поиск среди локальных пакетов
     #[arg(short, long, value_name = "package")]
-    search: Option<String>,
-
+    find: Option<String>,
     /// Установить пакет
     #[arg(short, long, value_name = "path")]
     install: Option<PathBuf>,
-
     /// Удалить пакет по package-name
     #[arg(short, long, value_name = "package")]
     uninstall: Option<String>,
+    /// Показать это сообщение и выйти
+    #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
+    help: Option<bool>,
+}
 
+#[derive(Args)]
+#[group(multiple = false)]
+#[command(arg_required_else_help = true)]
+pub struct PsdkSudoersArgs {
+    /// Добавить запись в sudoers
+    #[arg(short, long, default_value_t = false)]
+    add: bool,
+    /// Удалить запись из sudoers
+    #[arg(short, long, default_value_t = false)]
+    del: bool,
     /// Показать это сообщение и выйти
     #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
     help: Option<bool>,
@@ -90,20 +108,20 @@ pub fn run(arg: PsdkArgs) {
         PsdkTerminalIncoming::new().run(OutgoingType::Cli).print();
         return;
     }
-    if let Some(path) = arg.sign {
-        match utils::path_to_absolute(&path) {
-            Some(path) => {
-                PsdkPackageSignIncoming::new_path(path).run(OutgoingType::Cli).print();
-            }
-            None => print_error!("проверьте путь к файлу"),
-        }
-        return;
-    }
     // Commands
     if let Some(command) = arg.command {
         match command {
             PsdkArgsGroup::Package(arg) => {
-                if let Some(package) = arg.search {
+                if let Some(path) = arg.sign {
+                    match utils::path_to_absolute(&path) {
+                        Some(path) => {
+                            PsdkPackageSignIncoming::new_path(path).run(OutgoingType::Cli).print();
+                        }
+                        None => print_error!("проверьте путь к файлу"),
+                    }
+                    return;
+                }
+                if let Some(package) = arg.find {
                     PsdkTargetPackageSearchIncoming::new_package(package)
                         .run(OutgoingType::Cli)
                         .print();
@@ -124,6 +142,16 @@ pub fn run(arg: PsdkArgs) {
                     PsdkTargetPackageUninstallIncoming::new_package(package)
                         .run(OutgoingType::Cli)
                         .print();
+                    return;
+                }
+            }
+            PsdkArgsGroup::Sudoers(arg) => {
+                if arg.add {
+                    PsdkSudoersAddIncoming::new().run(OutgoingType::Cli).print();
+                    return;
+                }
+                if arg.del {
+                    PsdkSudoersRemoveIncoming::new().run(OutgoingType::Cli).print();
                     return;
                 }
             }

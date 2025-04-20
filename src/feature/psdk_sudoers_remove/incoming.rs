@@ -41,7 +41,6 @@ impl PsdkSudoersRemoveIncoming {
         select
     }
 
-    #[allow(dead_code)]
     pub fn dbus_method_run(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             Self::name(),
@@ -54,7 +53,6 @@ impl PsdkSudoersRemoveIncoming {
         );
     }
 
-    #[allow(dead_code)]
     pub fn dbus_method_run_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "ById"),
@@ -67,6 +65,7 @@ impl PsdkSudoersRemoveIncoming {
         );
     }
 
+    // @todo
     #[allow(unused_variables)]
     fn run(
         model: PsdkInstalledModel,

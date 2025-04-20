@@ -11,8 +11,8 @@ use crate::feature::psdk_package_sign::incoming::PsdkPackageSignIncoming;
 use crate::feature::psdk_remove::incoming::PsdkRemoveIncoming;
 use crate::feature::psdk_sudoers_add::incoming::PsdkSudoersAddIncoming;
 use crate::feature::psdk_sudoers_remove::incoming::PsdkSudoersRemoveIncoming;
+use crate::feature::psdk_target_package_find::incoming::PsdkTargetPackageFindIncoming;
 use crate::feature::psdk_target_package_install::incoming::PsdkTargetPackageInstallIncoming;
-use crate::feature::psdk_target_package_search::incoming::PsdkTargetPackageSearchIncoming;
 use crate::feature::psdk_target_package_uninstall::incoming::PsdkTargetPackageUninstallIncoming;
 use crate::feature::sdk_ide_close::incoming::SdkIdeCloseIncoming;
 use crate::feature::sdk_ide_open::incoming::SdkIdeOpenIncoming;
@@ -262,9 +262,9 @@ impl ClientMethodsKey {
                 let model = serde_json::from_str::<PsdkTargetPackageInstallIncoming>(&value)?;
                 Ok(Box::new(model))
             }
-            ClientMethodsKey::PsdkTargetPackageSearch => {
-                print_debug!("> PsdkTargetPackageSearch: {}", value);
-                let model = serde_json::from_str::<PsdkTargetPackageSearchIncoming>(&value)?;
+            ClientMethodsKey::PsdkTargetPackageFind => {
+                print_debug!("> PsdkTargetPackageFind: {}", value);
+                let model = serde_json::from_str::<PsdkTargetPackageFindIncoming>(&value)?;
                 Ok(Box::new(model))
             }
             ClientMethodsKey::PsdkTargetPackageUninstall => {

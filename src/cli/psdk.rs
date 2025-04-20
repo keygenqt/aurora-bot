@@ -11,8 +11,8 @@ use crate::feature::psdk_info::incoming::PsdkInfoIncoming;
 use crate::feature::psdk_package_sign::incoming::PsdkPackageSignIncoming;
 use crate::feature::psdk_sudoers_add::incoming::PsdkSudoersAddIncoming;
 use crate::feature::psdk_sudoers_remove::incoming::PsdkSudoersRemoveIncoming;
+use crate::feature::psdk_target_package_find::incoming::PsdkTargetPackageFindIncoming;
 use crate::feature::psdk_target_package_install::incoming::PsdkTargetPackageInstallIncoming;
-use crate::feature::psdk_target_package_search::incoming::PsdkTargetPackageSearchIncoming;
 use crate::feature::psdk_target_package_uninstall::incoming::PsdkTargetPackageUninstallIncoming;
 use crate::feature::psdk_terminal::incoming::PsdkTerminalIncoming;
 use crate::tools::macros::print_error;
@@ -83,7 +83,7 @@ pub struct PsdkSudoersArgs {
     add: bool,
     /// Удалить запись из sudoers
     #[arg(short, long, default_value_t = false)]
-    del: bool,
+    remove: bool,
     /// Показать это сообщение и выйти
     #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
     help: Option<bool>,
@@ -122,7 +122,7 @@ pub fn run(arg: PsdkArgs) {
                     return;
                 }
                 if let Some(package) = arg.find {
-                    PsdkTargetPackageSearchIncoming::new_package(package)
+                    PsdkTargetPackageFindIncoming::new_package(package)
                         .run(OutgoingType::Cli)
                         .print();
                     return;
@@ -150,7 +150,7 @@ pub fn run(arg: PsdkArgs) {
                     PsdkSudoersAddIncoming::new().run(OutgoingType::Cli).print();
                     return;
                 }
-                if arg.del {
+                if arg.remove {
                     PsdkSudoersRemoveIncoming::new().run(OutgoingType::Cli).print();
                     return;
                 }

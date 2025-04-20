@@ -120,10 +120,10 @@ pub mod psdk_sudoers_remove {
 pub mod psdk_sync {
     pub mod incoming;
 }
-pub mod psdk_target_package_install {
+pub mod psdk_target_package_find {
     pub mod incoming;
 }
-pub mod psdk_target_package_search {
+pub mod psdk_target_package_install {
     pub mod incoming;
 }
 pub mod psdk_target_package_uninstall {
@@ -241,8 +241,8 @@ pub enum ClientMethodsKey {
     PsdkSudoersAdd,
     PsdkSudoersRemove,
     PsdkSync,
+    PsdkTargetPackageFind,
     PsdkTargetPackageInstall,
-    PsdkTargetPackageSearch,
     PsdkTargetPackageUninstall,
     PsdkTerminal,
     SdkAvailable,

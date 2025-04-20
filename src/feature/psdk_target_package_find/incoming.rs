@@ -14,29 +14,29 @@ use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct PsdkTargetPackageSearchIncoming {
+pub struct PsdkTargetPackageFindIncoming {
     id: Option<String>,
     package: String,
 }
 
-impl PsdkTargetPackageSearchIncoming {
+impl PsdkTargetPackageFindIncoming {
     pub fn name() -> String {
-        serde_variant::to_variant_name(&ClientMethodsKey::PsdkTargetPackageSearch)
+        serde_variant::to_variant_name(&ClientMethodsKey::PsdkTargetPackageFind)
             .unwrap()
             .to_string()
     }
 
-    pub fn new_package(package: String) -> Box<PsdkTargetPackageSearchIncoming> {
+    pub fn new_package(package: String) -> Box<PsdkTargetPackageFindIncoming> {
         print_debug!("> {}: new_package(package: {})", Self::name(), package);
         Box::new(Self { id: None, package })
     }
 
-    pub fn new_package_id(id: String, package: String) -> Box<PsdkTargetPackageSearchIncoming> {
+    pub fn new_package_id(id: String, package: String) -> Box<PsdkTargetPackageFindIncoming> {
         print_debug!("> {}: new_package_id(id: {}, package: {})", Self::name(), id, package,);
         Box::new(Self { id: Some(id), package })
     }
 
-    fn select(&self, id: String) -> PsdkTargetPackageSearchIncoming {
+    fn select(&self, id: String) -> PsdkTargetPackageFindIncoming {
         let mut select = self.clone();
         select.id = Some(id);
         select
@@ -76,10 +76,10 @@ impl PsdkTargetPackageSearchIncoming {
     }
 }
 
-impl TraitIncoming for PsdkTargetPackageSearchIncoming {
+impl TraitIncoming for PsdkTargetPackageFindIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
-        // Search
-        let key = PsdkTargetPackageSearchIncoming::name();
+        // Find
+        let key = PsdkTargetPackageFindIncoming::name();
         let models = PsdkInstalledModelSelect::search(&self.id, tr!("получаем информацию о Platform SDK"), &send_type);
         // Select
         match models.iter().count() {

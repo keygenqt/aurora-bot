@@ -23,7 +23,6 @@ Fast, smart, lightweight, client of the Aurora Bot project.
 - Target package find (psdk_target_package_find).
 - Target install package (psdk_target_package_install).
 - Target remove package (psdk_target_package_uninstall).
-- Sign package (psdk_package_sign).
 - Add sudoers (psdk_sudoers_add).
 - Remove sudoers (psdk_sudoers_remove).
 - Format Qt/C++ (sdk_project_format).

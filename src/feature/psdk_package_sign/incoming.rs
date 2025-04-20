@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use colored::Colorize;
 use dbus_crossroads::IfaceBuilder;
 use serde::Deserialize;
 use serde::Serialize;
@@ -80,13 +81,21 @@ impl PsdkPackageSignIncoming {
         );
     }
 
-    // @todo
-    #[allow(unused_variables)]
     fn run(
         model: PsdkInstalledModel,
-        send_type: &OutgoingType,
+        path: &PathBuf,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-        Ok(StateMessageOutgoing::new_info(tr!("@todo")))
+        if !path.is_file() {
+            Err(tr!("необходимо указать путь к файлу"))?
+        }
+        let package_name = match utils::get_package_name(path) {
+            Some(value) => value,
+            None => Err(tr!("необходимо указать путь к RPM пакету"))?,
+        };
+        if !model.package_sign(path) {
+            Err(tr!("валидация пакета не удалось"))?;
+        }
+        Ok(StateMessageOutgoing::new_success(tr!("пакет {} успешно подписан", package_name.bold())))
     }
 }
 
@@ -97,9 +106,12 @@ impl TraitIncoming for PsdkPackageSignIncoming {
         let models = PsdkInstalledModelSelect::search(&self.id, tr!("получаем информацию о Platform SDK"), &send_type);
         // Select
         match models.iter().count() {
-            1 => match Self::run(models.first().unwrap().clone(), &send_type) {
+            1 => match Self::run(
+                models.first().unwrap().clone(),
+                &self.path,
+            ) {
                 Ok(result) => result,
-                Err(_) => StateMessageOutgoing::new_error(tr!("произошла ошибка при подписи пакета")),
+                Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
             },
             0 => StateMessageOutgoing::new_info(tr!("Platform SDK не найдены")),
             _ => match PsdkInstalledModelSelect::select(key, &send_type, models, |id| self.select(id)) {

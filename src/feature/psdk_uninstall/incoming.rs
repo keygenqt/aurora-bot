@@ -14,34 +14,33 @@ use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct PsdkRemoveIncoming {
+pub struct PsdkUninstallIncoming {
     id: Option<String>,
 }
 
-impl PsdkRemoveIncoming {
+impl PsdkUninstallIncoming {
     pub fn name() -> String {
-        serde_variant::to_variant_name(&ClientMethodsKey::PsdkRemove)
+        serde_variant::to_variant_name(&ClientMethodsKey::PsdkUninstall)
             .unwrap()
             .to_string()
     }
 
-    pub fn new() -> Box<PsdkRemoveIncoming> {
+    pub fn new() -> Box<PsdkUninstallIncoming> {
         print_debug!("> {}: new()", Self::name());
         Box::new(Self { id: None })
     }
 
-    pub fn new_id(id: String) -> Box<PsdkRemoveIncoming> {
+    pub fn new_id(id: String) -> Box<PsdkUninstallIncoming> {
         print_debug!("> {}: new_id(id: {})", Self::name(), id);
         Box::new(Self { id: Some(id) })
     }
 
-    fn select(&self, id: String) -> PsdkRemoveIncoming {
+    fn select(&self, id: String) -> PsdkUninstallIncoming {
         let mut select = self.clone();
         select.id = Some(id);
         select
     }
 
-    #[allow(dead_code)]
     pub fn dbus_method_run(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             Self::name(),
@@ -54,7 +53,6 @@ impl PsdkRemoveIncoming {
         );
     }
 
-    #[allow(dead_code)]
     pub fn dbus_method_run_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "ById"),
@@ -76,10 +74,10 @@ impl PsdkRemoveIncoming {
     }
 }
 
-impl TraitIncoming for PsdkRemoveIncoming {
+impl TraitIncoming for PsdkUninstallIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
-        let key = PsdkRemoveIncoming::name();
+        let key = PsdkUninstallIncoming::name();
         let models = PsdkInstalledModelSelect::search(&self.id, tr!("получаем информацию о Platform SDK"), &send_type);
         // Select
         match models.iter().count() {

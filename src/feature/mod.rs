@@ -82,13 +82,13 @@ pub mod flutter_project_format {
 pub mod flutter_project_report {
     pub mod incoming;
 }
-pub mod flutter_remove {
-    pub mod incoming;
-}
 pub mod flutter_sync {
     pub mod incoming;
 }
 pub mod flutter_terminal {
+    pub mod incoming;
+}
+pub mod flutter_uninstall {
     pub mod incoming;
 }
 pub mod psdk_available {
@@ -106,9 +106,6 @@ pub mod psdk_install {
     pub mod incoming;
 }
 pub mod psdk_package_sign {
-    pub mod incoming;
-}
-pub mod psdk_remove {
     pub mod incoming;
 }
 pub mod psdk_sudoers_add {
@@ -130,6 +127,9 @@ pub mod psdk_target_package_uninstall {
     pub mod incoming;
 }
 pub mod psdk_terminal {
+    pub mod incoming;
+}
+pub mod psdk_uninstall {
     pub mod incoming;
 }
 pub mod sdk_available {
@@ -155,13 +155,13 @@ pub mod sdk_install {
 pub mod sdk_project_format {
     pub mod incoming;
 }
-pub mod sdk_remove {
-    pub mod incoming;
-}
 pub mod sdk_sync {
     pub mod incoming;
 }
 pub mod sdk_tools {
+    pub mod incoming;
+}
+pub mod sdk_uninstall {
     pub mod incoming;
 }
 pub mod selector {
@@ -229,15 +229,14 @@ pub enum ClientMethodsKey {
     FlutterInstall,
     FlutterProjectFormat,
     FlutterProjectReport,
-    FlutterRemove,
     FlutterSync,
     FlutterTerminal,
+    FlutterUninstall,
     PsdkAvailable,
     PsdkDownload,
     PsdkInfo,
     PsdkInstall,
     PsdkPackageSign,
-    PsdkRemove,
     PsdkSudoersAdd,
     PsdkSudoersRemove,
     PsdkSync,
@@ -245,6 +244,7 @@ pub enum ClientMethodsKey {
     PsdkTargetPackageInstall,
     PsdkTargetPackageUninstall,
     PsdkTerminal,
+    PsdkUninstall,
     SdkAvailable,
     SdkDownload,
     SdkIdeClose,
@@ -252,9 +252,9 @@ pub enum ClientMethodsKey {
     SdkInfo,
     SdkInstall,
     SdkProjectFormat,
-    SdkRemove,
     SdkSync,
     SdkTools,
+    SdkUninstall,
     StateMessage,
     WsPing,
 }

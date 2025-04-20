@@ -31,7 +31,7 @@ pub struct EmulatorArgs {
     #[command(subcommand)]
     command: Option<EmulatorArgsGroup>,
     /// Информация по доступным эмуляторам
-    #[arg(short, long, default_value_t = false)]
+    #[arg(long, default_value_t = false)]
     info: bool,
     /// Открыть эмулятор
     #[arg(short, long, default_value_t = false)]

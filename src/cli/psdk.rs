@@ -8,6 +8,7 @@ use crate::feature::outgoing::OutgoingType;
 use crate::feature::psdk_available::incoming::PsdkAvailableIncoming;
 use crate::feature::psdk_download::incoming::PsdkDownloadIncoming;
 use crate::feature::psdk_info::incoming::PsdkInfoIncoming;
+use crate::feature::psdk_install::incoming::PsdkInstallIncoming;
 use crate::feature::psdk_package_sign::incoming::PsdkPackageSignIncoming;
 use crate::feature::psdk_sudoers_add::incoming::PsdkSudoersAddIncoming;
 use crate::feature::psdk_sudoers_remove::incoming::PsdkSudoersRemoveIncoming;
@@ -15,6 +16,7 @@ use crate::feature::psdk_target_package_find::incoming::PsdkTargetPackageFindInc
 use crate::feature::psdk_target_package_install::incoming::PsdkTargetPackageInstallIncoming;
 use crate::feature::psdk_target_package_uninstall::incoming::PsdkTargetPackageUninstallIncoming;
 use crate::feature::psdk_terminal::incoming::PsdkTerminalIncoming;
+use crate::feature::psdk_uninstall::incoming::PsdkUninstallIncoming;
 use crate::tools::macros::print_error;
 use crate::tools::utils;
 
@@ -25,18 +27,24 @@ pub struct PsdkArgs {
     /// Subcommand
     #[command(subcommand)]
     command: Option<PsdkArgsGroup>,
+    /// Информация по установленным Platform SDK
+    #[arg(long, default_value_t = false)]
+    info: bool,
     /// Информация по доступным Platform SDK
     #[arg(short, long, default_value_t = false)]
     available: bool,
-    /// Информация по установленным Platform SDK
-    #[arg(short, long, default_value_t = false)]
-    info: bool,
-    /// Скачать Platform SDK
-    #[arg(short, long, default_value_t = false)]
-    download: bool,
     /// Открыть терминал с окружением Platform SDK
     #[arg(short, long, default_value_t = false)]
     terminal: bool,
+    /// Скачать Platform SDK
+    #[arg(short, long, default_value_t = false)]
+    download: bool,
+    /// Установить Platform SDK
+    #[arg(short, long, default_value_t = false)]
+    install: bool,
+    /// Удалить Platform SDK
+    #[arg(short, long, default_value_t = false)]
+    uninstall: bool,
     /// Показать это сообщение и выйти
     #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
     help: Option<bool>,
@@ -92,20 +100,28 @@ pub struct PsdkSudoersArgs {
 #[allow(unused_variables)]
 pub fn run(arg: PsdkArgs) {
     // Options
+    if arg.info {
+        PsdkInfoIncoming::new().run(OutgoingType::Cli).print();
+        return;
+    }
     if arg.available {
         PsdkAvailableIncoming::new().run(OutgoingType::Cli).print();
         return;
     }
-    if arg.info {
-        PsdkInfoIncoming::new().run(OutgoingType::Cli).print();
+    if arg.terminal {
+        PsdkTerminalIncoming::new().run(OutgoingType::Cli).print();
         return;
     }
     if arg.download {
         PsdkDownloadIncoming::new().run(OutgoingType::Cli).print();
         return;
     }
-    if arg.terminal {
-        PsdkTerminalIncoming::new().run(OutgoingType::Cli).print();
+    if arg.install {
+        PsdkInstallIncoming::new().run(OutgoingType::Cli).print();
+        return;
+    }
+    if arg.uninstall {
+        PsdkUninstallIncoming::new().run(OutgoingType::Cli).print();
         return;
     }
     // Commands

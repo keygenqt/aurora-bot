@@ -6,42 +6,41 @@ use crate::feature::ClientMethodsKey;
 use crate::feature::incoming::TraitIncoming;
 use crate::feature::outgoing::OutgoingType;
 use crate::feature::outgoing::TraitOutgoing;
-use crate::feature::selector::selects::select_sdk_installed::SdkInstalledModelSelect;
+use crate::feature::selector::selects::select_flutter_installed::FlutterInstalledModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
-use crate::models::sdk_installed::model::SdkInstalledModel;
+use crate::models::flutter_installed::model::FlutterInstalledModel;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct SdkRemoveIncoming {
+pub struct FlutterUninstallIncoming {
     id: Option<String>,
 }
 
-impl SdkRemoveIncoming {
+impl FlutterUninstallIncoming {
     pub fn name() -> String {
-        serde_variant::to_variant_name(&ClientMethodsKey::SdkRemove)
+        serde_variant::to_variant_name(&ClientMethodsKey::FlutterUninstall)
             .unwrap()
             .to_string()
     }
 
-    pub fn new() -> Box<SdkRemoveIncoming> {
+    pub fn new() -> Box<FlutterUninstallIncoming> {
         print_debug!("> {}: new()", Self::name());
         Box::new(Self { id: None })
     }
 
-    pub fn new_id(id: String) -> Box<SdkRemoveIncoming> {
+    pub fn new_id(id: String) -> Box<FlutterUninstallIncoming> {
         print_debug!("> {}: new_id(id: {})", Self::name(), id);
         Box::new(Self { id: Some(id) })
     }
 
-    fn select(&self, id: String) -> SdkRemoveIncoming {
+    fn select(&self, id: String) -> FlutterUninstallIncoming {
         let mut select = self.clone();
         select.id = Some(id);
         select
     }
 
-    #[allow(dead_code)]
     pub fn dbus_method_run(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             Self::name(),
@@ -54,7 +53,6 @@ impl SdkRemoveIncoming {
         );
     }
 
-    #[allow(dead_code)]
     pub fn dbus_method_run_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "ById"),
@@ -69,28 +67,29 @@ impl SdkRemoveIncoming {
 
     #[allow(unused_variables)]
     fn run(
-        model: SdkInstalledModel,
+        model: FlutterInstalledModel,
         send_type: &OutgoingType,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         Ok(StateMessageOutgoing::new_info(tr!("@todo")))
     }
 }
 
-impl TraitIncoming for SdkRemoveIncoming {
+impl TraitIncoming for FlutterUninstallIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
-        let key = SdkRemoveIncoming::name();
-        let models = SdkInstalledModelSelect::search(&self.id, tr!("получаем информацию о Аврора SDK"), &send_type);
+        let key = FlutterUninstallIncoming::name();
+        let models =
+            FlutterInstalledModelSelect::search(&self.id, tr!("получаем информацию о Flutter SDK"), &send_type);
         // Select
         match models.iter().count() {
             1 => match Self::run(models.first().unwrap().clone(), &send_type) {
                 Ok(result) => result,
-                Err(_) => StateMessageOutgoing::new_error(tr!("произошла ошибка при удалении Аврора SDK")),
+                Err(_) => StateMessageOutgoing::new_error(tr!("произошла ошибка при удалении Flutter SDK")),
             },
-            0 => StateMessageOutgoing::new_info(tr!("Аврора SDK не найдены")),
-            _ => match SdkInstalledModelSelect::select(key, &send_type, models, |id| self.select(id)) {
+            0 => StateMessageOutgoing::new_info(tr!("Flutter SDK не найдены")),
+            _ => match FlutterInstalledModelSelect::select(key, &send_type, models, |id| self.select(id)) {
                 Ok(value) => Box::new(value),
-                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Аврора SDK")),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Flutter SDK")),
             },
         }
     }

@@ -5,20 +5,20 @@ use crate::feature::demo_app_info::incoming::DemoAppInfoIncoming;
 use crate::feature::flutter_install::incoming::FlutterInstallIncoming;
 use crate::feature::flutter_project_format::incoming::FlutterProjectFormatIncoming;
 use crate::feature::flutter_project_report::incoming::FlutterProjectReportIncoming;
-use crate::feature::flutter_remove::incoming::FlutterRemoveIncoming;
+use crate::feature::flutter_uninstall::incoming::FlutterUninstallIncoming;
 use crate::feature::psdk_install::incoming::PsdkInstallIncoming;
 use crate::feature::psdk_package_sign::incoming::PsdkPackageSignIncoming;
-use crate::feature::psdk_remove::incoming::PsdkRemoveIncoming;
 use crate::feature::psdk_sudoers_add::incoming::PsdkSudoersAddIncoming;
 use crate::feature::psdk_sudoers_remove::incoming::PsdkSudoersRemoveIncoming;
 use crate::feature::psdk_target_package_find::incoming::PsdkTargetPackageFindIncoming;
 use crate::feature::psdk_target_package_install::incoming::PsdkTargetPackageInstallIncoming;
 use crate::feature::psdk_target_package_uninstall::incoming::PsdkTargetPackageUninstallIncoming;
+use crate::feature::psdk_uninstall::incoming::PsdkUninstallIncoming;
 use crate::feature::sdk_ide_close::incoming::SdkIdeCloseIncoming;
 use crate::feature::sdk_ide_open::incoming::SdkIdeOpenIncoming;
 use crate::feature::sdk_install::incoming::SdkInstallIncoming;
 use crate::feature::sdk_project_format::incoming::SdkProjectFormatIncoming;
-use crate::feature::sdk_remove::incoming::SdkRemoveIncoming;
+use crate::feature::sdk_uninstall::incoming::SdkUninstallIncoming;
 use crate::tools::macros::print_debug;
 use crate::tools::utils;
 
@@ -197,11 +197,6 @@ impl ClientMethodsKey {
                 let model = serde_json::from_str::<FlutterProjectReportIncoming>(&value)?;
                 Ok(Box::new(model))
             }
-            ClientMethodsKey::FlutterRemove => {
-                print_debug!("> FlutterRemove: {}", value);
-                let model = serde_json::from_str::<FlutterRemoveIncoming>(&value)?;
-                Ok(Box::new(model))
-            }
             ClientMethodsKey::FlutterSync => {
                 print_debug!("> FlutterSync: {}", value);
                 let model = serde_json::from_str::<FlutterSyncIncoming>(&value)?;
@@ -210,6 +205,11 @@ impl ClientMethodsKey {
             ClientMethodsKey::FlutterTerminal => {
                 print_debug!("> FlutterTerminal: {}", value);
                 let model = serde_json::from_str::<FlutterTerminalIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::FlutterUninstall => {
+                print_debug!("> FlutterUninstall: {}", value);
+                let model = serde_json::from_str::<FlutterUninstallIncoming>(&value)?;
                 Ok(Box::new(model))
             }
             ClientMethodsKey::PsdkAvailable => {
@@ -235,11 +235,6 @@ impl ClientMethodsKey {
             ClientMethodsKey::PsdkPackageSign => {
                 print_debug!("> PsdkPackageSign: {}", value);
                 let model = serde_json::from_str::<PsdkPackageSignIncoming>(&value)?;
-                Ok(Box::new(model))
-            }
-            ClientMethodsKey::PsdkRemove => {
-                print_debug!("> PsdkRemove: {}", value);
-                let model = serde_json::from_str::<PsdkRemoveIncoming>(&value)?;
                 Ok(Box::new(model))
             }
             ClientMethodsKey::PsdkSudoersAdd => {
@@ -277,6 +272,11 @@ impl ClientMethodsKey {
                 let model = serde_json::from_str::<PsdkTerminalIncoming>(&value)?;
                 Ok(Box::new(model))
             }
+            ClientMethodsKey::PsdkUninstall => {
+                print_debug!("> PsdkUninstall: {}", value);
+                let model = serde_json::from_str::<PsdkUninstallIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
             ClientMethodsKey::SdkAvailable => {
                 print_debug!("> SdkAvailable: {}", value);
                 let model = serde_json::from_str::<SdkAvailableIncoming>(&value)?;
@@ -312,11 +312,6 @@ impl ClientMethodsKey {
                 let model = serde_json::from_str::<SdkProjectFormatIncoming>(&value)?;
                 Ok(Box::new(model))
             }
-            ClientMethodsKey::SdkRemove => {
-                print_debug!("> SdkRemove: {}", value);
-                let model = serde_json::from_str::<SdkRemoveIncoming>(&value)?;
-                Ok(Box::new(model))
-            }
             ClientMethodsKey::SdkSync => {
                 print_debug!("> SdkSync: {}", value);
                 let model = serde_json::from_str::<SdkSyncIncoming>(&value)?;
@@ -325,6 +320,11 @@ impl ClientMethodsKey {
             ClientMethodsKey::SdkTools => {
                 print_debug!("> SdkTools: {}", value);
                 let model = serde_json::from_str::<SdkToolsIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::SdkUninstall => {
+                print_debug!("> SdkUninstall: {}", value);
+                let model = serde_json::from_str::<SdkUninstallIncoming>(&value)?;
                 Ok(Box::new(model))
             }
             ClientMethodsKey::StateMessage => {

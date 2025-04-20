@@ -33,11 +33,14 @@ use crate::feature::emulator_upload::incoming::EmulatorUploadIncoming;
 use crate::feature::flutter_available::incoming::FlutterAvailableIncoming;
 use crate::feature::flutter_download::incoming::FlutterDownloadIncoming;
 use crate::feature::flutter_info::incoming::FlutterInfoIncoming;
+use crate::feature::flutter_install::incoming::FlutterInstallIncoming;
 use crate::feature::flutter_sync::incoming::FlutterSyncIncoming;
 use crate::feature::flutter_terminal::incoming::FlutterTerminalIncoming;
+use crate::feature::flutter_uninstall::incoming::FlutterUninstallIncoming;
 use crate::feature::psdk_available::incoming::PsdkAvailableIncoming;
 use crate::feature::psdk_download::incoming::PsdkDownloadIncoming;
 use crate::feature::psdk_info::incoming::PsdkInfoIncoming;
+use crate::feature::psdk_install::incoming::PsdkInstallIncoming;
 use crate::feature::psdk_package_sign::incoming::PsdkPackageSignIncoming;
 use crate::feature::psdk_sudoers_add::incoming::PsdkSudoersAddIncoming;
 use crate::feature::psdk_sudoers_remove::incoming::PsdkSudoersRemoveIncoming;
@@ -46,13 +49,16 @@ use crate::feature::psdk_target_package_find::incoming::PsdkTargetPackageFindInc
 use crate::feature::psdk_target_package_install::incoming::PsdkTargetPackageInstallIncoming;
 use crate::feature::psdk_target_package_uninstall::incoming::PsdkTargetPackageUninstallIncoming;
 use crate::feature::psdk_terminal::incoming::PsdkTerminalIncoming;
+use crate::feature::psdk_uninstall::incoming::PsdkUninstallIncoming;
 use crate::feature::sdk_available::incoming::SdkAvailableIncoming;
 use crate::feature::sdk_download::incoming::SdkDownloadIncoming;
 use crate::feature::sdk_ide_close::incoming::SdkIdeCloseIncoming;
 use crate::feature::sdk_ide_open::incoming::SdkIdeOpenIncoming;
 use crate::feature::sdk_info::incoming::SdkInfoIncoming;
+use crate::feature::sdk_install::incoming::SdkInstallIncoming;
 use crate::feature::sdk_sync::incoming::SdkSyncIncoming;
 use crate::feature::sdk_tools::incoming::SdkToolsIncoming;
+use crate::feature::sdk_uninstall::incoming::SdkUninstallIncoming;
 use crate::service::dbus::methods;
 use crate::tools::constants;
 use crate::tools::macros::print_success;
@@ -164,10 +170,16 @@ impl ServerDbus {
             FlutterInfoIncoming::dbus_method_run(builder);
             FlutterInfoIncoming::dbus_method_run_by_id(builder);
 
+            FlutterInstallIncoming::dbus_method_run(builder);
+            FlutterInstallIncoming::dbus_method_run_by_id(builder);
+
             FlutterSyncIncoming::dbus_method_run(builder);
 
             FlutterTerminalIncoming::dbus_method_run(builder);
             FlutterTerminalIncoming::dbus_method_run_by_id(builder);
+
+            FlutterUninstallIncoming::dbus_method_run(builder);
+            FlutterUninstallIncoming::dbus_method_run_by_id(builder);
 
             /////////////////
             // Psdk
@@ -198,10 +210,16 @@ impl ServerDbus {
             PsdkInfoIncoming::dbus_method_run(builder);
             PsdkInfoIncoming::dbus_method_run_by_id(builder);
 
+            PsdkInstallIncoming::dbus_method_run(builder);
+            PsdkInstallIncoming::dbus_method_run_by_id(builder);
+
             PsdkSyncIncoming::dbus_method_run(builder);
 
             PsdkTerminalIncoming::dbus_method_run(builder);
             PsdkTerminalIncoming::dbus_method_run_by_id(builder);
+
+            PsdkUninstallIncoming::dbus_method_run(builder);
+            PsdkUninstallIncoming::dbus_method_run_by_id(builder);
 
             /////////////////
             // Sdk
@@ -220,10 +238,16 @@ impl ServerDbus {
             SdkInfoIncoming::dbus_method_run(builder);
             SdkInfoIncoming::dbus_method_run_by_id(builder);
 
+            SdkInstallIncoming::dbus_method_run(builder);
+            SdkInstallIncoming::dbus_method_run_by_id(builder);
+
             SdkSyncIncoming::dbus_method_run(builder);
 
             SdkToolsIncoming::dbus_method_run(builder);
             SdkToolsIncoming::dbus_method_run_by_id(builder);
+
+            SdkUninstallIncoming::dbus_method_run(builder);
+            SdkUninstallIncoming::dbus_method_run_by_id(builder);
 
             /////////////////
             // Methods only for D-Bus

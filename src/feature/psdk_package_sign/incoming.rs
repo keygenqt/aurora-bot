@@ -81,10 +81,7 @@ impl PsdkPackageSignIncoming {
         );
     }
 
-    fn run(
-        model: PsdkInstalledModel,
-        path: &PathBuf,
-    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+    fn run(model: PsdkInstalledModel, path: &PathBuf) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         if !path.is_file() {
             Err(tr!("необходимо указать путь к файлу"))?
         }
@@ -95,7 +92,10 @@ impl PsdkPackageSignIncoming {
         if !model.package_sign(path) {
             Err(tr!("валидация пакета не удалось"))?;
         }
-        Ok(StateMessageOutgoing::new_success(tr!("пакет {} успешно подписан", package_name.bold())))
+        Ok(StateMessageOutgoing::new_success(tr!(
+            "пакет {} успешно подписан",
+            package_name.bold()
+        )))
     }
 }
 
@@ -106,10 +106,7 @@ impl TraitIncoming for PsdkPackageSignIncoming {
         let models = PsdkInstalledModelSelect::search(&self.id, tr!("получаем информацию о Platform SDK"), &send_type);
         // Select
         match models.iter().count() {
-            1 => match Self::run(
-                models.first().unwrap().clone(),
-                &self.path,
-            ) {
+            1 => match Self::run(models.first().unwrap().clone(), &self.path) {
                 Ok(result) => result,
                 Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
             },

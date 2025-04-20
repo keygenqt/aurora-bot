@@ -292,13 +292,25 @@ pub fn get_demo_apps() -> Vec<DemoReleasesResponse> {
     ClientRequest::new(None).get_demo_apps()
 }
 
-/// Get package_name from path rpm
+/// Get package name from path rpm
 pub fn get_package_name(path: &PathBuf) -> Option<String> {
     let package = match rpm::Package::open(path) {
         Ok(value) => value,
         Err(_) => return None,
     };
     match package.metadata.get_name() {
+        Ok(value) => Some(value.to_string()),
+        Err(_) => None,
+    }
+}
+
+/// Get package arch from path rpm
+pub fn get_package_arch(path: &PathBuf) -> Option<String> {
+    let package = match rpm::Package::open(path) {
+        Ok(value) => value,
+        Err(_) => return None,
+    };
+    match package.metadata.get_arch() {
         Ok(value) => Some(value.to_string()),
         Err(_) => None,
     }

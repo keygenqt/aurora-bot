@@ -57,13 +57,7 @@ impl FlutterProjectFormatIncoming {
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (path,): (String,)| async move {
                 let outgoing = match utils::path_to_absolute(&PathBuf::from(path)) {
-                    Some(path) => {
-                        if path.is_dir() {
-                            Self::new_path(path).run(OutgoingType::Dbus)
-                        } else {
-                            StateMessageOutgoing::new_error(tr!("укажите директорию проекта"))
-                        }
-                    }
+                    Some(path) => Self::new_path(path).run(OutgoingType::Dbus),
                     None => StateMessageOutgoing::new_error(tr!("проверьте путь к проекту")),
                 };
                 ctx.reply(Ok((outgoing.to_json(),)))
@@ -78,13 +72,7 @@ impl FlutterProjectFormatIncoming {
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (id, path): (String, String)| async move {
                 let outgoing = match utils::path_to_absolute(&PathBuf::from(path)) {
-                    Some(path) => {
-                        if path.is_dir() {
-                            Self::new_path_id(id, path).run(OutgoingType::Dbus)
-                        } else {
-                            StateMessageOutgoing::new_error(tr!("укажите директорию проекта"))
-                        }
-                    }
+                    Some(path) => Self::new_path_id(id, path).run(OutgoingType::Dbus),
                     None => StateMessageOutgoing::new_error(tr!("проверьте путь к проекту")),
                 };
                 ctx.reply(Ok((outgoing.to_json(),)))
@@ -95,8 +83,12 @@ impl FlutterProjectFormatIncoming {
     #[allow(unused_variables)]
     fn run(
         model: FlutterInstalledModel,
+        path: &PathBuf,
         send_type: &OutgoingType,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+        if !path.is_dir() {
+            Err(tr!("укажите директорию проекта"))?
+        }
         Ok(StateMessageOutgoing::new_info(tr!("@todo")))
     }
 }
@@ -109,9 +101,9 @@ impl TraitIncoming for FlutterProjectFormatIncoming {
             FlutterInstalledModelSelect::search(&self.id, tr!("получаем информацию о Flutter SDK"), &send_type);
         // Select
         match models.iter().count() {
-            1 => match Self::run(models.first().unwrap().clone(), &send_type) {
+            1 => match Self::run(models.first().unwrap().clone(), &self.path, &send_type) {
                 Ok(result) => result,
-                Err(_) => StateMessageOutgoing::new_error(tr!("произошла ошибка при форматировании проекта")),
+                Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
             },
             0 => StateMessageOutgoing::new_info(tr!("Flutter SDK не найдены")),
             _ => match FlutterInstalledModelSelect::select(key, &send_type, models, |id| self.select(id)) {

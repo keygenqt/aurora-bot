@@ -206,12 +206,16 @@ impl ServerDbus {
 
             PsdkTargetPackageFindIncoming::dbus_method_run_package(builder);
             PsdkTargetPackageFindIncoming::dbus_method_run_package_by_id(builder);
+            PsdkTargetPackageFindIncoming::dbus_method_run_package_target(builder);
+            PsdkTargetPackageFindIncoming::dbus_method_run_package_target_by_id(builder);
 
             PsdkTargetPackageInstallIncoming::dbus_method_run_path(builder);
             PsdkTargetPackageInstallIncoming::dbus_method_run_path_by_id(builder);
 
             PsdkTargetPackageUninstallIncoming::dbus_method_run_package(builder);
             PsdkTargetPackageUninstallIncoming::dbus_method_run_package_by_id(builder);
+            PsdkTargetPackageUninstallIncoming::dbus_method_run_package_target(builder);
+            PsdkTargetPackageUninstallIncoming::dbus_method_run_package_target_by_id(builder);
 
             PsdkDownloadIncoming::dbus_method_run(builder);
             PsdkDownloadIncoming::dbus_method_run_by_id(builder);

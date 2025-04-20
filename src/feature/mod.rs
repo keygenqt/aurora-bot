@@ -179,6 +179,7 @@ pub mod selector {
         pub mod select_flutter_installed;
         pub mod select_psdk_available;
         pub mod select_psdk_installed;
+        pub mod select_psdk_target;
         pub mod select_sdk_available;
         pub mod select_sdk_installed;
     }

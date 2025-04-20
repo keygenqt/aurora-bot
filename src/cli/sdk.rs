@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use clap::Args;
 
 use crate::feature::incoming::TraitIncoming;
@@ -8,8 +10,11 @@ use crate::feature::sdk_ide_close::incoming::SdkIdeCloseIncoming;
 use crate::feature::sdk_ide_open::incoming::SdkIdeOpenIncoming;
 use crate::feature::sdk_info::incoming::SdkInfoIncoming;
 use crate::feature::sdk_install::incoming::SdkInstallIncoming;
+use crate::feature::sdk_project_format::incoming::SdkProjectFormatIncoming;
 use crate::feature::sdk_tools::incoming::SdkToolsIncoming;
 use crate::feature::sdk_uninstall::incoming::SdkUninstallIncoming;
+use crate::tools::macros::print_error;
+use crate::tools::utils;
 
 #[derive(Args)]
 #[command(arg_required_else_help = true)]
@@ -30,6 +35,9 @@ pub struct SdkArgs {
     /// Открыть maintenance tools
     #[arg(short, long, default_value_t = false)]
     tools: bool,
+    /// Форматировать проект Qt/C++
+    #[arg(short, long, value_name = "path")]
+    format: Option<PathBuf>,
     /// Скачать Аврора SDK
     #[arg(short, long, default_value_t = false)]
     download: bool,
@@ -63,6 +71,19 @@ pub fn run(arg: SdkArgs) {
     }
     if arg.tools {
         SdkToolsIncoming::new().run(OutgoingType::Cli).print();
+        return;
+    }
+    if let Some(path) = arg.format {
+        match utils::path_to_absolute(&path) {
+            Some(path) => {
+                if path.is_dir() {
+                    SdkProjectFormatIncoming::new_path(path).run(OutgoingType::Cli).print();
+                } else {
+                    print_error!("укажите директорию проекта")
+                }
+            }
+            None => print_error!("проверьте путь к проекту"),
+        }
         return;
     }
     if arg.download {

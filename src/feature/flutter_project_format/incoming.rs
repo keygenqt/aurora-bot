@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use dbus_crossroads::IfaceBuilder;
 use serde::Deserialize;
 use serde::Serialize;
@@ -12,10 +14,12 @@ use crate::models::flutter_installed::model::FlutterInstalledModel;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
+use crate::tools::utils;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct FlutterProjectFormatIncoming {
     id: Option<String>,
+    path: PathBuf,
 }
 
 impl FlutterProjectFormatIncoming {
@@ -25,14 +29,19 @@ impl FlutterProjectFormatIncoming {
             .to_string()
     }
 
-    pub fn new() -> Box<FlutterProjectFormatIncoming> {
-        print_debug!("> {}: new()", Self::name());
-        Box::new(Self { id: None })
+    pub fn new_path(path: PathBuf) -> Box<FlutterProjectFormatIncoming> {
+        print_debug!("> {}: new_path(path: {})", Self::name(), path.to_string_lossy());
+        Box::new(Self { id: None, path })
     }
 
-    pub fn new_id(id: String) -> Box<FlutterProjectFormatIncoming> {
-        print_debug!("> {}: new_id(id: {})", Self::name(), id);
-        Box::new(Self { id: Some(id) })
+    pub fn new_path_id(id: String, path: PathBuf) -> Box<FlutterProjectFormatIncoming> {
+        print_debug!(
+            "> {}: new_path_id(id: {}, path: {})",
+            Self::name(),
+            id,
+            path.to_string_lossy()
+        );
+        Box::new(Self { id: Some(id), path })
     }
 
     fn select(&self, id: String) -> FlutterProjectFormatIncoming {
@@ -41,27 +50,43 @@ impl FlutterProjectFormatIncoming {
         select
     }
 
-    #[allow(dead_code)]
-    pub fn dbus_method_run(builder: &mut IfaceBuilder<IfaceData>) {
+    pub fn dbus_method_run_path(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             Self::name(),
-            (),
+            ("path",),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (): ()| async move {
-                let outgoing = Self::new().run(OutgoingType::Dbus);
+            move |mut ctx: dbus_crossroads::Context, _, (path,): (String,)| async move {
+                let outgoing = match utils::path_to_absolute(&PathBuf::from(path)) {
+                    Some(path) => {
+                        if path.is_dir() {
+                            Self::new_path(path).run(OutgoingType::Dbus)
+                        } else {
+                            StateMessageOutgoing::new_error(tr!("укажите директорию проекта"))
+                        }
+                    }
+                    None => StateMessageOutgoing::new_error(tr!("проверьте путь к проекту")),
+                };
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
     }
 
-    #[allow(dead_code)]
-    pub fn dbus_method_run_by_id(builder: &mut IfaceBuilder<IfaceData>) {
+    pub fn dbus_method_run_path_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "ById"),
-            ("id",),
+            ("id", "path"),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (id,): (String,)| async move {
-                let outgoing = Self::new_id(id).run(OutgoingType::Dbus);
+            move |mut ctx: dbus_crossroads::Context, _, (id, path): (String, String)| async move {
+                let outgoing = match utils::path_to_absolute(&PathBuf::from(path)) {
+                    Some(path) => {
+                        if path.is_dir() {
+                            Self::new_path_id(id, path).run(OutgoingType::Dbus)
+                        } else {
+                            StateMessageOutgoing::new_error(tr!("укажите директорию проекта"))
+                        }
+                    }
+                    None => StateMessageOutgoing::new_error(tr!("проверьте путь к проекту")),
+                };
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );

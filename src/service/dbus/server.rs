@@ -34,6 +34,8 @@ use crate::feature::flutter_available::incoming::FlutterAvailableIncoming;
 use crate::feature::flutter_download::incoming::FlutterDownloadIncoming;
 use crate::feature::flutter_info::incoming::FlutterInfoIncoming;
 use crate::feature::flutter_install::incoming::FlutterInstallIncoming;
+use crate::feature::flutter_project_format::incoming::FlutterProjectFormatIncoming;
+use crate::feature::flutter_project_report::incoming::FlutterProjectReportIncoming;
 use crate::feature::flutter_sync::incoming::FlutterSyncIncoming;
 use crate::feature::flutter_terminal::incoming::FlutterTerminalIncoming;
 use crate::feature::flutter_uninstall::incoming::FlutterUninstallIncoming;
@@ -56,6 +58,7 @@ use crate::feature::sdk_ide_close::incoming::SdkIdeCloseIncoming;
 use crate::feature::sdk_ide_open::incoming::SdkIdeOpenIncoming;
 use crate::feature::sdk_info::incoming::SdkInfoIncoming;
 use crate::feature::sdk_install::incoming::SdkInstallIncoming;
+use crate::feature::sdk_project_format::incoming::SdkProjectFormatIncoming;
 use crate::feature::sdk_sync::incoming::SdkSyncIncoming;
 use crate::feature::sdk_tools::incoming::SdkToolsIncoming;
 use crate::feature::sdk_uninstall::incoming::SdkUninstallIncoming;
@@ -173,6 +176,12 @@ impl ServerDbus {
             FlutterInstallIncoming::dbus_method_run(builder);
             FlutterInstallIncoming::dbus_method_run_by_id(builder);
 
+            FlutterProjectFormatIncoming::dbus_method_run_path(builder);
+            FlutterProjectFormatIncoming::dbus_method_run_path_by_id(builder);
+
+            FlutterProjectReportIncoming::dbus_method_run_path(builder);
+            FlutterProjectReportIncoming::dbus_method_run_path_by_id(builder);
+
             FlutterSyncIncoming::dbus_method_run(builder);
 
             FlutterTerminalIncoming::dbus_method_run(builder);
@@ -240,6 +249,9 @@ impl ServerDbus {
 
             SdkInstallIncoming::dbus_method_run(builder);
             SdkInstallIncoming::dbus_method_run_by_id(builder);
+
+            SdkProjectFormatIncoming::dbus_method_run_path(builder);
+            SdkProjectFormatIncoming::dbus_method_run_path_by_id(builder);
 
             SdkSyncIncoming::dbus_method_run(builder);
 

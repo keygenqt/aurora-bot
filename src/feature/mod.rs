@@ -119,6 +119,7 @@ pub mod psdk_sync {
 }
 pub mod psdk_target_package_find {
     pub mod incoming;
+    pub mod outgoing;
 }
 pub mod psdk_target_package_install {
     pub mod incoming;

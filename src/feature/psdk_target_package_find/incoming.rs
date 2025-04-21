@@ -11,9 +11,12 @@ use crate::feature::selector::selects::select_psdk_target::PsdkTargetModelSelect
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::models::psdk_installed::model::PsdkInstalledModel;
 use crate::models::psdk_target::model::PsdkTargetModel;
+use crate::models::psdk_target_package::model::PsdkTargetPackageModel;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
+
+use super::outgoing::PsdkTargetPackageFindOutgoing;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct PsdkTargetPackageFindIncoming {
@@ -137,22 +140,13 @@ impl PsdkTargetPackageFindIncoming {
         );
     }
 
-    // @todo
-    #[allow(unused_variables)]
     fn run(
         model: PsdkInstalledModel,
         target: PsdkTargetModel,
         package: String,
-        send_type: &OutgoingType,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-        // @todo
-
-        Ok(StateMessageOutgoing::new_info(tr!(
-            "{}\n{}\n{}",
-            model.version_id,
-            target.arch,
-            package
-        )))
+        let packages = PsdkTargetPackageModel::search_local(&model.chroot, &target.full_name, &package, false)?;
+        Ok(PsdkTargetPackageFindOutgoing::new(packages))
     }
 }
 
@@ -178,7 +172,6 @@ impl TraitIncoming for PsdkTargetPackageFindIncoming {
                         models.first().unwrap().clone(),
                         targets.first().unwrap().clone(),
                         self.package.clone(),
-                        &send_type,
                     ) {
                         Ok(result) => result,
                         Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),

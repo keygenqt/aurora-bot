@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use colored::Colorize;
 use dbus_crossroads::IfaceBuilder;
 use serde::Deserialize;
 use serde::Serialize;
@@ -12,6 +13,7 @@ use crate::feature::selector::selects::select_psdk_installed::PsdkInstalledModel
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::models::psdk_installed::model::PsdkInstalledModel;
 use crate::models::psdk_target::model::PsdkTargetModel;
+use crate::models::psdk_target_package::model::PsdkTargetPackageModel;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
@@ -31,10 +33,7 @@ impl PsdkTargetPackageInstallIncoming {
     }
     pub fn new_path(path: PathBuf) -> Box<PsdkTargetPackageInstallIncoming> {
         print_debug!("> {}: new_path(path: {})", Self::name(), path.to_string_lossy());
-        Box::new(Self {
-            id: None,
-            path,
-        })
+        Box::new(Self { id: None, path })
     }
 
     pub fn new_path_id(id: String, path: PathBuf) -> Box<PsdkTargetPackageInstallIncoming> {
@@ -44,10 +43,7 @@ impl PsdkTargetPackageInstallIncoming {
             id,
             path.to_string_lossy()
         );
-        Box::new(Self {
-            id: Some(id),
-            path,
-        })
+        Box::new(Self { id: Some(id), path })
     }
 
     fn select(&self, id: String) -> PsdkTargetPackageInstallIncoming {
@@ -86,12 +82,10 @@ impl PsdkTargetPackageInstallIncoming {
         );
     }
 
-    #[allow(unused_variables)]
     fn run(
         model: PsdkInstalledModel,
         target: PsdkTargetModel,
         path: &PathBuf,
-        send_type: &OutgoingType,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         if !path.is_file() {
             Err(tr!("необходимо указать путь к файлу"))?
@@ -100,15 +94,15 @@ impl PsdkTargetPackageInstallIncoming {
             Some(value) => value,
             None => Err(tr!("необходимо указать путь к RPM пакету"))?,
         };
-
-        // @todo
-
-        Ok(StateMessageOutgoing::new_info(tr!(
-            "{}\n{}\n{}",
-            model.version_id,
-            target.arch,
-            path.to_string_lossy()
-        )))
+        // Search package
+        let packages = PsdkTargetPackageModel::search_local(&model.chroot, &target.full_name, &package_name, true)?;
+        if !packages.is_empty() {
+            return Ok(StateMessageOutgoing::new_info(tr!("пакет {} уже установлен", package_name.bold())));
+        }
+        // Install package
+        PsdkTargetPackageModel::install(&model.chroot, &target.full_name, &path)?;
+        // Success
+        Ok(StateMessageOutgoing::new_success(tr!("пакет {} успешно установлен", package_name.bold())))
     }
 }
 
@@ -128,17 +122,24 @@ impl TraitIncoming for PsdkTargetPackageInstallIncoming {
                     Some(value) => value,
                     None => return StateMessageOutgoing::new_error(tr!("необходимо указать путь к RPM пакету")),
                 };
-                match model.targets.iter().filter(|e| e.arch == package_arch).cloned().collect::<Vec<PsdkTargetModel>>().first() {
-                    Some(target) => match Self::run(
-                        models.first().unwrap().clone(),
-                        target.clone(),
-                        &self.path,
-                        &send_type,
-                    ) {
-                        Ok(result) => result,
-                        Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
-                    },
-                    None => StateMessageOutgoing::new_error(tr!("Platform Target с архитектурой {} не найден", package_arch)),
+                match model
+                    .targets
+                    .iter()
+                    .filter(|e| e.arch == package_arch)
+                    .cloned()
+                    .collect::<Vec<PsdkTargetModel>>()
+                    .first()
+                {
+                    Some(target) => {
+                        match Self::run(models.first().unwrap().clone(), target.clone(), &self.path) {
+                            Ok(result) => result,
+                            Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
+                        }
+                    }
+                    None => StateMessageOutgoing::new_error(tr!(
+                        "Platform Target с архитектурой {} не найден",
+                        package_arch
+                    )),
                 }
             }
             0 => StateMessageOutgoing::new_info(tr!("Platform SDK не найдены")),

@@ -152,12 +152,27 @@ impl PsdkTargetPackageUninstallIncoming {
         let packages = PsdkTargetPackageModel::search_local(&model.chroot, &target.full_name, &package, true)?;
         let package = match packages.first() {
             Some(value) => value,
-            None => return Ok(StateMessageOutgoing::new_info(tr!("пакет {} не найден",  package.bold()))),
+            None => {
+                return Ok(StateMessageOutgoing::new_info(tr!(
+                    "пакет {} не найден",
+                    package.bold()
+                )));
+            }
         };
         // Remove package
-        package.remove(&model.chroot, &target.full_name)?;
+        let removed = package.remove(&model.chroot, &target.full_name)?;
         // Success
-        Ok(StateMessageOutgoing::new_success(tr!("пакет {} успешно удален", package.name.bold())))
+        if removed.iter().count() == 1 {
+            Ok(StateMessageOutgoing::new_success(tr!(
+                "пакет {} успешно удален",
+                removed.first().unwrap().bold()
+            )))
+        } else {
+            Ok(StateMessageOutgoing::new_success(tr!(
+                "были удалены пакеты {}",
+                removed.join(", ").bold()
+            )))
+        }
     }
 }
 

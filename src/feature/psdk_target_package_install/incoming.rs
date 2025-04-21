@@ -97,12 +97,18 @@ impl PsdkTargetPackageInstallIncoming {
         // Search package
         let packages = PsdkTargetPackageModel::search_local(&model.chroot, &target.full_name, &package_name, true)?;
         if !packages.is_empty() {
-            return Ok(StateMessageOutgoing::new_info(tr!("пакет {} уже установлен", package_name.bold())));
+            return Ok(StateMessageOutgoing::new_info(tr!(
+                "пакет {} уже установлен",
+                package_name.bold()
+            )));
         }
         // Install package
         PsdkTargetPackageModel::install(&model.chroot, &target.full_name, &path)?;
         // Success
-        Ok(StateMessageOutgoing::new_success(tr!("пакет {} успешно установлен", package_name.bold())))
+        Ok(StateMessageOutgoing::new_success(tr!(
+            "пакет {} успешно установлен",
+            package_name.bold()
+        )))
     }
 }
 
@@ -130,12 +136,10 @@ impl TraitIncoming for PsdkTargetPackageInstallIncoming {
                     .collect::<Vec<PsdkTargetModel>>()
                     .first()
                 {
-                    Some(target) => {
-                        match Self::run(models.first().unwrap().clone(), target.clone(), &self.path) {
-                            Ok(result) => result,
-                            Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
-                        }
-                    }
+                    Some(target) => match Self::run(models.first().unwrap().clone(), target.clone(), &self.path) {
+                        Ok(result) => result,
+                        Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
+                    },
                     None => StateMessageOutgoing::new_error(tr!(
                         "Platform Target с архитектурой {} не найден",
                         package_arch

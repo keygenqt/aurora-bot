@@ -106,11 +106,7 @@ impl PsdkTargetPackageModel {
         Ok(models)
     }
 
-    pub fn install(
-        chroot: &String,
-        target_name: &String,
-        path: &PathBuf,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn install(chroot: &String, target_name: &String, path: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
         let output = match exec::exec_wait_args(
             &chroot,
             [
@@ -124,7 +120,7 @@ impl PsdkTargetPackageModel {
                 "--no-gpg-checks",
                 "in",
                 "-y",
-                &path.to_string_lossy()
+                &path.to_string_lossy(),
             ],
         ) {
             Ok(value) => value,
@@ -138,12 +134,8 @@ impl PsdkTargetPackageModel {
         }
     }
 
-    pub fn remove(
-        &self,
-        chroot: &String,
-        target_name: &String,
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        let _ = match exec::exec_wait_args(
+    pub fn remove(&self, chroot: &String, target_name: &String) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        let output = match exec::exec_wait_args(
             &chroot,
             [
                 "sb2",
@@ -161,6 +153,24 @@ impl PsdkTargetPackageModel {
             Ok(value) => value,
             Err(e) => Err(e)?,
         };
-        Ok(())
+        let lines = utils::parse_output(output.stdout);
+        let mut removed = lines
+            .iter()
+            .filter(|e| e.contains("Removing"))
+            .collect::<Vec<&String>>()
+            .iter()
+            .map(|e| {
+                let name = e.split(" ").nth(2).unwrap().to_string();
+                let name = name.replace(&self.version, "");
+                let name = name.replace(&self.arch, "");
+                let name = name.replace(".", "");
+                name.trim_matches('-').to_string()
+            })
+            .collect::<Vec<String>>();
+        if removed.is_empty() {
+            Err("не удалось удалить пакет")?;
+        }
+        removed.sort();
+        Ok(removed)
     }
 }

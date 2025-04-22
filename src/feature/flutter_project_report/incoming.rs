@@ -8,13 +8,14 @@ use crate::feature::ClientMethodsKey;
 use crate::feature::incoming::TraitIncoming;
 use crate::feature::outgoing::OutgoingType;
 use crate::feature::outgoing::TraitOutgoing;
-use crate::feature::selector::selects::select_flutter_installed::FlutterInstalledModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
-use crate::models::flutter_installed::model::FlutterInstalledModel;
+use crate::models::pubspec::model::PubspecModel;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 use crate::tools::utils;
+
+use super::outgoing::FlutterProjectReportOutgoing;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct FlutterProjectReportIncoming {
@@ -44,12 +45,6 @@ impl FlutterProjectReportIncoming {
         Box::new(Self { id: Some(id), path })
     }
 
-    fn select(&self, id: String) -> FlutterProjectReportIncoming {
-        let mut select = self.clone();
-        select.id = Some(id);
-        select
-    }
-
     pub fn dbus_method_run_path(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             Self::name(),
@@ -58,7 +53,7 @@ impl FlutterProjectReportIncoming {
             move |mut ctx: dbus_crossroads::Context, _, (path,): (String,)| async move {
                 let outgoing = match utils::path_to_absolute(&PathBuf::from(path)) {
                     Some(path) => Self::new_path(path).run(OutgoingType::Dbus),
-                    None => StateMessageOutgoing::new_error(tr!("проверьте путь к проекту")),
+                    None => StateMessageOutgoing::new_error(tr!("проверьте путь к pubspec.yaml")),
                 };
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
@@ -73,43 +68,44 @@ impl FlutterProjectReportIncoming {
             move |mut ctx: dbus_crossroads::Context, _, (id, path): (String, String)| async move {
                 let outgoing = match utils::path_to_absolute(&PathBuf::from(path)) {
                     Some(path) => Self::new_path_id(id, path).run(OutgoingType::Dbus),
-                    None => StateMessageOutgoing::new_error(tr!("проверьте путь к проекту")),
+                    None => StateMessageOutgoing::new_error(tr!("проверьте путь к pubspec.yaml")),
                 };
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
     }
 
-    #[allow(unused_variables)]
     fn run(
-        model: FlutterInstalledModel,
         path: &PathBuf,
         send_type: &OutgoingType,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-        if !path.is_dir() {
-            Err(tr!("укажите директорию проекта"))?
+        if path.file_name().unwrap().to_str().unwrap() != "pubspec.yaml" {
+            Err(tr!("укажите путь к pubspec.yaml"))?;
         }
-        Ok(StateMessageOutgoing::new_info(tr!("@todo")))
+        StateMessageOutgoing::new_state(tr!("получение данных пакета")).send(send_type);
+        // Parse yaml and get all dependency
+        let _ = match PubspecModel::search_full(path) {
+            Ok(value) => value,
+            Err(_) => Err("не удалось прочитать pubspec.yaml")?,
+        };
+        // Make pdf report
+        StateMessageOutgoing::new_state(tr!("генерация отчета")).send(send_type);
+        let path = utils::get_report_save_path().to_string_lossy().to_string();
+
+        // @todo create pdf from models
+
+        Ok(FlutterProjectReportOutgoing::new(
+            path.clone(),
+            utils::file_to_base64_by_path(Some(path.as_str())),
+        ))
     }
 }
 
 impl TraitIncoming for FlutterProjectReportIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
-        // Search
-        let key = FlutterProjectReportIncoming::name();
-        let models =
-            FlutterInstalledModelSelect::search(&self.id, tr!("получаем информацию о Flutter SDK"), &send_type);
-        // Select
-        match models.iter().count() {
-            1 => match Self::run(models.first().unwrap().clone(), &self.path, &send_type) {
-                Ok(result) => result,
-                Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
-            },
-            0 => StateMessageOutgoing::new_info(tr!("Flutter SDK не найдены")),
-            _ => match FlutterInstalledModelSelect::select(key, &send_type, models, |id| self.select(id)) {
-                Ok(value) => Box::new(value),
-                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Flutter SDK")),
-            },
+        match Self::run(&self.path, &send_type) {
+            Ok(result) => result,
+            Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
         }
     }
 }

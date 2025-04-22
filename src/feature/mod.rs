@@ -81,6 +81,7 @@ pub mod flutter_project_format {
 }
 pub mod flutter_project_report {
     pub mod incoming;
+    pub mod outgoing;
 }
 pub mod flutter_sync {
     pub mod incoming;

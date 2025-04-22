@@ -189,6 +189,22 @@ pub fn get_screenshot_save_path() -> PathBuf {
     }
 }
 
+/// Gen path for screenshot
+pub fn get_report_save_path() -> PathBuf {
+    let start = SystemTime::now();
+    let timestamp = start
+        .duration_since(UNIX_EPOCH)
+        .expect("Time went backwards")
+        .as_millis();
+    let file_name = format!("Report_{}.pdf", timestamp.to_string());
+    let en_path = get_home_folder_path().join("Documents");
+    if en_path.exists() {
+        en_path.join(file_name)
+    } else {
+        get_home_folder_path().join(file_name)
+    }
+}
+
 /// Check is file
 pub fn is_file(entry: &DirEntry) -> bool {
     if let Ok(metadata) = entry.metadata() {

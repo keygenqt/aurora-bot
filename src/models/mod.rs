@@ -29,6 +29,9 @@ pub mod psdk_target {
 pub mod psdk_target_package {
     pub mod model;
 }
+pub mod pubspec {
+    pub mod model;
+}
 pub mod sdk_available {
     pub mod model;
 }

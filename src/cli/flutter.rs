@@ -79,15 +79,11 @@ pub fn run(arg: FlutterArgs) {
     if let Some(path) = arg.report {
         match utils::path_to_absolute(&path) {
             Some(path) => {
-                if path.is_dir() {
-                    FlutterProjectReportIncoming::new_path(path)
-                        .run(OutgoingType::Cli)
-                        .print();
-                } else {
-                    print_error!("укажите директорию проекта")
-                }
+                FlutterProjectReportIncoming::new_path(path)
+                    .run(OutgoingType::Cli)
+                    .print();
             }
-            None => print_error!("проверьте путь к проекту"),
+            None => print_error!("проверьте путь к pubspec.yaml"),
         }
         return;
     }

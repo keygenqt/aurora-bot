@@ -98,10 +98,17 @@ impl PubspecModel {
             // Gen list
             list.push(
                 elements::Paragraph::default()
-                    .styled_string(format!("https://pub.dev/packages/{}", package.name), link_color),
+                    .styled_string(format!("https://pub.dev/packages/{}", package.name), link_color)
+                    .styled(style::Style::new().with_font_size(10)),
             );
             if let Some(repository) = &package.repository {
-                list.push(elements::Paragraph::default().styled_string(repository, link_color));
+                if repository.trim().len() != 0 {
+                    list.push(
+                        elements::Paragraph::default()
+                            .styled_string(repository, link_color)
+                            .styled(style::Style::new().with_font_size(10)),
+                    );
+                }
             }
             // Result
             list

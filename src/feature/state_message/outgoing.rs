@@ -63,6 +63,20 @@ impl StateMessageOutgoing {
         })
     }
 
+    pub fn get_state_callback(send_type: &OutgoingType) -> fn(i32) {
+        match send_type {
+            OutgoingType::Cli => |progress| {
+                Self::send_state_common(progress, &OutgoingType::Cli, 0);
+            },
+            OutgoingType::Dbus => |progress| {
+                Self::send_state_common(progress, &OutgoingType::Dbus, 0);
+            },
+            OutgoingType::Websocket => |progress| {
+                Self::send_state_common(progress, &OutgoingType::Websocket, 0);
+            },
+        }
+    }
+
     pub fn get_state_callback_file_big(send_type: &OutgoingType) -> fn(i32) {
         match send_type {
             OutgoingType::Cli => |progress| {

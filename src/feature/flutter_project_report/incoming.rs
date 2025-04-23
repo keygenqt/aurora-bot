@@ -75,29 +75,36 @@ impl FlutterProjectReportIncoming {
         );
     }
 
-    fn run(
-        path: &PathBuf,
-        send_type: &OutgoingType,
-    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+    fn run(path: &PathBuf, send_type: &OutgoingType) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         if path.file_name().unwrap().to_str().unwrap() != "pubspec.yaml" {
             Err(tr!("укажите путь к pubspec.yaml"))?;
         }
-        StateMessageOutgoing::new_state(tr!("получение данных пакета")).send(send_type);
         // Parse yaml and get all dependency
-        let _ = match PubspecModel::search_full(path) {
+        StateMessageOutgoing::new_state(tr!("получение данных пакета")).send(send_type);
+        let package = match PubspecModel::parse_model(path) {
             Ok(value) => value,
             Err(_) => Err("не удалось прочитать pubspec.yaml")?,
         };
-        // Make pdf report
+        // Get all dependency
+        StateMessageOutgoing::new_state(tr!("получение зависимостей пакета")).send(send_type);
+        let dependencies =
+            match PubspecModel::search_dependencies(path, StateMessageOutgoing::get_state_callback(send_type)) {
+                Ok(value) => value,
+                Err(_) => Err("не удалось получить зависимости")?,
+            };
+        // Gen report
         StateMessageOutgoing::new_state(tr!("генерация отчета")).send(send_type);
-        let path = utils::get_report_save_path().to_string_lossy().to_string();
-
-        // @todo create pdf from models
-
-        Ok(FlutterProjectReportOutgoing::new(
-            path.clone(),
-            utils::file_to_base64_by_path(Some(path.as_str())),
-        ))
+        let path = utils::get_report_save_path();
+        match PubspecModel::gen_report_pdf(package, dependencies, &path) {
+            Ok(_) => {
+                let path = path.to_string_lossy().to_string();
+                Ok(FlutterProjectReportOutgoing::new(
+                    path.clone(),
+                    utils::file_to_base64_by_path(Some(path.as_str())),
+                ))
+            }
+            Err(_) => Err("не удалось создать отчет")?,
+        }
     }
 }
 

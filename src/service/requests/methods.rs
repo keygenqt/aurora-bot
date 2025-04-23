@@ -14,8 +14,10 @@ use tokio::runtime::Handle;
 use crate::feature::incoming::DataIncoming;
 use crate::feature::incoming::TraitIncoming;
 use crate::feature::selector::incoming::SelectorCmdIncoming;
+use crate::models::pubspec::model::PubspecModel;
 use crate::service::requests::client::ClientRequest;
 use crate::service::responses::common::CommonResponse;
+use crate::service::responses::dart_package::DartPackageResponse;
 use crate::service::responses::demo_releases::DemoAppResponse;
 use crate::service::responses::demo_releases::DemoReleasesResponse;
 use crate::service::responses::faq::FaqResponse;
@@ -386,5 +388,70 @@ impl ClientRequest {
             Ok(_) => Ok(()),
             Err(error) => Err(error)?,
         }
+    }
+
+    /// Get dart packages by spec versions
+    pub fn get_dart_packages<T: Fn(i32) + Send + Copy + Sync + 'static>(
+        &self,
+        names_dependencies: &Vec<String>,
+        state: T,
+    ) -> Result<Vec<PubspecModel>, Box<dyn std::error::Error>> {
+        let mut models: Vec<PubspecModel> = vec![];
+        let mut i = 0;
+        state(0);
+        for package_name in names_dependencies {
+            i += 1;
+            let per = i * 100 / names_dependencies.len();
+            if per < 100 {
+                state(per as i32);
+            }
+            self.get_dart_package(package_name.clone(), &mut models)?;
+        }
+        state(100);
+        Ok(models)
+    }
+
+    /// Get dart package
+    pub fn get_dart_package(
+        &self,
+        package_name: String,
+        models: &mut Vec<PubspecModel>,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        if package_name == "flutter" {
+            return Ok(());
+        }
+        if models.iter().any(|e| e.name == package_name) {
+            return Ok(());
+        }
+        let url = format!("https://pub.dev/api/packages/{package_name}");
+        let response = match self.get_request_auth(url.clone()) {
+            Ok(response) => response,
+            Err(_) => return Ok(()),
+        };
+        let body = match tokio::task::block_in_place(|| Handle::current().block_on(response.text())) {
+            Ok(value) => value,
+            Err(_) => return Ok(()),
+        };
+        let result = match serde_json::from_str::<DartPackageResponse>(&body) {
+            Ok(value) => value,
+            Err(_) => return Ok(()),
+        };
+        // Parse value
+        if let Some(dependencies) = result.latest.pubspec.dependencies {
+            for (key, _) in dependencies.as_object().unwrap().into_iter() {
+                self.get_dart_package(key.as_str().to_string(), models)?;
+            }
+        };
+        let is_plugin = match result.latest.pubspec.flutter {
+            Some(value) => value.as_object().iter().any(|e| e.contains_key("plugin")),
+            None => false,
+        };
+        models.push(PubspecModel {
+            name: result.name,
+            description: result.latest.pubspec.description,
+            repository: result.latest.pubspec.repository,
+            is_plugin,
+        });
+        Ok(())
     }
 }

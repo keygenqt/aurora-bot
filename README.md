@@ -24,7 +24,6 @@ Fast, smart, lightweight, client of the Aurora Bot project.
 - Remove sudoers (psdk_sudoers_remove).
 - Format Qt/C++ (sdk_project_format).
 - Format Dart/C++ (flutter_project_format).
-- Get report plugins (flutter_project_report).
 - Remove sdk (sdk_remove).
 - Remove psdk (psdk_remove).
 - Remove flutter (flutter_remove).

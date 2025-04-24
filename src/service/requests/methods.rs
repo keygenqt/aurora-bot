@@ -405,7 +405,7 @@ impl ClientRequest {
             if per < 100 {
                 state(per as i32);
             }
-            self.get_dart_package(package_name.clone(), &mut models)?;
+            self.get_dart_package(1, package_name.clone(), &mut models)?;
         }
         state(100);
         Ok(models)
@@ -414,6 +414,7 @@ impl ClientRequest {
     /// Get dart package
     pub fn get_dart_package(
         &self,
+        level: i32,
         package_name: String,
         models: &mut Vec<PubspecModel>,
     ) -> Result<(), Box<dyn std::error::Error>> {
@@ -424,6 +425,7 @@ impl ClientRequest {
             return Ok(());
         }
         let url = format!("https://pub.dev/api/packages/{package_name}");
+        let url_pub = format!("https://pub.dev/packages/{}", package_name);
         let response = match self.get_request_auth(url.clone()) {
             Ok(response) => response,
             Err(_) => return Ok(()),
@@ -439,7 +441,7 @@ impl ClientRequest {
         // Parse value
         if let Some(dependencies) = result.latest.pubspec.dependencies {
             for (key, _) in dependencies.as_object().unwrap().into_iter() {
-                self.get_dart_package(key.as_str().to_string(), models)?;
+                self.get_dart_package(level + 1, key.as_str().to_string(), models)?;
             }
         };
         let is_plugin = match result.latest.pubspec.flutter {
@@ -450,7 +452,10 @@ impl ClientRequest {
             name: result.name,
             description: result.latest.pubspec.description,
             repository: result.latest.pubspec.repository,
+            version: result.latest.pubspec.version,
+            pub_dev: utils::check_url(url_pub),
             is_plugin,
+            level,
         });
         Ok(())
     }

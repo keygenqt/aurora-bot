@@ -13,6 +13,7 @@ pub struct DartPackageVersionResponse {
 
 #[derive(Deserialize, Clone, Debug)]
 pub struct DartPackagePubspecResponse {
+    pub version: String,
     pub description: Option<String>,
     pub repository: Option<String>,
     pub flutter: Option<serde_json::Value>,

@@ -181,6 +181,8 @@ impl ServerDbus {
 
             FlutterProjectReportIncoming::dbus_method_run_path(builder);
             FlutterProjectReportIncoming::dbus_method_run_path_by_id(builder);
+            FlutterProjectReportIncoming::dbus_method_run_url(builder);
+            FlutterProjectReportIncoming::dbus_method_run_url_by_id(builder);
 
             FlutterSyncIncoming::dbus_method_run(builder);
 

@@ -171,11 +171,11 @@ impl EmulatorPackageInstallIncoming {
         send_type: &OutgoingType,
         url: &String,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+        StateMessageOutgoing::new_state(tr!("скачиваем файл...")).send(send_type);
         let url = match utils::get_https_url(url.to_string()) {
             Some(url) => url,
             None => Err(tr!("не удалось скачать файл"))?,
         };
-        StateMessageOutgoing::new_state(tr!("скачиваем файл...")).send(send_type);
         let path = single::get_request().download_file(
             url.to_string(),
             StateMessageOutgoing::get_state_callback_file_small(send_type),

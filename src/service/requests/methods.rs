@@ -405,14 +405,14 @@ impl ClientRequest {
             if per < 100 {
                 state(per as i32);
             }
-            self.get_dart_package(1, package_name.clone(), &mut models)?;
+            let _ = self._get_dart_packages(1, package_name.clone(), &mut models);
         }
         state(100);
         Ok(models)
     }
 
     /// Get dart package
-    pub fn get_dart_package(
+    pub fn _get_dart_packages(
         &self,
         level: i32,
         package_name: String,
@@ -424,39 +424,46 @@ impl ClientRequest {
         if models.iter().any(|e| e.name == package_name) {
             return Ok(());
         }
-        let url = format!("https://pub.dev/api/packages/{package_name}");
-        let url_pub = format!("https://pub.dev/packages/{}", package_name);
-        let response = match self.get_request_auth(url.clone()) {
-            Ok(response) => response,
-            Err(_) => return Ok(()),
-        };
-        let body = match tokio::task::block_in_place(|| Handle::current().block_on(response.text())) {
-            Ok(value) => value,
-            Err(_) => return Ok(()),
-        };
-        let result = match serde_json::from_str::<DartPackageResponse>(&body) {
-            Ok(value) => value,
-            Err(_) => return Ok(()),
-        };
-        // Parse value
-        if let Some(dependencies) = result.latest.pubspec.dependencies {
+        let (package, dependencies) = tokio::task::block_in_place(|| {
+            Handle::current().block_on(Self::_get_dart_package(self, package_name, level))
+        })?;
+        // Add to array
+        models.push(package);
+        // Load dependencies
+        if let Some(dependencies) = dependencies {
             for (key, _) in dependencies.as_object().unwrap().into_iter() {
-                self.get_dart_package(level + 1, key.as_str().to_string(), models)?;
+                self._get_dart_packages(level + 1, key.as_str().to_string(), models)?;
             }
         };
+        Ok(())
+    }
+
+    // Async get package
+    async fn _get_dart_package(
+        client: &ClientRequest,
+        package_name: String,
+        level: i32,
+    ) -> Result<(PubspecModel, Option<serde_json::Value>), Box<dyn std::error::Error>> {
+        let url = format!("https://pub.dev/api/packages/{package_name}");
+        let url_pub = format!("https://pub.dev/packages/{}", package_name);
+        let response = client.get_request(url)?;
+        let body = response.text().await?;
+        let result = serde_json::from_str::<DartPackageResponse>(&body)?;
         let is_plugin = match result.latest.pubspec.flutter {
             Some(value) => value.as_object().iter().any(|e| e.contains_key("plugin")),
             None => false,
         };
-        models.push(PubspecModel {
-            name: result.name,
-            description: result.latest.pubspec.description,
-            repository: result.latest.pubspec.repository,
-            version: result.latest.pubspec.version,
-            pub_dev: utils::check_url(url_pub),
-            is_plugin,
-            level,
-        });
-        Ok(())
+        return Ok((
+            PubspecModel {
+                name: result.name,
+                description: result.latest.pubspec.description,
+                repository: result.latest.pubspec.repository,
+                version: result.latest.pubspec.version,
+                pub_dev: utils::check_url(url_pub),
+                is_plugin,
+                level,
+            },
+            result.latest.pubspec.dependencies,
+        ));
     }
 }

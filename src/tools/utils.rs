@@ -162,6 +162,14 @@ pub fn file_to_base64_by_path(path: Option<&str>) -> Option<String> {
     }
 }
 
+/// Get user name with systemd
+pub fn get_user_name() -> String {
+    match get_home_folder_path().to_string_lossy().split("/").last() {
+        Some(user_name) => user_name.to_string(),
+        None => crash!("не удалось получить имя пользователя"),
+    }
+}
+
 /// Get home folder without HOME
 pub fn get_home_folder_path() -> PathBuf {
     match env::var("HOME") {

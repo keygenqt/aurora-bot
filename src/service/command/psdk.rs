@@ -8,11 +8,18 @@ use crate::tools::utils;
 use std::fs;
 use std::path::PathBuf;
 
+pub fn psdk_targets_exec(chroot: &String) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    _check_chroot_access(chroot)?;
+    let output = exec::exec_wait_args(&chroot, ["sdk-assistant", "list", "--slow"])?;
+    Ok(utils::parse_output(output.stdout))
+}
+
 pub fn target_package_install(
     chroot: &String,
     path: &PathBuf,
     target: &PsdkTargetModel,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    _check_chroot_access(chroot)?;
     let output = match exec::exec_wait_args(
         &chroot,
         [
@@ -45,6 +52,7 @@ pub fn target_package_remove(
     target: &PsdkTargetModel,
     package: &PsdkTargetPackageModel,
 ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    _check_chroot_access(chroot)?;
     let output = match exec::exec_wait_args(
         &chroot,
         [
@@ -85,6 +93,10 @@ pub fn target_package_remove(
 }
 
 pub fn rpm_is_sign(chroot: &String, path: &PathBuf) -> bool {
+    let result = _check_chroot_access(chroot);
+    if result.is_err() {
+        return false;
+    }
     let output = match exec::exec_wait_args(&chroot, ["rpmsign-external", "verify", &path.to_string_lossy()]) {
         Ok(value) => value,
         Err(_) => return false,
@@ -94,6 +106,10 @@ pub fn rpm_is_sign(chroot: &String, path: &PathBuf) -> bool {
 }
 
 pub fn rpm_sign(chroot: &String, path: &PathBuf) -> bool {
+    let result = _check_chroot_access(chroot);
+    if result.is_err() {
+        return false;
+    }
     let path_key = _get_regular_key();
     if path_key.is_none() {
         return false;
@@ -117,6 +133,35 @@ pub fn rpm_sign(chroot: &String, path: &PathBuf) -> bool {
         Err(_) => return false,
     };
     rpm_is_sign(chroot, path)
+}
+
+fn _check_chroot_access(chroot: &String) -> Result<(), Box<dyn std::error::Error>> {
+    let psdk_dir = chroot.replace("/sdk-chroot", "");
+    let user_name = utils::get_user_name();
+    // Check chroot
+    let path_sudoers_mer_chroot = constants::SDK_CHROOT_BODY
+        .replace("<user>", &user_name)
+        .replace("<psdk_dir>", &psdk_dir);
+    let is_has = match fs::read_to_string(constants::SDK_CHROOT) {
+        Ok(value) => value.contains(&path_sudoers_mer_chroot.trim()),
+        Err(_) => false,
+    };
+    if !is_has {
+        Err("нет доступа к Platform SDK, необходимо добавить sudoers")?
+    }
+    // Check chroot
+    let path_sudoers_mer_chroot = constants::MER_SDK_CHROOT_BODY
+        .replace("<user>", &user_name)
+        .replace("<psdk_dir>", &psdk_dir);
+    let is_has = match fs::read_to_string(constants::MER_SDK_CHROOT) {
+        Ok(value) => value.contains(path_sudoers_mer_chroot.trim()),
+        Err(_) => false,
+    };
+    if !is_has {
+        Err("нет доступа к Platform SDK, необходимо добавить sudoers")?
+    }
+    // All ok - sudoers added
+    Ok(())
 }
 
 fn _get_regular_key() -> Option<PathBuf> {

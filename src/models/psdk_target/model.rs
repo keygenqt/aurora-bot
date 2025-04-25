@@ -1,7 +1,7 @@
 use colored::Colorize;
 
 use crate::models::TraitModel;
-use crate::service::command::exec;
+use crate::service::command;
 use crate::tools::macros::print_info;
 use crate::tools::utils;
 use serde::Deserialize;
@@ -45,8 +45,7 @@ impl PsdkTargetModel {
     pub fn search_full(chroot: String, dir: String) -> Result<Vec<PsdkTargetModel>, Box<dyn std::error::Error>> {
         let mut models: Vec<PsdkTargetModel> = vec![];
         let mut targets: Vec<String> = vec![];
-        let output = exec::exec_wait_args(&chroot, ["sdk-assistant", "list", "--slow"])?;
-        let lines = utils::parse_output(output.stdout);
+        let lines = command::psdk::psdk_targets_exec(&chroot)?;
         match utils::config_get_string(&lines, "aarch64", "─") {
             Ok(value) => targets.push(value),
             Err(_) => {}

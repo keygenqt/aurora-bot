@@ -40,3 +40,10 @@ pub fn get_xdg_open() -> Result<String, Box<dyn std::error::Error>> {
     }
     Err(tr!("не найден xdg-open"))?
 }
+
+pub fn get_clang_format() -> Result<String, Box<dyn std::error::Error>> {
+    if let Ok(_) = exec::exec_wait_args("clang-format", ["--version"]) {
+        return Ok("clang-format".into());
+    }
+    Err(tr!("не найден clang-format"))?
+}

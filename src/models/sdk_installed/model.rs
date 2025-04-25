@@ -79,7 +79,7 @@ impl SdkInstalledModel {
 
     pub fn search_full() -> Result<Vec<SdkInstalledModel>, Box<dyn std::error::Error>> {
         let mut models: Vec<SdkInstalledModel> = vec![];
-        let sdks_path = utils::search_files("SDKMaintenanceTool");
+        let sdks_path = utils::search_files_by_home("SDKMaintenanceTool");
         for tools in sdks_path {
             let sdk_dir = tools.replace("/SDKMaintenanceTool", "");
             let sdk_release = sdk_dir.clone() + "/sdk-release";

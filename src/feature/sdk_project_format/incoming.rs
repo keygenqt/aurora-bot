@@ -10,6 +10,7 @@ use crate::feature::outgoing::OutgoingType;
 use crate::feature::outgoing::TraitOutgoing;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::service::dbus::server::IfaceData;
+use crate::tools::format_utils;
 use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 use crate::tools::utils;
@@ -74,10 +75,19 @@ impl SdkProjectFormatIncoming {
 
     #[allow(unused_variables)]
     fn run(path: &PathBuf, send_type: &OutgoingType) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-        if !path.is_dir() {
-            Err(tr!("укажите директорию проекта"))?
+        // Format
+        let result = format_utils::cpp_format(path)?;
+        // Result
+        if result.count_formats == 0 {
+            Ok(StateMessageOutgoing::new_info(tr!("проект не требует форматирования")))
+        } else {
+            Ok(StateMessageOutgoing::new_success(tr!(
+                "найдено: {}, форматировано: {}, исключено: {}",
+                result.count_files,
+                result.count_formats,
+                result.count_exclude
+            )))
         }
-        Ok(StateMessageOutgoing::new_info(tr!("@todo")))
     }
 }
 

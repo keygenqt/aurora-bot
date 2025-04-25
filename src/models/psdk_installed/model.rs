@@ -74,7 +74,7 @@ impl PsdkInstalledModel {
         let mut models_by_version: HashMap<String, PsdkInstalledModel> = HashMap::new();
         let mut versions: Vec<String> = vec![];
 
-        let psdks_path = utils::search_files("aurora_psdk/sdk-chroot");
+        let psdks_path = utils::search_files_by_home("aurora_psdk/sdk-chroot");
         for chroot in psdks_path {
             let psdk_dir = chroot.replace("/sdk-chroot", "");
             let psdk_release = psdk_dir.clone() + "/etc/aurora-release";

@@ -12,6 +12,7 @@ use crate::feature::selector::selects::select_flutter_installed::FlutterInstalle
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::models::flutter_installed::model::FlutterInstalledModel;
 use crate::service::dbus::server::IfaceData;
+use crate::tools::format_utils;
 use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 use crate::tools::utils;
@@ -80,16 +81,25 @@ impl FlutterProjectFormatIncoming {
         );
     }
 
-    #[allow(unused_variables)]
-    fn run(
-        model: FlutterInstalledModel,
-        path: &PathBuf,
-        send_type: &OutgoingType,
-    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-        if !path.is_dir() {
-            Err(tr!("укажите директорию проекта"))?
+    fn run(model: FlutterInstalledModel, path: &PathBuf) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+        // Format
+        let result_cpp = format_utils::cpp_format(path)?;
+        let result_dart = format_utils::dart_format(path, &PathBuf::from(model.dart))?;
+        // Count
+        let count_files = result_cpp.count_files + result_dart.count_files;
+        let count_formats = result_cpp.count_formats + result_dart.count_formats;
+        let count_exclude = result_cpp.count_exclude + result_dart.count_exclude;
+        // Result
+        if count_formats == 0 {
+            Ok(StateMessageOutgoing::new_info(tr!("проект не требует форматирования")))
+        } else {
+            Ok(StateMessageOutgoing::new_success(tr!(
+                "найдено: {}, форматировано: {}, исключено: {}",
+                count_files,
+                count_formats,
+                count_exclude
+            )))
         }
-        Ok(StateMessageOutgoing::new_info(tr!("@todo")))
     }
 }
 
@@ -101,7 +111,7 @@ impl TraitIncoming for FlutterProjectFormatIncoming {
             FlutterInstalledModelSelect::search(&self.id, tr!("получаем информацию о Flutter SDK"), &send_type);
         // Select
         match models.iter().count() {
-            1 => match Self::run(models.first().unwrap().clone(), &self.path, &send_type) {
+            1 => match Self::run(models.first().unwrap().clone(), &self.path) {
                 Ok(result) => result,
                 Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
             },

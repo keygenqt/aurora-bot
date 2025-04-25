@@ -61,7 +61,7 @@ impl FlutterInstalledModel {
 
     pub fn search_full() -> Result<Vec<FlutterInstalledModel>, Box<dyn std::error::Error>> {
         let mut models: Vec<FlutterInstalledModel> = vec![];
-        let flutters_path = utils::search_files("bin/flutter");
+        let flutters_path = utils::search_files_by_home("bin/flutter");
         for flutter in flutters_path {
             let dir = flutter.clone().replace("/bin/flutter", "");
             let output = exec::exec_wait_args(&flutter, ["--version"])?;

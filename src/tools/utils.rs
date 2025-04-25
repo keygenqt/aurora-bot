@@ -75,18 +75,22 @@ pub fn config_get_bool(params: &Vec<String>, key: &str, find: &str) -> Result<bo
     }
 }
 
+pub fn search_files_by_home(key: &str) -> Vec<String> {
+    search_files_by_path(key, &get_home_folder_path())
+}
+
 /// Search file by PC
-pub fn search_files(path: &str) -> Vec<String> {
-    let reg = format!("^.*{}$", path);
+pub fn search_files_by_path(search: &str, path: &PathBuf) -> Vec<String> {
+    let reg = format!("^.*{}$", search);
     let re = Regex::new(&reg).unwrap();
     let mut result: Vec<String> = vec![];
-    for entry in WalkDir::new(get_home_folder_path())
+    for entry in WalkDir::new(path)
         .follow_links(false)
         .into_iter()
         .filter_map(|e| e.ok())
     {
         let file_path = entry.path().to_string_lossy();
-        if file_path.contains(path) {
+        if file_path.contains(search) {
             if !file_path.contains("/Trash/") && is_file(&entry) && re.is_match(entry.path().to_str().unwrap()) {
                 if let Some(path_str) = entry.path().to_str() {
                     result.push(path_str.to_string());

@@ -6,7 +6,9 @@ use crate::feature::incoming::TraitIncoming;
 use crate::feature::outgoing::OutgoingType;
 use crate::feature::psdk_sync::incoming::PsdkSyncIncoming;
 use crate::feature::sdk_sync::incoming::SdkSyncIncoming;
+use crate::models::psdk_installed::model::PsdkInstalledModel;
 use crate::service::dbus::server::ServerDbus;
+use crate::tools::macros::crash;
 use crate::tools::macros::print_error;
 use crate::tools::macros::print_info;
 use crate::tools::single;
@@ -105,7 +107,16 @@ pub fn run(arg: SvcArgs) {
         return;
     }
     if arg.permissions {
-        // @todo find psdk and update sudoers
+        print_info!("поиск Platform SDK в системе");
+        let models = match PsdkInstalledModel::search_full_without_targets() {
+            Ok(value) => value,
+            Err(error) => crash!(error),
+        };
+        for model in models {
+            println!("{}", model.chroot)
+        }
+        print_info!("обновление записи sudoers");
+        // @todo update sudoers
         return;
     }
     if let Some(token) = arg.auth {

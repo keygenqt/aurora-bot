@@ -67,6 +67,14 @@ impl PsdkInstalledModel {
     }
 
     pub fn search_full() -> Result<Vec<PsdkInstalledModel>, Box<dyn std::error::Error>> {
+        return Self::_search_full(true);
+    }
+
+    pub fn search_full_without_targets() -> Result<Vec<PsdkInstalledModel>, Box<dyn std::error::Error>> {
+        return Self::_search_full(false);
+    }
+
+    fn _search_full(is_targets: bool) -> Result<Vec<PsdkInstalledModel>, Box<dyn std::error::Error>> {
         let mut models: Vec<PsdkInstalledModel> = vec![];
         let mut models_by_version: HashMap<String, PsdkInstalledModel> = HashMap::new();
         let mut versions: Vec<String> = vec![];
@@ -94,9 +102,13 @@ impl PsdkInstalledModel {
                 Ok(s) => s,
                 Err(_) => continue,
             };
-            let targets = match PsdkTargetModel::search_full(chroot.clone(), psdk_dir.clone()) {
-                Ok(value) => value,
-                Err(error) => crash!(error),
+            let targets = if is_targets {
+                match PsdkTargetModel::search_full(chroot.clone(), psdk_dir.clone()) {
+                    Ok(value) => value,
+                    Err(error) => crash!(error),
+                }
+            } else {
+                vec![]
             };
             let model = PsdkInstalledModel {
                 id: PsdkInstalledModel::get_id(&chroot),

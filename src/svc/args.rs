@@ -34,6 +34,10 @@ pub struct SvcArgs {
     #[arg(short, long, default_value_t = false)]
     logout: bool,
 
+    /// Обновить sudoers для Platform SDK
+    #[arg(short, long, default_value_t = false)]
+    permissions: bool,
+
     /// Поиск и синхронизация
     #[command(subcommand)]
     sync: Option<SyncCommands>,
@@ -98,6 +102,10 @@ pub fn run(arg: SvcArgs) {
     }
     if arg.logout {
         AppAuthLogoutIncoming::new().run(OutgoingType::Cli).print();
+        return;
+    }
+    if arg.permissions {
+        // @todo find psdk and update sudoers
         return;
     }
     if let Some(token) = arg.auth {

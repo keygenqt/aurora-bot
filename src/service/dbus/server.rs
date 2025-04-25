@@ -44,8 +44,6 @@ use crate::feature::psdk_download::incoming::PsdkDownloadIncoming;
 use crate::feature::psdk_info::incoming::PsdkInfoIncoming;
 use crate::feature::psdk_install::incoming::PsdkInstallIncoming;
 use crate::feature::psdk_package_sign::incoming::PsdkPackageSignIncoming;
-use crate::feature::psdk_sudoers_add::incoming::PsdkSudoersAddIncoming;
-use crate::feature::psdk_sudoers_remove::incoming::PsdkSudoersRemoveIncoming;
 use crate::feature::psdk_sync::incoming::PsdkSyncIncoming;
 use crate::feature::psdk_target_package_find::incoming::PsdkTargetPackageFindIncoming;
 use crate::feature::psdk_target_package_install::incoming::PsdkTargetPackageInstallIncoming;
@@ -199,10 +197,6 @@ impl ServerDbus {
 
             PsdkPackageSignIncoming::dbus_method_run_path(builder);
             PsdkPackageSignIncoming::dbus_method_run_path_by_id(builder);
-
-            PsdkSudoersAddIncoming::dbus_method_run(builder);
-
-            PsdkSudoersRemoveIncoming::dbus_method_run(builder);
 
             PsdkTargetPackageFindIncoming::dbus_method_run_package(builder);
             PsdkTargetPackageFindIncoming::dbus_method_run_package_by_id(builder);

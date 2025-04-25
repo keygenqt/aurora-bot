@@ -10,8 +10,6 @@ use crate::feature::psdk_download::incoming::PsdkDownloadIncoming;
 use crate::feature::psdk_info::incoming::PsdkInfoIncoming;
 use crate::feature::psdk_install::incoming::PsdkInstallIncoming;
 use crate::feature::psdk_package_sign::incoming::PsdkPackageSignIncoming;
-use crate::feature::psdk_sudoers_add::incoming::PsdkSudoersAddIncoming;
-use crate::feature::psdk_sudoers_remove::incoming::PsdkSudoersRemoveIncoming;
 use crate::feature::psdk_target_package_find::incoming::PsdkTargetPackageFindIncoming;
 use crate::feature::psdk_target_package_install::incoming::PsdkTargetPackageInstallIncoming;
 use crate::feature::psdk_target_package_uninstall::incoming::PsdkTargetPackageUninstallIncoming;
@@ -55,10 +53,6 @@ enum PsdkArgsGroup {
     /// Работа с пакетами
     #[command(short_flag = 'p')]
     Package(PsdkPackageArgs),
-
-    /// Управление записью sudoers
-    #[command(short_flag = 's')]
-    Sudoers(PsdkSudoersArgs),
 }
 
 #[derive(Args)]
@@ -82,22 +76,6 @@ pub struct PsdkPackageArgs {
     help: Option<bool>,
 }
 
-#[derive(Args)]
-#[group(multiple = false)]
-#[command(arg_required_else_help = true)]
-pub struct PsdkSudoersArgs {
-    /// Добавить запись в sudoers
-    #[arg(short, long, default_value_t = false)]
-    add: bool,
-    /// Удалить запись из sudoers
-    #[arg(short, long, default_value_t = false)]
-    remove: bool,
-    /// Показать это сообщение и выйти
-    #[clap(short='h', long, action = clap::ArgAction::HelpLong)]
-    help: Option<bool>,
-}
-
-#[allow(unused_variables)]
 pub fn run(arg: PsdkArgs) {
     // Options
     if arg.info {
@@ -158,16 +136,6 @@ pub fn run(arg: PsdkArgs) {
                     PsdkTargetPackageUninstallIncoming::new_package(package)
                         .run(OutgoingType::Cli)
                         .print();
-                    return;
-                }
-            }
-            PsdkArgsGroup::Sudoers(arg) => {
-                if arg.add {
-                    PsdkSudoersAddIncoming::new().run(OutgoingType::Cli).print();
-                    return;
-                }
-                if arg.remove {
-                    PsdkSudoersRemoveIncoming::new().run(OutgoingType::Cli).print();
                     return;
                 }
             }

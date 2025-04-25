@@ -8,8 +8,6 @@ use crate::feature::flutter_project_report::incoming::FlutterProjectReportIncomi
 use crate::feature::flutter_uninstall::incoming::FlutterUninstallIncoming;
 use crate::feature::psdk_install::incoming::PsdkInstallIncoming;
 use crate::feature::psdk_package_sign::incoming::PsdkPackageSignIncoming;
-use crate::feature::psdk_sudoers_add::incoming::PsdkSudoersAddIncoming;
-use crate::feature::psdk_sudoers_remove::incoming::PsdkSudoersRemoveIncoming;
 use crate::feature::psdk_target_package_find::incoming::PsdkTargetPackageFindIncoming;
 use crate::feature::psdk_target_package_install::incoming::PsdkTargetPackageInstallIncoming;
 use crate::feature::psdk_target_package_uninstall::incoming::PsdkTargetPackageUninstallIncoming;
@@ -235,16 +233,6 @@ impl ClientMethodsKey {
             ClientMethodsKey::PsdkPackageSign => {
                 print_debug!("> PsdkPackageSign: {}", value);
                 let model = serde_json::from_str::<PsdkPackageSignIncoming>(&value)?;
-                Ok(Box::new(model))
-            }
-            ClientMethodsKey::PsdkSudoersAdd => {
-                print_debug!("> PsdkSudoersAdd: {}", value);
-                let model = serde_json::from_str::<PsdkSudoersAddIncoming>(&value)?;
-                Ok(Box::new(model))
-            }
-            ClientMethodsKey::PsdkSudoersRemove => {
-                print_debug!("> PsdkSudoersRemove: {}", value);
-                let model = serde_json::from_str::<PsdkSudoersRemoveIncoming>(&value)?;
                 Ok(Box::new(model))
             }
             ClientMethodsKey::PsdkSync => {

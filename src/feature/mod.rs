@@ -109,12 +109,6 @@ pub mod psdk_install {
 pub mod psdk_package_sign {
     pub mod incoming;
 }
-pub mod psdk_sudoers_add {
-    pub mod incoming;
-}
-pub mod psdk_sudoers_remove {
-    pub mod incoming;
-}
 pub mod psdk_sync {
     pub mod incoming;
 }
@@ -240,8 +234,6 @@ pub enum ClientMethodsKey {
     PsdkInfo,
     PsdkInstall,
     PsdkPackageSign,
-    PsdkSudoersAdd,
-    PsdkSudoersRemove,
     PsdkSync,
     PsdkTargetPackageFind,
     PsdkTargetPackageInstall,

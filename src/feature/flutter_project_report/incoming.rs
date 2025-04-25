@@ -11,6 +11,7 @@ use crate::feature::outgoing::TraitOutgoing;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::models::pubspec::model::PubspecModel;
 use crate::service::dbus::server::IfaceData;
+use crate::tools::gen_pdf;
 use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 use crate::tools::single;
@@ -150,7 +151,7 @@ impl FlutterProjectReportIncoming {
         // Gen report
         StateMessageOutgoing::new_state(tr!("генерация отчета")).send(send_type);
         let path = utils::get_report_save_path();
-        match PubspecModel::gen_report_pdf(package, dependencies, &path) {
+        match gen_pdf::gen_report_dart_packages(package, dependencies, &path) {
             Ok(_) => {
                 let path = path.to_string_lossy().to_string();
                 Ok(FlutterProjectReportOutgoing::new(

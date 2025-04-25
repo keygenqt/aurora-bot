@@ -12,6 +12,7 @@ use crate::feature::selector::selects::select_emulator::EmulatorModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::models::emulator::model::EmulatorModel;
 use crate::models::psdk_installed::model::PsdkInstalledModel;
+use crate::service::command;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
@@ -146,7 +147,7 @@ impl EmulatorPackageInstallIncoming {
             Some(value) => value,
             None => Err(tr!("для проверки и подписи пакете необходим установить Platform SDK"))?,
         };
-        if !psdk.package_is_sign(path) && !psdk.package_sign(path) {
+        if !command::psdk::rpm_is_sign(&psdk.chroot, path) && !command::psdk::rpm_sign(&psdk.chroot, path) {
             Err(tr!("валидация пакета не удалось"))?;
         }
         // Get package name from rpm

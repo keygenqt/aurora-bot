@@ -1,6 +1,7 @@
 /// Module services
 pub mod command {
     pub mod exec;
+    pub mod psdk;
 }
 pub mod dbus {
     pub mod methods;

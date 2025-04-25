@@ -14,6 +14,7 @@ use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::models::psdk_installed::model::PsdkInstalledModel;
 use crate::models::psdk_target::model::PsdkTargetModel;
 use crate::models::psdk_target_package::model::PsdkTargetPackageModel;
+use crate::service::command;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
@@ -103,7 +104,7 @@ impl PsdkTargetPackageInstallIncoming {
             )));
         }
         // Install package
-        PsdkTargetPackageModel::install(&model.chroot, &target.full_name, &path)?;
+        command::psdk::target_package_install(&model.chroot, &path, &target)?;
         // Success
         Ok(StateMessageOutgoing::new_success(tr!(
             "пакет {} успешно установлен",

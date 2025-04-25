@@ -12,6 +12,7 @@ use crate::feature::outgoing::TraitOutgoing;
 use crate::feature::selector::selects::select_psdk_installed::PsdkInstalledModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::models::psdk_installed::model::PsdkInstalledModel;
+use crate::service::command;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
@@ -89,8 +90,8 @@ impl PsdkPackageSignIncoming {
             Some(value) => value,
             None => Err(tr!("необходимо указать путь к RPM пакету"))?,
         };
-        if !model.package_sign(path) {
-            Err(tr!("валидация пакета не удалось"))?;
+        if !command::psdk::rpm_sign(&model.chroot, path) {
+            Err(tr!("подпись пакета не удалось"))?;
         }
         Ok(StateMessageOutgoing::new_success(tr!(
             "пакет {} успешно подписан",

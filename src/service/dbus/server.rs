@@ -201,10 +201,8 @@ impl ServerDbus {
             PsdkPackageSignIncoming::dbus_method_run_path_by_id(builder);
 
             PsdkSudoersAddIncoming::dbus_method_run(builder);
-            PsdkSudoersAddIncoming::dbus_method_run_by_id(builder);
 
             PsdkSudoersRemoveIncoming::dbus_method_run(builder);
-            PsdkSudoersRemoveIncoming::dbus_method_run_by_id(builder);
 
             PsdkTargetPackageFindIncoming::dbus_method_run_package(builder);
             PsdkTargetPackageFindIncoming::dbus_method_run_package_by_id(builder);

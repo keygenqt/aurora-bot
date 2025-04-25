@@ -1,11 +1,8 @@
-use std::path::PathBuf;
-
 use colored::Colorize;
 
 use crate::models::TraitModel;
 use crate::service::command::exec;
 use crate::tools::macros::print_info;
-use crate::tools::macros::tr;
 use crate::tools::utils;
 use serde::Deserialize;
 use serde::Serialize;
@@ -104,73 +101,5 @@ impl PsdkTargetPackageModel {
             }
         }
         Ok(models)
-    }
-
-    pub fn install(chroot: &String, target_name: &String, path: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
-        let output = match exec::exec_wait_args(
-            &chroot,
-            [
-                "sb2",
-                "-t",
-                &target_name,
-                "-m",
-                "sdk-install",
-                "-R",
-                "zypper",
-                "--no-gpg-checks",
-                "in",
-                "-y",
-                &path.to_string_lossy(),
-            ],
-        ) {
-            Ok(value) => value,
-            Err(e) => Err(e)?,
-        };
-        let lines = utils::parse_output(output.stdout);
-        if lines.iter().filter(|e| e.contains("Installing")).count() != 0 {
-            Ok(())
-        } else {
-            Err(tr!("произошла ошибка при установке"))?
-        }
-    }
-
-    pub fn remove(&self, chroot: &String, target_name: &String) -> Result<Vec<String>, Box<dyn std::error::Error>> {
-        let output = match exec::exec_wait_args(
-            &chroot,
-            [
-                "sb2",
-                "-t",
-                &target_name,
-                "-m",
-                "sdk-install",
-                "-R",
-                "zypper",
-                "rm",
-                "-y",
-                &self.name,
-            ],
-        ) {
-            Ok(value) => value,
-            Err(e) => Err(e)?,
-        };
-        let lines = utils::parse_output(output.stdout);
-        let mut removed = lines
-            .iter()
-            .filter(|e| e.contains("Removing"))
-            .collect::<Vec<&String>>()
-            .iter()
-            .map(|e| {
-                let name = e.split(" ").nth(2).unwrap().to_string();
-                let name = name.replace(&self.version, "");
-                let name = name.replace(&self.arch, "");
-                let name = name.replace(".", "");
-                name.trim_matches('-').to_string()
-            })
-            .collect::<Vec<String>>();
-        if removed.is_empty() {
-            Err("не удалось удалить пакет")?;
-        }
-        removed.sort();
-        Ok(removed)
     }
 }

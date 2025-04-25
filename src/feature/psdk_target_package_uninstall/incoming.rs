@@ -13,6 +13,7 @@ use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::models::psdk_installed::model::PsdkInstalledModel;
 use crate::models::psdk_target::model::PsdkTargetModel;
 use crate::models::psdk_target_package::model::PsdkTargetPackageModel;
+use crate::service::command;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
@@ -160,7 +161,7 @@ impl PsdkTargetPackageUninstallIncoming {
             }
         };
         // Remove package
-        let removed = package.remove(&model.chroot, &target.full_name)?;
+        let removed = command::psdk::target_package_remove(&model.chroot, &target, &package)?;
         // Success
         if removed.iter().count() == 1 {
             Ok(StateMessageOutgoing::new_success(tr!(

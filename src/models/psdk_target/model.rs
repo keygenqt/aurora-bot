@@ -82,13 +82,4 @@ impl PsdkTargetModel {
         }
         Ok(models)
     }
-
-    // pub fn package_find(
-    //     &self,
-    //     psdk: &PsdkInstalledModel,
-    //     package: &String,
-    //     exact: bool,
-    // ) -> Result<Vec<PsdkTargetPackageModel>, Box<dyn std::error::Error>> {
-    //     PsdkTargetPackageModel::search_local(&psdk.chroot, &self.full_name, package)
-    // }
 }

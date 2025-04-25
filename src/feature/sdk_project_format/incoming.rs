@@ -81,12 +81,20 @@ impl SdkProjectFormatIncoming {
         if result.count_formats == 0 {
             Ok(StateMessageOutgoing::new_info(tr!("проект не требует форматирования")))
         } else {
-            Ok(StateMessageOutgoing::new_success(tr!(
-                "найдено: {}, форматировано: {}, исключено: {}",
-                result.count_files,
-                result.count_formats,
-                result.count_exclude
-            )))
+            if result.count_exclude == 0 {
+                Ok(StateMessageOutgoing::new_success(tr!(
+                    "найдено: {}, форматировано: {}",
+                    result.count_files,
+                    result.count_formats,
+                )))
+            } else {
+                Ok(StateMessageOutgoing::new_success(tr!(
+                    "найдено: {}, форматировано: {}, исключено: {}",
+                    result.count_files,
+                    result.count_formats,
+                    result.count_exclude,
+                )))
+            }
         }
     }
 }

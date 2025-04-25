@@ -93,12 +93,20 @@ impl FlutterProjectFormatIncoming {
         if count_formats == 0 {
             Ok(StateMessageOutgoing::new_info(tr!("проект не требует форматирования")))
         } else {
-            Ok(StateMessageOutgoing::new_success(tr!(
-                "найдено: {}, форматировано: {}, исключено: {}",
-                count_files,
-                count_formats,
-                count_exclude
-            )))
+            if count_exclude == 0 {
+                Ok(StateMessageOutgoing::new_success(tr!(
+                    "найдено: {}, форматировано: {}",
+                    count_files,
+                    count_formats,
+                )))
+            } else {
+                Ok(StateMessageOutgoing::new_success(tr!(
+                    "найдено: {}, форматировано: {}, исключено: {}",
+                    count_files,
+                    count_formats,
+                    count_exclude,
+                )))
+            }
         }
     }
 }

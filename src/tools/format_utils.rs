@@ -73,7 +73,9 @@ pub fn cpp_format(path: &PathBuf) -> Result<FormatResult, Box<dyn std::error::Er
         } else {
             clang_format_with_style(
                 &content,
-                &ClangFormatStyle::Custom("{ BasedOnStyle: Chromium, ReflowComments: false, ColumnLimit: 120 }".to_string()),
+                &ClangFormatStyle::Custom(
+                    "{ BasedOnStyle: Chromium, ReflowComments: false, ColumnLimit: 120 }".to_string(),
+                ),
             )?
         };
         // Save format to file

@@ -362,7 +362,6 @@ pub fn add_file_sudoers(file_name: String, file_content: String) -> Result<(), B
     // Create file psdk-chroot
     let mut path_sudoers_chroot = env::temp_dir();
     path_sudoers_chroot.push(&file_name);
-
     if path_sudoers_chroot.exists() {
         fs::remove_file(&path_sudoers_chroot)?;
     }

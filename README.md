@@ -20,8 +20,6 @@ Fast, smart, lightweight, client of the Aurora Bot project.
 
 ### Todo
 
-- Add sudoers (psdk_sudoers_add).
-- Remove sudoers (psdk_sudoers_remove).
 - Remove sdk (sdk_remove).
 - Remove psdk (psdk_remove).
 - Remove flutter (flutter_remove).

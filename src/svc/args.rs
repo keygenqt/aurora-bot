@@ -7,10 +7,12 @@ use crate::feature::outgoing::OutgoingType;
 use crate::feature::psdk_sync::incoming::PsdkSyncIncoming;
 use crate::feature::sdk_sync::incoming::SdkSyncIncoming;
 use crate::models::psdk_installed::model::PsdkInstalledModel;
+use crate::service::command;
 use crate::service::dbus::server::ServerDbus;
 use crate::tools::macros::crash;
 use crate::tools::macros::print_error;
 use crate::tools::macros::print_info;
+use crate::tools::macros::print_success;
 use crate::tools::single;
 use clap::Args;
 use clap::Subcommand;
@@ -112,11 +114,11 @@ pub fn run(arg: SvcArgs) {
             Ok(value) => value,
             Err(error) => crash!(error),
         };
-        for model in models {
-            println!("{}", model.chroot)
-        }
         print_info!("обновление записи sudoers");
-        // @todo update sudoers
+        match command::psdk::add_sudoers_chroot_access(&models) {
+            Ok(_) => print_success!("запись sudoers успешно обновлена"),
+            Err(error) => print_error!(error),
+        }
         return;
     }
     if let Some(token) = arg.auth {

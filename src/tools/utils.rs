@@ -5,6 +5,8 @@ use colored::Colorize;
 use regex::Regex;
 use std::env;
 use std::fs;
+use std::fs::File;
+use std::io::Write;
 use std::path::Path;
 use std::path::PathBuf;
 use std::time::SystemTime;
@@ -13,6 +15,7 @@ use url::Url;
 use walkdir::DirEntry;
 use walkdir::WalkDir;
 
+use crate::service::command::exec;
 use crate::service::requests::client::ClientRequest;
 use crate::service::responses::demo_releases::DemoReleasesResponse;
 use crate::service::responses::gitlab_tags::GitlabTagsResponse;
@@ -20,6 +23,7 @@ use crate::tools::macros::crash;
 
 use super::constants;
 use super::macros::tr;
+use super::programs;
 
 /// Main help app
 pub fn app_about() -> String {
@@ -350,4 +354,31 @@ pub fn check_url(url: String) -> Option<String> {
         Ok(_) => Some(url.clone()),
         Err(_) => None,
     }
+}
+
+/// Add record to sudoers
+pub fn add_file_sudoers(file_name: String, file_content: String) -> Result<(), Box<dyn std::error::Error>> {
+    let sudo = programs::get_sudo()?;
+    // Create file psdk-chroot
+    let mut path_sudoers_chroot = env::temp_dir();
+    path_sudoers_chroot.push(&file_name);
+
+    if path_sudoers_chroot.exists() {
+        fs::remove_file(&path_sudoers_chroot)?;
+    }
+    let mut file_sudoers_chroot = File::create(&path_sudoers_chroot)?;
+    file_sudoers_chroot.write_all(file_content.as_bytes())?;
+    // Update permission
+    let mut perms = fs::metadata(&path_sudoers_chroot)?.permissions();
+    perms.set_readonly(true);
+    fs::set_permissions(&path_sudoers_chroot, perms)?;
+    // Move
+    let binding = path_sudoers_chroot.to_string_lossy().to_string();
+    let path_create = binding.as_str();
+    let path_move = format!("/etc/sudoers.d/{}", file_name);
+    // Change owned
+    let _ = exec::exec_wait_args(&sudo, ["chown", "root:root", &path_create])?;
+    // Move to sudoers
+    let _ = exec::exec_wait_args(&sudo, ["mv", &path_create, &path_move])?;
+    Ok(())
 }

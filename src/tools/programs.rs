@@ -47,3 +47,10 @@ pub fn get_clang_format() -> Result<String, Box<dyn std::error::Error>> {
     }
     Err(tr!("не найден clang-format"))?
 }
+
+pub fn get_sudo() -> Result<String, Box<dyn std::error::Error>> {
+    if let Ok(_) = exec::exec_wait_args("sudo", ["--version"]) {
+        return Ok("sudo".into());
+    }
+    Err(tr!("не найдено sudo"))?
+}

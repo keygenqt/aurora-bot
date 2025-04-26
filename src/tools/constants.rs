@@ -65,14 +65,14 @@ pub const CLAP_STYLING: clap::builder::styling::Styles = clap::builder::styling:
     .invalid(clap_cargo::style::INVALID);
 
 /// Sudoers data
-pub const SDK_CHROOT: &str = "/etc/sudoers.d/sdk-chroot";
-pub const SDK_CHROOT_BODY: &str = r#"
+pub const PSDK_CHROOT: &str = "psdk-chroot";
+pub const PSDK_CHROOT_BODY: &str = r#"
 <user> ALL=(ALL) NOPASSWD: <psdk_dir>/sdk-chroot
 Defaults!<psdk_dir>/sdk-chroot env_keep += "SSH_AGENT_PID SSH_AUTH_SOCK"
 "#;
 
-pub const MER_SDK_CHROOT: &str = "/etc/sudoers.d/mer-sdk-chroot";
-pub const MER_SDK_CHROOT_BODY: &str = r#"
+pub const MER_PSDK_CHROOT: &str = "mer-psdk-chroot";
+pub const MER_PSDK_CHROOT_BODY: &str = r#"
 <user> ALL=(ALL) NOPASSWD: <psdk_dir>
 Defaults!<psdk_dir> env_keep += "SSH_AGENT_PID SSH_AUTH_SOCK"
 "#;

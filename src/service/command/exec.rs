@@ -5,6 +5,7 @@ use std::process::Stdio;
 use std::time::Duration;
 
 use crate::tools::macros::tr;
+use crate::tools::programs;
 
 #[allow(dead_code)]
 pub fn exec_wait(program: &str) -> Result<Output, Box<dyn std::error::Error>> {
@@ -30,6 +31,39 @@ where
         .output()
     {
         Ok(output) => Ok(output),
+        Err(_) => Err(tr!("команда завершилась неудачей"))?,
+    }
+}
+
+pub fn exec_wait_args_sudo<'s>(
+    program: &str,
+    args: impl IntoIterator<Item = &'s str>,
+) -> Result<Output, Box<dyn std::error::Error>> {
+    let sudo = programs::get_sudo()?;
+    let mut args_s = vec!["-n".to_string()];
+    let mut args_p = vec![program.to_string()];
+    let mut args_l = args.into_iter().map(|e| e.to_string()).collect::<Vec<String>>();
+    args_s.append(&mut args_p);
+    args_s.append(&mut args_l);
+    match Command::new(sudo)
+        .args(args_s)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .output()
+    {
+        Ok(output) => {
+            if output.status.success() {
+                Ok(output)
+            } else {
+                if program.contains("chroot") {
+                    Err(tr!(
+                        "нет доступа к sudo, для работы с Platform SDK необходимо добавить sudoers"
+                    ))?
+                } else {
+                    Err(tr!("нет доступа к запросу"))?
+                }
+            }
+        }
         Err(_) => Err(tr!("команда завершилась неудачей"))?,
     }
 }

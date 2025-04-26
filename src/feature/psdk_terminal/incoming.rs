@@ -66,11 +66,7 @@ impl PsdkTerminalIncoming {
         );
     }
 
-    #[allow(unused_variables)]
-    fn run(
-        model: PsdkInstalledModel,
-        send_type: &OutgoingType,
-    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+    fn run(model: PsdkInstalledModel) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         Ok(terminal::open(model.chroot))
     }
 }
@@ -83,7 +79,7 @@ impl TraitIncoming for PsdkTerminalIncoming {
             PsdkInstalledModelSelect::search(&self.id, tr!("ищем Platform SDK для открытия терминала"), &send_type);
         // Select
         match models.iter().count() {
-            1 => match Self::run(models.first().unwrap().clone(), &send_type) {
+            1 => match Self::run(models.first().unwrap().clone()) {
                 Ok(value) => value,
                 Err(_) => StateMessageOutgoing::new_error(tr!("не удалось запустить терминал")),
             },

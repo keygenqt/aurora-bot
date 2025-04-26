@@ -73,8 +73,7 @@ impl SdkProjectFormatIncoming {
         );
     }
 
-    #[allow(unused_variables)]
-    fn run(path: &PathBuf, send_type: &OutgoingType) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+    fn run(path: &PathBuf) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         // Format
         let result = format_utils::cpp_format(path)?;
         // Result
@@ -100,8 +99,8 @@ impl SdkProjectFormatIncoming {
 }
 
 impl TraitIncoming for SdkProjectFormatIncoming {
-    fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
-        match Self::run(&self.path, &send_type) {
+    fn run(&self, _: OutgoingType) -> Box<dyn TraitOutgoing> {
+        match Self::run(&self.path) {
             Ok(value) => value,
             Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
         }

@@ -67,12 +67,7 @@ impl EmulatorTerminalIncoming {
         );
     }
 
-    #[allow(unused_variables)]
-    fn run(
-        model: EmulatorModel,
-        send_type: &OutgoingType,
-        is_root: bool,
-    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+    fn run(model: EmulatorModel, is_root: bool) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         if !model.is_running {
             Ok(StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен")))
         } else {
@@ -100,7 +95,7 @@ impl TraitIncoming for EmulatorTerminalIncoming {
         );
         // Select
         match models.iter().count() {
-            1 => match Self::run(models.first().unwrap().clone(), &send_type, self.is_root) {
+            1 => match Self::run(models.first().unwrap().clone(), self.is_root) {
                 Ok(value) => value,
                 Err(_) => StateMessageOutgoing::new_error(tr!("не удалось запустить терминал")),
             },

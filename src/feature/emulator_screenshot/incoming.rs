@@ -70,11 +70,7 @@ impl EmulatorScreenshotIncoming {
         );
     }
 
-    #[allow(unused_variables)]
-    fn run(
-        model: EmulatorModel,
-        send_type: &OutgoingType,
-    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+    fn run(model: EmulatorModel) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         if !model.is_running {
             return Ok(StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен")));
         }
@@ -104,7 +100,7 @@ impl TraitIncoming for EmulatorScreenshotIncoming {
         );
         // Select
         match models.iter().count() {
-            1 => match Self::run(models.first().unwrap().clone(), &send_type) {
+            1 => match Self::run(models.first().unwrap().clone()) {
                 Ok(result) => result,
                 Err(_) => StateMessageOutgoing::new_error(tr!("не удалось сделать скриншот")),
             },

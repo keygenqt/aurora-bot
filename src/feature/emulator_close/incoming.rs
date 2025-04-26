@@ -65,11 +65,7 @@ impl EmulatorCloseIncoming {
         );
     }
 
-    #[allow(unused_variables)]
-    fn run(
-        model: EmulatorModel,
-        send_type: &OutgoingType,
-    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+    fn run(model: EmulatorModel) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         model.close()?;
         Ok(StateMessageOutgoing::new_success(tr!("эмулятор закрыт успешно")))
     }
@@ -82,7 +78,7 @@ impl TraitIncoming for EmulatorCloseIncoming {
         let models = EmulatorModelSelect::search(&self.id, &send_type, tr!("ищем чего бы остановить"), Some(true));
         // Select
         match models.iter().count() {
-            1 => match Self::run(models.first().unwrap().clone(), &send_type) {
+            1 => match Self::run(models.first().unwrap().clone()) {
                 Ok(result) => result,
                 Err(_) => StateMessageOutgoing::new_error(tr!("не удалось закрыть эмулятор")),
             },

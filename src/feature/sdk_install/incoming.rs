@@ -99,7 +99,7 @@ impl SdkInstallIncoming {
 
         //////////
         // INSTALL
-        StateMessageOutgoing::new_info(tr!("запуск установки Аврора SDK, нажмите так далее, далее, далее..."))
+        StateMessageOutgoing::new_info(tr!("запуск установки Аврора SDK, нажмите там далее, далее, далее..."))
             .send(send_type);
         let sdk_run = downloads.first().unwrap();
         let _ = exec::exec_wait_args("chmod", ["+x", &sdk_run.to_string_lossy().to_string()])?;

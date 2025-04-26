@@ -1,3 +1,5 @@
+use std::time::SystemTime;
+
 use dbus_crossroads::IfaceBuilder;
 use serde::Deserialize;
 use serde::Serialize;
@@ -8,10 +10,16 @@ use crate::feature::outgoing::OutgoingType;
 use crate::feature::outgoing::TraitOutgoing;
 use crate::feature::selector::selects::select_sdk_available::SdkAvailableModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
+use crate::models::configuration::Config;
+use crate::models::configuration::sdk::SdkConfig;
 use crate::models::sdk_available::model::SdkAvailableModel;
+use crate::models::sdk_available::model::SdkInstallType;
+use crate::service::command::exec;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
+use crate::tools::single;
+use crate::tools::utils;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct SdkInstallIncoming {
@@ -65,12 +73,59 @@ impl SdkInstallIncoming {
         );
     }
 
-    #[allow(unused_variables)]
     fn run(
         model: SdkAvailableModel,
         send_type: &OutgoingType,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-        Ok(StateMessageOutgoing::new_info(tr!("@todo")))
+        ///////////
+        // DOWNLOAD
+        StateMessageOutgoing::new_state(tr!("начинаем загрузку...")).send(send_type);
+        // Time start
+        let start = SystemTime::now();
+        // Download
+        let url = model.url;
+        let path = if model.install_type == SdkInstallType::Offline {
+            single::get_request().download_file(url, StateMessageOutgoing::get_state_callback_file_big(send_type))?
+        } else {
+            single::get_request().download_file(url, StateMessageOutgoing::get_state_callback_file_small(send_type))?
+        };
+        let downloads = utils::move_to_downloads(vec![path])?;
+        // Time end
+        let end = SystemTime::now();
+        let duration = end.duration_since(start).unwrap();
+        let seconds = duration.as_secs();
+        // Download done
+        StateMessageOutgoing::new_info(tr!("загрузка успешно выполнена ({}s)", seconds)).send(send_type);
+
+        //////////
+        // INSTALL
+        StateMessageOutgoing::new_info(tr!("запуск установки Аврора SDK, нажмите так далее, далее, далее..."))
+            .send(send_type);
+        let sdk_run = downloads.first().unwrap();
+        let _ = exec::exec_wait_args("chmod", ["+x", &sdk_run.to_string_lossy().to_string()])?;
+        exec::exec_wait(&sdk_run.to_string_lossy().to_string())?;
+
+        //////////
+        // SYNC
+        // Time start
+        let start = SystemTime::now();
+        StateMessageOutgoing::new_state(tr!("запуск синхронизации Аврора SDK")).send(send_type);
+        match Config::save_sdk(SdkConfig::search()) {
+            true => {
+                // Time end
+                let end = SystemTime::now();
+                let duration = end.duration_since(start).unwrap();
+                let seconds = duration.as_secs();
+                StateMessageOutgoing::new_info(tr!("конфигурация успешно обновлена ({}s)", seconds)).send(send_type);
+                // Result
+                Ok(StateMessageOutgoing::new_success(tr!(
+                    "уставка Аврора SDK выполнена успешно"
+                )))
+            }
+            false => Ok(StateMessageOutgoing::new_warning(tr!(
+                "конфигурация не была обновлена, вы точно нажали далее, далее, далее?"
+            ))),
+        }
     }
 }
 
@@ -83,7 +138,7 @@ impl TraitIncoming for SdkInstallIncoming {
         match models.iter().count() {
             1 => match Self::run(models.first().unwrap().clone(), &send_type) {
                 Ok(result) => result,
-                Err(_) => StateMessageOutgoing::new_error(tr!("произошла ошибка при установке Аврора SDK")),
+                Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
             },
             0 => StateMessageOutgoing::new_info(tr!("не удалось получить данные")),
             _ => match SdkAvailableModelSelect::select(key, &send_type, models, |id| self.select(id)) {

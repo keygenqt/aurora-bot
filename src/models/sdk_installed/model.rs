@@ -64,11 +64,6 @@ impl SdkInstalledModel {
         Ok(())
     }
 
-    pub fn start_tools(&self) -> Result<(), Box<dyn std::error::Error>> {
-        exec::exec_detach(&self.tools, 1)?;
-        Ok(())
-    }
-
     pub fn search() -> Vec<SdkInstalledModel> {
         SdkConfig::load_models()
     }

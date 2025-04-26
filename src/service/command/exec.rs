@@ -7,7 +7,6 @@ use std::time::Duration;
 use crate::tools::macros::tr;
 use crate::tools::programs;
 
-#[allow(dead_code)]
 pub fn exec_wait(program: &str) -> Result<Output, Box<dyn std::error::Error>> {
     match Command::new(program)
         .stdout(Stdio::piped())

@@ -10,6 +10,7 @@ use crate::feature::sdk_info::incoming::SdkInfoIncoming;
 use crate::feature::selector::selects::select_sdk_installed::SdkInstalledModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::models::sdk_installed::model::SdkInstalledModel;
+use crate::service::command::exec;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
@@ -71,7 +72,7 @@ impl SdkToolsIncoming {
         send_type: &OutgoingType,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         StateMessageOutgoing::new_state(tr!("открываем Maintenance tools")).send(send_type);
-        model.start_tools()?;
+        exec::exec_detach(&model.tools, 1)?;
         Ok(StateMessageOutgoing::new_success(tr!(
             "Maintenance tools успешно запущено"
         )))

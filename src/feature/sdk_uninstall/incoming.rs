@@ -1,3 +1,5 @@
+use std::time::SystemTime;
+
 use dbus_crossroads::IfaceBuilder;
 use serde::Deserialize;
 use serde::Serialize;
@@ -8,7 +10,10 @@ use crate::feature::outgoing::OutgoingType;
 use crate::feature::outgoing::TraitOutgoing;
 use crate::feature::selector::selects::select_sdk_installed::SdkInstalledModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
+use crate::models::configuration::Config;
+use crate::models::configuration::sdk::SdkConfig;
 use crate::models::sdk_installed::model::SdkInstalledModel;
+use crate::service::command::exec;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
@@ -65,12 +70,36 @@ impl SdkUninstallIncoming {
         );
     }
 
-    #[allow(unused_variables)]
     fn run(
         model: SdkInstalledModel,
         send_type: &OutgoingType,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-        Ok(StateMessageOutgoing::new_info(tr!("@todo")))
+        ////////////
+        // UNINSTALL
+        StateMessageOutgoing::new_state(tr!("открываем Maintenance tools")).send(send_type);
+        exec::exec_wait(&model.tools)?;
+
+        //////////
+        // SYNC
+        // Time start
+        let start = SystemTime::now();
+        StateMessageOutgoing::new_state(tr!("запуск синхронизации Аврора SDK")).send(send_type);
+        match Config::save_sdk(SdkConfig::search()) {
+            true => {
+                // Time end
+                let end = SystemTime::now();
+                let duration = end.duration_since(start).unwrap();
+                let seconds = duration.as_secs();
+                StateMessageOutgoing::new_info(tr!("конфигурация успешно обновлена ({}s)", seconds)).send(send_type);
+                // Result
+                Ok(StateMessageOutgoing::new_success(tr!(
+                    "удаление Аврора SDK выполнена успешно"
+                )))
+            }
+            false => Ok(StateMessageOutgoing::new_warning(tr!(
+                "конфигурация не была обновлена, вы точно удалили Аврора SDK?"
+            ))),
+        }
     }
 }
 

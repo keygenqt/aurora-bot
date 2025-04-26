@@ -20,8 +20,6 @@ Fast, smart, lightweight, client of the Aurora Bot project.
 
 ### Todo
 
-- Install sdk (sdk_install).
-- Remove sdk (sdk_remove).
 - Install psdk (psdk_install).
 - Remove psdk (psdk_remove).
 

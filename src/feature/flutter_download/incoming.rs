@@ -77,7 +77,10 @@ impl FlutterDownloadIncoming {
         // Time start
         let start = SystemTime::now();
         // Download
-        let url = model.url_zip;
+        let url = match model.url_repo {
+            Some(url_repo) => url_repo,
+            None => model.url_zip,
+        };
         let path =
             single::get_request().download_file(url, StateMessageOutgoing::get_state_callback_file_small(send_type))?;
         let _ = utils::move_to_downloads(vec![path])?;

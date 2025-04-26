@@ -85,7 +85,7 @@ pub fn search_files_by_home(key: &str) -> Vec<String> {
 
 /// Search file by PC
 pub fn search_files_by_path(search: &str, path: &PathBuf) -> Vec<String> {
-    let reg = format!("^.*{}$", search);
+    let reg: String = format!("^.*{}$", search);
     let re = Regex::new(&reg).unwrap();
     let mut result: Vec<String> = vec![];
     for entry in WalkDir::new(path)

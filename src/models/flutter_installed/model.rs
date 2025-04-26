@@ -64,6 +64,7 @@ impl FlutterInstalledModel {
         let flutters_path = utils::search_files_by_home("bin/flutter");
         for flutter in flutters_path {
             let dir = flutter.clone().replace("/bin/flutter", "");
+            let _ = exec::exec_wait_args(&flutter, ["precache"])?;
             let output = exec::exec_wait_args(&flutter, ["--version"])?;
             let lines = utils::parse_output(output.stdout);
             let flutter_version = match lines.get(0) {

@@ -20,12 +20,10 @@ Fast, smart, lightweight, client of the Aurora Bot project.
 
 ### Todo
 
-- Remove sdk (sdk_remove).
-- Remove psdk (psdk_remove).
-- Remove flutter (flutter_remove).
 - Install sdk (sdk_install).
+- Remove sdk (sdk_remove).
 - Install psdk (psdk_install).
-- Install flutter (flutter_install).
+- Remove psdk (psdk_remove).
 
 ### Architecture
 

@@ -262,7 +262,7 @@ impl PsdkInstallIncoming {
         let duration = end.duration_since(start).unwrap();
         let seconds = duration.as_secs();
         Ok(StateMessageOutgoing::new_success(tr!(
-            "уставка Platform SDK выполнена успешно ({}s)",
+            "уставка Platform SDK успешно выполнена ({}s)",
             seconds
         )))
     }

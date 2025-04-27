@@ -104,7 +104,7 @@ impl FlutterUninstallIncoming {
         let duration = end.duration_since(start).unwrap();
         let seconds = duration.as_secs();
         Ok(StateMessageOutgoing::new_success(tr!(
-            "удаление Flutter SDK выполнено успешно ({}s)",
+            "удаление Flutter SDK успешно выполнено ({}s)",
             seconds
         )))
     }

@@ -107,7 +107,7 @@ impl PsdkUninstallIncoming {
         let duration = end.duration_since(start).unwrap();
         let seconds = duration.as_secs();
         Ok(StateMessageOutgoing::new_success(tr!(
-            "удаление Platform SDK выполнено успешно ({}s)",
+            "удаление Platform SDK успешно выполнено ({}s)",
             seconds
         )))
     }

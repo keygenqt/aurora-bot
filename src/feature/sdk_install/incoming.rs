@@ -117,7 +117,7 @@ impl SdkInstallIncoming {
                 let seconds = duration.as_secs();
                 // Result
                 Ok(StateMessageOutgoing::new_success(tr!(
-                    "уставка Аврора SDK успешно выполнено ({}s)",
+                    "уставка Аврора SDK успешно выполнена ({}s)",
                     seconds
                 )))
             }

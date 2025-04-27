@@ -173,7 +173,7 @@ impl PsdkInstallIncoming {
         let mut chroot = path_unpack_psdk_dir.clone();
         chroot.push("sdk-chroot");
         // Install chroot
-        StateMessageOutgoing::new_state(tr!("установка Chroot Platform SDK")).send(send_type);
+        StateMessageOutgoing::new_state(tr!("установка Chroot")).send(send_type);
         let size = path_chroot.metadata()?.st_size();
         let count = (size * 130 / 439822186) as i32;
         exec::exec_wait_args_callback(
@@ -194,7 +194,7 @@ impl PsdkInstallIncoming {
         )?;
         StateMessageOutgoing::new_progress("100".into()).send(send_type);
         // Install tooling
-        StateMessageOutgoing::new_state(tr!("установка Tooling Platform SDK")).send(send_type);
+        StateMessageOutgoing::new_state(tr!("установка Tooling")).send(send_type);
         let count = 4;
         exec::exec_wait_args_callback(
             &sudo,
@@ -226,7 +226,7 @@ impl PsdkInstallIncoming {
                 .unwrap()
                 .to_string();
             // Install
-            StateMessageOutgoing::new_state(tr!("установка Target {} Platform SDK", &arch)).send(send_type);
+            StateMessageOutgoing::new_state(tr!("установка Target: {}", &arch)).send(send_type);
             let count = 9;
             exec::exec_wait_args_callback(
                 &sudo,

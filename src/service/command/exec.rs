@@ -1,4 +1,6 @@
 use std::ffi::OsStr;
+use std::io::BufRead;
+use std::io::BufReader;
 use std::process::Command;
 use std::process::Output;
 use std::process::Stdio;
@@ -32,6 +34,29 @@ where
         Ok(output) => Ok(output),
         Err(_) => Err(tr!("команда завершилась неудачей"))?,
     }
+}
+
+pub fn exec_wait_args_callback<I, S, T: FnMut(String)>(
+    program: &str,
+    args: I,
+    mut callback: T,
+) -> Result<(), Box<dyn std::error::Error>>
+where
+    I: IntoIterator<Item = S>,
+    S: AsRef<OsStr>,
+{
+    let child = Command::new(program)
+        .args(args)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()?;
+
+    BufReader::new(child.stderr.unwrap())
+        .lines()
+        .filter_map(|line| line.ok())
+        .for_each(|line| callback(line));
+
+    Ok(())
 }
 
 pub fn exec_wait_args_sudo<'s>(

@@ -77,6 +77,26 @@ impl StateMessageOutgoing {
         }
     }
 
+    pub fn get_state_callback_count(count: i32, send_type: &OutgoingType) -> impl FnMut(String) {
+        StateMessageOutgoing::new_progress("0".to_string()).send(send_type);
+        let mut iter_count = 1;
+        move |_| {
+            if iter_count != -1 {
+                let percent = iter_count * 100 / count;
+                if percent > 0 {
+                    if percent < 99 {
+                        StateMessageOutgoing::new_progress(percent.to_string()).send(send_type);
+                    } else {
+                        iter_count = -1;
+                        // 100% must be done after completion, this exclude error in count
+                        StateMessageOutgoing::new_progress("99".to_string()).send(send_type);
+                    }
+                }
+                iter_count += 1;
+            }
+        }
+    }
+
     pub fn get_state_callback_file_big(send_type: &OutgoingType) -> fn(i32) {
         match send_type {
             OutgoingType::Cli => |progress| {
@@ -105,7 +125,7 @@ impl StateMessageOutgoing {
         }
     }
 
-    fn send_state_common(progress: i32, send_type: &'static OutgoingType, size: i32) {
+    pub fn send_state_common(progress: i32, send_type: &'static OutgoingType, size: i32) {
         if progress < 0 {
             match progress {
                 -1 => StateMessageOutgoing::new_state(tr!("получение данных...")).send(send_type),

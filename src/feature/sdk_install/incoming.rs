@@ -99,16 +99,15 @@ impl SdkInstallIncoming {
 
         //////////
         // INSTALL
-        StateMessageOutgoing::new_info(tr!("запуск установки Аврора SDK, нажмите там далее, далее, далее..."))
-            .send(send_type);
+        // Time start
+        let start = SystemTime::now();
+        StateMessageOutgoing::new_state(tr!("запуск установки Аврора SDK")).send(send_type);
         let sdk_run = downloads.first().unwrap();
         let _ = exec::exec_wait_args("chmod", ["+x", &sdk_run.to_string_lossy().to_string()])?;
         exec::exec_wait(&sdk_run.to_string_lossy().to_string())?;
 
         //////////
         // SYNC
-        // Time start
-        let start = SystemTime::now();
         StateMessageOutgoing::new_state(tr!("запуск синхронизации Аврора SDK")).send(send_type);
         match Config::save_sdk(SdkConfig::search()) {
             true => {
@@ -116,14 +115,14 @@ impl SdkInstallIncoming {
                 let end = SystemTime::now();
                 let duration = end.duration_since(start).unwrap();
                 let seconds = duration.as_secs();
-                StateMessageOutgoing::new_info(tr!("конфигурация успешно обновлена ({}s)", seconds)).send(send_type);
                 // Result
                 Ok(StateMessageOutgoing::new_success(tr!(
-                    "уставка Аврора SDK выполнена успешно"
+                    "уставка Аврора SDK успешно выполнено ({}s)",
+                    seconds
                 )))
             }
             false => Ok(StateMessageOutgoing::new_warning(tr!(
-                "конфигурация не была обновлена, вы точно нажали далее, далее, далее?"
+                "конфигурация не была обновлена, изменений не найдено"
             ))),
         }
     }

@@ -110,6 +110,7 @@ impl PsdkInstalledModel {
             } else {
                 vec![]
             };
+            let id = PsdkInstalledModel::get_id(&chroot);
             let model = PsdkInstalledModel {
                 id: PsdkInstalledModel::get_id(&chroot),
                 dir: psdk_dir,
@@ -120,8 +121,9 @@ impl PsdkInstalledModel {
                 home_url,
                 targets,
             };
-            models_by_version.insert(version_id.clone(), model);
-            versions.push(version_id);
+            let key = format!("{} ({})", version_id, id);
+            models_by_version.insert(key.clone(), model);
+            versions.push(key.clone());
         }
         // Sort version
         let mut versions = versions.iter().map(|e| e.as_str()).collect::<Vec<&str>>();

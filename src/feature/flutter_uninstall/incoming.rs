@@ -75,6 +75,10 @@ impl FlutterUninstallIncoming {
         model: &FlutterInstalledModel,
         send_type: &OutgoingType,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+        // Time start
+        let start = SystemTime::now();
+        ////////////
+        // UNINSTALL
         // Check parent nested
         let mut parts = model.dir.split("/").collect::<Vec<&str>>();
         parts.reverse();
@@ -87,18 +91,22 @@ impl FlutterUninstallIncoming {
         StateMessageOutgoing::new_state(tr!("удаление директории: {}", folder_remove.to_string_lossy()))
             .send(send_type);
         fs::remove_dir_all(folder_remove)?;
-        // Time start
-        let start = SystemTime::now();
-        // Start sync
+
+        //////////
+        // SYNC
         StateMessageOutgoing::new_state(tr!("запуск синхронизации Flutter SDK")).send(send_type);
         let _ = Config::save_flutter(FlutterConfig::search());
+
+        ///////
+        // DONE
         // Time end
         let end = SystemTime::now();
         let duration = end.duration_since(start).unwrap();
         let seconds = duration.as_secs();
-        StateMessageOutgoing::new_info(tr!("конфигурация успешно обновлена ({}s)", seconds)).send(send_type);
-        // Done
-        Ok(StateMessageOutgoing::new_success(tr!("Flutter SDK успешно удалена")))
+        Ok(StateMessageOutgoing::new_success(tr!(
+            "удаление Flutter SDK выполнено успешно ({}s)",
+            seconds
+        )))
     }
 }
 

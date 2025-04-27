@@ -74,6 +74,8 @@ impl SdkUninstallIncoming {
         model: SdkInstalledModel,
         send_type: &OutgoingType,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+        // Time start
+        let start = SystemTime::now();
         ////////////
         // UNINSTALL
         StateMessageOutgoing::new_state(tr!("открываем Maintenance tools")).send(send_type);
@@ -81,8 +83,6 @@ impl SdkUninstallIncoming {
 
         //////////
         // SYNC
-        // Time start
-        let start = SystemTime::now();
         StateMessageOutgoing::new_state(tr!("запуск синхронизации Аврора SDK")).send(send_type);
         match Config::save_sdk(SdkConfig::search()) {
             true => {
@@ -90,10 +90,10 @@ impl SdkUninstallIncoming {
                 let end = SystemTime::now();
                 let duration = end.duration_since(start).unwrap();
                 let seconds = duration.as_secs();
-                StateMessageOutgoing::new_info(tr!("конфигурация успешно обновлена ({}s)", seconds)).send(send_type);
                 // Result
                 Ok(StateMessageOutgoing::new_success(tr!(
-                    "удаление Аврора SDK выполнена успешно"
+                    "удаление Аврора SDK успешно выполнено ({}s)",
+                    seconds
                 )))
             }
             false => Ok(StateMessageOutgoing::new_warning(tr!(

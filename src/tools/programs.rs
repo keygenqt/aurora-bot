@@ -46,3 +46,10 @@ pub fn get_sudo() -> Result<String, Box<dyn std::error::Error>> {
     }
     Err(tr!("не найдено sudo"))?
 }
+
+pub fn get_tar() -> Result<String, Box<dyn std::error::Error>> {
+    if let Ok(_) = exec::exec_wait_args("tar", ["--version"]) {
+        return Ok("tar".into());
+    }
+    Err(tr!("не найдено tar"))?
+}

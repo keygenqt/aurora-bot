@@ -1,3 +1,6 @@
+use std::path::PathBuf;
+use std::time::SystemTime;
+
 use dbus_crossroads::IfaceBuilder;
 use serde::Deserialize;
 use serde::Serialize;
@@ -8,10 +11,15 @@ use crate::feature::outgoing::OutgoingType;
 use crate::feature::outgoing::TraitOutgoing;
 use crate::feature::selector::selects::select_psdk_installed::PsdkInstalledModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
+use crate::models::configuration::Config;
+use crate::models::configuration::psdk::PsdkConfig;
 use crate::models::psdk_installed::model::PsdkInstalledModel;
+use crate::service::command;
+use crate::service::command::exec;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
+use crate::tools::programs;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct PsdkUninstallIncoming {
@@ -65,12 +73,43 @@ impl PsdkUninstallIncoming {
         );
     }
 
-    #[allow(unused_variables)]
     fn run(
         model: PsdkInstalledModel,
         send_type: &OutgoingType,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-        Ok(StateMessageOutgoing::new_info(tr!("@todo")))
+        // Time start
+        let start = SystemTime::now();
+        ////////////
+        // UNINSTALL
+        // Get remove folder
+        let folder_remove = &PathBuf::from(model.dir.replace("/sdks/aurora_psdk", ""));
+        // Remove folder
+        StateMessageOutgoing::new_state(tr!("удаление директории: {}", folder_remove.to_string_lossy()))
+            .send(send_type);
+        let sudo = programs::get_sudo()?;
+        let _ = exec::exec_wait_args(&sudo, ["rm", "-rf", &folder_remove.to_string_lossy().to_string()])?;
+
+        //////////
+        // SUDOERS
+        StateMessageOutgoing::new_state(tr!("обновление записи sudoers Platform SDK")).send(send_type);
+        let models = PsdkInstalledModel::search_full_without_targets()?;
+        command::psdk::add_sudoers_chroot_access(&models)?;
+
+        //////////
+        // SYNC
+        StateMessageOutgoing::new_state(tr!("запуск синхронизации Platform SDK")).send(send_type);
+        let _ = Config::save_psdk(PsdkConfig::search());
+
+        ///////
+        // DONE
+        // Time end
+        let end = SystemTime::now();
+        let duration = end.duration_since(start).unwrap();
+        let seconds = duration.as_secs();
+        Ok(StateMessageOutgoing::new_success(tr!(
+            "удаление Platform SDK выполнено успешно ({}s)",
+            seconds
+        )))
     }
 }
 

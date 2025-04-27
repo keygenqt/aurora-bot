@@ -81,9 +81,9 @@ impl FlutterInstallIncoming {
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         ///////////
         // DOWNLOAD
-        StateMessageOutgoing::new_state(tr!("начинаем загрузку...")).send(send_type);
         // Time start
         let start = SystemTime::now();
+        StateMessageOutgoing::new_state(tr!("начинаем загрузку...")).send(send_type);
         // Download
         let url = match model.url_repo {
             Some(url_repo) => url_repo,
@@ -127,11 +127,7 @@ impl FlutterInstallIncoming {
         let tar = GzDecoder::new(tar_gz);
         let mut archive = Archive::new(tar);
         archive.unpack(&path_unpack)?;
-        // Time end
-        let end = SystemTime::now();
-        let duration = end.duration_since(start).unwrap();
-        let seconds = duration.as_secs();
-        StateMessageOutgoing::new_info(tr!("распаковка успешно выполнена ({}s)", seconds)).send(send_type);
+        StateMessageOutgoing::new_state(tr!("распаковка успешно выполнена")).send(send_type);
         // Check .git folder for work flutter
         let flutters_path = utils::search_files_by_path("bin/flutter", &path_unpack);
         let first = flutters_path.first().unwrap().replace("bin/flutter", "");
@@ -139,20 +135,18 @@ impl FlutterInstallIncoming {
 
         //////////
         // SYNC
-        // Time start
-        let start = SystemTime::now();
         StateMessageOutgoing::new_state(tr!("запуск синхронизации Flutter SDK")).send(send_type);
         let _ = Config::save_flutter(FlutterConfig::search());
+
+        ///////
+        // DONE
         // Time end
         let end = SystemTime::now();
         let duration = end.duration_since(start).unwrap();
         let seconds = duration.as_secs();
-        StateMessageOutgoing::new_info(tr!("конфигурация успешно обновлена ({}s)", seconds)).send(send_type);
-
-        ///////
-        // DONE
         Ok(StateMessageOutgoing::new_success(tr!(
-            "уставка Flutter SDK выполнена успешно"
+            "уставка Flutter SDK выполнена успешно ({}s)",
+            seconds
         )))
     }
 }

@@ -30,6 +30,9 @@ pub mod device_info {
 pub mod device_sync {
     pub mod incoming;
 }
+pub mod device_terminal {
+    pub mod incoming;
+}
 pub mod emulator_close {
     pub mod incoming;
 }
@@ -217,6 +220,7 @@ pub enum ClientMethodsKey {
     DemoAppInfo,
     DeviceInfo,
     DeviceSync,
+    DeviceTerminal,
     EmulatorClose,
     EmulatorInfo,
     EmulatorOpen,

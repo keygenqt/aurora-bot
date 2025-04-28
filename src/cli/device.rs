@@ -6,6 +6,7 @@ use clap::Subcommand;
 use crate::feature::demo_app_info::incoming::DemoAppInfoIncoming;
 use crate::feature::demo_app_info::outgoing::DemoAppInfoOutgoing;
 use crate::feature::device_info::incoming::DeviceInfoIncoming;
+use crate::feature::device_terminal::incoming::DeviceTerminalIncoming;
 use crate::feature::incoming::DataIncoming;
 use crate::feature::incoming::TraitIncoming;
 use crate::feature::outgoing::OutgoingType;
@@ -90,7 +91,7 @@ pub fn run(arg: DeviceArgs) {
         return;
     }
     if arg.terminal {
-        // @todo
+        DeviceTerminalIncoming::new().run(OutgoingType::Cli).print();
         return;
     }
     if let Some(url) = arg.download {

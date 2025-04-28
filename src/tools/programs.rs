@@ -53,3 +53,10 @@ pub fn get_tar() -> Result<String, Box<dyn std::error::Error>> {
     }
     Err(tr!("не найдено tar"))?
 }
+
+pub fn get_sshpass() -> Result<String, Box<dyn std::error::Error>> {
+    if let Ok(_) = exec::exec_wait_args("sshpass", ["-V"]) {
+        return Ok("sshpass".into());
+    }
+    Err(tr!("не найдено sshpass"))?
+}

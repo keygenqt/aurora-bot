@@ -20,6 +20,7 @@ use crate::feature::app_open_dir::incoming::AppOpenDirIncoming;
 use crate::feature::demo_app_info::incoming::DemoAppInfoIncoming;
 use crate::feature::device_info::incoming::DeviceInfoIncoming;
 use crate::feature::device_sync::incoming::DeviceSyncIncoming;
+use crate::feature::device_terminal::incoming::DeviceTerminalIncoming;
 use crate::feature::emulator_close::incoming::EmulatorCloseIncoming;
 use crate::feature::emulator_info::incoming::EmulatorInfoIncoming;
 use crate::feature::emulator_open::incoming::EmulatorOpenIncoming;
@@ -121,6 +122,9 @@ impl ServerDbus {
             DeviceInfoIncoming::dbus_method_run_by_id(builder);
 
             DeviceSyncIncoming::dbus_method_run(builder);
+
+            DeviceTerminalIncoming::dbus_method_run(builder);
+            DeviceTerminalIncoming::dbus_method_run_by_id(builder);
 
             /////////////////
             // Emulator

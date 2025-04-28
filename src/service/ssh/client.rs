@@ -1,7 +1,6 @@
 use std::borrow::Cow;
 use std::fs::File;
 use std::os::unix::fs::MetadataExt;
-use std::path::Path;
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
@@ -35,22 +34,49 @@ pub struct SshSession {
 }
 
 impl SshSession {
-    pub fn connect<P: AsRef<Path>, A: ToSocketAddrs>(
-        key_path: P,
-        user: impl Into<String> + Copy,
-        addrs: A,
+    pub fn connect_key(
+        key_path: &PathBuf,
+        user: &String,
+        host: &String,
+        port: u16,
         timeout: Option<u64>,
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        tokio::task::block_in_place(|| Handle::current().block_on(Self::_connect(key_path, user, addrs, timeout)))
+        tokio::task::block_in_place(|| {
+            Handle::current().block_on(Self::_connect(
+                Some(key_path.clone()),
+                None,
+                user.clone(),
+                (host.clone(), port),
+                timeout,
+            ))
+        })
     }
 
-    async fn _connect<P: AsRef<Path>, A: ToSocketAddrs>(
-        key_path: P,
-        user: impl Into<String> + Copy,
-        addrs: A,
+    pub fn connect_pass(
+        password: &String,
+        user: &String,
+        host: &String,
+        port: u16,
         timeout: Option<u64>,
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        let key_pair = load_secret_key(key_path, None)?;
+        tokio::task::block_in_place(|| {
+            Handle::current().block_on(Self::_connect(
+                None,
+                Some(password.clone()),
+                user.clone(),
+                (host.clone(), port),
+                timeout,
+            ))
+        })
+    }
+
+    async fn _connect<T: ToSocketAddrs>(
+        key_path: Option<PathBuf>,
+        password: Option<String>,
+        user: String,
+        addrs: T,
+        timeout: Option<u64>,
+    ) -> Result<Self, Box<dyn std::error::Error>> {
         let config = client::Config {
             inactivity_timeout: if let Some(timeout) = timeout {
                 Some(Duration::from_secs(timeout))
@@ -66,27 +92,33 @@ impl SshSession {
             },
             ..<_>::default()
         };
-
         let config = Arc::new(config);
-        let sh = SshClient {};
-        let mut session = client::connect(config, addrs, sh).await?;
-        let auth_res = session
-            .authenticate_publickey(
-                user.into(),
-                PrivateKeyWithHashAlg::new(
-                    Arc::new(key_pair),
-                    session.best_supported_rsa_hash().await.unwrap().flatten(),
-                ),
-            )
-            .await?;
-
+        let sh: SshClient = SshClient {};
+        let result = tokio::time::timeout(Duration::from_secs(2), client::connect(config, addrs, sh)).await?;
+        if result.is_err() {
+            Err("не удалось соединиться")?;
+        }
+        let mut session = result.unwrap();
+        let auth_res = if let Some(key_path) = key_path {
+            let key_pair = load_secret_key(key_path, None)?;
+            session
+                .authenticate_publickey(
+                    user.clone(),
+                    PrivateKeyWithHashAlg::new(
+                        Arc::new(key_pair),
+                        session.best_supported_rsa_hash().await.unwrap().flatten(),
+                    ),
+                )
+                .await?
+        } else {
+            session.authenticate_password(user.clone(), password.unwrap()).await?
+        };
         if !auth_res.success() {
             Err(tr!("ошибка подключения по ssh"))?
         }
-
         Ok(Self {
             session,
-            user: user.into(),
+            user,
             is_listen: timeout.is_none(),
         })
     }

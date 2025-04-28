@@ -1,6 +1,7 @@
 use clap::Args;
 use clap::Subcommand;
 
+use super::device::DeviceArgs;
 use super::emulator::EmulatorArgs;
 use super::flutter::FlutterArgs;
 use super::psdk::PsdkArgs;
@@ -20,6 +21,8 @@ pub struct CliArgs {
 
 #[derive(Subcommand)]
 pub enum CliCommands {
+    /// Работа с устройствами
+    Device(DeviceArgs),
     /// Работа с эмуляторами
     Emulator(EmulatorArgs),
     /// Работа с Flutter SDK
@@ -33,6 +36,7 @@ pub enum CliCommands {
 /// Handling interface events
 pub fn run(arg: CliArgs) {
     match arg.command.unwrap() {
+        CliCommands::Device(arg) => super::device::run(arg),
         CliCommands::Emulator(arg) => super::emulator::run(arg),
         CliCommands::Flutter(arg) => super::flutter::run(arg),
         CliCommands::Psdk(arg) => super::psdk::run(arg),

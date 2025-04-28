@@ -8,22 +8,22 @@ use crate::feature::outgoing::OutgoingType;
 use crate::feature::outgoing::TraitOutgoing;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::models::configuration::Config;
-use crate::models::configuration::psdk::PsdkConfig;
+use crate::models::configuration::device::DeviceConfig;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct PsdkSyncIncoming {}
+pub struct DeviceSyncIncoming {}
 
-impl PsdkSyncIncoming {
+impl DeviceSyncIncoming {
     pub fn name() -> String {
-        serde_variant::to_variant_name(&ClientMethodsKey::PsdkSync)
+        serde_variant::to_variant_name(&ClientMethodsKey::DeviceSync)
             .unwrap()
             .to_string()
     }
 
-    pub fn new() -> Box<PsdkSyncIncoming> {
+    pub fn new() -> Box<DeviceSyncIncoming> {
         print_debug!("> {}: new()", Self::name());
         Box::new(Self {})
     }
@@ -41,11 +41,11 @@ impl PsdkSyncIncoming {
     }
 }
 
-impl TraitIncoming for PsdkSyncIncoming {
+impl TraitIncoming for DeviceSyncIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
-        StateMessageOutgoing::new_state(tr!("запуск синхронизации Platform SDK")).send(&send_type);
-        if Config::save_psdk(PsdkConfig::search()) {
-            StateMessageOutgoing::new_success(tr!("конфигурация Platform SDK обновлена"))
+        StateMessageOutgoing::new_state(tr!("запуск синхронизации устройств")).send(&send_type);
+        if Config::save_device(DeviceConfig::search()) {
+            StateMessageOutgoing::new_success(tr!("конфигурация устройств обновлена"))
         } else {
             StateMessageOutgoing::new_info(tr!("конфигурация не требует обновления"))
         }

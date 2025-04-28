@@ -16,16 +16,19 @@ pub const DBUS_NAME: &str = "com.keygenqt.aurora_bot";
 
 /// Folder for save config files
 #[cfg(debug_assertions)]
-pub const CONFIGURATION_DIR: &str = ".aurora-bot-debug";
+pub const CONFIGURATION_DIR: &str = ".config/aurora-bot-debug";
 
 #[cfg(not(debug_assertions))]
-pub const CONFIGURATION_DIR: &str = ".aurora-bot";
+pub const CONFIGURATION_DIR: &str = ".config/aurora-bot";
 
 /// File name for save session cookie
 pub const SESSION_FILE: &str = "aurora-bot.session";
 
 /// File name for save configuration
 pub const CONFIGURATION_FILE: &str = "aurora-bot.configuration";
+
+/// File name for save devices configuration
+pub const DEVICES_CONFIGURATION_FILE: &str = "devices.json";
 
 /// File name for save environment bash
 pub const ENVIRONMENT_FILE: &str = "aurora-bot.environment";

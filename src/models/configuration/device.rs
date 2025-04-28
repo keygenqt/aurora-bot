@@ -1,12 +1,19 @@
 use crate::models::configuration::Config;
 use crate::models::device::model::DeviceModel;
+use crate::tools::macros::crash;
 use serde::Deserialize;
 use serde::Serialize;
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct DeviceConfig {
-    pub ip: String,
-    pub port: u8,
+    pub id: String,
+    pub host: String,
+    pub path: Option<String>,
+    pub pass: Option<String>,
+    pub port: u16,
+    pub name: String,
+    pub version: String,
+    pub arch: String,
 }
 
 impl DeviceConfig {
@@ -26,19 +33,30 @@ impl DeviceConfig {
             Ok(models) => models
                 .iter()
                 .map(|e| DeviceConfig {
-                    ip: e.ip.clone(),
+                    id: e.id.clone(),
+                    host: e.host.clone(),
+                    path: e.path.clone(),
+                    pass: e.pass.clone(),
                     port: e.port,
+                    name: e.name.clone(),
+                    version: e.version.clone(),
+                    arch: e.arch.clone(),
                 })
                 .collect(),
-            Err(_) => vec![],
+            Err(error) => crash!(error),
         }
     }
 
     pub fn to_model(&self) -> DeviceModel {
         DeviceModel {
-            id: DeviceModel::get_id(&self.ip),
-            ip: self.ip.clone(),
+            id: DeviceModel::get_id(&self.host),
+            host: self.host.clone(),
+            path: self.path.clone(),
+            pass: self.pass.clone(),
             port: self.port,
+            name: self.name.clone(),
+            version: self.version.clone(),
+            arch: self.arch.clone(),
         }
     }
 }

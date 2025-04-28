@@ -23,6 +23,9 @@ pub mod demo_app_info {
     pub mod incoming;
     pub mod outgoing;
 }
+pub mod device_sync {
+    pub mod incoming;
+}
 pub mod emulator_close {
     pub mod incoming;
 }
@@ -208,6 +211,7 @@ pub enum ClientMethodsKey {
     AppInfo,
     AppOpenDir,
     DemoAppInfo,
+    DeviceSync,
     EmulatorClose,
     EmulatorInfo,
     EmulatorOpen,

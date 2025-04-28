@@ -47,7 +47,7 @@ impl TraitIncoming for FlutterSyncIncoming {
         if Config::save_flutter(FlutterConfig::search()) {
             StateMessageOutgoing::new_success(tr!("конфигурация Flutter SDK обновлена"))
         } else {
-            StateMessageOutgoing::new_info(tr!("изменения не найдены"))
+            StateMessageOutgoing::new_info(tr!("конфигурация не требует обновления"))
         }
     }
 }

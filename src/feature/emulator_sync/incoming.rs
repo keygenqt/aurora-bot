@@ -47,7 +47,7 @@ impl TraitIncoming for EmulatorSyncIncoming {
         if Config::save_emulator(EmulatorConfig::search()) {
             StateMessageOutgoing::new_success(tr!("конфигурация эмуляторов обновлена"))
         } else {
-            StateMessageOutgoing::new_info(tr!("изменения не найдены"))
+            StateMessageOutgoing::new_info(tr!("конфигурация не требует обновления"))
         }
     }
 }

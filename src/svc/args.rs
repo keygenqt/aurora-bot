@@ -1,5 +1,6 @@
 use crate::feature::app_auth_login::incoming::AppAuthLoginIncoming;
 use crate::feature::app_auth_logout::incoming::AppAuthLogoutIncoming;
+use crate::feature::device_sync::incoming::DeviceSyncIncoming;
 use crate::feature::emulator_sync::incoming::EmulatorSyncIncoming;
 use crate::feature::flutter_sync::incoming::FlutterSyncIncoming;
 use crate::feature::incoming::TraitIncoming;
@@ -63,6 +64,10 @@ pub enum SyncCommands {
 #[command(arg_required_else_help = true)]
 #[group(multiple = false)]
 pub struct SyncArgs {
+    /// Поиск и синхронизация устройств
+    #[arg(short, long, default_value_t = false)]
+    device: bool,
+
     /// Поиск и синхронизация эмуляторов
     #[arg(short, long, default_value_t = false)]
     emulator: bool,
@@ -128,6 +133,9 @@ pub fn run(arg: SvcArgs) {
     if let Some(sync) = arg.sync {
         match sync {
             SyncCommands::Sync(arg) => {
+                if arg.device || arg.all {
+                    DeviceSyncIncoming::new().run(OutgoingType::Cli).print();
+                }
                 if arg.emulator || arg.all {
                     EmulatorSyncIncoming::new().run(OutgoingType::Cli).print();
                 }

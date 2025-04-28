@@ -184,9 +184,12 @@ pub fn get_home_folder_path() -> PathBuf {
 
 /// Get path for save config-file
 pub fn get_file_save_path(file_name: &str) -> PathBuf {
-    let path = get_home_folder_path().join(constants::CONFIGURATION_DIR);
-    let _ = fs::create_dir(&path);
-    path.join(file_name)
+    let mut path = get_home_folder_path();
+    path.push(constants::CONFIGURATION_DIR);
+    match fs::create_dir_all(&path) {
+        Ok(_) => path.join(file_name),
+        Err(_) => crash!("не удалось получить путь к конфигурации"),
+    }
 }
 
 /// Gen path for screenshot

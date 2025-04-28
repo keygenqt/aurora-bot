@@ -2,10 +2,10 @@ use colored::Colorize;
 use serde::Deserialize;
 use serde::Serialize;
 
-use super::session::EmulatorSession;
-use super::session::EmulatorSessionType;
 use crate::models::TraitModel;
 use crate::models::configuration::emulator::EmulatorConfig;
+use crate::models::session::model::SessionModel;
+use crate::models::session::model::SessionModelType;
 use crate::service::command::exec;
 use crate::tools::macros::print_info;
 use crate::tools::macros::tr;
@@ -58,13 +58,23 @@ impl TraitModel for EmulatorModel {
 }
 
 impl EmulatorModel {
-    pub fn session_user(&self) -> Result<EmulatorSession, Box<dyn std::error::Error>> {
-        Ok(EmulatorSession::new(EmulatorSessionType::User, &self.key)?)
+    pub fn session_user(&self) -> Result<SessionModel, Box<dyn std::error::Error>> {
+        Ok(SessionModel::new_key(
+            SessionModelType::User,
+            &self.key,
+            &"localhost".to_string(),
+            2223,
+        )?)
     }
 
     #[allow(dead_code)]
-    pub fn session_root(&self) -> Result<EmulatorSession, Box<dyn std::error::Error>> {
-        Ok(EmulatorSession::new(EmulatorSessionType::Root, &self.key)?)
+    pub fn session_root(&self) -> Result<SessionModel, Box<dyn std::error::Error>> {
+        Ok(SessionModel::new_key(
+            SessionModelType::Root,
+            &self.key,
+            &"localhost".to_string(),
+            2223,
+        )?)
     }
 
     pub fn start(&self) -> Result<(), Box<dyn std::error::Error>> {

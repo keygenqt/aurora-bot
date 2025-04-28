@@ -3,6 +3,7 @@ use std::error::Error;
 use crate::models::configuration::Config;
 use crate::models::sdk_installed::model::SdkInstalledModel;
 use crate::service::command::exec;
+use crate::tools::macros::crash;
 use crate::tools::utils;
 use serde::Deserialize;
 use serde::Serialize;
@@ -42,7 +43,7 @@ impl SdkConfig {
                     build_date: e.build_date.clone(),
                 })
                 .collect(),
-            Err(_) => vec![],
+            Err(error) => crash!(error),
         }
     }
 

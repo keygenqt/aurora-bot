@@ -47,7 +47,7 @@ impl TraitIncoming for SdkSyncIncoming {
         if Config::save_sdk(SdkConfig::search()) {
             StateMessageOutgoing::new_success(tr!("конфигурация Аврора SDK обновлена"))
         } else {
-            StateMessageOutgoing::new_info(tr!("изменения не найдены"))
+            StateMessageOutgoing::new_info(tr!("конфигурация не требует обновления"))
         }
     }
 }

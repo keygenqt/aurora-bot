@@ -8,34 +8,65 @@ use crate::tools::macros::tr;
 use crate::tools::utils;
 
 #[derive(PartialEq)]
-pub enum EmulatorSessionType {
+pub enum SessionModelType {
     Root,
     User,
 }
 
 #[allow(dead_code)]
-pub struct EmulatorSession {
+pub struct SessionModel {
     pub host: String,
     pub user: String,
     pub port: u16,
     pub os_name: String,
     pub os_version: String,
+    pub arch: String,
     session: SshSession,
     session_listen: SshSession,
 }
 
-impl EmulatorSession {
-    pub fn new(session_type: EmulatorSessionType, key: &String) -> Result<Self, Box<dyn std::error::Error>> {
-        let host = "localhost";
-        let user = if session_type == EmulatorSessionType::Root {
-            "root"
+impl SessionModel {
+    pub fn new_key(
+        session_type: SessionModelType,
+        path: &String,
+        host: &String,
+        port: u16,
+    ) -> Result<Self, Box<dyn std::error::Error>> {
+        Self::new(session_type, Some(path.clone()), None, host.clone(), port)
+    }
+
+    pub fn new_pass(
+        session_type: SessionModelType,
+        pass: &String,
+        host: &String,
+        port: u16,
+    ) -> Result<Self, Box<dyn std::error::Error>> {
+        Self::new(session_type, None, Some(pass.clone()), host.clone(), port)
+    }
+
+    fn new(
+        session_type: SessionModelType,
+        path: Option<String>,
+        pass: Option<String>,
+        host: String,
+        port: u16,
+    ) -> Result<Self, Box<dyn std::error::Error>> {
+        let user = if session_type == SessionModelType::Root {
+            "root".to_string()
         } else {
-            "defaultuser"
+            "defaultuser".to_string()
         };
-        let port = 2223;
-        let session_listen = SshSession::connect(PathBuf::from(key), user, (host, port), None)?;
-        let session = SshSession::connect(PathBuf::from(key), user, (host, port), Some(3))?;
-        let output = session.call("cat /etc/os-release")?;
+        let sessions = if let Some(path) = path {
+            let session = SshSession::connect_key(&PathBuf::from(&path), &user, &host, port, Some(3))?;
+            let session_listen = SshSession::connect_key(&PathBuf::from(&path), &user, &host, port, None)?;
+            (session, session_listen)
+        } else {
+            let pass = pass.unwrap();
+            let session = SshSession::connect_pass(&pass, &user, &host, port, Some(3))?;
+            let session_listen = SshSession::connect_pass(&pass, &user, &host, port, None)?;
+            (session, session_listen)
+        };
+        let output = sessions.0.call("cat /etc/os-release")?;
         let lines = match output.first() {
             Some(s) => s.split("\n").map(|e| e.to_string()).collect::<Vec<String>>(),
             None => Err(tr!("ошибка при получении данных"))?,
@@ -48,14 +79,22 @@ impl EmulatorSession {
             Ok(s) => s,
             Err(error) => Err(error)?,
         };
-        Ok(EmulatorSession {
+        let arch = match sessions.0.call("cat /etc/rpm/platform")?.first() {
+            Some(value) => match value.split("-").next() {
+                Some(value) => value.to_string(),
+                None => "undefined".to_string(),
+            },
+            None => "undefined".to_string(),
+        };
+        Ok(SessionModel {
             host: host.to_string(),
             user: user.to_string(),
             port,
             os_name,
             os_version,
-            session,
-            session_listen,
+            arch,
+            session: sessions.0,
+            session_listen: sessions.1,
         })
     }
 

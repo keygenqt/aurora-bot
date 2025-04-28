@@ -1,5 +1,6 @@
 use crate::models::configuration::Config;
 use crate::models::flutter_installed::model::FlutterInstalledModel;
+use crate::tools::macros::crash;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -38,7 +39,7 @@ impl FlutterConfig {
                     dart_version: e.dart_version.clone(),
                 })
                 .collect(),
-            Err(_) => vec![],
+            Err(error) => crash!(error),
         }
     }
 

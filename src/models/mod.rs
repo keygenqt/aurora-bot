@@ -3,7 +3,6 @@ pub mod configuration;
 
 pub mod emulator {
     pub mod model;
-    pub mod session;
 }
 pub mod demo_app {
     pub mod model;
@@ -36,6 +35,9 @@ pub mod sdk_available {
     pub mod model;
 }
 pub mod sdk_installed {
+    pub mod model;
+}
+pub mod session {
     pub mod model;
 }
 

@@ -1,6 +1,7 @@
 use crate::models::configuration::Config;
 use crate::models::psdk_installed::model::PsdkInstalledModel;
 use crate::models::psdk_target::model::PsdkTargetModel;
+use crate::tools::macros::crash;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -41,7 +42,7 @@ impl PsdkConfig {
                     targets: e.targets.clone(),
                 })
                 .collect(),
-            Err(_) => vec![],
+            Err(error) => crash!(error),
         }
     }
 

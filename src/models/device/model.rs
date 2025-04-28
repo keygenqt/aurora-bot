@@ -52,7 +52,13 @@ impl TraitModel for DeviceModel {
     }
 
     fn print(&self) {
-        let message = format!("Устройство: {}:{}", self.host.bold().white(), self.port.to_string());
+        let message = format!(
+            "Устройство: {}:\nHost: {}\nArch: {}\nAuth: {}",
+            self.name.bold().white(),
+            self.host.bold().white(),
+            self.arch.bold().white(),
+            if self.pass.is_some() { "password" } else { "key" }.bold().white(),
+        );
         print_info!(message);
     }
 }

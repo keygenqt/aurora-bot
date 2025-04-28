@@ -2,6 +2,7 @@ use serde::Deserialize;
 
 use crate::feature::app_open_dir::incoming::AppOpenDirIncoming;
 use crate::feature::demo_app_info::incoming::DemoAppInfoIncoming;
+use crate::feature::device_info::incoming::DeviceInfoIncoming;
 use crate::feature::device_sync::incoming::DeviceSyncIncoming;
 use crate::feature::flutter_install::incoming::FlutterInstallIncoming;
 use crate::feature::flutter_project_format::incoming::FlutterProjectFormatIncoming;
@@ -104,6 +105,11 @@ impl ClientMethodsKey {
             ClientMethodsKey::DemoAppInfo => {
                 print_debug!("> DemoAppInfo: {}", value);
                 let model = serde_json::from_str::<DemoAppInfoIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::DeviceInfo => {
+                print_debug!("> DeviceInfo: {}", value);
+                let model = serde_json::from_str::<DeviceInfoIncoming>(&value)?;
                 Ok(Box::new(model))
             }
             ClientMethodsKey::DeviceSync => {

@@ -18,6 +18,7 @@ use crate::feature::app_auth_logout::incoming::AppAuthLogoutIncoming;
 use crate::feature::app_info::incoming::AppInfoIncoming;
 use crate::feature::app_open_dir::incoming::AppOpenDirIncoming;
 use crate::feature::demo_app_info::incoming::DemoAppInfoIncoming;
+use crate::feature::device_info::incoming::DeviceInfoIncoming;
 use crate::feature::device_sync::incoming::DeviceSyncIncoming;
 use crate::feature::emulator_close::incoming::EmulatorCloseIncoming;
 use crate::feature::emulator_info::incoming::EmulatorInfoIncoming;
@@ -116,6 +117,9 @@ impl ServerDbus {
 
             /////////////////
             // Device
+            DeviceInfoIncoming::dbus_method_run(builder);
+            DeviceInfoIncoming::dbus_method_run_by_id(builder);
+
             DeviceSyncIncoming::dbus_method_run(builder);
 
             /////////////////

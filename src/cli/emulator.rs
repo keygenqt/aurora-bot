@@ -228,12 +228,9 @@ pub fn run(arg: EmulatorArgs) {
                     let result = DataIncoming::get_model(&DemoAppInfoIncoming::new().run(OutgoingType::Cli).to_json());
                     if let Ok(json) = result {
                         match serde_json::from_str::<DemoAppInfoOutgoing>(&json) {
-                            Ok(outgoing) => match utils::get_https_url(outgoing.model.url_x86_64) {
-                                Some(url) => EmulatorPackageInstallIncoming::new_url(url)
-                                    .run(OutgoingType::Cli)
-                                    .print(),
-                                None => print_error!("проверьте url файла"),
-                            },
+                            Ok(outgoing) => EmulatorPackageInstallIncoming::new_url(outgoing.model.url_x86_64)
+                                .run(OutgoingType::Cli)
+                                .print(),
                             Err(_) => print_error!("ошибка получения данных"),
                         }
                     } else {

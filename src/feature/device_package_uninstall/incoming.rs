@@ -1,0 +1,171 @@
+use dbus_crossroads::IfaceBuilder;
+use serde::Deserialize;
+use serde::Serialize;
+
+use crate::feature::ClientMethodsKey;
+use crate::feature::incoming::TraitIncoming;
+use crate::feature::outgoing::OutgoingType;
+use crate::feature::outgoing::TraitOutgoing;
+use crate::feature::selector::selects::select_device::DeviceModelSelect;
+use crate::feature::selector::selects::select_device_packages::DevicePackageSelect;
+use crate::feature::state_message::outgoing::StateMessageOutgoing;
+use crate::models::device::model::DeviceModel;
+use crate::service::dbus::server::IfaceData;
+use crate::tools::macros::print_debug;
+use crate::tools::macros::tr;
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct DevicePackageUninstallIncoming {
+    id: Option<String>,
+    package: Option<String>,
+}
+
+impl DevicePackageUninstallIncoming {
+    pub fn name() -> String {
+        serde_variant::to_variant_name(&ClientMethodsKey::DevicePackageUninstall)
+            .unwrap()
+            .to_string()
+    }
+
+    pub fn new() -> Box<DevicePackageUninstallIncoming> {
+        print_debug!("> {}: new()", Self::name());
+        Box::new(Self {
+            id: None,
+            package: None,
+        })
+    }
+
+    pub fn new_id(id: String) -> Box<DevicePackageUninstallIncoming> {
+        print_debug!("> {}: new_id(id: {})", Self::name(), id);
+        Box::new(Self {
+            id: Some(id),
+            package: None,
+        })
+    }
+
+    pub fn new_package(package: String) -> Box<DevicePackageUninstallIncoming> {
+        print_debug!("> {}: new_package(package: {})", Self::name(), package);
+        Box::new(Self {
+            id: None,
+            package: Some(package),
+        })
+    }
+
+    pub fn new_id_package(id: String, package: String) -> Box<DevicePackageUninstallIncoming> {
+        print_debug!("> {}: new_id_package(id: {}, package: {})", Self::name(), id, package);
+        Box::new(Self {
+            id: Some(id),
+            package: Some(package),
+        })
+    }
+
+    fn select(&self, id: String) -> DevicePackageUninstallIncoming {
+        let mut select = self.clone();
+        select.id = Some(id);
+        select
+    }
+
+    fn select_package(&self, id: String, package: String) -> DevicePackageUninstallIncoming {
+        let mut select = self.clone();
+        select.id = Some(id);
+        select.package = Some(package);
+        select
+    }
+
+    pub fn dbus_method_run(builder: &mut IfaceBuilder<IfaceData>) {
+        builder.method_with_cr_async(
+            Self::name(),
+            (),
+            ("result",),
+            move |mut ctx: dbus_crossroads::Context, _, (): ()| async move {
+                let outgoing = Self::new().run(OutgoingType::Dbus);
+                ctx.reply(Ok((outgoing.to_json(),)))
+            },
+        );
+    }
+
+    pub fn dbus_method_run_by_id(builder: &mut IfaceBuilder<IfaceData>) {
+        builder.method_with_cr_async(
+            format!("{}{}", Self::name(), "ById"),
+            ("id",),
+            ("result",),
+            move |mut ctx: dbus_crossroads::Context, _, (id,): (String,)| async move {
+                let outgoing = Self::new_id(id).run(OutgoingType::Dbus);
+                ctx.reply(Ok((outgoing.to_json(),)))
+            },
+        );
+    }
+
+    pub fn dbus_method_run_by_package(builder: &mut IfaceBuilder<IfaceData>) {
+        builder.method_with_cr_async(
+            format!("{}{}", Self::name(), "ByPackage"),
+            ("package",),
+            ("result",),
+            move |mut ctx: dbus_crossroads::Context, _, (package,): (String,)| async move {
+                let outgoing = Self::new_package(package).run(OutgoingType::Dbus);
+                ctx.reply(Ok((outgoing.to_json(),)))
+            },
+        );
+    }
+
+    pub fn dbus_method_run_by_id_package(builder: &mut IfaceBuilder<IfaceData>) {
+        builder.method_with_cr_async(
+            format!("{}{}", Self::name(), "ByIdPackage"),
+            ("id", "package"),
+            ("result",),
+            move |mut ctx: dbus_crossroads::Context, _, (id, package): (String, String)| async move {
+                let outgoing = Self::new_id_package(id, package).run(OutgoingType::Dbus);
+                ctx.reply(Ok((outgoing.to_json(),)))
+            },
+        );
+    }
+
+    fn run(
+        model: DeviceModel,
+        package_name: String,
+        send_type: &OutgoingType,
+    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+        // Get session
+        let session = model.session_user()?;
+        // Remove by apm
+        StateMessageOutgoing::new_state(tr!("удаление пакета")).send(send_type);
+        session.remove_package(package_name, true)?;
+        // Success result
+        Ok(StateMessageOutgoing::new_success(tr!("пакет удален")))
+    }
+}
+
+impl TraitIncoming for DevicePackageUninstallIncoming {
+    fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
+        // Search
+        let key = DevicePackageUninstallIncoming::name();
+        let models = DeviceModelSelect::search(&self.id, tr!("получаем информацию об устройствах"), &send_type);
+        // Select
+        match models.iter().count() {
+            1 => {
+                if let Some(model) = models.first() {
+                    if let Some(package) = self.package.clone() {
+                        match Self::run(model.clone(), package, &send_type) {
+                            Ok(result) => result,
+                            Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
+                        }
+                    } else {
+                        match DevicePackageSelect::select(key, &send_type, model, |id, package| {
+                            self.select_package(id, package)
+                        }) {
+                            Ok(value) => Box::new(value),
+                            Err(_) => StateMessageOutgoing::new_error(tr!("не удалось найти пакеты")),
+                        }
+                    }
+                } else {
+                    panic!("ошибка получения данных")
+                }
+            }
+            0 => StateMessageOutgoing::new_info(tr!("устройства не найдены")),
+            _ => match DeviceModelSelect::select(key, &send_type, models, |id| self.select(id)) {
+                Ok(value) => Box::new(value),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить устройство")),
+            },
+        }
+    }
+}

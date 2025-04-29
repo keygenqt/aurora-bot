@@ -14,6 +14,7 @@ pub struct DeviceConfig {
     pub name: String,
     pub version: String,
     pub arch: String,
+    pub devel_su: String,
 }
 
 impl DeviceConfig {
@@ -41,6 +42,7 @@ impl DeviceConfig {
                     name: e.name.clone(),
                     version: e.version.clone(),
                     arch: e.arch.clone(),
+                    devel_su: e.devel_su.clone(),
                 })
                 .collect(),
             Err(error) => crash!(error),
@@ -57,6 +59,7 @@ impl DeviceConfig {
             name: self.name.clone(),
             version: self.version.clone(),
             arch: self.arch.clone(),
+            devel_su: self.devel_su.clone(),
         }
     }
 }

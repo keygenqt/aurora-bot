@@ -3,8 +3,13 @@ use serde::Deserialize;
 use crate::feature::app_open_dir::incoming::AppOpenDirIncoming;
 use crate::feature::demo_app_info::incoming::DemoAppInfoIncoming;
 use crate::feature::device_info::incoming::DeviceInfoIncoming;
+use crate::feature::device_package_install::incoming::DevicePackageInstallIncoming;
+use crate::feature::device_package_run::incoming::DevicePackageRunIncoming;
+use crate::feature::device_package_uninstall::incoming::DevicePackageUninstallIncoming;
+use crate::feature::device_screenshot::incoming::DeviceScreenshotIncoming;
 use crate::feature::device_sync::incoming::DeviceSyncIncoming;
 use crate::feature::device_terminal::incoming::DeviceTerminalIncoming;
+use crate::feature::device_upload::incoming::DeviceUploadIncoming;
 use crate::feature::flutter_install::incoming::FlutterInstallIncoming;
 use crate::feature::flutter_project_format::incoming::FlutterProjectFormatIncoming;
 use crate::feature::flutter_project_report::incoming::FlutterProjectReportIncoming;
@@ -113,6 +118,26 @@ impl ClientMethodsKey {
                 let model = serde_json::from_str::<DeviceInfoIncoming>(&value)?;
                 Ok(Box::new(model))
             }
+            ClientMethodsKey::DevicePackageInstall => {
+                print_debug!("> DevicePackageInstall: {}", value);
+                let model = serde_json::from_str::<DevicePackageInstallIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::DevicePackageRun => {
+                print_debug!("> DevicePackageRun: {}", value);
+                let model = serde_json::from_str::<DevicePackageRunIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::DevicePackageUninstall => {
+                print_debug!("> DevicePackageUninstall: {}", value);
+                let model = serde_json::from_str::<DevicePackageUninstallIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::DeviceScreenshot => {
+                print_debug!("> DeviceScreenshot: {}", value);
+                let model = serde_json::from_str::<DeviceScreenshotIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
             ClientMethodsKey::DeviceSync => {
                 print_debug!("> DeviceSync: {}", value);
                 let model = serde_json::from_str::<DeviceSyncIncoming>(&value)?;
@@ -121,6 +146,11 @@ impl ClientMethodsKey {
             ClientMethodsKey::DeviceTerminal => {
                 print_debug!("> DeviceTerminal: {}", value);
                 let model = serde_json::from_str::<DeviceTerminalIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::DeviceUpload => {
+                print_debug!("> DeviceUpload: {}", value);
+                let model = serde_json::from_str::<DeviceUploadIncoming>(&value)?;
                 Ok(Box::new(model))
             }
             ClientMethodsKey::EmulatorClose => {

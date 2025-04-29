@@ -12,7 +12,7 @@ use serde::Serialize;
 use std::collections::HashMap;
 use std::fs;
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct PsdkInstalledModel {
     pub id: String,
     pub dir: String,

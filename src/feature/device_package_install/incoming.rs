@@ -8,9 +8,9 @@ use crate::feature::ClientMethodsKey;
 use crate::feature::incoming::TraitIncoming;
 use crate::feature::outgoing::OutgoingType;
 use crate::feature::outgoing::TraitOutgoing;
-use crate::feature::selector::selects::select_emulator::EmulatorModelSelect;
+use crate::feature::selector::selects::select_device::DeviceModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
-use crate::models::emulator::model::EmulatorModel;
+use crate::models::device::model::DeviceModel;
 use crate::models::psdk_installed::model::PsdkInstalledModel;
 use crate::service::command;
 use crate::service::dbus::server::IfaceData;
@@ -20,29 +20,29 @@ use crate::tools::single;
 use crate::tools::utils;
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct EmulatorPackageInstallIncoming {
+pub struct DevicePackageInstallIncoming {
     id: Option<String>,
     path: Option<PathBuf>,
-    url: Option<String>,
+    urls: Option<Vec<String>>,
 }
 
-impl EmulatorPackageInstallIncoming {
+impl DevicePackageInstallIncoming {
     pub fn name() -> String {
-        serde_variant::to_variant_name(&ClientMethodsKey::EmulatorPackageInstall)
+        serde_variant::to_variant_name(&ClientMethodsKey::DevicePackageInstall)
             .unwrap()
             .to_string()
     }
 
-    pub fn new_path(path: PathBuf) -> Box<EmulatorPackageInstallIncoming> {
+    pub fn new_path(path: PathBuf) -> Box<DevicePackageInstallIncoming> {
         print_debug!("> {}: new_path(path: {})", Self::name(), path.to_string_lossy());
         Box::new(Self {
             id: None,
             path: Some(path),
-            url: None,
+            urls: None,
         })
     }
 
-    pub fn new_path_id(id: String, path: PathBuf) -> Box<EmulatorPackageInstallIncoming> {
+    pub fn new_path_id(id: String, path: PathBuf) -> Box<DevicePackageInstallIncoming> {
         print_debug!(
             "> {}: new_path_id(id: {}, path: {})",
             Self::name(),
@@ -52,29 +52,29 @@ impl EmulatorPackageInstallIncoming {
         Box::new(Self {
             id: Some(id),
             path: Some(path),
-            url: None,
+            urls: None,
         })
     }
 
-    pub fn new_url(url: String) -> Box<EmulatorPackageInstallIncoming> {
-        print_debug!("> {}: new_url(url: {})", Self::name(), url);
+    pub fn new_urls(urls: Vec<String>) -> Box<DevicePackageInstallIncoming> {
+        print_debug!("> {}: new_url(urls: {:?})", Self::name(), urls);
         Box::new(Self {
             id: None,
             path: None,
-            url: Some(url),
+            urls: Some(urls),
         })
     }
 
-    pub fn new_url_id(id: String, url: String) -> Box<EmulatorPackageInstallIncoming> {
-        print_debug!("> {}: new_url_id(id: {}, url: {})", Self::name(), id, url);
+    pub fn new_urls_id(id: String, urls: Vec<String>) -> Box<DevicePackageInstallIncoming> {
+        print_debug!("> {}: new_url_id(id: {}, urls: {:?})", Self::name(), id, urls);
         Box::new(Self {
             id: Some(id),
             path: None,
-            url: Some(url),
+            urls: Some(urls),
         })
     }
 
-    fn select(&self, id: String) -> EmulatorPackageInstallIncoming {
+    fn select(&self, id: String) -> DevicePackageInstallIncoming {
         let mut select = self.clone();
         select.id = Some(id);
         select
@@ -116,7 +116,7 @@ impl EmulatorPackageInstallIncoming {
             ("url",),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (url,): (String,)| async move {
-                let outgoing = Self::new_url(url).run(OutgoingType::Dbus);
+                let outgoing = Self::new_urls(vec![url]).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
@@ -128,20 +128,17 @@ impl EmulatorPackageInstallIncoming {
             ("id", "url"),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (id, url): (String, String)| async move {
-                let outgoing = Self::new_url_id(id, url).run(OutgoingType::Dbus);
+                let outgoing = Self::new_urls_id(id, vec![url]).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
     }
 
     fn run_install_by_path(
-        model: &EmulatorModel,
+        model: &DeviceModel,
         send_type: &OutgoingType,
         path: &PathBuf,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-        if !model.is_running {
-            return Ok(StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен")));
-        }
         // Check and sign package
         let psdk = match PsdkInstalledModel::get_latest() {
             Some(value) => value,
@@ -167,12 +164,20 @@ impl EmulatorPackageInstallIncoming {
         Ok(StateMessageOutgoing::new_success(tr!("пакет успешно установлен")))
     }
 
-    fn run_install_by_url(
-        model: &EmulatorModel,
+    fn run_install_by_urls(
+        model: &DeviceModel,
         send_type: &OutgoingType,
-        url: &String,
+        urls: &Vec<String>,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         StateMessageOutgoing::new_state(tr!("скачиваем файл...")).send(send_type);
+        let url = if urls.len() == 1 {
+            urls.first().unwrap()
+        } else {
+            match urls.iter().filter(|e| e.contains(&model.arch)).next() {
+                Some(value) => value,
+                None => Err(tr!("не удалось найти ссылку для таргета: {}", model.arch))?,
+            }
+        };
         let url = match utils::get_https_url(url.to_string()) {
             Some(url) => url,
             None => Err(tr!("не удалось скачать файл"))?,
@@ -191,43 +196,34 @@ impl EmulatorPackageInstallIncoming {
     }
 }
 
-impl TraitIncoming for EmulatorPackageInstallIncoming {
+impl TraitIncoming for DevicePackageInstallIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
-        let key = EmulatorPackageInstallIncoming::name();
-        let models = EmulatorModelSelect::search(
-            &self.id,
-            &send_type,
-            tr!("ищем запущенный эмулятор для загрузки"),
-            Some(true),
-        );
-        if self.path.as_ref().is_none() && self.url.as_ref().is_none() {
+        let key = DevicePackageInstallIncoming::name();
+        let models = DeviceModelSelect::search(&self.id, tr!("получаем информацию об устройствах"), &send_type);
+        if self.path.as_ref().is_none() && self.urls.as_ref().is_none() {
             return StateMessageOutgoing::new_error(tr!("нужно указать путь или url к файлу"));
         }
         // Select
         match models.iter().count() {
             1 => {
                 let emulator = models.last().unwrap();
-                if !emulator.is_running {
-                    StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен"))
+                if self.path.as_ref().is_some() {
+                    match Self::run_install_by_path(emulator, &send_type, self.path.as_ref().unwrap()) {
+                        Ok(value) => value,
+                        Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
+                    }
                 } else {
-                    if self.path.as_ref().is_some() {
-                        match Self::run_install_by_path(emulator, &send_type, self.path.as_ref().unwrap()) {
-                            Ok(value) => value,
-                            Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
-                        }
-                    } else {
-                        match Self::run_install_by_url(emulator, &send_type, self.url.as_ref().unwrap()) {
-                            Ok(value) => value,
-                            Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
-                        }
+                    match Self::run_install_by_urls(emulator, &send_type, self.urls.as_ref().unwrap()) {
+                        Ok(value) => value,
+                        Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
                     }
                 }
             }
-            0 => StateMessageOutgoing::new_info(tr!("запущенные эмуляторы не найдены")),
-            _ => match EmulatorModelSelect::select(key, &send_type, models, |id| self.select(id)) {
+            0 => StateMessageOutgoing::new_info(tr!("устройства не найдены")),
+            _ => match DeviceModelSelect::select(key, &send_type, models, |id| self.select(id)) {
                 Ok(value) => Box::new(value),
-                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить эмулятор")),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить устройство")),
             },
         }
     }

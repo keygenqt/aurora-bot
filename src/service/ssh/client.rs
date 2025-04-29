@@ -1,5 +1,6 @@
 use std::borrow::Cow;
 use std::fs::File;
+use std::io::Write;
 use std::os::unix::fs::MetadataExt;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -11,6 +12,7 @@ use russh_sftp::client::SftpSession;
 use russh_sftp::protocol::OpenFlags;
 use std::fs;
 use std::str;
+use tokio::io::AsyncReadExt;
 use tokio::io::AsyncWriteExt;
 use tokio::net::ToSocketAddrs;
 use tokio::runtime::Handle;
@@ -196,6 +198,27 @@ impl SshSession {
         Ok(())
     }
 
+    pub async fn download(&self, path_local: &PathBuf, path_remote: &String) -> Result<(), Box<dyn std::error::Error>> {
+        // Get connect
+        let channel = self.session.channel_open_session().await?;
+        channel.request_subsystem(true, "sftp").await.unwrap();
+        let sftp = SftpSession::new(channel.into_stream()).await.unwrap();
+        // let path_remote = "/home/defaultuser/Downloads/Screenshot_1745909213076.png".to_string();
+        let mut sftp_file = sftp.open_with_flags(path_remote.clone(), OpenFlags::READ).await?;
+        // Create file
+        let mut file = File::create(path_local)?;
+        // Download data
+        let mut buffer = [0u8; 4096];
+        loop {
+            let n = sftp_file.read(&mut buffer).await?;
+            if n == 0 {
+                break;
+            }
+            file.write_all(&buffer[..n])?;
+        }
+        Ok(())
+    }
+
     pub async fn upload<F: Fn(i32) + Send + Copy + Sync + 'static>(
         &self,
         path: &PathBuf,
@@ -222,8 +245,7 @@ impl SshSession {
                 file_name.clone(),
                 OpenFlags::CREATE | OpenFlags::TRUNCATE | OpenFlags::WRITE | OpenFlags::READ,
             )
-            .await
-            .unwrap();
+            .await?;
         // Write data
         let mut progress = 0;
         let chunk = file.metadata()?.size() / 100;

@@ -7,7 +7,7 @@ use crate::tools::utils;
 use serde::Deserialize;
 use serde::Serialize;
 
-#[derive(Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub struct PsdkTargetModel {
     pub id: String,
     pub dir: String,

@@ -19,8 +19,13 @@ use crate::feature::app_info::incoming::AppInfoIncoming;
 use crate::feature::app_open_dir::incoming::AppOpenDirIncoming;
 use crate::feature::demo_app_info::incoming::DemoAppInfoIncoming;
 use crate::feature::device_info::incoming::DeviceInfoIncoming;
+use crate::feature::device_package_install::incoming::DevicePackageInstallIncoming;
+use crate::feature::device_package_run::incoming::DevicePackageRunIncoming;
+use crate::feature::device_package_uninstall::incoming::DevicePackageUninstallIncoming;
+use crate::feature::device_screenshot::incoming::DeviceScreenshotIncoming;
 use crate::feature::device_sync::incoming::DeviceSyncIncoming;
 use crate::feature::device_terminal::incoming::DeviceTerminalIncoming;
+use crate::feature::device_upload::incoming::DeviceUploadIncoming;
 use crate::feature::emulator_close::incoming::EmulatorCloseIncoming;
 use crate::feature::emulator_info::incoming::EmulatorInfoIncoming;
 use crate::feature::emulator_open::incoming::EmulatorOpenIncoming;
@@ -121,10 +126,33 @@ impl ServerDbus {
             DeviceInfoIncoming::dbus_method_run(builder);
             DeviceInfoIncoming::dbus_method_run_by_id(builder);
 
+            DevicePackageInstallIncoming::dbus_method_run_path(builder);
+            DevicePackageInstallIncoming::dbus_method_run_path_by_id(builder);
+            DevicePackageInstallIncoming::dbus_method_run_url(builder);
+            DevicePackageInstallIncoming::dbus_method_run_url_by_id(builder);
+
+            DevicePackageRunIncoming::dbus_method_run(builder);
+            DevicePackageRunIncoming::dbus_method_run_by_id(builder);
+            DevicePackageRunIncoming::dbus_method_run_by_package(builder);
+            DevicePackageRunIncoming::dbus_method_run_by_id_package(builder);
+
+            DevicePackageUninstallIncoming::dbus_method_run(builder);
+            DevicePackageUninstallIncoming::dbus_method_run_by_id(builder);
+            DevicePackageUninstallIncoming::dbus_method_run_by_package(builder);
+            DevicePackageUninstallIncoming::dbus_method_run_by_id_package(builder);
+
+            DeviceScreenshotIncoming::dbus_method_run(builder);
+            DeviceScreenshotIncoming::dbus_method_run_by_id(builder);
+
             DeviceSyncIncoming::dbus_method_run(builder);
 
             DeviceTerminalIncoming::dbus_method_run(builder);
             DeviceTerminalIncoming::dbus_method_run_by_id(builder);
+
+            DeviceUploadIncoming::dbus_method_run_path(builder);
+            DeviceUploadIncoming::dbus_method_run_path_by_id(builder);
+            DeviceUploadIncoming::dbus_method_run_url(builder);
+            DeviceUploadIncoming::dbus_method_run_url_by_id(builder);
 
             /////////////////
             // Emulator

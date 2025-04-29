@@ -64,6 +64,7 @@ impl EmulatorModel {
             &self.key,
             &"localhost".to_string(),
             2223,
+            None,
         )?)
     }
 
@@ -74,6 +75,7 @@ impl EmulatorModel {
             &self.key,
             &"localhost".to_string(),
             2223,
+            None,
         )?)
     }
 

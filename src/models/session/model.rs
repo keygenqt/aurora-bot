@@ -1,7 +1,9 @@
 use std::path::PathBuf;
+use std::thread;
 
 use regex::Regex;
 use tokio::runtime::Handle;
+use tokio::time;
 
 use crate::service::ssh::client::SshSession;
 use crate::tools::macros::tr;
@@ -21,6 +23,7 @@ pub struct SessionModel {
     pub os_name: String,
     pub os_version: String,
     pub arch: String,
+    pub devel_su: Option<String>,
     session: SshSession,
     session_listen: SshSession,
 }
@@ -31,8 +34,9 @@ impl SessionModel {
         path: &String,
         host: &String,
         port: u16,
+        devel_su: Option<String>,
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        Self::new(session_type, Some(path.clone()), None, host.clone(), port)
+        Self::new(session_type, Some(path.clone()), None, host.clone(), port, devel_su)
     }
 
     pub fn new_pass(
@@ -40,8 +44,9 @@ impl SessionModel {
         pass: &String,
         host: &String,
         port: u16,
+        devel_su: Option<String>,
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        Self::new(session_type, None, Some(pass.clone()), host.clone(), port)
+        Self::new(session_type, None, Some(pass.clone()), host.clone(), port, devel_su)
     }
 
     fn new(
@@ -50,6 +55,7 @@ impl SessionModel {
         pass: Option<String>,
         host: String,
         port: u16,
+        devel_su: Option<String>,
     ) -> Result<Self, Box<dyn std::error::Error>> {
         let user = if session_type == SessionModelType::Root {
             "root".to_string()
@@ -93,6 +99,7 @@ impl SessionModel {
             os_name,
             os_version,
             arch,
+            devel_su,
             session: sessions.0,
             session_listen: sessions.1,
         })
@@ -105,6 +112,32 @@ impl SessionModel {
     ) -> Result<String, Box<dyn std::error::Error>> {
         let path_remote = tokio::task::block_in_place(|| Handle::current().block_on(self.session.upload(path, state)))?;
         Ok(path_remote)
+    }
+
+    pub fn take_screenshot(&self) -> Result<PathBuf, Box<dyn std::error::Error>> {
+        if let Some(devel_su) = &self.devel_su {
+            // Data
+            let file_path = utils::get_screenshot_save_path();
+            let file_name = &file_path.file_name().unwrap().to_str().unwrap().to_string();
+            let remote_path = format!("/home/defaultuser/Downloads/{file_name}");
+            // Command
+            let command = format!(
+                "echo '{devel_su}' | devel-su gdbus call --session --dest org.nemomobile.lipstick --object-path /org/nemomobile/lipstick/screenshot --method org.nemomobile.lipstick.saveScreenshot '{remote_path}'",
+            );
+            let file_path = match self.session.call(&command) {
+                Ok(_) => file_path,
+                Err(_) => Err(tr!("произошла ошибка при создании скриншота"))?,
+            };
+            // Delay create screenshot
+            thread::sleep(time::Duration::from_secs(2));
+            // Download
+            tokio::task::block_in_place(|| {
+                Handle::current().block_on(self.session.download(&file_path, &remote_path))
+            })?;
+            // Result
+            return Ok(file_path);
+        }
+        Err(tr!("для создание скриншота необходимо указать devel_su"))?
     }
 
     pub fn get_install_packages(&self) -> Result<Vec<String>, Box<dyn std::error::Error>> {

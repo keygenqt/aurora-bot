@@ -27,6 +27,7 @@ pub struct DeviceModel {
     pub name: String,
     pub version: String,
     pub arch: String,
+    pub devel_su: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -34,6 +35,7 @@ pub struct DeviceUserModel {
     pub host: String,
     pub auth: String,
     pub port: u16,
+    pub devel_su: String,
 }
 
 impl DeviceModel {
@@ -66,7 +68,7 @@ impl TraitModel for DeviceModel {
 impl DeviceModel {
     #[allow(dead_code)]
     pub fn session_user(&self) -> Result<SessionModel, Box<dyn std::error::Error>> {
-        Self::_session_user(&self.path, &self.pass, &self.host, self.port)
+        Self::_session_user(&self.path, &self.pass, &self.host, self.port, &self.devel_su)
     }
 
     fn _session_user(
@@ -74,12 +76,25 @@ impl DeviceModel {
         pass: &Option<String>,
         host: &String,
         port: u16,
+        devel_su: &String,
     ) -> Result<SessionModel, Box<dyn std::error::Error>> {
         if let Some(path) = &path {
-            return Ok(SessionModel::new_key(SessionModelType::User, path, &host, port)?);
+            return Ok(SessionModel::new_key(
+                SessionModelType::User,
+                path,
+                &host,
+                port,
+                Some(devel_su.clone()),
+            )?);
         }
         if let Some(pass) = &pass {
-            return Ok(SessionModel::new_pass(SessionModelType::User, pass, &host, port)?);
+            return Ok(SessionModel::new_pass(
+                SessionModelType::User,
+                pass,
+                &host,
+                port,
+                Some(devel_su.clone()),
+            )?);
         }
         Err(tr!("необходимо указать пароль или путь к ключу"))?
     }
@@ -118,7 +133,13 @@ impl DeviceModel {
             } else {
                 None
             };
-            let session = match Self::_session_user(&ssh_key_path, &ssh_pass, &user_model.host, user_model.port) {
+            let session = match Self::_session_user(
+                &ssh_key_path,
+                &ssh_pass,
+                &user_model.host,
+                user_model.port,
+                &user_model.devel_su,
+            ) {
                 Ok(value) => Some(value),
                 Err(_) => None,
             };
@@ -132,6 +153,7 @@ impl DeviceModel {
                     name: session.os_name,
                     version: session.os_version,
                     arch: session.arch,
+                    devel_su: user_model.devel_su,
                 });
             } else {
                 let message = tr!("синхронизация с устройством {} не удалась", user_model.host);
@@ -165,6 +187,7 @@ impl DeviceModel {
             host: "192.168.2.15".to_string(),
             auth: "00000".to_string(),
             port: 22,
+            devel_su: "00000".to_string(),
         }];
         let value_for_save = serde_json::to_string_pretty(&default_devices)?;
         match fs::write(path, &value_for_save) {

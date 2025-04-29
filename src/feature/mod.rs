@@ -27,10 +27,26 @@ pub mod device_info {
     pub mod incoming;
     pub mod outgoing;
 }
+pub mod device_package_install {
+    pub mod incoming;
+}
+pub mod device_package_run {
+    pub mod incoming;
+}
+pub mod device_package_uninstall {
+    pub mod incoming;
+}
+pub mod device_screenshot {
+    pub mod incoming;
+    pub mod outgoing;
+}
 pub mod device_sync {
     pub mod incoming;
 }
 pub mod device_terminal {
+    pub mod incoming;
+}
+pub mod device_upload {
     pub mod incoming;
 }
 pub mod emulator_close {
@@ -179,6 +195,7 @@ pub mod selector {
     pub mod selects {
         pub mod select_demo_app;
         pub mod select_device;
+        pub mod select_device_packages;
         pub mod select_emulator;
         pub mod select_emulator_packages;
         pub mod select_flutter_available;
@@ -219,8 +236,13 @@ pub enum ClientMethodsKey {
     AppOpenDir,
     DemoAppInfo,
     DeviceInfo,
+    DevicePackageInstall,
+    DevicePackageRun,
+    DevicePackageUninstall,
+    DeviceScreenshot,
     DeviceSync,
     DeviceTerminal,
+    DeviceUpload,
     EmulatorClose,
     EmulatorInfo,
     EmulatorOpen,

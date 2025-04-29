@@ -25,7 +25,7 @@ pub struct DeviceArgs {
     /// Subcommand
     #[command(subcommand)]
     command: Option<DeviceArgsGroup>,
-    /// Информация по доступным эмуляторам
+    /// Информация по доступным устройствам
     #[arg(long, default_value_t = false)]
     info: bool,
     /// Сделать скриншот

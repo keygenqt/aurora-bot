@@ -42,10 +42,10 @@ pub const SIGN_REG_KEY_URL: &str = "https://developer.auroraos.ru/static/regular
 pub const SIGN_REG_CERT_URL: &str = "https://developer.auroraos.ru/static/regular_cert.pem";
 
 /// Version application
-pub const VERSION_APP: &str = "0.0.6";
+pub const VERSION_APP: &str = "0.1.0";
 
 /// Version dbus api
-pub const VERSION_API: &str = "0.0.1";
+pub const VERSION_API: &str = "0.1.0";
 
 /// Version configuration
 pub const VERSION_CONFIGURATION: &str = "1";

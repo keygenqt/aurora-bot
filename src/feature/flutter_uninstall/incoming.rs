@@ -87,10 +87,13 @@ impl FlutterUninstallIncoming {
         } else {
             &PathBuf::from(model.dir.clone())
         };
+
         // Remove folder
-        StateMessageOutgoing::new_state(tr!("удаление директории: {}", folder_remove.to_string_lossy()))
-            .send(send_type);
-        fs::remove_dir_all(folder_remove)?;
+        if folder_remove.exists() {
+            StateMessageOutgoing::new_state(tr!("удаление директории: {}", folder_remove.to_string_lossy()))
+                .send(send_type);
+            fs::remove_dir_all(folder_remove)?;
+        }
 
         //////////
         // SYNC

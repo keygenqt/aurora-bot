@@ -8,7 +8,7 @@ use crate::feature::outgoing::TraitOutgoing;
 use crate::feature::ws_ping::outgoing::WsPingOutgoing;
 use crate::service::requests::client::ClientRequest;
 use crate::tools::constants;
-use crate::tools::macros::crash;
+use crate::tools::macros::{crash, print_debug};
 use crate::tools::macros::print_error;
 use crate::tools::macros::print_warning;
 use crate::tools::macros::tr;
@@ -59,7 +59,10 @@ impl ClientWebsocket {
         async fn _run(ws: &ClientWebsocket) -> Result<(), Box<dyn std::error::Error>> {
             match ws.connect().await {
                 Ok(_) => Ok(()),
-                Err(_) => Ok(ws.reconnect().await?),
+                Err(error) => {
+                    print_debug!("reconnect: {}", error);
+                    Ok(ws.reconnect().await?)
+                },
             }
         }
         tokio::task::block_in_place(|| Handle::current().block_on(_run(self)))

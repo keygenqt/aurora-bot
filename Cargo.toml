@@ -2,7 +2,7 @@
 name = "aurora-bot"
 description = "Fast, smart, lightweight, client of the Aurora Bot project."
 repository = "https://github.com/keygenqt/aurora-bot"
-version = "0.0.6"
+version = "0.0.7"
 authors = ["Vitaliy Zarubin <keygenqt@yandex.ru"]
 license = "Apache-2.0"
 edition = "2024"

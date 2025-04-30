@@ -105,7 +105,8 @@ impl SshSession {
             Some(value) => value,
             None => 600, // 10m
         };
-        let result = tokio::time::timeout(Duration::from_secs(connect_timeout), client::connect(config, addrs, sh)).await?;
+        let result =
+            tokio::time::timeout(Duration::from_secs(connect_timeout), client::connect(config, addrs, sh)).await?;
         if result.is_err() {
             Err("не удалось соединиться")?;
         }

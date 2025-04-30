@@ -84,10 +84,12 @@ impl PsdkUninstallIncoming {
         // Get remove folder
         let folder_remove = &PathBuf::from(model.dir.replace("/sdks/aurora_psdk", ""));
         // Remove folder
-        StateMessageOutgoing::new_state(tr!("удаление директории: {}", folder_remove.to_string_lossy()))
-            .send(send_type);
-        let sudo = programs::get_sudo()?;
-        let _ = exec::exec_wait_args(&sudo, ["rm", "-rf", &folder_remove.to_string_lossy().to_string()])?;
+        if folder_remove.exists() {
+            StateMessageOutgoing::new_state(tr!("удаление директории: {}", folder_remove.to_string_lossy()))
+                .send(send_type);
+            let sudo = programs::get_sudo()?;
+            let _ = exec::exec_wait_args(&sudo, ["rm", "-rf", &folder_remove.to_string_lossy().to_string()])?;
+        }
 
         //////////
         // SUDOERS

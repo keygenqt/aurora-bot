@@ -44,11 +44,7 @@ impl DevicePackageRunIncoming {
     }
 
     pub fn new_package(package: String) -> Box<DevicePackageRunIncoming> {
-        print_debug!(
-            "> {}: new_package(package: {})",
-            Self::name(),
-            package,
-        );
+        print_debug!("> {}: new_package(package: {})", Self::name(), package,);
         Box::new(Self {
             id: None,
             package: Some(package),
@@ -56,12 +52,7 @@ impl DevicePackageRunIncoming {
     }
 
     pub fn new_id_package(id: String, package: String) -> Box<DevicePackageRunIncoming> {
-        print_debug!(
-            "> {}: new_id_package(id: {}, package: {})",
-            Self::name(),
-            id,
-            package,
-        );
+        print_debug!("> {}: new_id_package(id: {}, package: {})", Self::name(), id, package,);
         Box::new(Self {
             id: Some(id),
             package: Some(package),
@@ -111,7 +102,7 @@ impl DevicePackageRunIncoming {
             ("package",),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (package,): (String,)| async move {
-                let outgoing = Self::new_package(package,).run(OutgoingType::Dbus);
+                let outgoing = Self::new_package(package).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
@@ -120,19 +111,16 @@ impl DevicePackageRunIncoming {
     pub fn dbus_method_run_by_id_package(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "ByIdPackage"),
-            ("id", "package",),
+            ("id", "package"),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (id, package,): (String, String,)| async move {
-                let outgoing = Self::new_id_package(id, package,).run(OutgoingType::Dbus);
+            move |mut ctx: dbus_crossroads::Context, _, (id, package): (String, String)| async move {
+                let outgoing = Self::new_id_package(id, package).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
     }
 
-    fn run(
-        model: DeviceModel,
-        package: String,
-    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+    fn run(model: DeviceModel, package: String) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         match model.session_user()?.run_package_listen(package) {
             Ok(_) => Ok(StateMessageOutgoing::new_success(tr!("приложение остановлено"))),
             Err(_) => Err(tr!("не удалось запустить приложение"))?,

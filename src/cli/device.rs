@@ -142,10 +142,10 @@ pub fn run(arg: DeviceArgs) {
                         match serde_json::from_str::<DemoAppInfoOutgoing>(&json) {
                             Ok(outgoing) => DevicePackageInstallIncoming::new_urls(vec![
                                 outgoing.model.url_aarch64,
-                                outgoing.model.url_armv7hl
+                                outgoing.model.url_armv7hl,
                             ])
-                                .run(OutgoingType::Cli)
-                                .print(),
+                            .run(OutgoingType::Cli)
+                            .print(),
                             Err(_) => print_error!("ошибка получения данных"),
                         }
                     } else {

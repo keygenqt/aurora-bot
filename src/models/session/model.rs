@@ -64,22 +64,8 @@ impl SessionModel {
         } else {
             "defaultuser".to_string()
         };
-        let session = Self::get_session(
-            &user,
-            &host,
-            &path,
-            &pass,
-            port,
-            Some(3)
-        )?;
-        let session_listen = Self::get_session(
-            &user,
-            &host,
-            &path,
-            &pass,
-            port,
-            None
-        )?;
+        let session = Self::get_session(&user, &host, &path, &pass, port, Some(3))?;
+        let session_listen = Self::get_session(&user, &host, &path, &pass, port, None)?;
         let output = session.call("cat /etc/os-release")?;
         let lines = match output.first() {
             Some(s) => s.split("\n").map(|e| e.to_string()).collect::<Vec<String>>(),
@@ -124,7 +110,7 @@ impl SessionModel {
         path: &Option<String>,
         pass: &Option<String>,
         port: u16,
-        timeout: Option<u64>
+        timeout: Option<u64>,
     ) -> Result<SshSession, Box<dyn std::error::Error>> {
         if let Some(path) = path {
             let connect_timeout = if path.clone().contains("vmshare") {
@@ -132,7 +118,14 @@ impl SessionModel {
             } else {
                 Some(2)
             };
-            Ok(SshSession::connect_key(&PathBuf::from(&path), &user, &host, port, timeout, connect_timeout)?)
+            Ok(SshSession::connect_key(
+                &PathBuf::from(&path),
+                &user,
+                &host,
+                port,
+                timeout,
+                connect_timeout,
+            )?)
         } else {
             let pass = pass.clone().unwrap();
             Ok(SshSession::connect_pass(&pass, &user, &host, port, timeout, Some(2))?)
@@ -242,7 +235,8 @@ impl SessionModel {
     }
 
     pub fn run_package(&self, package: String) -> Result<(), Box<dyn std::error::Error>> {
-        self.session.run(&format!("screen -d -m invoker --type=qt5 {package}"))?;
+        self.session
+            .run(&format!("screen -d -m invoker --type=qt5 {package}"))?;
         Ok(())
     }
 

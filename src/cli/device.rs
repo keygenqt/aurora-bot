@@ -164,13 +164,13 @@ pub fn run(arg: DeviceArgs) {
                     return;
                 }
                 if let Some(package) = arg.run_name {
-                    DevicePackageRunIncoming::new_package(package, true)
+                    DevicePackageRunIncoming::new_package(package)
                         .run(OutgoingType::Cli)
                         .print();
                     return;
                 }
                 if arg.run {
-                    DevicePackageRunIncoming::new(true).run(OutgoingType::Cli).print();
+                    DevicePackageRunIncoming::new().run(OutgoingType::Cli).print();
                     return;
                 }
             }

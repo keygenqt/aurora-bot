@@ -130,7 +130,7 @@ impl StateMessageOutgoing {
             match progress {
                 -1 => StateMessageOutgoing::new_state(tr!("получение данных...")).send(send_type),
                 -2 => StateMessageOutgoing::new_state(tr!("причесываем данные...")).send(send_type),
-                -3 => StateMessageOutgoing::new_state(tr!("запускаем процесс...")).send(send_type),
+                -3 => StateMessageOutgoing::new_state(tr!("запускаем процесс конвертации...")).send(send_type),
                 _ => {}
             }
         } else {

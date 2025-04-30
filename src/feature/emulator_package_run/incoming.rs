@@ -155,7 +155,7 @@ impl EmulatorPackageRunIncoming {
         if is_listen {
             Ok(StateMessageOutgoing::new_success(tr!("приложение остановлено")))
         } else {
-            Ok(StateMessageOutgoing::new_success(tr!("приложение запущено")))
+            Ok(StateMessageOutgoing::new_success(tr!("отправлена команда на запуск")))
         }
     }
 }

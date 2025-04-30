@@ -42,6 +42,7 @@ impl SshSession {
         host: &String,
         port: u16,
         timeout: Option<u64>,
+        connect_timeout: Option<u64>,
     ) -> Result<Self, Box<dyn std::error::Error>> {
         tokio::task::block_in_place(|| {
             Handle::current().block_on(Self::_connect(
@@ -50,6 +51,7 @@ impl SshSession {
                 user.clone(),
                 (host.clone(), port),
                 timeout,
+                connect_timeout,
             ))
         })
     }
@@ -60,6 +62,7 @@ impl SshSession {
         host: &String,
         port: u16,
         timeout: Option<u64>,
+        connect_timeout: Option<u64>,
     ) -> Result<Self, Box<dyn std::error::Error>> {
         tokio::task::block_in_place(|| {
             Handle::current().block_on(Self::_connect(
@@ -68,6 +71,7 @@ impl SshSession {
                 user.clone(),
                 (host.clone(), port),
                 timeout,
+                connect_timeout,
             ))
         })
     }
@@ -78,6 +82,7 @@ impl SshSession {
         user: String,
         addrs: T,
         timeout: Option<u64>,
+        connect_timeout: Option<u64>,
     ) -> Result<Self, Box<dyn std::error::Error>> {
         let config = client::Config {
             inactivity_timeout: if let Some(timeout) = timeout {
@@ -96,7 +101,11 @@ impl SshSession {
         };
         let config = Arc::new(config);
         let sh: SshClient = SshClient {};
-        let result = tokio::time::timeout(Duration::from_secs(2), client::connect(config, addrs, sh)).await?;
+        let connect_timeout = match connect_timeout {
+            Some(value) => value,
+            None => 600, // 10m
+        };
+        let result = tokio::time::timeout(Duration::from_secs(connect_timeout), client::connect(config, addrs, sh)).await?;
         if result.is_err() {
             Err("не удалось соединиться")?;
         }
@@ -129,7 +138,7 @@ impl SshSession {
         tokio::task::block_in_place(|| Handle::current().block_on(self._call(command)))
     }
 
-    async fn _call(&self, command: &str) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    pub async fn _call(&self, command: &str) -> Result<Vec<String>, Box<dyn std::error::Error>> {
         let mut code = None;
         let mut response: Vec<String> = vec![];
         let mut channel = self.session.channel_open_session().await?;

@@ -18,7 +18,6 @@ use crate::tools::macros::tr;
 pub struct DevicePackageRunIncoming {
     id: Option<String>,
     package: Option<String>,
-    is_listen: bool,
 }
 
 impl DevicePackageRunIncoming {
@@ -28,50 +27,44 @@ impl DevicePackageRunIncoming {
             .to_string()
     }
 
-    pub fn new(is_listen: bool) -> Box<DevicePackageRunIncoming> {
-        print_debug!("> {}: new(is_listen: {})", Self::name(), is_listen);
+    pub fn new() -> Box<DevicePackageRunIncoming> {
+        print_debug!("> {}: new()", Self::name());
         Box::new(Self {
             id: None,
             package: None,
-            is_listen,
         })
     }
 
-    pub fn new_id(id: String, is_listen: bool) -> Box<DevicePackageRunIncoming> {
-        print_debug!("> {}: new_id(id: {}, is_listen: {})", Self::name(), id, is_listen);
+    pub fn new_id(id: String) -> Box<DevicePackageRunIncoming> {
+        print_debug!("> {}: new_id(id: {})", Self::name(), id);
         Box::new(Self {
             id: Some(id),
             package: None,
-            is_listen,
         })
     }
 
-    pub fn new_package(package: String, is_listen: bool) -> Box<DevicePackageRunIncoming> {
+    pub fn new_package(package: String) -> Box<DevicePackageRunIncoming> {
         print_debug!(
-            "> {}: new_package(package: {}, is_listen: {})",
+            "> {}: new_package(package: {})",
             Self::name(),
             package,
-            is_listen
         );
         Box::new(Self {
             id: None,
             package: Some(package),
-            is_listen,
         })
     }
 
-    pub fn new_id_package(id: String, package: String, is_listen: bool) -> Box<DevicePackageRunIncoming> {
+    pub fn new_id_package(id: String, package: String) -> Box<DevicePackageRunIncoming> {
         print_debug!(
-            "> {}: new_id_package(id: {}, package: {}, is_listen: {})",
+            "> {}: new_id_package(id: {}, package: {})",
             Self::name(),
             id,
             package,
-            is_listen
         );
         Box::new(Self {
             id: Some(id),
             package: Some(package),
-            is_listen,
         })
     }
 
@@ -91,10 +84,10 @@ impl DevicePackageRunIncoming {
     pub fn dbus_method_run(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             Self::name(),
-            ("is_listen",),
+            (),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (is_listen,): (bool,)| async move {
-                let outgoing = Self::new(is_listen).run(OutgoingType::Dbus);
+            move |mut ctx: dbus_crossroads::Context, _, (): ()| async move {
+                let outgoing = Self::new().run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
@@ -103,10 +96,10 @@ impl DevicePackageRunIncoming {
     pub fn dbus_method_run_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "ById"),
-            ("id", "is_listen"),
+            ("id",),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (id, is_listen): (String, bool)| async move {
-                let outgoing = Self::new_id(id, is_listen).run(OutgoingType::Dbus);
+            move |mut ctx: dbus_crossroads::Context, _, (id,): (String,)| async move {
+                let outgoing = Self::new_id(id).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
@@ -115,10 +108,10 @@ impl DevicePackageRunIncoming {
     pub fn dbus_method_run_by_package(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "ByPackage"),
-            ("package", "is_listen"),
+            ("package",),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (package, is_listen): (String, bool)| async move {
-                let outgoing = Self::new_package(package, is_listen).run(OutgoingType::Dbus);
+            move |mut ctx: dbus_crossroads::Context, _, (package,): (String,)| async move {
+                let outgoing = Self::new_package(package,).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
@@ -127,10 +120,10 @@ impl DevicePackageRunIncoming {
     pub fn dbus_method_run_by_id_package(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "ByIdPackage"),
-            ("id", "package", "is_listen"),
+            ("id", "package",),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (id, package, is_listen): (String, String, bool)| async move {
-                let outgoing = Self::new_id_package(id, package, is_listen).run(OutgoingType::Dbus);
+            move |mut ctx: dbus_crossroads::Context, _, (id, package,): (String, String,)| async move {
+                let outgoing = Self::new_id_package(id, package,).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
@@ -139,20 +132,10 @@ impl DevicePackageRunIncoming {
     fn run(
         model: DeviceModel,
         package: String,
-        is_listen: bool,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-        let result = if is_listen {
-            model.session_user()?.run_package_listen(package)
-        } else {
-            model.session_user()?.run_package(package)
-        };
-        if result.is_err() {
-            Err(tr!("не удалось запустить приложение"))?
-        }
-        if is_listen {
-            Ok(StateMessageOutgoing::new_success(tr!("приложение остановлено")))
-        } else {
-            Ok(StateMessageOutgoing::new_success(tr!("приложение запущено")))
+        match model.session_user()?.run_package_listen(package) {
+            Ok(_) => Ok(StateMessageOutgoing::new_success(tr!("приложение остановлено"))),
+            Err(_) => Err(tr!("не удалось запустить приложение"))?,
         }
     }
 }
@@ -167,7 +150,7 @@ impl TraitIncoming for DevicePackageRunIncoming {
             1 => {
                 if let Some(model) = models.first() {
                     if let Some(package) = self.package.clone() {
-                        match Self::run(model.clone(), package, self.is_listen) {
+                        match Self::run(model.clone(), package) {
                             Ok(result) => result,
                             Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
                         }

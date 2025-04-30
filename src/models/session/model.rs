@@ -24,6 +24,8 @@ pub struct SessionModel {
     pub os_version: String,
     pub arch: String,
     pub devel_su: Option<String>,
+    path: Option<String>,
+    pass: Option<String>,
     session: SshSession,
     session_listen: SshSession,
 }
@@ -62,17 +64,23 @@ impl SessionModel {
         } else {
             "defaultuser".to_string()
         };
-        let sessions = if let Some(path) = path {
-            let session = SshSession::connect_key(&PathBuf::from(&path), &user, &host, port, Some(3))?;
-            let session_listen = SshSession::connect_key(&PathBuf::from(&path), &user, &host, port, None)?;
-            (session, session_listen)
-        } else {
-            let pass = pass.unwrap();
-            let session = SshSession::connect_pass(&pass, &user, &host, port, Some(3))?;
-            let session_listen = SshSession::connect_pass(&pass, &user, &host, port, None)?;
-            (session, session_listen)
-        };
-        let output = sessions.0.call("cat /etc/os-release")?;
+        let session = Self::get_session(
+            &user,
+            &host,
+            &path,
+            &pass,
+            port,
+            Some(3)
+        )?;
+        let session_listen = Self::get_session(
+            &user,
+            &host,
+            &path,
+            &pass,
+            port,
+            None
+        )?;
+        let output = session.call("cat /etc/os-release")?;
         let lines = match output.first() {
             Some(s) => s.split("\n").map(|e| e.to_string()).collect::<Vec<String>>(),
             None => Err(tr!("ошибка при получении данных"))?,
@@ -85,24 +93,50 @@ impl SessionModel {
             Ok(s) => s,
             Err(error) => Err(error)?,
         };
-        let arch = match sessions.0.call("cat /etc/rpm/platform")?.first() {
-            Some(value) => match value.split("-").next() {
-                Some(value) => value.to_string(),
+        let arch = match session.call("cat /etc/rpm/platform") {
+            Ok(value) => match value.first() {
+                Some(value) => match value.split("-").next() {
+                    Some(value) => value.to_string(),
+                    None => "undefined".to_string(),
+                },
                 None => "undefined".to_string(),
             },
-            None => "undefined".to_string(),
+            Err(_) => "undefined".to_string(),
         };
         Ok(SessionModel {
-            host: host.to_string(),
             user: user.to_string(),
+            host: host.to_string(),
+            path,
+            pass,
             port,
             os_name,
             os_version,
             arch,
             devel_su,
-            session: sessions.0,
-            session_listen: sessions.1,
+            session,
+            session_listen,
         })
+    }
+
+    fn get_session(
+        user: &String,
+        host: &String,
+        path: &Option<String>,
+        pass: &Option<String>,
+        port: u16,
+        timeout: Option<u64>
+    ) -> Result<SshSession, Box<dyn std::error::Error>> {
+        if let Some(path) = path {
+            let connect_timeout = if path.clone().contains("vmshare") {
+                None
+            } else {
+                Some(2)
+            };
+            Ok(SshSession::connect_key(&PathBuf::from(&path), &user, &host, port, timeout, connect_timeout)?)
+        } else {
+            let pass = pass.clone().unwrap();
+            Ok(SshSession::connect_pass(&pass, &user, &host, port, timeout, Some(2))?)
+        }
     }
 
     pub fn file_upload<F: Fn(i32) + Send + Copy + Sync + 'static>(
@@ -208,7 +242,7 @@ impl SessionModel {
     }
 
     pub fn run_package(&self, package: String) -> Result<(), Box<dyn std::error::Error>> {
-        self.session.run(&format!("invoker --type=qt5 {package}"))?;
+        self.session.run(&format!("screen -d -m invoker --type=qt5 {package}"))?;
         Ok(())
     }
 

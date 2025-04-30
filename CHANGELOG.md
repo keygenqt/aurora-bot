@@ -1,18 +1,42 @@
-## Updated: 03/15/2025 17:53:12 PM
+## Updated: 04/30/2025 19:56:01 PM
 
 ## Info
 
-- Last tag: 0.0.6
-- Released: 6
+- Last tag: 0.0.7
+- Released: 7
 
 ## Versions
 
+- Version: 0.0.7 (30/04/2025)
 - Version: 0.0.6 (15/03/2025)
 - Version: 0.0.5 (08/03/2025)
 - Version: 0.0.4 (01/03/2025)
 - Version: 0.0.3 (21/02/2025)
 - Version: 0.0.2 (15/02/2025)
 - Version: 0.0.1 (06/02/2025)
+
+### Version: 0.0.7 (30/04/2025)
+
+#### Feature
+
+- PSDK package find.
+- PSDK package install.
+- PSDK package uninstall.
+- Flutter package report.
+- C++ project format (clang-format).
+- Flutter project format (clang-format & dart).
+- Install/Uninstall Flutter SDK.
+- Install/Uninstall Аврора SDK.
+- Install/Uninstall Platform SDK.
+- Device configuration.
+- Device information.
+- Device screenshot.
+- Device open terminal.
+- Device download to device.
+- Device upload to device.
+- Device package install.
+- Device package run.
+- Device package uninstall.
 
 ### Version: 0.0.6 (15/03/2025)
 

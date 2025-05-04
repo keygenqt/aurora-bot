@@ -18,14 +18,11 @@ Fast, smart, lightweight, client of the Aurora Bot project.
 - `faq` - Answers on the Aurora OS ecosystem.
 - `svc` - Services: dbus api, telegram client.
 
-### Todo
-
-- Install psdk (psdk_install).
-- Remove psdk (psdk_remove).
+[More...](https://aurora-bot.keygenqt.com/book/)
 
 ### Architecture
 
-![preview](data/preview2.png)
+![preview](data/architecture.png)
 
 ### Install DEB
 

@@ -18,7 +18,7 @@ Fast, smart, lightweight, client of the Aurora Bot project.
 - `faq` - Answers on the Aurora OS ecosystem.
 - `svc` - Services: dbus api, telegram client.
 
-[More...](https://aurora-bot.keygenqt.com/book/)
+[More...](https://aurora-bot.keygenqt.com/book/aurora-bot/about.html)
 
 ### Architecture
 

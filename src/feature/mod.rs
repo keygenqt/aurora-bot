@@ -19,6 +19,9 @@ pub mod app_info {
 pub mod app_open_dir {
     pub mod incoming;
 }
+pub mod app_open_file {
+    pub mod incoming;
+}
 pub mod demo_app_info {
     pub mod incoming;
     pub mod outgoing;
@@ -234,6 +237,7 @@ pub enum ClientMethodsKey {
     AppAuthLogout,
     AppInfo,
     AppOpenDir,
+    AppOpenFile,
     DemoAppInfo,
     DeviceInfo,
     DevicePackageInstall,

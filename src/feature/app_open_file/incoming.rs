@@ -17,18 +17,18 @@ use crate::tools::programs;
 use crate::tools::utils;
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct AppOpenDirIncoming {
+pub struct AppOpenFileIncoming {
     path: String,
 }
 
-impl AppOpenDirIncoming {
+impl AppOpenFileIncoming {
     pub fn name() -> String {
-        serde_variant::to_variant_name(&ClientMethodsKey::AppOpenDir)
+        serde_variant::to_variant_name(&ClientMethodsKey::AppOpenFile)
             .unwrap()
             .to_string()
     }
 
-    pub fn new(path: String) -> Box<AppOpenDirIncoming> {
+    pub fn new(path: String) -> Box<AppOpenFileIncoming> {
         print_debug!("> {}: new(path: {})", Self::name(), path);
         Box::new(Self { path })
     }
@@ -46,24 +46,28 @@ impl AppOpenDirIncoming {
     }
 
     fn exec(path: &String) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-        let path = PathBuf::from(path);
+        let path = if path.contains("/") {
+            PathBuf::from(path)
+        } else {
+            utils::get_file_save_path(path)
+        };
         let path = match utils::path_to_absolute(&path) {
             Some(value) => value,
-            None => Err(tr!("проверьте путь к директории"))?,
+            None => Err(tr!("проверьте путь к файлу"))?,
         };
-        let program = programs::get_xdg_open()?;
         // @todo run with nohup or another thread
+        let program = programs::get_xdg_open()?;
         let output = exec::exec_wait_args(&program, [path])?;
         if !output.status.success() {
-            Err(tr!("не удалось открыть директорию"))?
+            Err(tr!("не удалось открыть файл"))?
         }
         Ok(StateMessageOutgoing::new_success(tr!(
-            "файловый менеджер открыт успешно"
+            "файл успешно открыт"
         )))
     }
 }
 
-impl TraitIncoming for AppOpenDirIncoming {
+impl TraitIncoming for AppOpenFileIncoming {
     fn run(&self, _: OutgoingType) -> Box<dyn TraitOutgoing> {
         match Self::exec(&self.path) {
             Ok(result) => result,

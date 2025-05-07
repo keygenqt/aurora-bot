@@ -12,12 +12,10 @@ use crate::models::session::model::SessionModel;
 use crate::models::session::model::SessionModelType;
 use crate::tools::constants;
 use crate::tools::macros::print_info;
-use crate::tools::macros::print_state;
-use crate::tools::macros::print_warning;
 use crate::tools::macros::tr;
 use crate::tools::utils;
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct DeviceModel {
     pub id: String,
     pub host: String,
@@ -155,21 +153,7 @@ impl DeviceModel {
                     arch: session.arch,
                     devel_su: user_model.devel_su,
                 });
-            } else {
-                let message = tr!("синхронизация с устройством {} не удалась", user_model.host);
-                print_warning!(message);
-                continue;
             }
-        }
-        if devices.is_empty() {
-            let message = tr!(
-                "ни одного устройства в сети не найдено, настройте конфигурационный файл: {}",
-                path.to_string_lossy()
-            );
-            print_warning!(message);
-        } else {
-            let message = tr!("найдено устройств: {}", devices.len());
-            print_state!(message);
         }
         Ok(devices)
     }

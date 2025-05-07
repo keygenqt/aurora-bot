@@ -17,6 +17,7 @@ use crate::feature::app_auth_login::incoming::AppAuthLoginIncoming;
 use crate::feature::app_auth_logout::incoming::AppAuthLogoutIncoming;
 use crate::feature::app_info::incoming::AppInfoIncoming;
 use crate::feature::app_open_dir::incoming::AppOpenDirIncoming;
+use crate::feature::app_open_file::incoming::AppOpenFileIncoming;
 use crate::feature::demo_app_info::incoming::DemoAppInfoIncoming;
 use crate::feature::device_info::incoming::DeviceInfoIncoming;
 use crate::feature::device_package_install::incoming::DevicePackageInstallIncoming;
@@ -115,6 +116,7 @@ impl ServerDbus {
             AppAuthLogoutIncoming::dbus_method_run(builder);
             AppInfoIncoming::dbus_method_run(builder);
             AppOpenDirIncoming::dbus_method_run(builder);
+            AppOpenFileIncoming::dbus_method_run(builder);
 
             /////////////////
             // Demo App

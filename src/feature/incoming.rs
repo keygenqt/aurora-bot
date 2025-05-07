@@ -1,6 +1,7 @@
 use serde::Deserialize;
 
 use crate::feature::app_open_dir::incoming::AppOpenDirIncoming;
+use crate::feature::app_open_file::incoming::AppOpenFileIncoming;
 use crate::feature::demo_app_info::incoming::DemoAppInfoIncoming;
 use crate::feature::device_info::incoming::DeviceInfoIncoming;
 use crate::feature::device_package_install::incoming::DevicePackageInstallIncoming;
@@ -106,6 +107,11 @@ impl ClientMethodsKey {
             ClientMethodsKey::AppOpenDir => {
                 print_debug!("> AppOpenDir: {}", value);
                 let model = serde_json::from_str::<AppOpenDirIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::AppOpenFile => {
+                print_debug!("> AppOpenFile: {}", value);
+                let model = serde_json::from_str::<AppOpenFileIncoming>(&value)?;
                 Ok(Box::new(model))
             }
             ClientMethodsKey::DemoAppInfo => {

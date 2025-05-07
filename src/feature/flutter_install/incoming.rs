@@ -145,7 +145,7 @@ impl FlutterInstallIncoming {
         let duration = end.duration_since(start).unwrap();
         let seconds = duration.as_secs();
         Ok(StateMessageOutgoing::new_success(tr!(
-            "уставка Flutter SDK успешно выполнена ({}s)",
+            "установка Flutter SDK успешно выполнена ({}s)",
             seconds
         )))
     }

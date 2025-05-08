@@ -11,7 +11,6 @@ use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::models::emulator::model::EmulatorModel;
 use crate::service::command::exec;
 use crate::service::dbus::server::IfaceData;
-use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 use crate::tools::programs;
 
@@ -28,12 +27,10 @@ impl EmulatorRecordStartIncoming {
     }
 
     pub fn new() -> Box<EmulatorRecordStartIncoming> {
-        print_debug!("> {}: new()", Self::name());
         Box::new(Self { id: None })
     }
 
     pub fn new_id(id: String) -> Box<EmulatorRecordStartIncoming> {
-        print_debug!("> {}: new_id(id: {})", Self::name(), id);
         Box::new(Self { id: Some(id) })
     }
 

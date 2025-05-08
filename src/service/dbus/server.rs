@@ -176,13 +176,13 @@ impl ServerDbus {
 
             EmulatorPackageRunIncoming::dbus_method_run(builder);
             EmulatorPackageRunIncoming::dbus_method_run_by_id(builder);
-            EmulatorPackageRunIncoming::dbus_method_run_by_package(builder);
-            EmulatorPackageRunIncoming::dbus_method_run_by_id_package(builder);
+            EmulatorPackageRunIncoming::dbus_method_run_package(builder);
+            EmulatorPackageRunIncoming::dbus_method_run_package_by_id(builder);
 
             EmulatorPackageUninstallIncoming::dbus_method_run(builder);
             EmulatorPackageUninstallIncoming::dbus_method_run_by_id(builder);
-            EmulatorPackageUninstallIncoming::dbus_method_run_by_package(builder);
-            EmulatorPackageUninstallIncoming::dbus_method_run_by_id_package(builder);
+            EmulatorPackageUninstallIncoming::dbus_method_run_package(builder);
+            EmulatorPackageUninstallIncoming::dbus_method_run_package_by_id(builder);
 
             EmulatorRecordStartIncoming::dbus_method_run(builder);
             EmulatorRecordStartIncoming::dbus_method_run_by_id(builder);

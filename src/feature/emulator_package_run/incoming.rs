@@ -11,7 +11,6 @@ use crate::feature::selector::selects::select_emulator_packages::EmulatorPackage
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::models::emulator::model::EmulatorModel;
 use crate::service::dbus::server::IfaceData;
-use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -29,7 +28,6 @@ impl EmulatorPackageRunIncoming {
     }
 
     pub fn new(is_listen: bool) -> Box<EmulatorPackageRunIncoming> {
-        print_debug!("> {}: new(is_listen: {})", Self::name(), is_listen);
         Box::new(Self {
             id: None,
             package: None,
@@ -37,8 +35,7 @@ impl EmulatorPackageRunIncoming {
         })
     }
 
-    pub fn new_id(id: String, is_listen: bool) -> Box<EmulatorPackageRunIncoming> {
-        print_debug!("> {}: new_id(id: {}, is_listen: {})", Self::name(), id, is_listen);
+    pub fn new_id(is_listen: bool, id: String) -> Box<EmulatorPackageRunIncoming> {
         Box::new(Self {
             id: Some(id),
             package: None,
@@ -46,13 +43,7 @@ impl EmulatorPackageRunIncoming {
         })
     }
 
-    pub fn new_package(package: String, is_listen: bool) -> Box<EmulatorPackageRunIncoming> {
-        print_debug!(
-            "> {}: new_package(package: {}, is_listen: {})",
-            Self::name(),
-            package,
-            is_listen
-        );
+    pub fn new_package(is_listen: bool, package: String) -> Box<EmulatorPackageRunIncoming> {
         Box::new(Self {
             id: None,
             package: Some(package),
@@ -60,14 +51,7 @@ impl EmulatorPackageRunIncoming {
         })
     }
 
-    pub fn new_id_package(id: String, package: String, is_listen: bool) -> Box<EmulatorPackageRunIncoming> {
-        print_debug!(
-            "> {}: new_id_package(id: {}, package: {}, is_listen: {})",
-            Self::name(),
-            id,
-            package,
-            is_listen
-        );
+    pub fn new_package_id(is_listen: bool, package: String, id: String) -> Box<EmulatorPackageRunIncoming> {
         Box::new(Self {
             id: Some(id),
             package: Some(package),
@@ -103,34 +87,34 @@ impl EmulatorPackageRunIncoming {
     pub fn dbus_method_run_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "ById"),
-            ("id", "is_listen"),
+            ("is_listen", "id",),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (id, is_listen): (String, bool)| async move {
-                let outgoing = Self::new_id(id, is_listen).run(OutgoingType::Dbus);
+            move |mut ctx: dbus_crossroads::Context, _, (is_listen, id,): (bool, String,)| async move {
+                let outgoing = Self::new_id(is_listen, id).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
     }
 
-    pub fn dbus_method_run_by_package(builder: &mut IfaceBuilder<IfaceData>) {
+    pub fn dbus_method_run_package(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
-            format!("{}{}", Self::name(), "ByPackage"),
-            ("package", "is_listen"),
+            format!("{}{}", Self::name(), "Package"),
+            ("is_listen", "package",),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (package, is_listen): (String, bool)| async move {
-                let outgoing = Self::new_package(package, is_listen).run(OutgoingType::Dbus);
+            move |mut ctx: dbus_crossroads::Context, _, (is_listen, package,): (bool, String,)| async move {
+                let outgoing = Self::new_package(is_listen, package).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
     }
 
-    pub fn dbus_method_run_by_id_package(builder: &mut IfaceBuilder<IfaceData>) {
+    pub fn dbus_method_run_package_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
-            format!("{}{}", Self::name(), "ByIdPackage"),
-            ("id", "package", "is_listen"),
+            format!("{}{}", Self::name(), "PackageById"),
+            ("is_listen", "package", "id",),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (id, package, is_listen): (String, String, bool)| async move {
-                let outgoing = Self::new_id_package(id, package, is_listen).run(OutgoingType::Dbus);
+            move |mut ctx: dbus_crossroads::Context, _, (is_listen, package, id,): (bool, String, String,)| async move {
+                let outgoing = Self::new_package_id(is_listen, package, id).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );

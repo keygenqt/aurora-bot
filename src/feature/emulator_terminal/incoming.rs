@@ -10,7 +10,6 @@ use crate::feature::selector::selects::select_emulator::EmulatorModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::models::emulator::model::EmulatorModel;
 use crate::service::dbus::server::IfaceData;
-use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 use crate::tools::terminal;
 
@@ -28,12 +27,10 @@ impl EmulatorTerminalIncoming {
     }
 
     pub fn new(is_root: bool) -> Box<EmulatorTerminalIncoming> {
-        print_debug!("> {}: new(is_root: {})", Self::name(), is_root);
         Box::new(Self { id: None, is_root })
     }
 
-    pub fn new_id(id: String, is_root: bool) -> Box<EmulatorTerminalIncoming> {
-        print_debug!("> {}: new_id(id: {}, is_root: {})", Self::name(), id, is_root);
+    pub fn new_id(is_root: bool, id: String) -> Box<EmulatorTerminalIncoming> {
         Box::new(Self { id: Some(id), is_root })
     }
 
@@ -58,10 +55,10 @@ impl EmulatorTerminalIncoming {
     pub fn dbus_method_run_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "ById"),
-            ("id", "is_root"),
+            ("is_root", "id",),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (id, is_root): (String, bool)| async move {
-                let outgoing = Self::new_id(id, is_root).run(OutgoingType::Dbus);
+            move |mut ctx: dbus_crossroads::Context, _, (is_root, id,): (bool, String,)| async move {
+                let outgoing = Self::new_id(is_root, id,).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );

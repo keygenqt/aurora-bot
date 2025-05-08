@@ -14,7 +14,6 @@ use crate::models::emulator::model::EmulatorModel;
 use crate::service::command::exec;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::ffmpeg_utils;
-use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 use crate::tools::programs;
 use crate::tools::utils;
@@ -43,12 +42,10 @@ impl EmulatorRecordStopIncoming {
     }
 
     pub fn new(stop_type: EmulatorRecordStopType) -> Box<EmulatorRecordStopIncoming> {
-        print_debug!("> {}: new(stop_type: {:?})", Self::name(), stop_type);
         Box::new(Self { id: None, stop_type })
     }
 
-    pub fn new_id(id: String, stop_type: EmulatorRecordStopType) -> Box<EmulatorRecordStopIncoming> {
-        print_debug!("> {}: new(id: {}, stop_type: {:?})", Self::name(), id, stop_type);
+    pub fn new_id(stop_type: EmulatorRecordStopType, id: String) -> Box<EmulatorRecordStopIncoming> {
         Box::new(Self {
             id: Some(id),
             stop_type,
@@ -79,11 +76,11 @@ impl EmulatorRecordStopIncoming {
     pub fn dbus_method_run_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "ById"),
-            ("id", "stop_type"),
+            ("stop_type", "id",),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (id, stop_type): (String, String)| async move {
+            move |mut ctx: dbus_crossroads::Context, _, (stop_type, id,): (String, String,)| async move {
                 let outgoing = match serde_json::from_str::<EmulatorRecordStopType>(&stop_type) {
-                    Ok(value) => Self::new_id(id, value).run(OutgoingType::Dbus),
+                    Ok(value) => Self::new_id(value, id).run(OutgoingType::Dbus),
                     Err(_) => StateMessageOutgoing::new_error(tr!("указан не верный тип: Raw, Mp4, Gif")),
                 };
                 ctx.reply(Ok((outgoing.to_json(),)))

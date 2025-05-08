@@ -50,6 +50,11 @@ impl DeviceConfig {
     }
 
     pub fn to_model(&self) -> DeviceModel {
+        let is_available =
+            match DeviceModel::device_session_user(&self.path, &self.pass, &self.host, self.port, &self.devel_su) {
+                Ok(_) => true,
+                Err(_) => false,
+            };
         DeviceModel {
             id: DeviceModel::get_id(&self.host),
             host: self.host.clone(),
@@ -60,6 +65,7 @@ impl DeviceConfig {
             version: self.version.clone(),
             arch: self.arch.clone(),
             devel_su: self.devel_su.clone(),
+            is_available,
         }
     }
 }

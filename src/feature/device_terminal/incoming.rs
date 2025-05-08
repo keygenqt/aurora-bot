@@ -68,6 +68,9 @@ impl DeviceTerminalIncoming {
     }
 
     fn run(model: DeviceModel, send_type: &OutgoingType) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+        // Check connection
+        model.session_user()?;
+        // Open terminal by key
         if let Some(path) = model.path {
             let command = format!(
                 "ssh -o 'ConnectTimeout=2' -o 'StrictHostKeyChecking=no' defaultuser@{} -p {} -i {}",
@@ -76,6 +79,7 @@ impl DeviceTerminalIncoming {
             // Try run terminal
             return Ok(terminal::open(command));
         }
+        // Open terminal by pass
         if let Some(pass) = model.pass {
             let sshpass = programs::get_sshpass();
             let command = if sshpass.is_err() {

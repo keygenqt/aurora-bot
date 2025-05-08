@@ -26,6 +26,7 @@ pub struct DeviceModel {
     pub version: String,
     pub arch: String,
     pub devel_su: String,
+    pub is_available: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -64,12 +65,11 @@ impl TraitModel for DeviceModel {
 }
 
 impl DeviceModel {
-    #[allow(dead_code)]
     pub fn session_user(&self) -> Result<SessionModel, Box<dyn std::error::Error>> {
-        Self::_session_user(&self.path, &self.pass, &self.host, self.port, &self.devel_su)
+        Self::device_session_user(&self.path, &self.pass, &self.host, self.port, &self.devel_su)
     }
 
-    fn _session_user(
+    pub fn device_session_user(
         path: &Option<String>,
         pass: &Option<String>,
         host: &String,
@@ -131,7 +131,7 @@ impl DeviceModel {
             } else {
                 None
             };
-            let session = match Self::_session_user(
+            let session = match Self::device_session_user(
                 &ssh_key_path,
                 &ssh_pass,
                 &user_model.host,
@@ -152,6 +152,7 @@ impl DeviceModel {
                     version: session.os_version,
                     arch: session.arch,
                     devel_su: user_model.devel_su,
+                    is_available: true,
                 });
             }
         }

@@ -217,8 +217,8 @@ impl ServerDbus {
             FlutterInstallIncoming::dbus_method_run(builder);
             FlutterInstallIncoming::dbus_method_run_by_id(builder);
 
-            FlutterProjectFormatIncoming::dbus_method_run_path(builder);
-            FlutterProjectFormatIncoming::dbus_method_run_path_by_id(builder);
+            FlutterProjectFormatIncoming::dbus_method_run(builder);
+            FlutterProjectFormatIncoming::dbus_method_run_by_id(builder);
 
             FlutterProjectReportIncoming::dbus_method_run_path(builder);
             FlutterProjectReportIncoming::dbus_method_run_path_by_id(builder);

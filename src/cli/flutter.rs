@@ -65,7 +65,7 @@ pub fn run(arg: FlutterArgs) {
         match utils::path_to_absolute(&path) {
             Some(path) => {
                 if path.is_dir() {
-                    FlutterProjectFormatIncoming::new_path(path)
+                    FlutterProjectFormatIncoming::new(path)
                         .run(OutgoingType::Cli)
                         .print();
                 } else {

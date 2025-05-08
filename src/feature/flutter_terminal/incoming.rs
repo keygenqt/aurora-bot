@@ -11,7 +11,6 @@ use crate::feature::selector::selects::select_flutter_installed::FlutterInstalle
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::models::flutter_installed::model::FlutterInstalledModel;
 use crate::service::dbus::server::IfaceData;
-use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 use crate::tools::terminal;
 
@@ -28,12 +27,10 @@ impl FlutterTerminalIncoming {
     }
 
     pub fn new() -> Box<FlutterTerminalIncoming> {
-        print_debug!("> {}: new()", Self::name());
         Box::new(Self { id: None })
     }
 
     pub fn new_id(id: String) -> Box<FlutterTerminalIncoming> {
-        print_debug!("> {}: new_id(id: {})", Self::name(), id);
         Box::new(Self { id: Some(id) })
     }
 

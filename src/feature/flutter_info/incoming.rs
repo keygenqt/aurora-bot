@@ -9,7 +9,6 @@ use crate::feature::outgoing::TraitOutgoing;
 use crate::feature::selector::selects::select_flutter_installed::FlutterInstalledModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::service::dbus::server::IfaceData;
-use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 
 use super::outgoing::FlutterInfoOutgoing;
@@ -27,12 +26,10 @@ impl FlutterInfoIncoming {
     }
 
     pub fn new() -> Box<FlutterInfoIncoming> {
-        print_debug!("> {}: new()", Self::name());
         Box::new(Self { id: None })
     }
 
     pub fn new_id(id: String) -> Box<FlutterInfoIncoming> {
-        print_debug!("> {}: new_id(id: {})", Self::name(), id);
         Box::new(Self { id: Some(id) })
     }
 

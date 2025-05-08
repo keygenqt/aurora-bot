@@ -52,14 +52,12 @@ impl AppOpenDirIncoming {
             None => Err(tr!("проверьте путь к директории"))?,
         };
         let program = programs::get_xdg_open()?;
-        // @todo run with nohup or another thread
-        let output = exec::exec_wait_args(&program, [path])?;
-        if !output.status.success() {
-            Err(tr!("не удалось открыть директорию"))?
+        match exec::exec_detach_args(&program, [path], 2) {
+            Ok(_) => Ok(StateMessageOutgoing::new_success(tr!(
+                "файловый менеджер открыт успешно"
+            ))),
+            Err(_) => Err(tr!("не удалось открыть директорию"))?,
         }
-        Ok(StateMessageOutgoing::new_success(tr!(
-            "файловый менеджер открыт успешно"
-        )))
     }
 }
 

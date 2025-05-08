@@ -112,3 +112,33 @@ pub fn exec_detach(program: &str, delay: u64) -> Result<(), Box<dyn std::error::
         Err(tr!("команда завершилась неудачей"))?
     }
 }
+
+pub fn exec_detach_args<I, S>(
+    program: &str,
+    args: I,
+    delay: u64,
+) -> Result<(), Box<dyn std::error::Error>>
+where
+    I: IntoIterator<Item = S>,
+    S: AsRef<OsStr>,
+{
+    let mut result = false;
+    if let Ok(mut child) = Command::new(program)
+        .args(args)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+    {
+        std::thread::sleep(Duration::from_secs(delay));
+        if let Ok(_) = child.try_wait() {
+            result = true;
+        } else {
+            result = false;
+        }
+    };
+    if result {
+        Ok(())
+    } else {
+        Err(tr!("команда завершилась неудачей"))?
+    }
+}

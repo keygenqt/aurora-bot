@@ -55,15 +55,13 @@ impl AppOpenFileIncoming {
             Some(value) => value,
             None => Err(tr!("проверьте путь к файлу"))?,
         };
-        // @todo run with nohup or another thread
         let program = programs::get_xdg_open()?;
-        let output = exec::exec_wait_args(&program, [path])?;
-        if !output.status.success() {
-            Err(tr!("не удалось открыть файл"))?
+        match exec::exec_detach_args(&program, [path], 2) {
+            Ok(_) => Ok(StateMessageOutgoing::new_success(tr!(
+                "файл успешно открыт"
+            ))),
+            Err(_) => Err(tr!("не удалось открыть файл"))?,
         }
-        Ok(StateMessageOutgoing::new_success(tr!(
-            "файл успешно открыт"
-        )))
     }
 }
 

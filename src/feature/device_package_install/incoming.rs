@@ -14,7 +14,6 @@ use crate::models::device::model::DeviceModel;
 use crate::models::psdk_installed::model::PsdkInstalledModel;
 use crate::service::command;
 use crate::service::dbus::server::IfaceData;
-use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 use crate::tools::single;
 use crate::tools::utils;
@@ -34,7 +33,6 @@ impl DevicePackageInstallIncoming {
     }
 
     pub fn new_path(path: PathBuf) -> Box<DevicePackageInstallIncoming> {
-        print_debug!("> {}: new_path(path: {})", Self::name(), path.to_string_lossy());
         Box::new(Self {
             id: None,
             path: Some(path),
@@ -42,13 +40,7 @@ impl DevicePackageInstallIncoming {
         })
     }
 
-    pub fn new_path_id(id: String, path: PathBuf) -> Box<DevicePackageInstallIncoming> {
-        print_debug!(
-            "> {}: new_path_id(id: {}, path: {})",
-            Self::name(),
-            id,
-            path.to_string_lossy()
-        );
+    pub fn new_path_id(path: PathBuf, id: String) -> Box<DevicePackageInstallIncoming> {
         Box::new(Self {
             id: Some(id),
             path: Some(path),
@@ -57,7 +49,6 @@ impl DevicePackageInstallIncoming {
     }
 
     pub fn new_urls(urls: Vec<String>) -> Box<DevicePackageInstallIncoming> {
-        print_debug!("> {}: new_url(urls: {:?})", Self::name(), urls);
         Box::new(Self {
             id: None,
             path: None,
@@ -66,7 +57,6 @@ impl DevicePackageInstallIncoming {
     }
 
     pub fn new_urls_id(id: String, urls: Vec<String>) -> Box<DevicePackageInstallIncoming> {
-        print_debug!("> {}: new_url_id(id: {}, urls: {:?})", Self::name(), id, urls);
         Box::new(Self {
             id: Some(id),
             path: None,
@@ -82,7 +72,7 @@ impl DevicePackageInstallIncoming {
 
     pub fn dbus_method_run_path(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
-            Self::name(),
+            format!("{}{}", Self::name(), "Path"),
             ("path",),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (path,): (String,)| async move {
@@ -95,14 +85,26 @@ impl DevicePackageInstallIncoming {
         );
     }
 
+    pub fn dbus_method_run_urls(builder: &mut IfaceBuilder<IfaceData>) {
+        builder.method_with_cr_async(
+            format!("{}{}", Self::name(), "Urls"),
+            ("urls",),
+            ("result",),
+            move |mut ctx: dbus_crossroads::Context, _, (urls,): (Vec<String>,)| async move {
+                let outgoing = Self::new_urls(urls).run(OutgoingType::Dbus);
+                ctx.reply(Ok((outgoing.to_json(),)))
+            },
+        );
+    }
+
     pub fn dbus_method_run_path_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
-            format!("{}{}", Self::name(), "ById"),
-            ("id", "path"),
+            format!("{}{}", Self::name(), "PathById"),
+            ("path", "id",),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (id, path): (String, String)| async move {
+            move |mut ctx: dbus_crossroads::Context, _, (path, id,): (String, String,)| async move {
                 let outgoing = match utils::path_to_absolute(&PathBuf::from(path)) {
-                    Some(path) => Self::new_path_id(id, path).run(OutgoingType::Dbus),
+                    Some(path) => Self::new_path_id(path, id).run(OutgoingType::Dbus),
                     None => StateMessageOutgoing::new_error(tr!("проверьте путь к файлу")),
                 };
                 ctx.reply(Ok((outgoing.to_json(),)))
@@ -110,25 +112,13 @@ impl DevicePackageInstallIncoming {
         );
     }
 
-    pub fn dbus_method_run_url(builder: &mut IfaceBuilder<IfaceData>) {
+    pub fn dbus_method_run_urls_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
-            format!("{}{}", Self::name(), "ByUrl"),
-            ("url",),
+            format!("{}{}", Self::name(), "UrlsById"),
+            ("urls", "id",),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (url,): (String,)| async move {
-                let outgoing = Self::new_urls(vec![url]).run(OutgoingType::Dbus);
-                ctx.reply(Ok((outgoing.to_json(),)))
-            },
-        );
-    }
-
-    pub fn dbus_method_run_url_by_id(builder: &mut IfaceBuilder<IfaceData>) {
-        builder.method_with_cr_async(
-            format!("{}{}", Self::name(), "ByUrlId"),
-            ("id", "url"),
-            ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (id, url): (String, String)| async move {
-                let outgoing = Self::new_urls_id(id, vec![url]).run(OutgoingType::Dbus);
+            move |mut ctx: dbus_crossroads::Context, _, (urls, id,): (Vec<String>, String,)| async move {
+                let outgoing = Self::new_urls_id(id, urls).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );

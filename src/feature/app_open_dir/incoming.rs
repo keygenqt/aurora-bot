@@ -11,7 +11,6 @@ use crate::feature::outgoing::TraitOutgoing;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::service::command::exec;
 use crate::service::dbus::server::IfaceData;
-use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 use crate::tools::programs;
 use crate::tools::utils;
@@ -29,7 +28,6 @@ impl AppOpenDirIncoming {
     }
 
     pub fn new(path: String) -> Box<AppOpenDirIncoming> {
-        print_debug!("> {}: new(path: {})", Self::name(), path);
         Box::new(Self { path })
     }
 

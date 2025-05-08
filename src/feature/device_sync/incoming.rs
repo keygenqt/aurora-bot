@@ -11,7 +11,6 @@ use crate::models::configuration::Config;
 use crate::models::configuration::device::DeviceConfig;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::constants;
-use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 use crate::tools::utils;
 
@@ -26,7 +25,6 @@ impl DeviceSyncIncoming {
     }
 
     pub fn new() -> Box<DeviceSyncIncoming> {
-        print_debug!("> {}: new()", Self::name());
         Box::new(Self {})
     }
 

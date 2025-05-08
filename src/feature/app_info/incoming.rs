@@ -7,7 +7,6 @@ use crate::feature::incoming::TraitIncoming;
 use crate::feature::outgoing::OutgoingType;
 use crate::feature::outgoing::TraitOutgoing;
 use crate::service::dbus::server::IfaceData;
-use crate::tools::macros::print_debug;
 
 use super::outgoing::AppInfoOutgoing;
 
@@ -22,7 +21,6 @@ impl AppInfoIncoming {
     }
 
     pub fn new() -> Box<AppInfoIncoming> {
-        print_debug!("> {}: new()", Self::name());
         Box::new(Self {})
     }
 

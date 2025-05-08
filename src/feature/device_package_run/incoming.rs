@@ -11,7 +11,6 @@ use crate::feature::selector::selects::select_device_packages::DevicePackageSele
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::models::device::model::DeviceModel;
 use crate::service::dbus::server::IfaceData;
-use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -28,7 +27,6 @@ impl DevicePackageRunIncoming {
     }
 
     pub fn new() -> Box<DevicePackageRunIncoming> {
-        print_debug!("> {}: new()", Self::name());
         Box::new(Self {
             id: None,
             package: None,
@@ -36,7 +34,6 @@ impl DevicePackageRunIncoming {
     }
 
     pub fn new_id(id: String) -> Box<DevicePackageRunIncoming> {
-        print_debug!("> {}: new_id(id: {})", Self::name(), id);
         Box::new(Self {
             id: Some(id),
             package: None,
@@ -44,15 +41,13 @@ impl DevicePackageRunIncoming {
     }
 
     pub fn new_package(package: String) -> Box<DevicePackageRunIncoming> {
-        print_debug!("> {}: new_package(package: {})", Self::name(), package,);
         Box::new(Self {
             id: None,
             package: Some(package),
         })
     }
 
-    pub fn new_id_package(id: String, package: String) -> Box<DevicePackageRunIncoming> {
-        print_debug!("> {}: new_id_package(id: {}, package: {})", Self::name(), id, package,);
+    pub fn new_package_id(package: String, id: String) -> Box<DevicePackageRunIncoming> {
         Box::new(Self {
             id: Some(id),
             package: Some(package),
@@ -96,9 +91,9 @@ impl DevicePackageRunIncoming {
         );
     }
 
-    pub fn dbus_method_run_by_package(builder: &mut IfaceBuilder<IfaceData>) {
+    pub fn dbus_method_run_package(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
-            format!("{}{}", Self::name(), "ByPackage"),
+            format!("{}{}", Self::name(), "Package"),
             ("package",),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (package,): (String,)| async move {
@@ -108,13 +103,13 @@ impl DevicePackageRunIncoming {
         );
     }
 
-    pub fn dbus_method_run_by_id_package(builder: &mut IfaceBuilder<IfaceData>) {
+    pub fn dbus_method_run_package_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
-            format!("{}{}", Self::name(), "ByIdPackage"),
-            ("id", "package"),
+            format!("{}{}", Self::name(), "PackageById"),
+            ("package", "id",),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (id, package): (String, String)| async move {
-                let outgoing = Self::new_id_package(id, package).run(OutgoingType::Dbus);
+            move |mut ctx: dbus_crossroads::Context, _, (package, id,): (String, String,)| async move {
+                let outgoing = Self::new_package_id(package, id).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );

@@ -12,7 +12,6 @@ use crate::feature::selector::selects::select_device::DeviceModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::models::device::model::DeviceModel;
 use crate::service::dbus::server::IfaceData;
-use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 use crate::tools::single;
 use crate::tools::utils;
@@ -32,7 +31,6 @@ impl DeviceUploadIncoming {
     }
 
     pub fn new_path(path: PathBuf) -> Box<DeviceUploadIncoming> {
-        print_debug!("> {}: new_path(path: {})", Self::name(), path.to_string_lossy());
         Box::new(Self {
             id: None,
             path: Some(path),
@@ -40,13 +38,7 @@ impl DeviceUploadIncoming {
         })
     }
 
-    pub fn new_path_id(id: String, path: PathBuf) -> Box<DeviceUploadIncoming> {
-        print_debug!(
-            "> {}: new_path_id(id: {}, path: {})",
-            Self::name(),
-            id,
-            path.to_string_lossy()
-        );
+    pub fn new_path_id(path: PathBuf, id: String) -> Box<DeviceUploadIncoming> {
         Box::new(Self {
             id: Some(id),
             path: Some(path),
@@ -55,7 +47,6 @@ impl DeviceUploadIncoming {
     }
 
     pub fn new_url(url: String) -> Box<DeviceUploadIncoming> {
-        print_debug!("> {}: new_url(url: {})", Self::name(), url);
         Box::new(Self {
             id: None,
             path: None,
@@ -63,8 +54,7 @@ impl DeviceUploadIncoming {
         })
     }
 
-    pub fn new_url_id(id: String, url: String) -> Box<DeviceUploadIncoming> {
-        print_debug!("> {}: new_url_id(id: {}, url: {})", Self::name(), id, url);
+    pub fn new_url_id(url: String, id: String) -> Box<DeviceUploadIncoming> {
         Box::new(Self {
             id: Some(id),
             path: None,
@@ -80,7 +70,7 @@ impl DeviceUploadIncoming {
 
     pub fn dbus_method_run_path(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
-            format!("{}{}", Self::name(), "ByPath"),
+            format!("{}{}", Self::name(), "Path"),
             ("path",),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (path,): (String,)| async move {
@@ -95,12 +85,12 @@ impl DeviceUploadIncoming {
 
     pub fn dbus_method_run_path_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
-            format!("{}{}", Self::name(), "ByPathId"),
-            ("id", "path"),
+            format!("{}{}", Self::name(), "PathById"),
+            ("path", "id",),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (id, path): (String, String)| async move {
+            move |mut ctx: dbus_crossroads::Context, _, (path, id,): (String, String)| async move {
                 let outgoing = match utils::path_to_absolute(&PathBuf::from(path)) {
-                    Some(path) => Self::new_path_id(id, path).run(OutgoingType::Dbus),
+                    Some(path) => Self::new_path_id(path, id).run(OutgoingType::Dbus),
                     None => StateMessageOutgoing::new_error(tr!("проверьте путь к файлу")),
                 };
                 ctx.reply(Ok((outgoing.to_json(),)))
@@ -110,7 +100,7 @@ impl DeviceUploadIncoming {
 
     pub fn dbus_method_run_url(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
-            format!("{}{}", Self::name(), "ByUrl"),
+            format!("{}{}", Self::name(), "Url"),
             ("url",),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (url,): (String,)| async move {
@@ -122,10 +112,10 @@ impl DeviceUploadIncoming {
 
     pub fn dbus_method_run_url_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
-            format!("{}{}", Self::name(), "ByUrlId"),
-            ("id", "url"),
+            format!("{}{}", Self::name(), "UrlById"),
+            ("url", "id",),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (id, url): (String, String)| async move {
+            move |mut ctx: dbus_crossroads::Context, _, (url, id,): (String, String)| async move {
                 let outgoing = Self::new_url_id(id, url).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },

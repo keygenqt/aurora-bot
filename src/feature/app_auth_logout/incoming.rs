@@ -8,7 +8,6 @@ use crate::feature::outgoing::OutgoingType;
 use crate::feature::outgoing::TraitOutgoing;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::service::dbus::server::IfaceData;
-use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 use crate::tools::single;
 
@@ -23,7 +22,6 @@ impl AppAuthLogoutIncoming {
     }
 
     pub fn new() -> Box<AppAuthLogoutIncoming> {
-        print_debug!("> {}: new()", Self::name());
         Box::new(Self {})
     }
 

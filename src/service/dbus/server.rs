@@ -129,19 +129,19 @@ impl ServerDbus {
             DeviceInfoIncoming::dbus_method_run_by_id(builder);
 
             DevicePackageInstallIncoming::dbus_method_run_path(builder);
+            DevicePackageInstallIncoming::dbus_method_run_urls(builder);
             DevicePackageInstallIncoming::dbus_method_run_path_by_id(builder);
-            DevicePackageInstallIncoming::dbus_method_run_url(builder);
-            DevicePackageInstallIncoming::dbus_method_run_url_by_id(builder);
+            DevicePackageInstallIncoming::dbus_method_run_urls_by_id(builder);
 
             DevicePackageRunIncoming::dbus_method_run(builder);
             DevicePackageRunIncoming::dbus_method_run_by_id(builder);
-            DevicePackageRunIncoming::dbus_method_run_by_package(builder);
-            DevicePackageRunIncoming::dbus_method_run_by_id_package(builder);
+            DevicePackageRunIncoming::dbus_method_run_package(builder);
+            DevicePackageRunIncoming::dbus_method_run_package_by_id(builder);
 
             DevicePackageUninstallIncoming::dbus_method_run(builder);
             DevicePackageUninstallIncoming::dbus_method_run_by_id(builder);
-            DevicePackageUninstallIncoming::dbus_method_run_by_package(builder);
-            DevicePackageUninstallIncoming::dbus_method_run_by_id_package(builder);
+            DevicePackageUninstallIncoming::dbus_method_run_package(builder);
+            DevicePackageUninstallIncoming::dbus_method_run_package_by_id(builder);
 
             DeviceScreenshotIncoming::dbus_method_run(builder);
             DeviceScreenshotIncoming::dbus_method_run_by_id(builder);

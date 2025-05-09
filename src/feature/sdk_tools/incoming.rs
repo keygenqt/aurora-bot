@@ -12,7 +12,6 @@ use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::models::sdk_installed::model::SdkInstalledModel;
 use crate::service::command::exec;
 use crate::service::dbus::server::IfaceData;
-use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -28,12 +27,10 @@ impl SdkToolsIncoming {
     }
 
     pub fn new() -> Box<SdkToolsIncoming> {
-        print_debug!("> {}: new()", Self::name());
         Box::new(Self { id: None })
     }
 
     pub fn new_id(id: String) -> Box<SdkToolsIncoming> {
-        print_debug!("> {}: new_id(id: {})", Self::name(), id);
         Box::new(Self { id: Some(id) })
     }
 

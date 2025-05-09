@@ -77,7 +77,7 @@ pub fn run(arg: SdkArgs) {
         match utils::path_to_absolute(&path) {
             Some(path) => {
                 if path.is_dir() {
-                    SdkProjectFormatIncoming::new_path(path).run(OutgoingType::Cli).print();
+                    SdkProjectFormatIncoming::new(path).run(OutgoingType::Cli).print();
                 } else {
                     print_error!("укажите директорию проекта")
                 }

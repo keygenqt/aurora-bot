@@ -291,8 +291,8 @@ impl ServerDbus {
             SdkInstallIncoming::dbus_method_run(builder);
             SdkInstallIncoming::dbus_method_run_by_id(builder);
 
-            SdkProjectFormatIncoming::dbus_method_run_path(builder);
-            SdkProjectFormatIncoming::dbus_method_run_path_by_id(builder);
+            SdkProjectFormatIncoming::dbus_method_run(builder);
+            SdkProjectFormatIncoming::dbus_method_run_by_id(builder);
 
             SdkSyncIncoming::dbus_method_run(builder);
 

@@ -11,7 +11,6 @@ use crate::feature::outgoing::TraitOutgoing;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::format_utils;
-use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 use crate::tools::utils;
 
@@ -28,29 +27,22 @@ impl SdkProjectFormatIncoming {
             .to_string()
     }
 
-    pub fn new_path(path: PathBuf) -> Box<SdkProjectFormatIncoming> {
-        print_debug!("> {}: new_path(path: {})", Self::name(), path.to_string_lossy());
+    pub fn new(path: PathBuf) -> Box<SdkProjectFormatIncoming> {
         Box::new(Self { id: None, path })
     }
 
-    pub fn new_path_id(id: String, path: PathBuf) -> Box<SdkProjectFormatIncoming> {
-        print_debug!(
-            "> {}: new_path_id(id: {}, path: {})",
-            Self::name(),
-            id,
-            path.to_string_lossy()
-        );
+    pub fn new_id(path: PathBuf, id: String) -> Box<SdkProjectFormatIncoming> {
         Box::new(Self { id: Some(id), path })
     }
 
-    pub fn dbus_method_run_path(builder: &mut IfaceBuilder<IfaceData>) {
+    pub fn dbus_method_run(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             Self::name(),
             ("path",),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (path,): (String,)| async move {
                 let outgoing = match utils::path_to_absolute(&PathBuf::from(path)) {
-                    Some(path) => Self::new_path(path).run(OutgoingType::Dbus),
+                    Some(path) => Self::new(path).run(OutgoingType::Dbus),
                     None => StateMessageOutgoing::new_error(tr!("проверьте путь к проекту")),
                 };
                 ctx.reply(Ok((outgoing.to_json(),)))
@@ -58,14 +50,14 @@ impl SdkProjectFormatIncoming {
         );
     }
 
-    pub fn dbus_method_run_path_by_id(builder: &mut IfaceBuilder<IfaceData>) {
+    pub fn dbus_method_run_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "ById"),
-            ("id", "path"),
+            ("path", "id",),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (id, path): (String, String)| async move {
+            move |mut ctx: dbus_crossroads::Context, _, (path, id,): (String, String,)| async move {
                 let outgoing = match utils::path_to_absolute(&PathBuf::from(path)) {
-                    Some(path) => Self::new_path_id(id, path).run(OutgoingType::Dbus),
+                    Some(path) => Self::new_id(path, id).run(OutgoingType::Dbus),
                     None => StateMessageOutgoing::new_error(tr!("проверьте путь к проекту")),
                 };
                 ctx.reply(Ok((outgoing.to_json(),)))

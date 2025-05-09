@@ -16,7 +16,6 @@ use crate::models::sdk_available::model::SdkAvailableModel;
 use crate::models::sdk_available::model::SdkInstallType;
 use crate::service::command::exec;
 use crate::service::dbus::server::IfaceData;
-use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 use crate::tools::single;
 use crate::tools::utils;
@@ -34,12 +33,10 @@ impl SdkInstallIncoming {
     }
 
     pub fn new() -> Box<SdkInstallIncoming> {
-        print_debug!("> {}: new()", Self::name());
         Box::new(Self { id: None })
     }
 
     pub fn new_id(id: String) -> Box<SdkInstallIncoming> {
-        print_debug!("> {}: new_id(id: {})", Self::name(), id);
         Box::new(Self { id: Some(id) })
     }
 

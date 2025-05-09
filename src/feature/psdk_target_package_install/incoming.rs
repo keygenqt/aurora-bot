@@ -16,7 +16,6 @@ use crate::models::psdk_target::model::PsdkTargetModel;
 use crate::models::psdk_target_package::model::PsdkTargetPackageModel;
 use crate::service::command;
 use crate::service::dbus::server::IfaceData;
-use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 use crate::tools::utils;
 
@@ -32,18 +31,12 @@ impl PsdkTargetPackageInstallIncoming {
             .unwrap()
             .to_string()
     }
-    pub fn new_path(path: PathBuf) -> Box<PsdkTargetPackageInstallIncoming> {
-        print_debug!("> {}: new_path(path: {})", Self::name(), path.to_string_lossy());
+
+    pub fn new(path: PathBuf) -> Box<PsdkTargetPackageInstallIncoming> {
         Box::new(Self { id: None, path })
     }
 
-    pub fn new_path_id(id: String, path: PathBuf) -> Box<PsdkTargetPackageInstallIncoming> {
-        print_debug!(
-            "> {}: new_path_id(id: {}, path: {})",
-            Self::name(),
-            id,
-            path.to_string_lossy()
-        );
+    pub fn new_id(path: PathBuf, id: String) -> Box<PsdkTargetPackageInstallIncoming> {
         Box::new(Self { id: Some(id), path })
     }
 
@@ -53,14 +46,14 @@ impl PsdkTargetPackageInstallIncoming {
         select
     }
 
-    pub fn dbus_method_run_path(builder: &mut IfaceBuilder<IfaceData>) {
+    pub fn dbus_method_run(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             Self::name(),
             ("path",),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (path,): (String,)| async move {
                 let outgoing = match utils::path_to_absolute(&PathBuf::from(path)) {
-                    Some(path) => Self::new_path(path).run(OutgoingType::Dbus),
+                    Some(path) => Self::new(path).run(OutgoingType::Dbus),
                     None => StateMessageOutgoing::new_error(tr!("проверьте путь к файлу")),
                 };
                 ctx.reply(Ok((outgoing.to_json(),)))
@@ -68,14 +61,14 @@ impl PsdkTargetPackageInstallIncoming {
         );
     }
 
-    pub fn dbus_method_run_path_by_id(builder: &mut IfaceBuilder<IfaceData>) {
+    pub fn dbus_method_run_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "ById"),
-            ("id", "path"),
+            ("path", "id"),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (id, path): (String, String)| async move {
+            move |mut ctx: dbus_crossroads::Context, _, (path, id,): (String, String,)| async move {
                 let outgoing = match utils::path_to_absolute(&PathBuf::from(path)) {
-                    Some(path) => Self::new_path_id(id, path).run(OutgoingType::Dbus),
+                    Some(path) => Self::new_id(path, id).run(OutgoingType::Dbus),
                     None => StateMessageOutgoing::new_error(tr!("проверьте путь к файлу")),
                 };
                 ctx.reply(Ok((outgoing.to_json(),)))

@@ -13,7 +13,6 @@ use crate::models::psdk_installed::model::PsdkInstalledModel;
 use crate::models::psdk_target::model::PsdkTargetModel;
 use crate::models::psdk_target_package::model::PsdkTargetPackageModel;
 use crate::service::dbus::server::IfaceData;
-use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 
 use super::outgoing::PsdkTargetPackageFindOutgoing;
@@ -32,8 +31,7 @@ impl PsdkTargetPackageFindIncoming {
             .to_string()
     }
 
-    pub fn new_package(package: String) -> Box<PsdkTargetPackageFindIncoming> {
-        print_debug!("> {}: new_package(package: {})", Self::name(), package);
+    pub fn new(package: String) -> Box<PsdkTargetPackageFindIncoming> {
         Box::new(Self {
             id: None,
             target_id: None,
@@ -41,8 +39,7 @@ impl PsdkTargetPackageFindIncoming {
         })
     }
 
-    pub fn new_package_id(id: String, package: String) -> Box<PsdkTargetPackageFindIncoming> {
-        print_debug!("> {}: new_package_id(id: {}, package: {})", Self::name(), id, package);
+    pub fn new_id(package: String, id: String) -> Box<PsdkTargetPackageFindIncoming> {
         Box::new(Self {
             id: Some(id),
             target_id: None,
@@ -50,13 +47,7 @@ impl PsdkTargetPackageFindIncoming {
         })
     }
 
-    pub fn new_package_target(target_id: String, package: String) -> Box<PsdkTargetPackageFindIncoming> {
-        print_debug!(
-            "> {}: new_package_target(target_id: {}, package: {})",
-            Self::name(),
-            target_id,
-            package
-        );
+    pub fn new_target(package: String, target_id: String) -> Box<PsdkTargetPackageFindIncoming> {
         Box::new(Self {
             id: None,
             target_id: Some(target_id),
@@ -64,14 +55,7 @@ impl PsdkTargetPackageFindIncoming {
         })
     }
 
-    pub fn new_package_target_id(id: String, target_id: String, package: String) -> Box<PsdkTargetPackageFindIncoming> {
-        print_debug!(
-            "> {}: new_package_target_id(id: {}, target_id: {}, package: {})",
-            Self::name(),
-            id,
-            target_id,
-            package
-        );
+    pub fn new_target_id(package: String, target_id: String, id: String) -> Box<PsdkTargetPackageFindIncoming> {
         Box::new(Self {
             id: Some(id),
             target_id: Some(target_id),
@@ -92,49 +76,49 @@ impl PsdkTargetPackageFindIncoming {
         select
     }
 
-    pub fn dbus_method_run_package(builder: &mut IfaceBuilder<IfaceData>) {
+    pub fn dbus_method_run(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             Self::name(),
             ("package",),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (package,): (String,)| async move {
-                let outgoing = Self::new_package(package).run(OutgoingType::Dbus);
+                let outgoing = Self::new(package).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
     }
 
-    pub fn dbus_method_run_package_by_id(builder: &mut IfaceBuilder<IfaceData>) {
+    pub fn dbus_method_run_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "ById"),
-            ("id", "package"),
+            ("package", "id",),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (id, package): (String, String)| async move {
-                let outgoing = Self::new_package_id(id, package).run(OutgoingType::Dbus);
+            move |mut ctx: dbus_crossroads::Context, _, (package, id,): (String, String,)| async move {
+                let outgoing = Self::new_id(package, id).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
     }
 
-    pub fn dbus_method_run_package_target(builder: &mut IfaceBuilder<IfaceData>) {
+    pub fn dbus_method_run_target(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "Target"),
-            ("target_id", "package"),
+            ("package", "target_id",),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (target_id, package): (String, String)| async move {
-                let outgoing = Self::new_package_target(target_id, package).run(OutgoingType::Dbus);
+            move |mut ctx: dbus_crossroads::Context, _, (package, target_id,): (String, String,)| async move {
+                let outgoing = Self::new_target(package, target_id).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
     }
 
-    pub fn dbus_method_run_package_target_by_id(builder: &mut IfaceBuilder<IfaceData>) {
+    pub fn dbus_method_run_target_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "TargetById"),
-            ("id", "target_id", "package"),
+            ("package", "target_id", "id"),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (id, target_id, package): (String, String, String)| async move {
-                let outgoing = Self::new_package_target_id(id, target_id, package).run(OutgoingType::Dbus);
+            move |mut ctx: dbus_crossroads::Context, _, (package, target_id, id,): (String, String, String,)| async move {
+                let outgoing = Self::new_target_id(package, target_id, id).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );

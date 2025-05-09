@@ -20,7 +20,6 @@ use crate::models::psdk_installed::model::PsdkInstalledModel;
 use crate::service::command;
 use crate::service::command::exec;
 use crate::service::dbus::server::IfaceData;
-use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 use crate::tools::programs;
 use crate::tools::single;
@@ -39,12 +38,10 @@ impl PsdkInstallIncoming {
     }
 
     pub fn new() -> Box<PsdkInstallIncoming> {
-        print_debug!("> {}: new()", Self::name());
         Box::new(Self { id: None })
     }
 
     pub fn new_id(id: String) -> Box<PsdkInstallIncoming> {
-        print_debug!("> {}: new_id(id: {})", Self::name(), id);
         Box::new(Self { id: Some(id) })
     }
 

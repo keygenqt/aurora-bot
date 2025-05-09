@@ -10,7 +10,6 @@ use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::models::configuration::Config;
 use crate::models::configuration::psdk::PsdkConfig;
 use crate::service::dbus::server::IfaceData;
-use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -24,7 +23,6 @@ impl PsdkSyncIncoming {
     }
 
     pub fn new() -> Box<PsdkSyncIncoming> {
-        print_debug!("> {}: new()", Self::name());
         Box::new(Self {})
     }
 

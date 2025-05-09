@@ -9,7 +9,6 @@ use crate::feature::outgoing::TraitOutgoing;
 use crate::feature::selector::selects::select_psdk_available::PsdkAvailableModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
 use crate::service::dbus::server::IfaceData;
-use crate::tools::macros::print_debug;
 use crate::tools::macros::tr;
 
 use super::outgoing::PsdkAvailableOutgoing;
@@ -27,12 +26,10 @@ impl PsdkAvailableIncoming {
     }
 
     pub fn new() -> Box<PsdkAvailableIncoming> {
-        print_debug!("> {}: new()", Self::name());
         Box::new(Self { id: None })
     }
 
     pub fn new_id(id: String) -> Box<PsdkAvailableIncoming> {
-        print_debug!("> {}: new_id(id: {})", Self::name(), id);
         Box::new(Self { id: Some(id) })
     }
 

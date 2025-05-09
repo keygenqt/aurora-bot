@@ -109,14 +109,14 @@ pub fn run(arg: PsdkArgs) {
                 if let Some(path) = arg.sign {
                     match utils::path_to_absolute(&path) {
                         Some(path) => {
-                            PsdkPackageSignIncoming::new_path(path).run(OutgoingType::Cli).print();
+                            PsdkPackageSignIncoming::new(path).run(OutgoingType::Cli).print();
                         }
                         None => print_error!("проверьте путь к файлу"),
                     }
                     return;
                 }
                 if let Some(package) = arg.find {
-                    PsdkTargetPackageFindIncoming::new_package(package)
+                    PsdkTargetPackageFindIncoming::new(package)
                         .run(OutgoingType::Cli)
                         .print();
                     return;
@@ -124,7 +124,7 @@ pub fn run(arg: PsdkArgs) {
                 if let Some(path) = arg.install {
                     match utils::path_to_absolute(&path) {
                         Some(path) => {
-                            PsdkTargetPackageInstallIncoming::new_path(path)
+                            PsdkTargetPackageInstallIncoming::new(path)
                                 .run(OutgoingType::Cli)
                                 .print();
                         }
@@ -133,7 +133,7 @@ pub fn run(arg: PsdkArgs) {
                     return;
                 }
                 if let Some(package) = arg.uninstall {
-                    PsdkTargetPackageUninstallIncoming::new_package(package)
+                    PsdkTargetPackageUninstallIncoming::new(package)
                         .run(OutgoingType::Cli)
                         .print();
                     return;

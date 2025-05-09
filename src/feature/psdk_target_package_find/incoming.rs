@@ -91,9 +91,9 @@ impl PsdkTargetPackageFindIncoming {
     pub fn dbus_method_run_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "ById"),
-            ("package", "id",),
+            ("package", "id"),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (package, id,): (String, String,)| async move {
+            move |mut ctx: dbus_crossroads::Context, _, (package, id): (String, String)| async move {
                 let outgoing = Self::new_id(package, id).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
@@ -103,9 +103,9 @@ impl PsdkTargetPackageFindIncoming {
     pub fn dbus_method_run_target(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "Target"),
-            ("package", "target_id",),
+            ("package", "target_id"),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (package, target_id,): (String, String,)| async move {
+            move |mut ctx: dbus_crossroads::Context, _, (package, target_id): (String, String)| async move {
                 let outgoing = Self::new_target(package, target_id).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
@@ -117,7 +117,7 @@ impl PsdkTargetPackageFindIncoming {
             format!("{}{}", Self::name(), "TargetById"),
             ("package", "target_id", "id"),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (package, target_id, id,): (String, String, String,)| async move {
+            move |mut ctx: dbus_crossroads::Context, _, (package, target_id, id): (String, String, String)| async move {
                 let outgoing = Self::new_target_id(package, target_id, id).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },

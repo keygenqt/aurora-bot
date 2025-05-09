@@ -76,9 +76,9 @@ impl EmulatorRecordStopIncoming {
     pub fn dbus_method_run_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "ById"),
-            ("stop_type", "id",),
+            ("stop_type", "id"),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (stop_type, id,): (String, String,)| async move {
+            move |mut ctx: dbus_crossroads::Context, _, (stop_type, id): (String, String)| async move {
                 let outgoing = match serde_json::from_str::<EmulatorRecordStopType>(&stop_type) {
                     Ok(value) => Self::new_id(value, id).run(OutgoingType::Dbus),
                     Err(_) => StateMessageOutgoing::new_error(tr!("указан не верный тип: Raw, Mp4, Gif")),

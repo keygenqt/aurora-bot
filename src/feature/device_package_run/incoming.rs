@@ -106,9 +106,9 @@ impl DevicePackageRunIncoming {
     pub fn dbus_method_run_package_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "PackageById"),
-            ("package", "id",),
+            ("package", "id"),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (package, id,): (String, String,)| async move {
+            move |mut ctx: dbus_crossroads::Context, _, (package, id): (String, String)| async move {
                 let outgoing = Self::new_package_id(package, id).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },

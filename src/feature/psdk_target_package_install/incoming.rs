@@ -66,7 +66,7 @@ impl PsdkTargetPackageInstallIncoming {
             format!("{}{}", Self::name(), "ById"),
             ("path", "id"),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (path, id,): (String, String,)| async move {
+            move |mut ctx: dbus_crossroads::Context, _, (path, id): (String, String)| async move {
                 let outgoing = match utils::path_to_absolute(&PathBuf::from(path)) {
                     Some(path) => Self::new_id(path, id).run(OutgoingType::Dbus),
                     None => StateMessageOutgoing::new_error(tr!("проверьте путь к файлу")),

@@ -65,9 +65,7 @@ pub fn run(arg: FlutterArgs) {
         match utils::path_to_absolute(&path) {
             Some(path) => {
                 if path.is_dir() {
-                    FlutterProjectFormatIncoming::new(path)
-                        .run(OutgoingType::Cli)
-                        .print();
+                    FlutterProjectFormatIncoming::new(path).run(OutgoingType::Cli).print();
                 } else {
                     print_error!("укажите директорию проекта")
                 }

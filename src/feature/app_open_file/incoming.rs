@@ -55,9 +55,7 @@ impl AppOpenFileIncoming {
         };
         let program = programs::get_xdg_open()?;
         match exec::exec_detach_args(&program, [path], 2) {
-            Ok(_) => Ok(StateMessageOutgoing::new_success(tr!(
-                "файл успешно открыт"
-            ))),
+            Ok(_) => Ok(StateMessageOutgoing::new_success(tr!("файл успешно открыт"))),
             Err(_) => Err(tr!("не удалось открыть файл"))?,
         }
     }

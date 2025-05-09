@@ -113,11 +113,7 @@ pub fn exec_detach(program: &str, delay: u64) -> Result<(), Box<dyn std::error::
     }
 }
 
-pub fn exec_detach_args<I, S>(
-    program: &str,
-    args: I,
-    delay: u64,
-) -> Result<(), Box<dyn std::error::Error>>
+pub fn exec_detach_args<I, S>(program: &str, args: I, delay: u64) -> Result<(), Box<dyn std::error::Error>>
 where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,

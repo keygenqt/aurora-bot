@@ -87,9 +87,9 @@ impl EmulatorPackageRunIncoming {
     pub fn dbus_method_run_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "ById"),
-            ("is_listen", "id",),
+            ("is_listen", "id"),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (is_listen, id,): (bool, String,)| async move {
+            move |mut ctx: dbus_crossroads::Context, _, (is_listen, id): (bool, String)| async move {
                 let outgoing = Self::new_id(is_listen, id).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
@@ -99,9 +99,9 @@ impl EmulatorPackageRunIncoming {
     pub fn dbus_method_run_package(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "Package"),
-            ("is_listen", "package",),
+            ("is_listen", "package"),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (is_listen, package,): (bool, String,)| async move {
+            move |mut ctx: dbus_crossroads::Context, _, (is_listen, package): (bool, String)| async move {
                 let outgoing = Self::new_package(is_listen, package).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
@@ -111,9 +111,9 @@ impl EmulatorPackageRunIncoming {
     pub fn dbus_method_run_package_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "PackageById"),
-            ("is_listen", "package", "id",),
+            ("is_listen", "package", "id"),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (is_listen, package, id,): (bool, String, String,)| async move {
+            move |mut ctx: dbus_crossroads::Context, _, (is_listen, package, id): (bool, String, String)| async move {
                 let outgoing = Self::new_package_id(is_listen, package, id).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },

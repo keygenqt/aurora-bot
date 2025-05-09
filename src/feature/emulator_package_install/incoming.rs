@@ -88,9 +88,9 @@ impl EmulatorPackageInstallIncoming {
     pub fn dbus_method_run_path_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "PathById"),
-            ("path", "id",),
+            ("path", "id"),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (path, id,): (String, String,)| async move {
+            move |mut ctx: dbus_crossroads::Context, _, (path, id): (String, String)| async move {
                 let outgoing = match utils::path_to_absolute(&PathBuf::from(path)) {
                     Some(path) => Self::new_path_id(path, id).run(OutgoingType::Dbus),
                     None => StateMessageOutgoing::new_error(tr!("проверьте путь к файлу")),
@@ -115,9 +115,9 @@ impl EmulatorPackageInstallIncoming {
     pub fn dbus_method_run_url_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "UrlById"),
-            ("url", "id",),
+            ("url", "id"),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (url, id,): (String, String,)| async move {
+            move |mut ctx: dbus_crossroads::Context, _, (url, id): (String, String)| async move {
                 let outgoing = Self::new_url_id(url, id).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },

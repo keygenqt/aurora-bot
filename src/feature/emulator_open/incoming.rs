@@ -110,9 +110,9 @@ impl EmulatorOpenIncoming {
     pub fn dbus_method_run_vnc_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "VncById"),
-            ("password", "port", "id",),
+            ("password", "port", "id"),
             ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (password, port, id,): (String, u64, String)| async move {
+            move |mut ctx: dbus_crossroads::Context, _, (password, port, id): (String, u64, String)| async move {
                 let outgoing = Self::new_vnc_id(password, port, id).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },

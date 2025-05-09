@@ -56,7 +56,7 @@ impl DevicePackageInstallIncoming {
         })
     }
 
-    pub fn new_urls_id(id: String, urls: Vec<String>) -> Box<DevicePackageInstallIncoming> {
+    pub fn new_urls_id(urls: Vec<String>, id: String) -> Box<DevicePackageInstallIncoming> {
         Box::new(Self {
             id: Some(id),
             path: None,
@@ -118,7 +118,7 @@ impl DevicePackageInstallIncoming {
             ("urls", "id",),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (urls, id,): (Vec<String>, String,)| async move {
-                let outgoing = Self::new_urls_id(id, urls).run(OutgoingType::Dbus);
+                let outgoing = Self::new_urls_id(urls, id).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );

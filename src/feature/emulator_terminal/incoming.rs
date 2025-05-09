@@ -58,7 +58,7 @@ impl EmulatorTerminalIncoming {
             ("is_root", "id",),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (is_root, id,): (bool, String,)| async move {
-                let outgoing = Self::new_id(is_root, id,).run(OutgoingType::Dbus);
+                let outgoing = Self::new_id(is_root, id).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );

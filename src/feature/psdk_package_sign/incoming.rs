@@ -34,7 +34,7 @@ impl PsdkPackageSignIncoming {
         Box::new(Self { id: None, path })
     }
 
-    pub fn new_id(id: String, path: PathBuf) -> Box<PsdkPackageSignIncoming> {
+    pub fn new_id(path: PathBuf, id: String) -> Box<PsdkPackageSignIncoming> {
         Box::new(Self { id: Some(id), path })
     }
 
@@ -44,7 +44,7 @@ impl PsdkPackageSignIncoming {
         select
     }
 
-    pub fn dbus_method_run_path(builder: &mut IfaceBuilder<IfaceData>) {
+    pub fn dbus_method_run(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             Self::name(),
             ("path",),
@@ -59,14 +59,14 @@ impl PsdkPackageSignIncoming {
         );
     }
 
-    pub fn dbus_method_run_path_by_id(builder: &mut IfaceBuilder<IfaceData>) {
+    pub fn dbus_method_run_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "ById"),
             ("path", "id",),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (path, id,): (String, String,)| async move {
                 let outgoing = match utils::path_to_absolute(&PathBuf::from(path)) {
-                    Some(path) => Self::new_id(id, path).run(OutgoingType::Dbus),
+                    Some(path) => Self::new_id(path, id).run(OutgoingType::Dbus),
                     None => StateMessageOutgoing::new_error(tr!("проверьте путь к файлу")),
                 };
                 ctx.reply(Ok((outgoing.to_json(),)))

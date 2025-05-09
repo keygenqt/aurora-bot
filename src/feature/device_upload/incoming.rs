@@ -116,7 +116,7 @@ impl DeviceUploadIncoming {
             ("url", "id",),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (url, id,): (String, String)| async move {
-                let outgoing = Self::new_url_id(id, url).run(OutgoingType::Dbus);
+                let outgoing = Self::new_url_id(url, id).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );

@@ -55,11 +55,7 @@ impl PsdkTargetPackageUninstallIncoming {
         })
     }
 
-    pub fn new_target_id(
-        package: String,
-        target_id: String,
-        id: String,
-    ) -> Box<PsdkTargetPackageUninstallIncoming> {
+    pub fn new_target_id(package: String, target_id: String, id: String) -> Box<PsdkTargetPackageUninstallIncoming> {
         Box::new(Self {
             id: Some(id),
             target_id: Some(target_id),
@@ -98,7 +94,7 @@ impl PsdkTargetPackageUninstallIncoming {
             ("package", "id",),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (package, id,): (String, String,)| async move {
-                let outgoing = Self::new_id(id, package).run(OutgoingType::Dbus);
+                let outgoing = Self::new_id(package, id).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
@@ -110,7 +106,7 @@ impl PsdkTargetPackageUninstallIncoming {
             ("package", "target_id",),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (package, target_id,): (String, String,)| async move {
-                let outgoing = Self::new_target(target_id, package).run(OutgoingType::Dbus);
+                let outgoing = Self::new_target(package, target_id).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );

@@ -2,8 +2,8 @@
 
 > Subscribe and like ⭐
 
-[![Releases DEB](https://img.shields.io/badge/dynamic/json?url=https://api.github.com/repos/keygenqt/aurora-bot/releases/latest&query=assets[0][download_count]&label=Releases%20DEB&color=BE8731&logo=github&prefix=0.1.0%20(&suffix=))](https://github.com/keygenqt/aurora-bot/releases)
-[![Releases TAR](https://img.shields.io/badge/dynamic/json?url=https://api.github.com/repos/keygenqt/aurora-bot/releases/latest&query=assets[1][download_count]&label=Releases%20TAR&color=040404&logo=github&prefix=0.1.0%20(&suffix=))](https://github.com/keygenqt/aurora-bot/releases)
+[![Releases DEB](https://img.shields.io/badge/dynamic/json?url=https://api.github.com/repos/keygenqt/aurora-bot/releases/latest&query=assets[0][download_count]&label=Releases%20DEB&color=BE8731&logo=github&prefix=0.1.1%20(&suffix=))](https://github.com/keygenqt/aurora-bot/releases)
+[![Releases TAR](https://img.shields.io/badge/dynamic/json?url=https://api.github.com/repos/keygenqt/aurora-bot/releases/latest&query=assets[1][download_count]&label=Releases%20TAR&color=040404&logo=github&prefix=0.1.1%20(&suffix=))](https://github.com/keygenqt/aurora-bot/releases)
 
 > The application is under development.
 
@@ -28,7 +28,7 @@ Fast, smart, lightweight, client of the Aurora Bot project.
 
 ```shell
 # Install
-sudo dpkg -i aurora-bot_0.1.0-1_amd64.deb
+sudo dpkg -i aurora-bot_0.1.1-1_amd64.deb
 # Enable services
 systemctl --user enable aurora-bot.client.service
 systemctl --user enable aurora-bot.dbus.service

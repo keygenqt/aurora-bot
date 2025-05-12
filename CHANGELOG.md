@@ -1,12 +1,13 @@
-## Updated: 04/30/2025 22:02:33 PM
+## Updated: 05/12/2025 21:50:17 PM
 
 ## Info
 
-- Last tag: 0.1.0
-- Released: 7
+- Last tag: 0.1.1
+- Released: 8
 
 ## Versions
 
+- Version: 0.1.1 (12/05/2025)
 - Version: 0.1.0 (30/04/2025)
 - Version: 0.0.6 (15/03/2025)
 - Version: 0.0.5 (08/03/2025)
@@ -14,6 +15,23 @@
 - Version: 0.0.3 (21/02/2025)
 - Version: 0.0.2 (15/02/2025)
 - Version: 0.0.1 (06/02/2025)
+
+### Version: 0.1.1 (12/05/2025)
+
+#### Bug
+
+- Fix texts.
+- Fix upload files device/emulator.
+
+#### Change
+
+- Refactoring D-Bus API.
+
+#### Feature
+
+- Device is available.
+- D-Bus: open file method.
+- Add install/uninstall psdk for dbus/web.
 
 ### Version: 0.1.0 (30/04/2025)
 

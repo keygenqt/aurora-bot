@@ -137,7 +137,7 @@ impl SessionModel {
         path: &PathBuf,
         state: F,
     ) -> Result<String, Box<dyn std::error::Error>> {
-        let path_remote = tokio::task::block_in_place(|| Handle::current().block_on(self.session.upload(path, state)))?;
+        let path_remote = tokio::task::block_in_place(|| Handle::current().block_on(self.session_listen.upload(path, state)))?;
         Ok(path_remote)
     }
 

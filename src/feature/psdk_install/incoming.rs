@@ -23,6 +23,7 @@ use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
 use crate::tools::programs;
 use crate::tools::single;
+use crate::tools::terminal;
 use crate::tools::utils;
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -73,6 +74,11 @@ impl PsdkInstallIncoming {
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
+    }
+
+    fn run_install_terminal(send_type: &OutgoingType) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+        StateMessageOutgoing::new_state(tr!("открываем терминал для установки...")).send(send_type);
+        Ok(terminal::open("aurora-bot cli psdk --install".to_string()))
     }
 
     fn run(
@@ -267,19 +273,27 @@ impl PsdkInstallIncoming {
 
 impl TraitIncoming for PsdkInstallIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
-        // Search
-        let key = PsdkInstallIncoming::name();
-        let models = PsdkAvailableModelSelect::search(&self.id, tr!("получаем список..."), &send_type);
-        // Select
-        match models.iter().count() {
-            1 => match Self::run(models.first().unwrap().clone(), &send_type) {
+        match &send_type {
+            OutgoingType::Cli => {
+                // Search
+                let key = PsdkInstallIncoming::name();
+                let models = PsdkAvailableModelSelect::search(&self.id, tr!("получаем список..."), &send_type);
+                // Select
+                match models.iter().count() {
+                    1 => match Self::run(models.first().unwrap().clone(), &send_type) {
+                        Ok(result) => result,
+                        Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
+                    },
+                    0 => StateMessageOutgoing::new_info(tr!("не удалось получить данные")),
+                    _ => match PsdkAvailableModelSelect::select(key, &send_type, models, |id| self.select(id)) {
+                        Ok(value) => Box::new(value),
+                        Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Platform SDK")),
+                    },
+                }
+            }
+            _ => match Self::run_install_terminal(&send_type) {
                 Ok(result) => result,
                 Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
-            },
-            0 => StateMessageOutgoing::new_info(tr!("не удалось получить данные")),
-            _ => match PsdkAvailableModelSelect::select(key, &send_type, models, |id| self.select(id)) {
-                Ok(value) => Box::new(value),
-                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Platform SDK")),
             },
         }
     }

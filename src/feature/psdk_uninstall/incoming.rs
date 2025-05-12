@@ -19,6 +19,7 @@ use crate::service::command::exec;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
 use crate::tools::programs;
+use crate::tools::terminal;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct PsdkUninstallIncoming {
@@ -70,6 +71,11 @@ impl PsdkUninstallIncoming {
         );
     }
 
+    fn run_uninstall_terminal(send_type: &OutgoingType) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+        StateMessageOutgoing::new_state(tr!("открываем терминал для удаления...")).send(send_type);
+        Ok(terminal::open("aurora-bot cli psdk --uninstall".to_string()))
+    }
+
     fn run(
         model: PsdkInstalledModel,
         send_type: &OutgoingType,
@@ -114,19 +120,28 @@ impl PsdkUninstallIncoming {
 
 impl TraitIncoming for PsdkUninstallIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
-        // Search
-        let key = PsdkUninstallIncoming::name();
-        let models = PsdkInstalledModelSelect::search(&self.id, tr!("получаем информацию о Platform SDK"), &send_type);
-        // Select
-        match models.iter().count() {
-            1 => match Self::run(models.first().unwrap().clone(), &send_type) {
+        match &send_type {
+            OutgoingType::Cli => {
+                // Search
+                let key = PsdkUninstallIncoming::name();
+                let models =
+                    PsdkInstalledModelSelect::search(&self.id, tr!("получаем информацию о Platform SDK"), &send_type);
+                // Select
+                match models.iter().count() {
+                    1 => match Self::run(models.first().unwrap().clone(), &send_type) {
+                        Ok(result) => result,
+                        Err(_) => StateMessageOutgoing::new_error(tr!("произошла ошибка при удалении Platform SDK")),
+                    },
+                    0 => StateMessageOutgoing::new_info(tr!("Platform SDK не найдены")),
+                    _ => match PsdkInstalledModelSelect::select(key, &send_type, models, |id| self.select(id)) {
+                        Ok(value) => Box::new(value),
+                        Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Platform SDK")),
+                    },
+                }
+            }
+            _ => match Self::run_uninstall_terminal(&send_type) {
                 Ok(result) => result,
-                Err(_) => StateMessageOutgoing::new_error(tr!("произошла ошибка при удалении Platform SDK")),
-            },
-            0 => StateMessageOutgoing::new_info(tr!("Platform SDK не найдены")),
-            _ => match PsdkInstalledModelSelect::select(key, &send_type, models, |id| self.select(id)) {
-                Ok(value) => Box::new(value),
-                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось получить Platform SDK")),
+                Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
             },
         }
     }

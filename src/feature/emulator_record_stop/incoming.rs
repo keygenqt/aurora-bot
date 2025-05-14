@@ -64,10 +64,17 @@ impl EmulatorRecordStopIncoming {
             ("stop_type",),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (stop_type,): (String,)| async move {
-                let outgoing = match serde_json::from_str::<EmulatorRecordStopType>(&stop_type) {
-                    Ok(value) => Self::new(value).run(OutgoingType::Dbus),
-                    Err(_) => StateMessageOutgoing::new_error(tr!("указан не верный тип: Raw, Mp4, Gif")),
+                let stop_type = if stop_type == "Gif" {
+                    EmulatorRecordStopType::Gif
+                } else if stop_type == "Mp4" {
+                    EmulatorRecordStopType::Mp4
+                } else if stop_type == "Raw" {
+                    EmulatorRecordStopType::Raw
+                } else {
+                    let outgoing = StateMessageOutgoing::new_error(tr!("указан не верный тип: Raw, Mp4, Gif"));
+                    return ctx.reply(Ok((outgoing.to_json(),)));
                 };
+                let outgoing = Self::new(stop_type).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );
@@ -79,10 +86,17 @@ impl EmulatorRecordStopIncoming {
             ("stop_type", "id"),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (stop_type, id): (String, String)| async move {
-                let outgoing = match serde_json::from_str::<EmulatorRecordStopType>(&stop_type) {
-                    Ok(value) => Self::new_id(value, id).run(OutgoingType::Dbus),
-                    Err(_) => StateMessageOutgoing::new_error(tr!("указан не верный тип: Raw, Mp4, Gif")),
+                let stop_type = if stop_type == "Gif" {
+                    EmulatorRecordStopType::Gif
+                } else if stop_type == "Mp4" {
+                    EmulatorRecordStopType::Mp4
+                } else if stop_type == "Raw" {
+                    EmulatorRecordStopType::Raw
+                } else {
+                    let outgoing = StateMessageOutgoing::new_error(tr!("указан не верный тип: Raw, Mp4, Gif"));
+                    return ctx.reply(Ok((outgoing.to_json(),)));
                 };
+                let outgoing = Self::new_id(stop_type, id).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );

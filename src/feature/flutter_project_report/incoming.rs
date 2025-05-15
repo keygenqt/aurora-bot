@@ -146,7 +146,11 @@ impl FlutterProjectReportIncoming {
                 let path = path.to_string_lossy().to_string();
                 Ok(FlutterProjectReportOutgoing::new(
                     path.clone(),
-                    utils::file_to_base64_by_path(Some(path.as_str())),
+                    if send_type == &OutgoingType::Websocket {
+                        utils::file_to_base64_by_path(Some(path.as_str()))
+                    } else {
+                        None
+                    },
                 ))
             }
             Err(_) => Err("не удалось создать отчет")?,

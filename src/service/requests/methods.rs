@@ -334,6 +334,10 @@ impl ClientRequest {
             Some(value) => value,
             None => Err(tr!("не удалось получит название файла"))?,
         };
+        let file_name = match file_name.split("?").next() {
+            Some(value) => value,
+            None => Err(tr!("не удалось получит название файла"))?,
+        };
         // Request
         let response = match self.client.get(url.clone()).send().await {
             Ok(response) => response,

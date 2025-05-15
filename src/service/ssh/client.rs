@@ -260,10 +260,13 @@ impl SshSession {
         let mut progress = 0;
         let chunk = file.metadata()?.size() / 100;
         for data in fs::read(path)?.chunks(chunk as usize) {
-            state(progress);
+            if progress < 100 {
+                state(progress);
+            }
             sftp_file.write_all(data).await.unwrap();
             progress += 1;
         }
+        state(100);
         Ok(format!("/home/{}/{}", self.user, file_name))
     }
 

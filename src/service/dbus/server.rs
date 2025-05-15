@@ -243,7 +243,6 @@ impl ServerDbus {
 
             PsdkTargetPackageFindIncoming::dbus_method_run(builder);
             PsdkTargetPackageFindIncoming::dbus_method_run_by_id(builder);
-            PsdkTargetPackageFindIncoming::dbus_method_run_target(builder);
             PsdkTargetPackageFindIncoming::dbus_method_run_target_by_id(builder);
 
             PsdkTargetPackageInstallIncoming::dbus_method_run(builder);

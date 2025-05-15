@@ -47,14 +47,6 @@ impl PsdkTargetPackageFindIncoming {
         })
     }
 
-    pub fn new_target(package: String, target_id: String) -> Box<PsdkTargetPackageFindIncoming> {
-        Box::new(Self {
-            id: None,
-            target_id: Some(target_id),
-            package,
-        })
-    }
-
     pub fn new_target_id(package: String, target_id: String, id: String) -> Box<PsdkTargetPackageFindIncoming> {
         Box::new(Self {
             id: Some(id),
@@ -95,18 +87,6 @@ impl PsdkTargetPackageFindIncoming {
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (package, id): (String, String)| async move {
                 let outgoing = Self::new_id(package, id).run(OutgoingType::Dbus);
-                ctx.reply(Ok((outgoing.to_json(),)))
-            },
-        );
-    }
-
-    pub fn dbus_method_run_target(builder: &mut IfaceBuilder<IfaceData>) {
-        builder.method_with_cr_async(
-            format!("{}{}", Self::name(), "Target"),
-            ("package", "target_id"),
-            ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (package, target_id): (String, String)| async move {
-                let outgoing = Self::new_target(package, target_id).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );

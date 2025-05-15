@@ -1,6 +1,5 @@
 use std::path::PathBuf;
 
-use colored::Colorize;
 use dbus_crossroads::IfaceBuilder;
 use serde::Deserialize;
 use serde::Serialize;
@@ -87,7 +86,7 @@ impl PsdkPackageSignIncoming {
         }
         Ok(StateMessageOutgoing::new_success(tr!(
             "пакет {} успешно подписан",
-            package_name.bold()
+            package_name
         )))
     }
 }

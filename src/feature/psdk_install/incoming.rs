@@ -78,7 +78,8 @@ impl PsdkInstallIncoming {
 
     fn run_install_terminal(send_type: &OutgoingType) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         StateMessageOutgoing::new_state(tr!("открываем терминал для установки...")).send(send_type);
-        Ok(terminal::open("aurora-bot cli psdk --install".to_string()))
+        let program = programs::get_aurora_bot()?;
+        Ok(terminal::open(format!("{program} cli psdk --install")))
     }
 
     fn run(

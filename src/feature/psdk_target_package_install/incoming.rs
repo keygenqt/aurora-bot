@@ -1,6 +1,5 @@
 use std::path::PathBuf;
 
-use colored::Colorize;
 use dbus_crossroads::IfaceBuilder;
 use serde::Deserialize;
 use serde::Serialize;
@@ -92,16 +91,14 @@ impl PsdkTargetPackageInstallIncoming {
         let packages = PsdkTargetPackageModel::search_local(&model.chroot, &target.full_name, &package_name, true)?;
         if !packages.is_empty() {
             return Ok(StateMessageOutgoing::new_info(tr!(
-                "пакет {} уже установлен",
-                package_name.bold()
+                "пакет {package_name} уже установлен",
             )));
         }
         // Install package
         command::psdk::target_package_install(&model.chroot, &path, &target)?;
         // Success
         Ok(StateMessageOutgoing::new_success(tr!(
-            "пакет {} успешно установлен",
-            package_name.bold()
+            "пакет {package_name} успешно установлен",
         )))
     }
 }

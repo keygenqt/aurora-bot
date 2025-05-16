@@ -60,3 +60,13 @@ pub fn get_sshpass() -> Result<String, Box<dyn std::error::Error>> {
     }
     Err(tr!("не найдено sshpass"))?
 }
+
+pub fn get_aurora_bot() -> Result<String, Box<dyn std::error::Error>> {
+    if let Ok(_) = exec::exec_wait_args("aurora-bot", ["--version"]) {
+        return Ok("aurora-bot".into());
+    }
+    if cfg!(debug_assertions) {
+        println!("Run production aurora-bot!!!");
+    }
+    Err(tr!("не найден aurora-bot"))?
+}

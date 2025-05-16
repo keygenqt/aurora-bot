@@ -24,7 +24,7 @@ pub fn target_package_install(
         [
             "sb2",
             "-t",
-            &target.name,
+            &target.full_name,
             "-m",
             "sdk-install",
             "-R",
@@ -56,7 +56,7 @@ pub fn target_package_remove(
         [
             "sb2",
             "-t",
-            &target.name,
+            &target.full_name,
             "-m",
             "sdk-install",
             "-R",

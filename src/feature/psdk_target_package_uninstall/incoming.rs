@@ -1,4 +1,3 @@
-use colored::Colorize;
 use dbus_crossroads::IfaceBuilder;
 use serde::Deserialize;
 use serde::Serialize;
@@ -43,14 +42,6 @@ impl PsdkTargetPackageUninstallIncoming {
         Box::new(Self {
             id: Some(id),
             target_id: None,
-            package,
-        })
-    }
-
-    pub fn new_target(package: String, target_id: String) -> Box<PsdkTargetPackageUninstallIncoming> {
-        Box::new(Self {
-            id: None,
-            target_id: Some(target_id),
             package,
         })
     }
@@ -100,18 +91,6 @@ impl PsdkTargetPackageUninstallIncoming {
         );
     }
 
-    pub fn dbus_method_run_target(builder: &mut IfaceBuilder<IfaceData>) {
-        builder.method_with_cr_async(
-            format!("{}{}", Self::name(), "Target"),
-            ("package", "target_id"),
-            ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (package, target_id): (String, String)| async move {
-                let outgoing = Self::new_target(package, target_id).run(OutgoingType::Dbus);
-                ctx.reply(Ok((outgoing.to_json(),)))
-            },
-        );
-    }
-
     pub fn dbus_method_run_target_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "TargetById"),
@@ -135,8 +114,7 @@ impl PsdkTargetPackageUninstallIncoming {
             Some(value) => value,
             None => {
                 return Ok(StateMessageOutgoing::new_info(tr!(
-                    "пакет {} не найден",
-                    package.bold()
+                    "пакет {package} не найден",
                 )));
             }
         };
@@ -146,12 +124,12 @@ impl PsdkTargetPackageUninstallIncoming {
         if removed.iter().count() == 1 {
             Ok(StateMessageOutgoing::new_success(tr!(
                 "пакет {} успешно удален",
-                removed.first().unwrap().bold()
+                removed.first().unwrap()
             )))
         } else {
             Ok(StateMessageOutgoing::new_success(tr!(
                 "были удалены пакеты {}",
-                removed.join(", ").bold()
+                removed.join(", ")
             )))
         }
     }

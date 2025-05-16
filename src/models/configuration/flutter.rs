@@ -6,6 +6,7 @@ use serde::Serialize;
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct FlutterConfig {
+    pub id: String,
     pub dir: String,
     pub flutter: String,
     pub dart: String,
@@ -31,6 +32,7 @@ impl FlutterConfig {
             Ok(models) => models
                 .iter()
                 .map(|e| FlutterConfig {
+                    id: e.id.clone(),
                     dir: e.dir.clone(),
                     flutter: e.flutter.clone(),
                     dart: e.dart.clone(),
@@ -45,7 +47,7 @@ impl FlutterConfig {
 
     pub fn to_model(&self) -> FlutterInstalledModel {
         FlutterInstalledModel {
-            id: FlutterInstalledModel::get_id(&self.flutter),
+            id: self.id.clone(),
             dir: self.dir.clone(),
             flutter: self.flutter.clone(),
             dart: self.dart.clone(),

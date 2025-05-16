@@ -250,7 +250,6 @@ impl ServerDbus {
 
             PsdkTargetPackageUninstallIncoming::dbus_method_run(builder);
             PsdkTargetPackageUninstallIncoming::dbus_method_run_by_id(builder);
-            PsdkTargetPackageUninstallIncoming::dbus_method_run_target(builder);
             PsdkTargetPackageUninstallIncoming::dbus_method_run_target_by_id(builder);
 
             PsdkDownloadIncoming::dbus_method_run(builder);

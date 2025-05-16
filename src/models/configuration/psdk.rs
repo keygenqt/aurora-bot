@@ -7,6 +7,7 @@ use serde::Serialize;
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct PsdkConfig {
+    pub id: String,
     pub dir: String,
     pub chroot: String,
     pub version: String,
@@ -33,6 +34,7 @@ impl PsdkConfig {
             Ok(models) => models
                 .iter()
                 .map(|e| PsdkConfig {
+                    id: e.id.clone(),
                     dir: e.dir.clone(),
                     chroot: e.chroot.clone(),
                     version: e.version.clone(),
@@ -48,7 +50,7 @@ impl PsdkConfig {
 
     pub fn to_model(&self) -> PsdkInstalledModel {
         PsdkInstalledModel {
-            id: PsdkInstalledModel::get_id(&self.chroot),
+            id: self.id.clone(),
             dir: self.dir.clone(),
             chroot: self.chroot.clone(),
             version: self.version.clone(),

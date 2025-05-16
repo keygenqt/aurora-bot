@@ -10,6 +10,7 @@ use serde::Serialize;
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct SdkConfig {
+    pub id: String,
     pub dir: String,
     pub tools: String,
     pub version: String,
@@ -35,6 +36,7 @@ impl SdkConfig {
             Ok(models) => models
                 .iter()
                 .map(|e| SdkConfig {
+                    id: e.id.clone(),
                     dir: e.dir.clone(),
                     tools: e.tools.clone(),
                     version: e.version.clone(),
@@ -54,7 +56,7 @@ impl SdkConfig {
             Ok(lines.iter().any(|e| e.contains(&format!("{}/bin/qtcreator", sdk_dir))))
         }
         SdkInstalledModel {
-            id: SdkInstalledModel::get_id(&self.dir),
+            id: self.id.clone(),
             dir: self.dir.clone(),
             tools: self.tools.clone(),
             version: self.version.clone(),

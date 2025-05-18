@@ -1,3 +1,6 @@
+use std::os::unix::process::CommandExt;
+use std::process::Command;
+
 use dbus_crossroads::IfaceBuilder;
 
 use crate::feature::outgoing::DataOutgoing;
@@ -26,6 +29,22 @@ impl OnlyDbusMethods {
                         .to_json(),
                 };
                 ctx.reply(Ok((result,)))
+            },
+        );
+    }
+
+    pub fn restart_dbus(builder: &mut IfaceBuilder<IfaceData>) {
+        builder.method_with_cr_async(
+            OnlyDbusMethods::name(DbusOnly::RestartDbus),
+            ("suffix",),
+            (),
+            move |mut ctx: dbus_crossroads::Context, _, (suffix,): (String,)| async move {
+                if suffix.is_empty() {
+                    let _ = Command::new("/proc/self/exe").arg("svc").arg("--dbus").exec();
+                } else {
+                    let _ = Command::new("/proc/self/exe").arg("svc").arg("--dbus-suffix").arg(suffix).exec();
+                }
+                ctx.reply(Ok(()))
             },
         );
     }

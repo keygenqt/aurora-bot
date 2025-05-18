@@ -81,6 +81,7 @@ use crate::tools::single;
 #[derive(Serialize, Clone)]
 pub enum DbusOnly {
     FaqSearch,
+    RestartDbus,
     CanYouCPlusPlusDoThat,
 }
 
@@ -303,6 +304,7 @@ impl ServerDbus {
             /////////////////
             // Methods only for D-Bus
             methods::OnlyDbusMethods::search(builder);
+            methods::OnlyDbusMethods::restart_dbus(builder);
             methods::OnlyDbusMethods::fun_can_you_c_plus_plus_do_that(builder);
         });
 

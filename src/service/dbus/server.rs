@@ -325,10 +325,14 @@ impl ServerDbus {
         return ServerDbus { connection };
     }
 
-    pub fn run() -> Result<(), Box<dyn std::error::Error>> {
+    pub fn run(suffix: Option<String>) -> Result<(), Box<dyn std::error::Error>> {
+        let name = match suffix {
+            Some(value) => format!("{}.{}", constants::DBUS_NAME, value),
+            None => constants::DBUS_NAME.to_string(),
+        };
         tokio::task::block_in_place(|| {
             Handle::current().block_on(single::get_dbus().connection.request_name(
-                constants::DBUS_NAME,
+                name,
                 false,
                 true,
                 false,

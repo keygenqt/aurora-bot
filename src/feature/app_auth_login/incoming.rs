@@ -33,7 +33,7 @@ impl AppAuthLoginIncoming {
             ("token",),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (token,): (String,)| async move {
-                let outgoing = AppAuthLoginIncoming::new(token).run(OutgoingType::Dbus);
+                let outgoing = Self::new(token).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );

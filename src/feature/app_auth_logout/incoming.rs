@@ -31,7 +31,7 @@ impl AppAuthLogoutIncoming {
             (),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (): ()| async move {
-                let outgoing = AppAuthLogoutIncoming::new().run(OutgoingType::Dbus);
+                let outgoing = Self::new().run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );

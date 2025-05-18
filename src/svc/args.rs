@@ -26,6 +26,9 @@ pub struct SvcArgs {
     /// Запустить D-Bus сервер
     #[arg(short, long, default_value_t = false)]
     dbus: bool,
+    /// Запустить D-Bus сервер
+    #[arg(long, value_name = "suffix")]
+    dbus_suffix: Option<String>,
 
     /// Подключиться к удаленному сервису
     #[arg(short, long, default_value_t = false)]
@@ -96,7 +99,14 @@ pub struct SyncArgs {
 /// Handling interface events
 pub fn run(arg: SvcArgs) {
     if arg.dbus {
-        match ServerDbus::run() {
+        match ServerDbus::run(None) {
+            Ok(_) => print_info!("соединение закрыто"),
+            Err(_) => print_error!("не удалось активировать сервер"),
+        }
+        return;
+    }
+    if let Some(suffix) = arg.dbus_suffix {
+        match ServerDbus::run(Some(suffix)) {
             Ok(_) => print_info!("соединение закрыто"),
             Err(_) => print_error!("не удалось активировать сервер"),
         }

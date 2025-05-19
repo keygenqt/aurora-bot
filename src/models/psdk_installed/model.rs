@@ -112,7 +112,7 @@ impl PsdkInstalledModel {
             };
             let id = PsdkInstalledModel::get_id(&chroot);
             let model = PsdkInstalledModel {
-                id: PsdkInstalledModel::get_id(&chroot),
+                id: id.clone(),
                 dir: psdk_dir,
                 chroot: chroot.clone(),
                 version_id: version_id.clone(),

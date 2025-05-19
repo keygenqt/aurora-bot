@@ -3,8 +3,8 @@ use serde::Serialize;
 
 use crate::feature::outgoing::DataOutgoing;
 use crate::feature::outgoing::TraitOutgoing;
+use crate::service::requests::client::ClientRequest;
 use crate::tools::constants;
-use crate::tools::single;
 
 use super::incoming::AppInfoIncoming;
 
@@ -18,7 +18,7 @@ pub struct AppInfoOutgoing {
 
 impl AppInfoOutgoing {
     pub fn new() -> Box<AppInfoOutgoing> {
-        let is_connect = match single::get_request().get_user() {
+        let is_connect = match ClientRequest::new(Some(2)).get_user() {
             Ok(_) => true,
             Err(_) => false,
         };

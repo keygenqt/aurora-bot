@@ -62,8 +62,13 @@ pub fn get_sshpass() -> Result<String, Box<dyn std::error::Error>> {
 }
 
 pub fn get_aurora_bot() -> Result<String, Box<dyn std::error::Error>> {
-    if let Ok(_) = exec::exec_wait_args("aurora-bot", ["--version"]) {
-        return Ok("aurora-bot".into());
+    let path = if cfg!(debug_assertions) {
+        "/home/keygenqt/Documents/Home/Projects/aurora-bot/target/debug/aurora-bot"
+    } else {
+        "aurora-bot"
+    };
+    if let Ok(_) = exec::exec_wait_args(path, ["--version"]) {
+        return Ok(path.into());
     }
     if cfg!(debug_assertions) {
         println!("Run production aurora-bot!!!");

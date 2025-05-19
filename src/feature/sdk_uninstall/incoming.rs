@@ -10,6 +10,7 @@ use crate::feature::outgoing::OutgoingType;
 use crate::feature::outgoing::TraitOutgoing;
 use crate::feature::selector::selects::select_sdk_installed::SdkInstalledModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
+use crate::models::configuration::emulator::EmulatorConfig;
 use crate::models::configuration::Config;
 use crate::models::configuration::sdk::SdkConfig;
 use crate::models::sdk_installed::model::SdkInstalledModel;
@@ -77,6 +78,11 @@ impl SdkUninstallIncoming {
         // UNINSTALL
         StateMessageOutgoing::new_state(tr!("открываем Maintenance tools")).send(send_type);
         exec::exec_wait(&model.tools)?;
+
+        /////////////////
+        // SYNC Emulators
+        StateMessageOutgoing::new_state(tr!("запуск синхронизации эмуляторов")).send(send_type);
+        Config::save_emulator(EmulatorConfig::search());
 
         //////////
         // SYNC

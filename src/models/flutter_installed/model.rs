@@ -1,4 +1,5 @@
 use colored::Colorize;
+use human_sort::sort;
 
 use crate::models::TraitModel;
 use crate::models::configuration::flutter::FlutterConfig;
@@ -7,6 +8,7 @@ use crate::tools::macros::print_info;
 use crate::tools::utils;
 use serde::Deserialize;
 use serde::Serialize;
+use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct FlutterInstalledModel {
@@ -61,6 +63,8 @@ impl FlutterInstalledModel {
 
     pub fn search_full() -> Result<Vec<FlutterInstalledModel>, Box<dyn std::error::Error>> {
         let mut models: Vec<FlutterInstalledModel> = vec![];
+        let mut models_by_version: HashMap<String, FlutterInstalledModel> = HashMap::new();
+        let mut versions: Vec<String> = vec![];
         let flutters_path = utils::search_files_by_home("bin/flutter");
         for flutter in flutters_path {
             let dir = flutter.clone().replace("/bin/flutter", "");
@@ -109,15 +113,27 @@ impl FlutterInstalledModel {
             if flutter_version.is_empty() || dart_version.is_empty() || tools_version.is_empty() {
                 continue;
             }
-            models.push(FlutterInstalledModel {
-                id: FlutterInstalledModel::get_id(&flutter),
+            let id = FlutterInstalledModel::get_id(&flutter);
+            let model = FlutterInstalledModel {
+                id: id.clone(),
                 dir,
                 flutter: flutter.clone(),
                 dart: flutter.replace("bin/flutter", "bin/dart").to_string(),
                 flutter_version: flutter_version.to_string(),
                 tools_version: tools_version.to_string(),
                 dart_version: dart_version.to_string(),
-            })
+            };
+            let key = format!("{} ({})", flutter_version, id);
+            models_by_version.insert(key.clone(), model);
+            versions.push(key.clone());
+        }
+        // Sort version
+        let mut versions = versions.iter().map(|e| e.as_str()).collect::<Vec<&str>>();
+        sort(&mut versions);
+        let reverse = versions.iter().copied().rev().collect::<Vec<&str>>();
+        // Make result
+        for version in reverse {
+            models.push(models_by_version.get(version).unwrap().clone());
         }
         Ok(models)
     }

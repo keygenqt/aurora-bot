@@ -10,6 +10,7 @@ use crate::feature::outgoing::OutgoingType;
 use crate::feature::outgoing::TraitOutgoing;
 use crate::feature::selector::selects::select_sdk_available::SdkAvailableModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
+use crate::models::configuration::emulator::EmulatorConfig;
 use crate::models::configuration::Config;
 use crate::models::configuration::sdk::SdkConfig;
 use crate::models::sdk_available::model::SdkAvailableModel;
@@ -103,8 +104,13 @@ impl SdkInstallIncoming {
         let _ = exec::exec_wait_args("chmod", ["+x", &sdk_run.to_string_lossy().to_string()])?;
         exec::exec_wait(&sdk_run.to_string_lossy().to_string())?;
 
-        //////////
-        // SYNC
+        /////////////////
+        // SYNC Emulators
+        StateMessageOutgoing::new_state(tr!("запуск синхронизации эмуляторов")).send(send_type);
+        Config::save_emulator(EmulatorConfig::search());
+
+        ///////////
+        // SYNC SDK
         StateMessageOutgoing::new_state(tr!("запуск синхронизации Аврора SDK")).send(send_type);
         match Config::save_sdk(SdkConfig::search()) {
             true => {

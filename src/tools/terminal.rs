@@ -46,3 +46,17 @@ pub fn open(command: String) -> Box<dyn TraitOutgoing> {
     }
     StateMessageOutgoing::new_error(tr!("не удалось открыть терминал"))
 }
+
+pub fn open_block(command: String) -> Box<dyn TraitOutgoing> {
+    // Try run in terminal Kitty
+    if let Ok(program) = programs::get_kitty_terminal() {
+        let _ = exec::exec_wait_args(&program, ["bash", "-c", &command]);
+        return StateMessageOutgoing::new_success(tr!("терминал Kitty открыт"));
+    }
+    // Try run in terminal Gnome
+    if let Ok(program) = programs::get_gnome_terminal() {
+        let _ = exec::exec_wait_args(&program, ["--wait", "--", "bash", "-c", &command]);
+        return StateMessageOutgoing::new_success(tr!("терминал Gnome открыт"));
+    }
+    StateMessageOutgoing::new_error(tr!("не удалось открыть терминал"))
+}

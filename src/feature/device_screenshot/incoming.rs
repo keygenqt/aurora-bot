@@ -65,13 +65,20 @@ impl DeviceScreenshotIncoming {
         );
     }
 
-    fn run(model: DeviceModel) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+    fn run(
+        model: DeviceModel,
+        send_type: &OutgoingType,
+    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         let session = model.session_user()?;
         let path = session.take_screenshot()?;
         let path = path.to_string_lossy().to_string();
         Ok(DeviceScreenshotOutgoing::new(
             path.clone(),
-            utils::file_to_base64_by_path(Some(path.as_str())),
+            if send_type == &OutgoingType::Websocket {
+                utils::file_to_base64_by_path(Some(path.as_str()))
+            } else {
+                None
+            },
         ))
     }
 }
@@ -83,7 +90,7 @@ impl TraitIncoming for DeviceScreenshotIncoming {
         let models = DeviceModelSelect::search(&self.id, tr!("получаем информацию об устройствах"), &send_type);
         // Select
         match models.iter().count() {
-            1 => match Self::run(models.first().unwrap().clone()) {
+            1 => match Self::run(models.first().unwrap().clone(), &send_type) {
                 Ok(result) => result,
                 Err(_) => StateMessageOutgoing::new_error(tr!("не удалось сделать скриншот")),
             },

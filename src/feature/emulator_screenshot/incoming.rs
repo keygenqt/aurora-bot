@@ -67,7 +67,10 @@ impl EmulatorScreenshotIncoming {
         );
     }
 
-    fn run(model: EmulatorModel) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+    fn run(
+        model: EmulatorModel,
+        send_type: &OutgoingType,
+    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         if !model.is_running {
             return Ok(StateMessageOutgoing::new_info(tr!("эмулятор должен быть запущен")));
         }
@@ -80,7 +83,11 @@ impl EmulatorScreenshotIncoming {
         }
         Ok(EmulatorScreenshotOutgoing::new(
             path.clone(),
-            utils::file_to_base64_by_path(Some(path.as_str())),
+            if send_type == &OutgoingType::Websocket {
+                utils::file_to_base64_by_path(Some(path.as_str()))
+            } else {
+                None
+            },
         ))
     }
 }
@@ -97,7 +104,7 @@ impl TraitIncoming for EmulatorScreenshotIncoming {
         );
         // Select
         match models.iter().count() {
-            1 => match Self::run(models.first().unwrap().clone()) {
+            1 => match Self::run(models.first().unwrap().clone(), &send_type) {
                 Ok(result) => result,
                 Err(_) => StateMessageOutgoing::new_error(tr!("не удалось сделать скриншот")),
             },

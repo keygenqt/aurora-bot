@@ -145,6 +145,14 @@ impl EmulatorPackageInstallIncoming {
         if package_name.is_none() {
             Err(tr!("не удалось получить название пакета"))?;
         }
+        // Get package name from rpm
+        if let Some(package_arch) = utils::get_package_arch(path) {
+            if package_arch != "x86_64".to_string() {
+                Err(tr!("неверная архитектура пакета"))?;
+            }
+        } else {
+            Err(tr!("не удалось получить архитектуру пакета"))?;
+        }
         // Get session
         let session = model.session_user()?;
         // Upload file

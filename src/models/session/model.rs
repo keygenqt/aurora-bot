@@ -64,7 +64,7 @@ impl SessionModel {
         } else {
             "defaultuser".to_string()
         };
-        let session = Self::get_session(&user, &host, &path, &pass, port, Some(3))?;
+        let session = Self::get_session(&user, &host, &path, &pass, port, Some(5))?;
         let session_listen = Self::get_session(&user, &host, &path, &pass, port, None)?;
         let output = session.call("cat /etc/os-release")?;
         let lines = match output.first() {
@@ -212,7 +212,7 @@ impl SessionModel {
             "gdbus call --system --dest ru.omp.APM --object-path /ru/omp/APM --method ru.omp.APM.Install \"{path_remote}\" {}",
             prompt
         );
-        match self.session.call(&command) {
+        match self.session_listen.call(&command) {
             Ok(_) => Ok(()),
             Err(_) => Err(tr!("произошла ошибка при установке пакета"))?,
         }
@@ -228,7 +228,7 @@ impl SessionModel {
             "gdbus call --system --dest ru.omp.APM --object-path /ru/omp/APM --method ru.omp.APM.Remove \"{package_name}\" {}",
             prompt
         );
-        match self.session.call(&command) {
+        match self.session_listen.call(&command) {
             Ok(_) => Ok(()),
             Err(_) => Err(tr!("произошла ошибка при удалении пакета"))?,
         }

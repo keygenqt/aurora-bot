@@ -49,6 +49,11 @@ impl AppOpenDirIncoming {
             Some(value) => value,
             None => Err(tr!("проверьте путь к директории"))?,
         };
+        let path = if path.is_file() {
+            path.parent().unwrap()
+        } else {
+            &path
+        };
         let program = programs::get_xdg_open()?;
         match exec::exec_detach_args(&program, [path], 2) {
             Ok(_) => Ok(StateMessageOutgoing::new_success(tr!(

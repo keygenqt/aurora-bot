@@ -20,6 +20,7 @@ pub struct EmulatorModel {
     pub uuid: String,
     pub name: String,
     pub is_running: bool,
+    pub is_record: bool,
     pub dimensions: String,
     pub arch: String,
 }
@@ -41,12 +42,17 @@ impl TraitModel for EmulatorModel {
 
     fn print(&self) {
         let message = format!(
-            "Эмулятор: {}\nСтатус: {}\nUUID: {}\nДиректория: {}",
+            "Эмулятор: {}\nСтатус: {}\nВидео: {}\nUUID: {}\nДиректория: {}",
             "VirtualBox".bold().white(),
             (if self.is_running {
                 "активен"
             } else {
                 "не активен"
+            }),
+            (if self.is_record {
+                "запись"
+            } else {
+                "не активно"
             })
             .bold()
             .white(),
@@ -157,6 +163,10 @@ impl EmulatorModel {
                 Ok(value) => value,
                 Err(_) => continue,
             };
+            let is_record = match utils::config_get_bool(&lines, "Recording enabled:", "yes") {
+                Ok(value) => value,
+                Err(_) => continue,
+            };
             let dir = match utils::config_get_string(&lines, "Snapshot folder:", ":") {
                 Ok(s) => s
                     .split("/")
@@ -173,6 +183,7 @@ impl EmulatorModel {
                 uuid: uuid.to_string(),
                 name: name.to_string(),
                 is_running,
+                is_record,
                 dimensions,
                 arch: "x86_64".to_string(), // now only x86_64
             });

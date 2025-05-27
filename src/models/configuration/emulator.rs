@@ -54,6 +54,12 @@ impl EmulatorConfig {
             let uuids: String = String::from_utf8(output.stdout)?;
             Ok(uuids.contains(uuid))
         }
+        fn _is_record(uuid: &String) -> Result<bool, Box<dyn Error>> {
+            let program = programs::get_vboxmanage()?;
+            let output = exec::exec_wait_args(&program, ["showvminfo", &uuid])?;
+            let lines = utils::parse_output(output.stdout);
+            utils::config_get_bool(&lines, "Recording enabled:", "yes")
+        }
         fn _get_dimensions(uuid: &String) -> Result<String, Box<dyn Error>> {
             let program = programs::get_vboxmanage()?;
             let output = exec::exec_wait_args(&program, ["showvminfo", uuid])?;
@@ -72,6 +78,7 @@ impl EmulatorConfig {
             name: self.name.clone(),
             arch: self.arch.clone(),
             is_running: _is_running(&self.uuid).unwrap_or_else(|_| false),
+            is_record: _is_record(&self.uuid).unwrap_or_else(|_| false),
             dimensions: _get_dimensions(&self.uuid).unwrap_or_else(|_| "undefined".to_string()),
         }
     }

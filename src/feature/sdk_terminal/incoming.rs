@@ -1,5 +1,3 @@
-use std::time::SystemTime;
-
 use dbus_crossroads::IfaceBuilder;
 use serde::Deserialize;
 use serde::Serialize;
@@ -8,37 +6,35 @@ use crate::feature::ClientMethodsKey;
 use crate::feature::incoming::TraitIncoming;
 use crate::feature::outgoing::OutgoingType;
 use crate::feature::outgoing::TraitOutgoing;
+use crate::feature::sdk_info::incoming::SdkInfoIncoming;
 use crate::feature::selector::selects::select_sdk_installed::SdkInstalledModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
-use crate::models::configuration::Config;
-use crate::models::configuration::emulator::EmulatorConfig;
-use crate::models::configuration::sdk::SdkConfig;
 use crate::models::sdk_installed::model::SdkInstalledModel;
-use crate::service::command::exec;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
+use crate::tools::terminal;
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct SdkUninstallIncoming {
+pub struct SdkTerminalIncoming {
     id: Option<String>,
 }
 
-impl SdkUninstallIncoming {
+impl SdkTerminalIncoming {
     pub fn name() -> String {
-        serde_variant::to_variant_name(&ClientMethodsKey::SdkUninstall)
+        serde_variant::to_variant_name(&ClientMethodsKey::SdkTerminal)
             .unwrap()
             .to_string()
     }
 
-    pub fn new() -> Box<SdkUninstallIncoming> {
+    pub fn new() -> Box<SdkTerminalIncoming> {
         Box::new(Self { id: None })
     }
 
-    pub fn new_id(id: String) -> Box<SdkUninstallIncoming> {
+    pub fn new_id(id: String) -> Box<SdkTerminalIncoming> {
         Box::new(Self { id: Some(id) })
     }
 
-    fn select(&self, id: String) -> SdkUninstallIncoming {
+    fn select(&self, id: String) -> SdkTerminalIncoming {
         let mut select = self.clone();
         select.id = Some(id);
         select
@@ -72,50 +68,40 @@ impl SdkUninstallIncoming {
         model: SdkInstalledModel,
         send_type: &OutgoingType,
     ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
-        // Time start
-        let start = SystemTime::now();
-        ////////////
-        // UNINSTALL
-        StateMessageOutgoing::new_state(tr!("открываем Maintenance tools")).send(send_type);
-        exec::exec_wait(&model.tools)?;
-
-        /////////////////
-        // SYNC Emulators
-        StateMessageOutgoing::new_state(tr!("запуск синхронизации эмуляторов")).send(send_type);
-        Config::save_emulator(EmulatorConfig::search());
-
-        //////////
-        // SYNC
-        StateMessageOutgoing::new_state(tr!("запуск синхронизации Аврора SDK")).send(send_type);
-        match Config::save_sdk(SdkConfig::search()) {
-            true => {
-                // Time end
-                let end = SystemTime::now();
-                let duration = end.duration_since(start).unwrap();
-                let seconds = duration.as_secs();
-                // Result
-                Ok(StateMessageOutgoing::new_success(tr!(
-                    "удаление Аврора SDK успешно выполнено ({}s)",
-                    seconds
-                )))
-            }
-            false => Ok(StateMessageOutgoing::new_warning(tr!(
-                "конфигурация не была обновлена, вы точно удалили Аврора SDK?"
-            ))),
+        let mut engine = model.get_sdk_engine()?;
+        if !engine.is_running {
+            StateMessageOutgoing::new_state(tr!("запускаем engine...")).send(send_type);
+            engine.start()?;
+            // Get engine connect session
+            let model = engine.session()?;
+            // Close connect
+            model.close()?;
         }
+        // Run command
+        let command = format!(
+            "ssh -o 'ConnectTimeout=30' -o 'StrictHostKeyChecking=no' mersdk@localhost -p 2222 -i {}",
+            engine.key
+        );
+        // Try run terminal
+        Ok(terminal::open(command))
     }
 }
 
-impl TraitIncoming for SdkUninstallIncoming {
+impl TraitIncoming for SdkTerminalIncoming {
     fn run(&self, send_type: OutgoingType) -> Box<dyn TraitOutgoing> {
         // Search
-        let key = SdkUninstallIncoming::name();
-        let models = SdkInstalledModelSelect::search(&self.id, tr!("получаем информацию о Аврора SDK"), &send_type);
+        let key = SdkInfoIncoming::name();
+        let models: Vec<SdkInstalledModel> =
+            SdkInstalledModelSelect::search(&self.id, tr!("ищем Аврора SDK (MB2)"), &send_type)
+                .iter()
+                .filter(|e| e.version.contains("mb2"))
+                .map(|e| e.clone())
+                .collect();
         // Select
         match models.iter().count() {
             1 => match Self::run(models.first().unwrap().clone(), &send_type) {
                 Ok(result) => result,
-                Err(_) => StateMessageOutgoing::new_error(tr!("произошла ошибка при удалении Аврора SDK")),
+                Err(_) => StateMessageOutgoing::new_error(tr!("не удалось открыть терминал")),
             },
             0 => StateMessageOutgoing::new_info(tr!("Аврора SDK не найдены")),
             _ => match SdkInstalledModelSelect::select(key, &send_type, models, |id| self.select(id)) {

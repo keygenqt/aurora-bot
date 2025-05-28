@@ -2,6 +2,7 @@ use colored::Colorize;
 
 use crate::models::TraitModel;
 use crate::models::configuration::sdk::SdkConfig;
+use crate::models::sdk_installed_engine::model::SdkInstalledEngineModel;
 use crate::service::command::exec;
 use crate::tools::macros::print_info;
 use crate::tools::utils;
@@ -123,5 +124,9 @@ impl SdkInstalledModel {
             });
         }
         Ok(models)
+    }
+
+    pub fn get_sdk_engine(&self) -> Result<SdkInstalledEngineModel, Box<dyn std::error::Error>> {
+        SdkInstalledEngineModel::get_sdk_engine(&self)
     }
 }

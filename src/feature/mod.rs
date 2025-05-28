@@ -183,6 +183,9 @@ pub mod sdk_project_format {
 pub mod sdk_sync {
     pub mod incoming;
 }
+pub mod sdk_terminal {
+    pub mod incoming;
+}
 pub mod sdk_tools {
     pub mod incoming;
 }
@@ -287,6 +290,7 @@ pub enum ClientMethodsKey {
     SdkInstall,
     SdkProjectFormat,
     SdkSync,
+    SdkTerminal,
     SdkTools,
     SdkUninstall,
     StateMessage,

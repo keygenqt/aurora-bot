@@ -25,6 +25,7 @@ use crate::feature::sdk_ide_close::incoming::SdkIdeCloseIncoming;
 use crate::feature::sdk_ide_open::incoming::SdkIdeOpenIncoming;
 use crate::feature::sdk_install::incoming::SdkInstallIncoming;
 use crate::feature::sdk_project_format::incoming::SdkProjectFormatIncoming;
+use crate::feature::sdk_terminal::incoming::SdkTerminalIncoming;
 use crate::feature::sdk_uninstall::incoming::SdkUninstallIncoming;
 use crate::tools::macros::print_debug;
 use crate::tools::utils;
@@ -357,6 +358,11 @@ impl ClientMethodsKey {
             ClientMethodsKey::SdkSync => {
                 print_debug!("> SdkSync: {}", value);
                 let model = serde_json::from_str::<SdkSyncIncoming>(&value)?;
+                Ok(Box::new(model))
+            }
+            ClientMethodsKey::SdkTerminal => {
+                print_debug!("> SdkTerminal: {}", value);
+                let model = serde_json::from_str::<SdkTerminalIncoming>(&value)?;
                 Ok(Box::new(model))
             }
             ClientMethodsKey::SdkTools => {

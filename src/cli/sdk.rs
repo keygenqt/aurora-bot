@@ -11,6 +11,7 @@ use crate::feature::sdk_ide_open::incoming::SdkIdeOpenIncoming;
 use crate::feature::sdk_info::incoming::SdkInfoIncoming;
 use crate::feature::sdk_install::incoming::SdkInstallIncoming;
 use crate::feature::sdk_project_format::incoming::SdkProjectFormatIncoming;
+use crate::feature::sdk_terminal::incoming::SdkTerminalIncoming;
 use crate::feature::sdk_tools::incoming::SdkToolsIncoming;
 use crate::feature::sdk_uninstall::incoming::SdkUninstallIncoming;
 use crate::tools::macros::print_error;
@@ -32,9 +33,12 @@ pub struct SdkArgs {
     /// Закрыть IDE
     #[arg(short, long, default_value_t = false)]
     close: bool,
+    /// Открыть терминал MB2
+    #[arg(short, long, default_value_t = false)]
+    terminal: bool,
     /// Открыть maintenance tools
     #[arg(short, long, default_value_t = false)]
-    tools: bool,
+    maintenance: bool,
     /// Форматировать проект Qt/C++
     #[arg(short, long, value_name = "path")]
     format: Option<PathBuf>,
@@ -69,7 +73,11 @@ pub fn run(arg: SdkArgs) {
         SdkIdeCloseIncoming::new().run(OutgoingType::Cli).print();
         return;
     }
-    if arg.tools {
+    if arg.terminal {
+        SdkTerminalIncoming::new().run(OutgoingType::Cli).print();
+        return;
+    }
+    if arg.maintenance {
         SdkToolsIncoming::new().run(OutgoingType::Cli).print();
         return;
     }

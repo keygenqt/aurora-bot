@@ -13,6 +13,7 @@ use crate::tools::utils;
 pub enum SessionModelType {
     Root,
     User,
+    MerSdk,
 }
 
 #[allow(dead_code)]
@@ -59,11 +60,12 @@ impl SessionModel {
         port: u16,
         devel_su: Option<String>,
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        let user = if session_type == SessionModelType::Root {
-            "root".to_string()
-        } else {
-            "defaultuser".to_string()
-        };
+        let user = match session_type {
+            SessionModelType::Root => "root",
+            SessionModelType::User => "defaultuser",
+            SessionModelType::MerSdk => "mersdk",
+        }
+        .to_string();
         let session = Self::get_session(&user, &host, &path, &pass, port, Some(5))?;
         let session_listen = Self::get_session(&user, &host, &path, &pass, port, None)?;
         let output = session.call("cat /etc/os-release")?;
@@ -137,7 +139,8 @@ impl SessionModel {
         path: &PathBuf,
         state: F,
     ) -> Result<String, Box<dyn std::error::Error>> {
-        let path_remote = tokio::task::block_in_place(|| Handle::current().block_on(self.session_listen.upload(path, state)))?;
+        let path_remote =
+            tokio::task::block_in_place(|| Handle::current().block_on(self.session_listen.upload(path, state)))?;
         Ok(path_remote)
     }
 

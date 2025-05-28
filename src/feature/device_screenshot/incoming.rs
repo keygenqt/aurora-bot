@@ -65,10 +65,7 @@ impl DeviceScreenshotIncoming {
         );
     }
 
-    fn run(
-        model: DeviceModel,
-        send_type: &OutgoingType,
-    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+    fn run(model: DeviceModel, send_type: &OutgoingType) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         let session = model.session_user()?;
         let path = session.take_screenshot()?;
         let path = path.to_string_lossy().to_string();

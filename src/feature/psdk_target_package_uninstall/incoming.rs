@@ -113,9 +113,7 @@ impl PsdkTargetPackageUninstallIncoming {
         let package = match packages.first() {
             Some(value) => value,
             None => {
-                return Ok(StateMessageOutgoing::new_info(tr!(
-                    "пакет {package} не найден",
-                )));
+                return Ok(StateMessageOutgoing::new_info(tr!("пакет {package} не найден",)));
             }
         };
         // Remove package

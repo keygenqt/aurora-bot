@@ -42,7 +42,11 @@ impl OnlyDbusMethods {
                 if suffix.is_empty() {
                     let _ = Command::new("/proc/self/exe").arg("svc").arg("--dbus").exec();
                 } else {
-                    let _ = Command::new("/proc/self/exe").arg("svc").arg("--dbus-suffix").arg(suffix).exec();
+                    let _ = Command::new("/proc/self/exe")
+                        .arg("svc")
+                        .arg("--dbus-suffix")
+                        .arg(suffix)
+                        .exec();
                 }
                 ctx.reply(Ok(()))
             },

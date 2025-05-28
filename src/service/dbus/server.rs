@@ -67,6 +67,7 @@ use crate::feature::sdk_info::incoming::SdkInfoIncoming;
 use crate::feature::sdk_install::incoming::SdkInstallIncoming;
 use crate::feature::sdk_project_format::incoming::SdkProjectFormatIncoming;
 use crate::feature::sdk_sync::incoming::SdkSyncIncoming;
+use crate::feature::sdk_terminal::incoming::SdkTerminalIncoming;
 use crate::feature::sdk_tools::incoming::SdkToolsIncoming;
 use crate::feature::sdk_uninstall::incoming::SdkUninstallIncoming;
 use crate::service::dbus::methods;
@@ -295,6 +296,9 @@ impl ServerDbus {
 
             SdkSyncIncoming::dbus_method_run(builder);
 
+            SdkTerminalIncoming::dbus_method_run(builder);
+            SdkTerminalIncoming::dbus_method_run_by_id(builder);
+
             SdkToolsIncoming::dbus_method_run(builder);
             SdkToolsIncoming::dbus_method_run_by_id(builder);
 
@@ -333,12 +337,7 @@ impl ServerDbus {
             None => constants::DBUS_NAME.to_string(),
         };
         tokio::task::block_in_place(|| {
-            Handle::current().block_on(single::get_dbus().connection.request_name(
-                name,
-                false,
-                true,
-                false,
-            ))
+            Handle::current().block_on(single::get_dbus().connection.request_name(name, false, true, false))
         })?;
         print_success!("Сервис D-Bus запущен!");
         tokio::task::block_in_place(|| Handle::current().block_on(future::pending::<()>()));

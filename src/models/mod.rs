@@ -37,6 +37,9 @@ pub mod sdk_available {
 pub mod sdk_installed {
     pub mod model;
 }
+pub mod sdk_installed_engine {
+    pub mod model;
+}
 pub mod session {
     pub mod model;
 }

@@ -9,6 +9,7 @@ use crate::feature::outgoing::TraitOutgoing;
 use crate::feature::sdk_info::incoming::SdkInfoIncoming;
 use crate::feature::selector::selects::select_sdk_installed::SdkInstalledModelSelect;
 use crate::feature::state_message::outgoing::StateMessageOutgoing;
+use crate::models::sdk_available::model::SdkBuildType;
 use crate::models::sdk_installed::model::SdkInstalledModel;
 use crate::service::dbus::server::IfaceData;
 use crate::tools::macros::tr;
@@ -94,7 +95,7 @@ impl TraitIncoming for SdkTerminalIncoming {
         let models: Vec<SdkInstalledModel> =
             SdkInstalledModelSelect::search(&self.id, tr!("ищем Аврора SDK (MB2)"), &send_type)
                 .iter()
-                .filter(|e| e.version.contains("mb2"))
+                .filter(|e| e.build_type == SdkBuildType::MB2)
                 .map(|e| e.clone())
                 .collect();
         // Select

@@ -1,6 +1,7 @@
 use std::error::Error;
 
 use crate::models::configuration::Config;
+use crate::models::sdk_available::model::SdkBuildType;
 use crate::models::sdk_installed::model::SdkInstalledModel;
 use crate::service::command::exec;
 use crate::tools::macros::crash;
@@ -17,6 +18,7 @@ pub struct SdkConfig {
     pub qt_creator_version: String,
     pub qt_version: String,
     pub build_date: String,
+    pub build_type: SdkBuildType,
 }
 
 impl SdkConfig {
@@ -43,6 +45,7 @@ impl SdkConfig {
                     qt_creator_version: e.qt_creator_version.clone(),
                     qt_version: e.qt_version.clone(),
                     build_date: e.build_date.clone(),
+                    build_type: e.build_type.clone(),
                 })
                 .collect(),
             Err(error) => crash!(error),
@@ -64,6 +67,7 @@ impl SdkConfig {
             qt_version: self.qt_version.clone(),
             build_date: self.build_date.clone(),
             is_running: _get_is_running(&self.dir).unwrap_or_else(|_| false),
+            build_type: self.build_type.clone(),
         }
     }
 }

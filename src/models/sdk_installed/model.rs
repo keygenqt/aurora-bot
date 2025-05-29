@@ -2,6 +2,7 @@ use colored::Colorize;
 
 use crate::models::TraitModel;
 use crate::models::configuration::sdk::SdkConfig;
+use crate::models::sdk_available::model::SdkBuildType;
 use crate::models::sdk_installed_engine::model::SdkInstalledEngineModel;
 use crate::service::command::exec;
 use crate::tools::macros::print_info;
@@ -21,6 +22,7 @@ pub struct SdkInstalledModel {
     pub qt_version: String,
     pub build_date: String,
     pub is_running: bool,
+    pub build_type: SdkBuildType,
 }
 
 impl SdkInstalledModel {
@@ -40,8 +42,9 @@ impl TraitModel for SdkInstalledModel {
 
     fn print(&self) {
         let message = format!(
-            "Аврора SDK: {}\nДиректория: {}",
+            "Аврора SDK: {}\nТип сборки: {}\nДиректория: {}",
             self.version.bold().white(),
+            self.name_build_type().bold().white(),
             self.dir.to_string().bold().white()
         );
         print_info!(message);
@@ -49,6 +52,14 @@ impl TraitModel for SdkInstalledModel {
 }
 
 impl SdkInstalledModel {
+    pub fn name_build_type(&self) -> String {
+        if self.build_type == SdkBuildType::BT {
+            "Build Tools".to_string()
+        } else {
+            "MB2".to_string()
+        }
+    }
+
     pub fn start_ide(&self) -> Result<(), Box<dyn std::error::Error>> {
         exec::exec_detach(&format!("{}/bin/qtcreator.sh", self.dir), 3)?;
         Ok(())
@@ -87,7 +98,6 @@ impl SdkInstalledModel {
                 Ok(s) => s,
                 Err(_) => continue,
             };
-
             fn _get_qt_creator_version(sdk_dir: &String) -> Result<String, Box<dyn Error>> {
                 let output = exec::exec_wait_args(&format!("{sdk_dir}/bin/qtcreator"), ["-version"])?;
                 let lines = utils::parse_output(output.stderr);
@@ -111,16 +121,21 @@ impl SdkInstalledModel {
                 let lines = utils::parse_output(output.stdout);
                 Ok(lines.iter().any(|e| e.contains(&format!("{}/bin/qtcreator", sdk_dir))))
             }
-
+            let build_type = if version.contains("-mb2") {
+                SdkBuildType::MB2
+            } else {
+                SdkBuildType::BT
+            };
             models.push(SdkInstalledModel {
                 id: SdkInstalledModel::get_id(&sdk_dir),
                 dir: sdk_dir.clone(),
                 tools: tools.clone(),
-                version,
+                version: version.split("-").next().unwrap().to_string(),
                 qt_creator_version: _get_qt_creator_version(&sdk_dir).unwrap_or_else(|_| "undefined".to_string()),
                 qt_version: _get_qt_version(&sdk_dir).unwrap_or_else(|_| "undefined".to_string()),
                 build_date: _get_build_date(&sdk_dir).unwrap_or_else(|_| "undefined".to_string()),
                 is_running: _get_is_running(&sdk_dir).unwrap_or_else(|_| false),
+                build_type,
             });
         }
         Ok(models)

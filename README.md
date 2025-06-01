@@ -44,6 +44,7 @@ systemctl --user enable aurora-bot.dbus.service
    - `systemctl --user enable aurora-bot.client.service`
 
 ### License
+
 ```
 Copyright 2025 Vitaliy Zarubin
 

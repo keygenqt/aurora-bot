@@ -14,3 +14,6 @@ Building a DEB package and Tar archive for self-installation.
 - libavformat-dev
 - libavfilter-dev
 - libavdevice-dev
+- libdbus-1-dev
+- libc++-dev
+- clang

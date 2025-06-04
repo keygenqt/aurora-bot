@@ -258,13 +258,20 @@ impl SshSession {
             .await?;
         // Write data
         let mut progress = 0;
-        let chunk = file.metadata()?.size() / 100;
-        for data in fs::read(path)?.chunks(chunk as usize) {
-            if progress < 100 {
-                state(progress);
+        let size = file.metadata()?.size();
+        if size < 100 {
+            state(progress);
+            let data = fs::read(path)?;
+            sftp_file.write_all(&data).await.unwrap();
+        } else {
+            let chunk = file.metadata()?.size() / 100;
+            for data in fs::read(path)?.chunks(chunk as usize) {
+                if progress < 100 {
+                    state(progress);
+                }
+                sftp_file.write_all(data).await.unwrap();
+                progress += 1;
             }
-            sftp_file.write_all(data).await.unwrap();
-            progress += 1;
         }
         state(100);
         Ok(format!("/home/{}/{}", self.user, file_name))

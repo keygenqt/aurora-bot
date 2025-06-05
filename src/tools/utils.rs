@@ -182,6 +182,24 @@ pub fn get_home_folder_path() -> PathBuf {
     }
 }
 
+/// Get downloads folder
+pub fn get_downloads_folder_path() -> PathBuf {
+    let path_en = path_to_absolute(&PathBuf::from("~/Downloads"));
+    let path_ru = path_to_absolute(&PathBuf::from("~/Загрузки"));
+    if path_ru.is_some() {
+        path_ru.unwrap()
+    } else {
+        if path_en.is_none() {
+            let mut create_dir = get_home_folder_path();
+            create_dir.push("Downloads");
+            fs::create_dir(&create_dir).expect("error create downloads folder");
+            create_dir
+        } else {
+            path_en.unwrap()
+        }
+    }
+}
+
 /// Get path for save config-file
 pub fn get_file_save_path(file_name: &str) -> PathBuf {
     let mut path = get_home_folder_path();
@@ -255,25 +273,16 @@ pub fn path_to_absolute(path: &PathBuf) -> Option<PathBuf> {
 /// Move files to ~Download PC
 pub fn move_to_downloads(paths: Vec<PathBuf>) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
     let mut result: Vec<PathBuf> = vec![];
-    let path_en = path_to_absolute(&PathBuf::from("~/Downloads"));
-    let path_ru = path_to_absolute(&PathBuf::from("~/Загрузки"));
-    let path_download = if path_ru.is_some() {
-        path_ru.unwrap()
-    } else {
-        if path_en.is_none() {
-            let mut create_dir = get_home_folder_path();
-            create_dir.push("Downloads");
-            fs::create_dir(&create_dir)?;
-            create_dir
-        } else {
-            path_en.unwrap()
-        }
-    };
+    let path_download = get_downloads_folder_path();
     for path in paths {
-        let mut copy_to = path_download.clone();
-        copy_to.push(path.file_name().unwrap());
-        fs::rename(path, &copy_to)?;
-        result.push(copy_to);
+        if path.starts_with(&path_download) {
+            result.push(path);
+        } else {
+            let mut copy_to = path_download.clone();
+            copy_to.push(path.file_name().unwrap());
+            fs::rename(path, &copy_to)?;
+            result.push(copy_to);
+        }
     }
     Ok(result)
 }

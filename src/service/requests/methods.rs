@@ -348,6 +348,14 @@ impl ClientRequest {
             Some(value) => value,
             None => 0,
         };
+        // Check downloads folder
+        if total_size != 0 {
+            let mut downloads_check = utils::get_downloads_folder_path();
+            downloads_check.push(file_name);
+            if downloads_check.exists() && downloads_check.metadata().unwrap().len() == total_size {
+                return Ok(downloads_check);
+            }
+        }
         // Get path
         let mut path = env::temp_dir();
         path.push(file_name);

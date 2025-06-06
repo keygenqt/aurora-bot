@@ -74,7 +74,11 @@ impl PsdkUninstallIncoming {
     fn run_uninstall_terminal(send_type: &OutgoingType) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         StateMessageOutgoing::new_state(tr!("открываем терминал для удаления...")).send(send_type);
         let program = programs::get_aurora_bot()?;
-        Ok(terminal::open(format!("{program} cli psdk --uninstall")))
+        if send_type == &OutgoingType::Dbus {
+            Ok(terminal::open_block(format!("{program} cli psdk --uninstall")))
+        } else {
+            Ok(terminal::open(format!("{program} cli psdk --uninstall")))
+        }
     }
 
     fn run(

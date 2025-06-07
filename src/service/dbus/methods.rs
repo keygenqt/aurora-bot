@@ -23,7 +23,7 @@ impl OnlyDbusMethods {
             ("search",),
             ("result",),
             move |mut ctx: dbus_crossroads::Context, _, (search,): (String,)| async move {
-                let result = match single::get_request().get_search(search) {
+                let result = match single::get_request().get_search(search, true) {
                     Ok(value) => DataOutgoing::serialize(OnlyDbusMethods::name(DbusOnly::FaqSearch), value.clone()),
                     Err(_) => StateMessageOutgoing::new_error(tr!("что-то пошло не так, попробуйте выполнить позже"))
                         .to_json(),

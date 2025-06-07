@@ -6,5 +6,6 @@ pub mod gen_pdf;
 pub mod macros;
 pub mod programs;
 pub mod single;
+pub mod telegram;
 pub mod terminal;
 pub mod utils;

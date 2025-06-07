@@ -72,7 +72,7 @@ impl ClientRequest {
     }
 
     /// Get answer
-    pub fn get_search(&self, value: String) -> Result<FaqResponses, Box<dyn std::error::Error>> {
+    pub fn get_search(&self, value: String, is_format_md: bool) -> Result<FaqResponses, Box<dyn std::error::Error>> {
         let url = format!("{}/aurora-dataset/search/data/{}", constants::URL_API, value);
         let response = match self.get_request_auth(url) {
             Ok(response) => response,
@@ -87,7 +87,13 @@ impl ClientRequest {
             Some(char) => {
                 if char == '[' {
                     match serde_json::from_str::<Vec<FaqResponse>>(&body) {
-                        Ok(value) => Ok(FaqResponses(value)),
+                        Ok(value) => {
+                            if is_format_md {
+                                Ok(FaqResponses(value.iter().map(|e| e.format_body_to_md()).collect()))
+                            } else {
+                                Ok(FaqResponses(value))
+                            }
+                        }
                         Err(_) => match serde_json::from_str::<CommonResponse>(&body) {
                             Ok(value) => Err(value.message)?,
                             Err(error) => Err(error)?,
@@ -95,7 +101,13 @@ impl ClientRequest {
                     }
                 } else {
                     match serde_json::from_str::<FaqResponse>(&body) {
-                        Ok(value) => Ok(FaqResponses(vec![value])),
+                        Ok(value) => {
+                            if is_format_md {
+                                Ok(FaqResponses(vec![value.format_body_to_md()]))
+                            } else {
+                                Ok(FaqResponses(vec![value]))
+                            }
+                        }
                         Err(_) => match serde_json::from_str::<CommonResponse>(&body) {
                             Ok(value) => Err(value.message)?,
                             Err(error) => Err(error)?,

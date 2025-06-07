@@ -6,8 +6,8 @@ use regex::Regex;
 pub fn format_html_to_md(body: &String) -> String {
     let clear_symbols = body.replace("`", "	&apos;");
     let clear_links = format_links(&clear_symbols);
-    let clear_html = html_nipper_clear(&clear_links);
-    clear_html
+    let clear_md = html_nipper_md(&clear_links);
+    clear_md
         .replace("\n⌫\n", "\n")
         .replace(">⌫\n", ">")
         .replace("⌫\n", "")
@@ -15,7 +15,7 @@ pub fn format_html_to_md(body: &String) -> String {
         .into()
 }
 
-fn html_nipper_clear(body: &String) -> String {
+fn html_nipper_md(body: &String) -> String {
     let document = Document::from(body.as_str());
     document.select("b").iter().for_each(|mut e| {
         e.replace_with_html(format!("**{}**", e.text()));
@@ -24,7 +24,7 @@ fn html_nipper_clear(body: &String) -> String {
         e.replace_with_html(format!("_{}_", e.text()));
     });
     document.select("u").iter().for_each(|mut e| {
-        e.replace_with_html(format!("__{}__", e.text()));
+        e.replace_with_html(format!("_u_{}_/u_", e.text()));
     });
     document.select("s").iter().for_each(|mut e| {
         e.replace_with_html(format!("~~{}~~", e.text()));
@@ -40,11 +40,8 @@ fn html_nipper_clear(body: &String) -> String {
                 "language-cpp" => "cpp",
                 _ => "shell",
             };
-            e.parent().replace_with_html(format!(
-                "```{}\n{}\n```",
-                lang,
-                e.text().to_string().trim()
-            ));
+            e.parent()
+                .replace_with_html(format!("```{}\n{}\n```", lang, e.text().to_string().trim()));
         }
     });
     document.select("code").iter().for_each(|mut e| {
@@ -54,13 +51,26 @@ fn html_nipper_clear(body: &String) -> String {
         e.replace_with_html(format!("`{}`", e.text()));
     });
     document.select("blockquote").iter().for_each(|mut e| {
-        let value: String = e.text().to_string().replace("⌫", "").trim().split("\n").map(|e| format!("> {}\n", e)).collect();
+        let value: String = e
+            .text()
+            .to_string()
+            .replace("⌫", "")
+            .trim()
+            .split("\n")
+            .map(|e| format!("> {}\n", e))
+            .collect();
         e.replace_with_html(value);
     });
     document.select("a").iter().for_each(|mut e| {
         e.replace_with_html(format!("[{}]({})", e.text(), e.attr("href").unwrap()));
     });
-    document.select("body").text().trim().to_string()
+    document
+        .select("body")
+        .text()
+        .replace("_u_", "<u>")
+        .replace("_/u_", "</u>")
+        .trim()
+        .to_string()
 }
 
 /// Format to colorize terminal

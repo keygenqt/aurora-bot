@@ -1,12 +1,13 @@
-## Updated: 05/12/2025 21:50:17 PM
+## Updated: 06/08/2025 10:22:35 AM
 
 ## Info
 
-- Last tag: 0.1.1
-- Released: 8
+- Last tag: 0.1.2
+- Released: 9
 
 ## Versions
 
+- Version: 0.1.2 (08/06/2025)
 - Version: 0.1.1 (12/05/2025)
 - Version: 0.1.0 (30/04/2025)
 - Version: 0.0.6 (15/03/2025)
@@ -15,6 +16,29 @@
 - Version: 0.0.3 (21/02/2025)
 - Version: 0.0.2 (15/02/2025)
 - Version: 0.0.1 (06/02/2025)
+
+### Version: 0.1.2 (08/06/2025)
+
+#### Bug
+
+- Fix d-bus stop record emulator.
+- Fix upload small files.
+- Add try move for invalid cross-device link.
+
+#### Change
+
+- Refactoring D-Bus API.
+- Refactoring install/uninstall for D-Bus.
+- Refactoring models.
+
+#### Feature
+
+- Check arch for install RPM.
+- Add D-Bus suffix.
+- Add restart service dbus.
+- Open terminal engine for SDK.
+- Check downloads is exist.
+- Add md format telegram for D-Bus.
 
 ### Version: 0.1.1 (12/05/2025)
 

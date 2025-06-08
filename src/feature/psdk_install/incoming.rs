@@ -85,7 +85,9 @@ impl PsdkInstallIncoming {
         match id {
             Some(id) => {
                 if send_type == &OutgoingType::Dbus {
-                    Ok(terminal::open_block(format!("{program} cli psdk --terminal-install={id}")))
+                    Ok(terminal::open_block(format!(
+                        "{program} cli psdk --terminal-install={id}"
+                    )))
                 } else {
                     Ok(terminal::open(format!("{program} cli psdk --terminal-install={id}")))
                 }

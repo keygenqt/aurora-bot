@@ -6,6 +6,7 @@ use regex::Regex;
 use std::env;
 use std::fs;
 use std::fs::File;
+use std::io::ErrorKind;
 use std::io::Write;
 use std::path::Path;
 use std::path::PathBuf;
@@ -280,11 +281,28 @@ pub fn move_to_downloads(paths: Vec<PathBuf>) -> Result<Vec<PathBuf>, Box<dyn st
         } else {
             let mut copy_to = path_download.clone();
             copy_to.push(path.file_name().unwrap());
-            fs::rename(path, &copy_to)?;
+            try_move(path, &copy_to)?;
             result.push(copy_to);
         }
     }
     Ok(result)
+}
+
+/// Try move
+/// @todo https://github.com/rust-lang/rustup/issues/1239
+pub fn try_move<P: AsRef<Path>, Q: AsRef<Path>>(from: P, to: Q) -> Result<(), Box<dyn std::error::Error>> {
+    match fs::rename(&from, &to) {
+        Ok(_) => Ok(()),
+        Err(e) => {
+            if e.kind() == ErrorKind::CrossesDevices {
+                fs::copy(&from, &to)?;
+                fs::remove_file(&from)?;
+                Ok(())
+            } else {
+                Err(e)?
+            }
+        }
+    }
 }
 
 /// Check is Url and convert API Url

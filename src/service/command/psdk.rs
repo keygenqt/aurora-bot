@@ -6,7 +6,6 @@ use crate::tools::constants;
 use crate::tools::macros::tr;
 use crate::tools::single;
 use crate::tools::utils;
-use std::fs;
 use std::path::PathBuf;
 
 pub fn psdk_targets_exec(chroot: &String) -> Result<Vec<String>, Box<dyn std::error::Error>> {
@@ -129,7 +128,7 @@ fn _get_regular_key() -> Option<PathBuf> {
     let path = utils::get_file_save_path(constants::SIGN_REG_KEY);
     if !path.exists() {
         match single::get_request().download_file(constants::SIGN_REG_KEY_URL.to_string(), |_| {}) {
-            Ok(value) => match fs::rename(value, &path) {
+            Ok(value) => match utils::try_move(value, &path) {
                 Ok(_) => {}
                 Err(_) => return None,
             },
@@ -143,7 +142,7 @@ fn _get_regular_cert() -> Option<PathBuf> {
     let path = utils::get_file_save_path(constants::SIGN_REG_CERT);
     if !path.exists() {
         match single::get_request().download_file(constants::SIGN_REG_CERT_URL.to_string(), |_| {}) {
-            Ok(value) => match fs::rename(value, &path) {
+            Ok(value) => match utils::try_move(value, &path) {
                 Ok(_) => {}
                 Err(_) => return None,
             },

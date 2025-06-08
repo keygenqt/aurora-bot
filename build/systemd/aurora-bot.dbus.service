@@ -1,5 +1,5 @@
 [Unit]
-Description=Aurora Bot | Dbus API service
+Description=Aurora Bot | Dbus API service for Toolbot
 Requires=default.target
 After=default.target
 
@@ -9,7 +9,7 @@ Type=exec
 KillMode=process
 TimeoutSec=5min
 Restart=no
-ExecStart=/usr/local/bin/aurora-bot svc --dbus
+ExecStart=/usr/local/bin/aurora-bot svc --dbus-suffix toolbot
 WorkingDirectory=%h
 
 [Install]

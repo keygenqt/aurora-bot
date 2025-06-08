@@ -109,12 +109,10 @@ pub fn run(arg: PsdkArgs) {
         return;
     }
     if let Some(id) = arg.terminal_install {
-        // a1a27d604c6e8498a87b2f82ff1a3302
         PsdkInstallIncoming::new_id(id).run(OutgoingType::Cli).print();
         return;
     }
     if let Some(id) = arg.terminal_uninstall {
-        // 3d883d22072d216f7224dbb7b076b74d
         PsdkUninstallIncoming::new_id(id).run(OutgoingType::Cli).print();
         return;
     }

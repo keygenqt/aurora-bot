@@ -11,23 +11,23 @@ NAME="$1"
 VERSION="$2"
 BUILD="$3"
 
-DEB_FOLDER="${NAME}_${VERSION}-1_tar"
+TAR_FOLDER="${NAME}_${VERSION}-1_tar"
 
 # Create folders
-mkdir -p "$DEB_FOLDER"
-mkdir -p "$DEB_FOLDER"/bin
-mkdir -p "$DEB_FOLDER"/systemd
+mkdir -p "$TAR_FOLDER"
+mkdir -p "$TAR_FOLDER"/bin
+mkdir -p "$TAR_FOLDER"/systemd
 
 # Systemd
-cp build/systemd/aurora-bot.client.service "$DEB_FOLDER"/systemd
-cp build/systemd/aurora-bot.dbus.service "$DEB_FOLDER"/systemd
+cp build/systemd/aurora-bot.client.service "$TAR_FOLDER"/systemd
+cp build/systemd/aurora-bot.dbus.service "$TAR_FOLDER"/systemd
 
 # Bin
 chmod +x "$BUILD"
-cp "$BUILD" "$DEB_FOLDER"/bin
+cp "$BUILD" "$TAR_FOLDER"/bin
 
 # Create control
-tee -a "$DEB_FOLDER"/Install-Linux-tar.txt > /dev/null <<EOT
+tee -a "$TAR_FOLDER"/Install-Linux-tar.txt > /dev/null <<EOT
 Aurora Bot
 
 ИНСТРУКЦИЯ ПО УСТАНОВКЕ
@@ -39,12 +39,13 @@ Aurora Bot
 
 3. Активируйте сервисы
   - systemctl --user enable aurora-bot.client.service
-  - systemctl --user enable aurora-bot.client.service
+  - systemctl --user enable aurora-bot.dbus.service
 
 4. Готово!
 
 EOT
 
-tar cfJ "$DEB_FOLDER".tar.xz "$DEB_FOLDER"
+tar cfJ "$TAR_FOLDER".tar.xz "$TAR_FOLDER"
 
-rm -rf "$DEB_FOLDER"
+sleep 1s
+rm -rf "$PWD/$TAR_FOLDER"

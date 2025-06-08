@@ -71,13 +71,29 @@ impl PsdkUninstallIncoming {
         );
     }
 
-    fn run_uninstall_terminal(send_type: &OutgoingType) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+    fn run_uninstall_terminal(
+        id: &Option<String>,
+        send_type: &OutgoingType,
+    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         StateMessageOutgoing::new_state(tr!("открываем терминал для удаления...")).send(send_type);
         let program = programs::get_aurora_bot()?;
-        if send_type == &OutgoingType::Dbus {
-            Ok(terminal::open_block(format!("{program} cli psdk --uninstall")))
-        } else {
-            Ok(terminal::open(format!("{program} cli psdk --uninstall")))
+        match id {
+            Some(id) => {
+                if send_type == &OutgoingType::Dbus {
+                    Ok(terminal::open_block(format!(
+                        "{program} cli psdk --terminal-uninstall={id}"
+                    )))
+                } else {
+                    Ok(terminal::open(format!("{program} cli psdk --terminal-uninstall={id}")))
+                }
+            }
+            None => {
+                if send_type == &OutgoingType::Dbus {
+                    Ok(terminal::open_block(format!("{program} cli psdk --uninstall")))
+                } else {
+                    Ok(terminal::open(format!("{program} cli psdk --uninstall")))
+                }
+            }
         }
     }
 
@@ -144,7 +160,7 @@ impl TraitIncoming for PsdkUninstallIncoming {
                     },
                 }
             }
-            _ => match Self::run_uninstall_terminal(&send_type) {
+            _ => match Self::run_uninstall_terminal(&self.id, &send_type) {
                 Ok(result) => result,
                 Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
             },

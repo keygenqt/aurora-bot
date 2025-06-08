@@ -76,13 +76,27 @@ impl PsdkInstallIncoming {
         );
     }
 
-    fn run_install_terminal(send_type: &OutgoingType) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+    fn run_install_terminal(
+        id: &Option<String>,
+        send_type: &OutgoingType,
+    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         StateMessageOutgoing::new_state(tr!("открываем терминал для установки...")).send(send_type);
         let program = programs::get_aurora_bot()?;
-        if send_type == &OutgoingType::Dbus {
-            Ok(terminal::open_block(format!("{program} cli psdk --install")))
-        } else {
-            Ok(terminal::open(format!("{program} cli psdk --install")))
+        match id {
+            Some(id) => {
+                if send_type == &OutgoingType::Dbus {
+                    Ok(terminal::open_block(format!("{program} cli psdk --terminal-install={id}")))
+                } else {
+                    Ok(terminal::open(format!("{program} cli psdk --terminal-install={id}")))
+                }
+            }
+            None => {
+                if send_type == &OutgoingType::Dbus {
+                    Ok(terminal::open_block(format!("{program} cli psdk --install")))
+                } else {
+                    Ok(terminal::open(format!("{program} cli psdk --install")))
+                }
+            }
         }
     }
 
@@ -296,7 +310,7 @@ impl TraitIncoming for PsdkInstallIncoming {
                     },
                 }
             }
-            _ => match Self::run_install_terminal(&send_type) {
+            _ => match Self::run_install_terminal(&self.id, &send_type) {
                 Ok(result) => result,
                 Err(error) => StateMessageOutgoing::new_error(tr!("{}", error)),
             },

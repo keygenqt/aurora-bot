@@ -11,5 +11,6 @@
 .idea
 
 # Builds
+*.rpm
 *.deb
 *.tar.xz

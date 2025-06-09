@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ####################
-## Build tar package
+## Build tar archive
 ####################
 
 # Set root dir
@@ -33,7 +33,7 @@ Aurora Bot
 ИНСТРУКЦИЯ ПО УСТАНОВКЕ
 =======================
 
-1. Скопируйте bin/* в директорию /usr/local/bin
+1. Скопируйте bin/* в директорию /usr/bin
 
 2. Скопируйте systemd/* сервисы в директорию /etc/systemd/user
 
@@ -41,7 +41,14 @@ Aurora Bot
   - systemctl --user enable aurora-bot.client.service
   - systemctl --user enable aurora-bot.dbus.service
 
-4. Готово!
+4. Установите зависимости:
+  - libavutil58
+  - libavcodec60
+  - libavformat60
+  - libavfilter9
+  - libavdevice60
+
+5. Готово!
 
 EOT
 

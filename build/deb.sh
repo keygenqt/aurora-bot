@@ -16,8 +16,7 @@ DEB_FOLDER="${NAME}_${VERSION}-1_amd64"
 # Create folders
 mkdir -p "$DEB_FOLDER"
 mkdir -p "$DEB_FOLDER"/DEBIAN
-mkdir -p "$DEB_FOLDER"/usr/local
-mkdir -p "$DEB_FOLDER"/usr/local/bin
+mkdir -p "$DEB_FOLDER"/usr/bin
 mkdir -p "$DEB_FOLDER"/etc/systemd/user
 
 # Systemd
@@ -26,7 +25,7 @@ cp build/systemd/aurora-bot.dbus.service "$DEB_FOLDER"/etc/systemd/user
 
 # Bin
 chmod +x "$BUILD"
-cp "$BUILD" "$DEB_FOLDER"/usr/local/bin
+cp "$BUILD" "$DEB_FOLDER"/usr/bin
 
 # Create control
 tee -a "$DEB_FOLDER"/DEBIAN/control > /dev/null <<EOT
@@ -35,8 +34,15 @@ Version: $VERSION
 Architecture: amd64
 Maintainer: Vitaliy Zarubin <keygenqt@gmail.com>
 Description: An application that provides an easy start in the Aurora OS ecosystem.
-Build-Depends: libssl-dev, libavutil-dev, libavcodec-dev, libavformat-dev, libavfilter-dev, libavdevice-dev, libdbus-1-dev
 EOT
+
+version=$(lsb_release -a | grep Release)
+if [[ $version == *"24.04"* ]]; then
+  echo "Depends: libavutil58, libavcodec60, libavformat60, libavfilter9, libavdevice60" > "$DEB_FOLDER"/DEBIAN/control"
+fi
+if [[ $version == *"22.04"* ]]; then
+  echo "Depends: libavutil56, libavcodec58, libavformat58, libavfilter7, libavdevice58" > "$DEB_FOLDER"/DEBIAN/control"
+fi
 
 dpkg-deb --build --root-owner-group "$DEB_FOLDER"
 

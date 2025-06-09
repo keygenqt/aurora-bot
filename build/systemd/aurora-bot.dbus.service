@@ -9,7 +9,7 @@ Type=exec
 KillMode=process
 TimeoutSec=5min
 Restart=no
-ExecStart=/usr/local/bin/aurora-bot svc --dbus-suffix toolbot
+ExecStart=/usr/bin/aurora-bot svc --dbus-suffix toolbot
 WorkingDirectory=%h
 
 [Install]

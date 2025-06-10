@@ -57,6 +57,11 @@ if [ -z "$(cargo --version 2>/dev/null)" ]; then
     source ~/.bashrc
 fi
 
+if [ -z "$(cargo --version 2>/dev/null)" ]; then
+    echo 'После установки rust выполните `source ~/.bashrc` и перезапустите скрипт'
+    exit;
+fi
+
 # Build
 source build/cargo.sh
 source build/upx.sh $BUILD

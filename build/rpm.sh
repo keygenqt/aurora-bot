@@ -22,6 +22,30 @@ RPM_FOLDER=$PWD/rpmbuild
 rm -rf $RPM_FOLDER
 mkdir -p $RPM_FOLDER
 
+# Alt 10
+if [[ $(lsb_release -a | grep Release) == *"10."* ]]; then
+REQUIRES=$(cat <<EOF
+Requires: libavutil56
+Requires: libavcodec58
+Requires: libavformat58
+Requires: libavfilter7
+Requires: libavdevice58
+EOF
+)
+fi
+
+# Alt 11
+if [[ $(lsb_release -a | grep Release) == *"11."* ]]; then
+REQUIRES=$(cat <<EOF
+Requires: libavutil59
+Requires: libavcodec61
+Requires: libavformat61
+Requires: libavfilter10
+Requires: libavdevice61
+EOF
+)
+fi
+
 # Create control
 tee -a $RPM_FOLDER/$NAME.spec > /dev/null <<EOT
 %define fullname $PACKAGE
@@ -36,11 +60,7 @@ License: Apache-2.0
 Group: Development/Tools
 Url: https://aurora-bot.keygenqt.com/
 
-Requires: libavutil59
-Requires: libavcodec61
-Requires: libavformat61
-Requires: libavfilter10
-Requires: libavdevice61
+$REQUIRES
 
 %description
 %summary.

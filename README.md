@@ -21,17 +21,6 @@ Fast, smart, lightweight, client of the Aurora Bot project.
 
 ![preview](data/architecture.png)
 
-# Build
-
-Building a DEB, RPM package and Tar archive for self-installation.
-
-```shell
-git clone https://github.com/keygenqt/aurora-bot.git
-cd aurora-bot
-chmod +x ./build/*
-./build/main.sh
-```
-
 ### Install DEB
 
 ```shell
@@ -56,6 +45,17 @@ systemctl --user enable aurora-bot.dbus.service
   - libavformat60
   - libavfilter9
   - libavdevice60
+
+# Build
+
+Building a DEB, RPM package and Tar archive for self-installation.
+
+```shell
+git clone https://github.com/keygenqt/aurora-bot.git
+cd aurora-bot
+chmod +x ./build/*
+./build/main.sh
+```
 
 ### License
 

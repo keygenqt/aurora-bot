@@ -25,11 +25,18 @@ Fast, smart, lightweight, client of the Aurora Bot project.
 
 ```shell
 # Install
-sudo dpkg -i aurora-bot_0.1.2-1_amd64.deb
+sudo dpkg -i aurora-bot_0.1.2-1_amd64-noble.deb
+sudo apt-get install -f
 # Enable services
 systemctl --user enable aurora-bot.client.service
 systemctl --user enable aurora-bot.dbus.service
+# Start services
+systemctl --user start aurora-bot.client.service
+systemctl --user start aurora-bot.dbus.service
 ```
+
+> For use the client service, authorization in the application is required:<br/>
+> https://aurora-bot.keygenqt.com/book/telegram-bot/auth.html
 
 ### Install TAR
 

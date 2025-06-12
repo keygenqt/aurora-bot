@@ -26,6 +26,8 @@ Fast, smart, lightweight, client of the Aurora Bot project.
 
 ### Install DEB
 
+> [Download](https://github.com/keygenqt/aurora-bot/releases) DEB package for your OS.
+
 ```shell
 # Install
 sudo dpkg -i aurora-bot_0.1.2-1_amd64-noble.deb
@@ -40,6 +42,8 @@ systemctl --user start aurora-bot.dbus.service
 
 ### Install RPM
 
+> [Download](https://github.com/keygenqt/aurora-bot/releases) RPM package for your OS.
+
 ```shell
 # Install
 sudo apt-get install aurora-bot-0.1.2-1.x86_64-alt11.rpm
@@ -53,7 +57,7 @@ systemctl --user start aurora-bot.dbus.service
 
 ### Install TAR
 
-- Download and unzip the archive
+- [Download](https://github.com/keygenqt/aurora-bot/releases) and unzip the archive
 - Copy `bin/*` to `/usr/bin`
 - Copy `systemd/*` services to `/etc/systemd/user`
 - Enable services

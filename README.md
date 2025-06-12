@@ -53,15 +53,15 @@ systemctl --user start aurora-bot.dbus.service
 
 ### Install TAR
 
-1. Download and unzip the archive
-2. Copy `bin/*` to `/usr/bin`
-3. Copy `systemd/*` services to `/etc/systemd/user`
-4. Enable services
+- Download and unzip the archive
+- Copy `bin/*` to `/usr/bin`
+- Copy `systemd/*` services to `/etc/systemd/user`
+- Enable services
    - `systemctl --user enable aurora-bot.client.service`
    - `systemctl --user start aurora-bot.client.service`
    - `systemctl --user enable aurora-bot.dbus.service`
    - `systemctl --user start aurora-bot.dbus.service`
-5. Install dependency
+- Install dependency
   - libavutil58
   - libavcodec60
   - libavformat60

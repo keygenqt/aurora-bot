@@ -66,11 +66,11 @@ systemctl --user start aurora-bot.dbus.service
    - `systemctl --user enable aurora-bot.dbus.service`
    - `systemctl --user start aurora-bot.dbus.service`
 - Install dependency
-  - libavutil58
-  - libavcodec60
-  - libavformat60
-  - libavfilter9
-  - libavdevice60
+  - libavutil
+  - libavcodec
+  - libavformat
+  - libavfilter
+  - libavdevice
 
 # Build
 

@@ -87,7 +87,7 @@ ln -sf %{_bindir}/%{name} %{_bindir}/%{fullname}
 EOT
 
 # Build
-rpmbuild -bb $RPM_FOLDER/$NAME.spec
+rpmbuild -bb $RPM_FOLDER/$NAME.spec || exit
 
 # Move
 cp ~/RPM/RPMS/$ARCH/*.rpm ./

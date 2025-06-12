@@ -36,10 +36,12 @@ Maintainer: Vitaliy Zarubin <keygenqt@gmail.com>
 Description: An application that provides an easy start in the Aurora OS ecosystem.
 EOT
 
+# Ubuntu 24.04
 if [[ $(lsb_release -a | grep Release) == *"24.04"* ]]; then
   echo 'Depends: libavutil58, libavcodec60, libavformat60, libavfilter9, libavdevice60' >> "$DEB_FOLDER/DEBIAN/control"
 fi
 
+# Ubuntu 22.04
 if [[ $(lsb_release -a | grep Release) == *"22.04"* ]]; then
   echo 'Depends: libavutil56, libavcodec58, libavformat58, libavfilter7, libavdevice58' >> "$DEB_FOLDER/DEBIAN/control"
 fi

@@ -11,7 +11,7 @@ NAME="$1"
 VERSION="$2"
 BUILD="$3"
 
-TAR_FOLDER="${NAME}_${VERSION}-1_tar"
+TAR_FOLDER="${NAME}_${VERSION}-1"
 
 # Create folders
 mkdir -p "$TAR_FOLDER"
@@ -44,11 +44,11 @@ Aurora Bot
   - systemctl --user start aurora-bot.dbus.service
 
 4. Установите зависимости:
-  - libavutil58
-  - libavcodec60
-  - libavformat60
-  - libavfilter9
-  - libavdevice60
+  - libavutil
+  - libavcodec
+  - libavformat
+  - libavfilter
+  - libavdevice
 
 5. Готово!
 

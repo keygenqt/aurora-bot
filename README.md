@@ -21,6 +21,9 @@ Fast, smart, lightweight, client of the Aurora Bot project.
 
 ![preview](data/architecture.png)
 
+> For use the client service, authorization in the application is required:<br/>
+> https://aurora-bot.keygenqt.com/book/telegram-bot/auth.html
+
 ### Install DEB
 
 ```shell
@@ -35,8 +38,18 @@ systemctl --user start aurora-bot.client.service
 systemctl --user start aurora-bot.dbus.service
 ```
 
-> For use the client service, authorization in the application is required:<br/>
-> https://aurora-bot.keygenqt.com/book/telegram-bot/auth.html
+### Install RPM
+
+```shell
+# Install
+sudo apt-get install aurora-bot-0.1.2-1.x86_64-alt11.rpm
+# Enable services
+systemctl --user enable aurora-bot.client.service
+systemctl --user enable aurora-bot.dbus.service
+# Start services
+systemctl --user start aurora-bot.client.service
+systemctl --user start aurora-bot.dbus.service
+```
 
 ### Install TAR
 
@@ -45,7 +58,9 @@ systemctl --user start aurora-bot.dbus.service
 3. Copy `systemd/*` services to `/etc/systemd/user`
 4. Enable services
    - `systemctl --user enable aurora-bot.client.service`
+   - `systemctl --user start aurora-bot.client.service`
    - `systemctl --user enable aurora-bot.dbus.service`
+   - `systemctl --user start aurora-bot.dbus.service`
 5. Install dependency
   - libavutil58
   - libavcodec60

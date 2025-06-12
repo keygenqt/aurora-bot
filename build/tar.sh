@@ -39,7 +39,9 @@ Aurora Bot
 
 3. Активируйте сервисы
   - systemctl --user enable aurora-bot.client.service
+  - systemctl --user start aurora-bot.client.service
   - systemctl --user enable aurora-bot.dbus.service
+  - systemctl --user start aurora-bot.dbus.service
 
 4. Установите зависимости:
   - libavutil58

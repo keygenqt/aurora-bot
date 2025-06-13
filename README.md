@@ -2,7 +2,7 @@
 
 > Subscribe and like ⭐
 
-Fast, smart, lightweight, client of the Aurora Bot project.
+Fast, smart, easy, fast way to interact with Aurora OS.
 
 > The application is under development.
 

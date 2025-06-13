@@ -2,7 +2,7 @@
 
 Fast, smart, easy, fast way to interact with Aurora OS.
 
-![preview](data/preview.png)
+![preview](https://github.com/keygenqt/aurora-bot/blob/main/data/preview.png?raw=true)
 
 ### Features
 
@@ -12,7 +12,3 @@ Fast, smart, easy, fast way to interact with Aurora OS.
 - `svc` - Services: dbus api, telegram client.
 
 [More...](https://aurora-bot.keygenqt.com/book/aurora-bot/about.html)
-
-### Architecture
-
-![preview](data/architecture.png)

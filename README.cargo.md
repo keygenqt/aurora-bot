@@ -15,7 +15,7 @@ The application that simplifies interaction with the [Aurora OS](https://aurorao
 
 ### Install
 
-> [Download](https://github.com/keygenqt/aurora-bot/tree/main/build/systemd) services to `/etc/systemd/user`.
+[Download](https://github.com/keygenqt/aurora-bot/tree/main/build/systemd) services to `/etc/systemd/user`.
 
 ```shell
 # Install dependency
@@ -38,5 +38,5 @@ systemctl --user start aurora-bot.client.service
 systemctl --user start aurora-bot.dbus.service
 ```
 
-> For use the client service, authorization in the application is required:<br/>
-> https://aurora-bot.keygenqt.com/book/telegram-bot/auth.html
+For use the client service, authorization in the application is required:<br/>
+https://aurora-bot.keygenqt.com/book/telegram-bot/auth.html

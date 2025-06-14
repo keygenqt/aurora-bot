@@ -2,20 +2,18 @@
 
 > Subscribe and like ⭐
 
-Fast, smart, easy, fast way to interact with Aurora OS.
-
-> The application is under development.
+The application that simplifies interaction with the [Aurora OS](https://auroraos.ru/) infrastructure for software development.
 
 ![preview](data/preview.png)
 
 ### Features
 
-- `cli` - Classic command line.
-- `cmd` - Smart command line.
-- `faq` - Answers on the Aurora OS ecosystem.
-- `svc` - Services: dbus api, telegram client.
-
-[More...](https://aurora-bot.keygenqt.com/book/aurora-bot/about.html)
+- Interacting with devices.
+- Interacting with emulators.
+- Working with [Aurora SDK](https://developer.auroraos.ru/doc/sdk).
+- Working with [Platform SDK](https://developer.auroraos.ru/doc/sdk/psdk).
+- Working with [Flutter SDK](https://developer.auroraos.ru/doc/extended/flutter).
+- Answers to questions.
 
 ### Architecture
 

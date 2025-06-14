@@ -1,15 +1,17 @@
 # AuroraBot
 
-Fast, smart, easy, fast way to interact with [Aurora OS](https://auroraos.ru/).
+The application that simplifies interaction with the [Aurora OS](https://auroraos.ru/) infrastructure for software development.
 
 ![preview](https://github.com/keygenqt/aurora-bot/blob/main/data/preview.png?raw=true)
 
 ### Features
 
-- `cli` - Classic command line.
-- `cmd` - Smart command line.
-- `faq` - Answers on the Aurora OS ecosystem.
-- `svc` - Services: dbus api, telegram client.
+- Interacting with devices.
+- Interacting with emulators.
+- Working with [Aurora SDK](https://developer.auroraos.ru/doc/sdk).
+- Working with [Platform SDK](https://developer.auroraos.ru/doc/sdk/psdk).
+- Working with [Flutter SDK](https://developer.auroraos.ru/doc/extended/flutter).
+- Answers to questions.
 
 ### Install
 

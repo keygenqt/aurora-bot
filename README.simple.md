@@ -1,6 +1,6 @@
 # AuroraBot
 
-Fast, smart, easy, fast way to interact with Aurora OS.
+Fast, smart, easy, fast way to interact with [Aurora OS](https://auroraos.ru/).
 
 ![preview](https://github.com/keygenqt/aurora-bot/blob/main/data/preview.png?raw=true)
 
@@ -11,4 +11,16 @@ Fast, smart, easy, fast way to interact with Aurora OS.
 - `faq` - Answers on the Aurora OS ecosystem.
 - `svc` - Services: dbus api, telegram client.
 
-[More...](https://aurora-bot.keygenqt.com/book/aurora-bot/about.html)
+### Dependency
+
+```shell
+sudo apt-get install \
+    clang \
+    libssl-dev \
+    libdbus-1-dev \
+    libavutil-dev \
+    libavcodec-dev \
+    libavformat-dev \
+    libavfilter-dev \
+    libavdevice-dev
+```

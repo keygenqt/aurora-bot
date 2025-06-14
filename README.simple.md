@@ -35,3 +35,6 @@ systemctl --user enable aurora-bot.dbus.service
 systemctl --user start aurora-bot.client.service
 systemctl --user start aurora-bot.dbus.service
 ```
+
+> For use the client service, authorization in the application is required:<br/>
+> https://aurora-bot.keygenqt.com/book/telegram-bot/auth.html

@@ -55,32 +55,29 @@ systemctl --user start aurora-bot.client.service
 systemctl --user start aurora-bot.dbus.service
 ```
 
-### Install TAR
+### Install Cargo
 
-- [Download](https://github.com/keygenqt/aurora-bot/releases) and unzip the archive
-- Copy `bin/*` to `/usr/bin`
-- Copy `systemd/*` services to `/etc/systemd/user`
-- Enable services
-   - `systemctl --user enable aurora-bot.client.service`
-   - `systemctl --user start aurora-bot.client.service`
-   - `systemctl --user enable aurora-bot.dbus.service`
-   - `systemctl --user start aurora-bot.dbus.service`
-- Install dependency
-  - libavutil
-  - libavcodec
-  - libavformat
-  - libavfilter
-  - libavdevice
-
-# Build
-
-Building a DEB, RPM package and Tar archive for self-installation.
+> [Download](https://github.com/keygenqt/aurora-bot/tree/main/build/systemd) services to `/etc/systemd/user`.
 
 ```shell
-git clone https://github.com/keygenqt/aurora-bot.git
-cd aurora-bot
-chmod +x ./build/*
-./build/main.sh
+# Install dependency
+sudo apt-get install \
+    clang \
+    libssl-dev \
+    libdbus-1-dev \
+    libavutil-dev \
+    libavcodec-dev \
+    libavformat-dev \
+    libavfilter-dev \
+    libavdevice-dev
+# Install app
+cargo install aurora-bot
+# Enable services
+systemctl --user enable aurora-bot.client.service
+systemctl --user enable aurora-bot.dbus.service
+# Start services
+systemctl --user start aurora-bot.client.service
+systemctl --user start aurora-bot.dbus.service
 ```
 
 ### License

@@ -11,9 +11,12 @@ Fast, smart, easy, fast way to interact with [Aurora OS](https://auroraos.ru/).
 - `faq` - Answers on the Aurora OS ecosystem.
 - `svc` - Services: dbus api, telegram client.
 
-### Dependency
+### Install
+
+> [Download](https://github.com/keygenqt/aurora-bot/tree/main/build/systemd) services to `/etc/systemd/user`.
 
 ```shell
+# Install dependency
 sudo apt-get install \
     clang \
     libssl-dev \
@@ -23,4 +26,12 @@ sudo apt-get install \
     libavformat-dev \
     libavfilter-dev \
     libavdevice-dev
+# Install app
+cargo install aurora-bot
+# Enable services
+systemctl --user enable aurora-bot.client.service
+systemctl --user enable aurora-bot.dbus.service
+# Start services
+systemctl --user start aurora-bot.client.service
+systemctl --user start aurora-bot.dbus.service
 ```

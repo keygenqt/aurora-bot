@@ -1,4 +1,4 @@
-# AuroraBot
+# Aurora Bot
 
 > Subscribe and like ⭐
 

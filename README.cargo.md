@@ -1,4 +1,4 @@
-# AuroraBot
+# Aurora Bot
 
 The application that simplifies interaction with the [Aurora OS](https://auroraos.ru/) infrastructure for software development.
 

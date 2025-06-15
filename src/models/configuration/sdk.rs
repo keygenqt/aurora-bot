@@ -4,7 +4,7 @@ use crate::models::configuration::Config;
 use crate::models::sdk_available::model::SdkBuildType;
 use crate::models::sdk_installed::model::SdkInstalledModel;
 use crate::service::command::exec;
-use crate::tools::macros::crash;
+use crate::tools::macros::print_warning;
 use crate::tools::utils;
 use serde::Deserialize;
 use serde::Serialize;
@@ -48,7 +48,10 @@ impl SdkConfig {
                     build_type: e.build_type.clone(),
                 })
                 .collect(),
-            Err(error) => crash!(error),
+            Err(error) => {
+                print_warning!(error);
+                return vec![];
+            },
         }
     }
 

@@ -1,7 +1,7 @@
 use crate::models::configuration::Config;
 use crate::models::emulator::model::EmulatorModel;
 use crate::service::command::exec;
-use crate::tools::macros::crash;
+use crate::tools::macros::print_warning;
 use crate::tools::programs;
 use crate::tools::utils;
 use serde::Deserialize;
@@ -43,7 +43,10 @@ impl EmulatorConfig {
                     arch: e.arch.clone(),
                 })
                 .collect(),
-            Err(error) => crash!(error),
+            Err(error) => {
+                print_warning!(error);
+                return vec![];
+            },
         }
     }
 

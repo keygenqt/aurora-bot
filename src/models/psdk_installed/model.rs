@@ -4,7 +4,7 @@ use human_sort::sort;
 use crate::models::TraitModel;
 use crate::models::configuration::psdk::PsdkConfig;
 use crate::models::psdk_target::model::PsdkTargetModel;
-use crate::tools::macros::crash;
+use crate::tools::macros::print_warning;
 use crate::tools::macros::print_info;
 use crate::tools::utils;
 use serde::Deserialize;
@@ -105,7 +105,10 @@ impl PsdkInstalledModel {
             let targets = if is_targets {
                 match PsdkTargetModel::search_full(chroot.clone(), psdk_dir.clone()) {
                     Ok(value) => value,
-                    Err(error) => crash!(error),
+                    Err(error) => {
+                        print_warning!(error);
+                        vec![]
+                    }
                 }
             } else {
                 vec![]

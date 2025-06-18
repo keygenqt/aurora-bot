@@ -166,14 +166,14 @@ impl EmulatorOpenIncoming {
             if !output.status.success() {
                 Err(tr!("не удалось установить пароль"))?
             } else {
-                StateMessageOutgoing::new_info(tr!("установлен пароль: <code>{}</code>", password)).send(send_type);
+                StateMessageOutgoing::new_info(tr!("установлен пароль: {}", password)).send(send_type);
             }
             let port = &port.unwrap_or_else(|| 3389).to_string();
             let output = exec::exec_wait_args(&program, ["modifyvm", uuid, "--vrde-port", port])?;
             if !output.status.success() {
                 Err(tr!("не удалось установить порт"))?
             } else {
-                StateMessageOutgoing::new_info(tr!("установлен порт: <code>{}</code>", port)).send(send_type);
+                StateMessageOutgoing::new_info(tr!("установлен порт: {}", port)).send(send_type);
             }
             let output = exec::exec_wait_args(&program, ["modifyvm", uuid, "--vrde", "on"])?;
             if !output.status.success() {

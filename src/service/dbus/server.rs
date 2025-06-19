@@ -110,7 +110,7 @@ impl ServerDbus {
         let signal_state = cr.register(constants::DBUS_NAME, |builder| {
             /////////////////
             // Signals
-            ServerDbus::add_signal("listen", builder);
+            ServerDbus::add_signal("Listen", builder);
 
             /////////////////
             // App
@@ -346,7 +346,7 @@ impl ServerDbus {
 
     pub fn send(outgoing: String) {
         let path: Path<'static> = format!("{}", "/api").into();
-        let msg = Message::signal(&path, &constants::DBUS_NAME.into(), &"listen".into()).append1(outgoing);
+        let msg = Message::signal(&path, &constants::DBUS_NAME.into(), &"Listen".into()).append1(outgoing);
         let _ = single::get_dbus().connection.send(msg);
     }
 

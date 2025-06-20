@@ -51,7 +51,7 @@ impl SdkConfig {
             Err(error) => {
                 print_warning!(error);
                 return vec![];
-            },
+            }
         }
     }
 

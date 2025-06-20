@@ -48,7 +48,7 @@ impl DeviceConfig {
             Err(error) => {
                 print_warning!(error);
                 return vec![];
-            },
+            }
         }
     }
 

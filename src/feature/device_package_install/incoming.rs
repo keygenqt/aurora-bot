@@ -85,18 +85,6 @@ impl DevicePackageInstallIncoming {
         );
     }
 
-    pub fn dbus_method_run_urls(builder: &mut IfaceBuilder<IfaceData>) {
-        builder.method_with_cr_async(
-            format!("{}{}", Self::name(), "Urls"),
-            ("urls",),
-            ("result",),
-            move |mut ctx: dbus_crossroads::Context, _, (urls,): (Vec<String>,)| async move {
-                let outgoing = Self::new_urls(urls).run(OutgoingType::Dbus);
-                ctx.reply(Ok((outgoing.to_json(),)))
-            },
-        );
-    }
-
     pub fn dbus_method_run_path_by_id(builder: &mut IfaceBuilder<IfaceData>) {
         builder.method_with_cr_async(
             format!("{}{}", Self::name(), "PathById"),
@@ -107,6 +95,18 @@ impl DevicePackageInstallIncoming {
                     Some(path) => Self::new_path_id(path, id).run(OutgoingType::Dbus),
                     None => StateMessageOutgoing::new_error(tr!("проверьте путь к файлу")),
                 };
+                ctx.reply(Ok((outgoing.to_json(),)))
+            },
+        );
+    }
+
+    pub fn dbus_method_run_urls(builder: &mut IfaceBuilder<IfaceData>) {
+        builder.method_with_cr_async(
+            format!("{}{}", Self::name(), "Urls"),
+            ("urls",),
+            ("result",),
+            move |mut ctx: dbus_crossroads::Context, _, (urls,): (Vec<String>,)| async move {
+                let outgoing = Self::new_urls(urls).run(OutgoingType::Dbus);
                 ctx.reply(Ok((outgoing.to_json(),)))
             },
         );

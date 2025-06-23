@@ -88,6 +88,7 @@ pub fn format_html_to_terminal(body: &String) -> String {
         .into()
 }
 
+// @todo check
 fn html_nipper_colorize(body: &String) -> String {
     let document = Document::from(body.as_str());
     document.select("b").iter().for_each(|mut e| {

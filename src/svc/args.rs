@@ -26,7 +26,7 @@ pub struct SvcArgs {
     /// Запустить D-Bus сервер
     #[arg(short, long, default_value_t = false)]
     dbus: bool,
-    /// Запустить D-Bus сервер
+    /// Запустить D-Bus сервер с суффиксом
     #[arg(long, value_name = "suffix")]
     dbus_suffix: Option<String>,
 

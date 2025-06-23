@@ -24,13 +24,17 @@ pub struct FaqResponse {
 
 impl TraitOutgoing for FaqResponse {
     fn print(&self) {
+        let name = if self.lname.is_empty() {
+            self.fname.clone()
+        } else {
+            format!("{} {}", self.fname.clone(), self.lname.clone())
+        };
         println!(
-            "🔖 {}\n\n{}\n\n⭐ {:.2} {} {}, {}",
+            "🔖 {}\n\n{}\n\n⭐ {:.2} {}, {}",
             self.title.bold().cyan(),
             telegram::format_html_to_terminal(&self.text),
             self.rating.italic().yellow(),
-            self.fname.italic(),
-            self.lname.italic(),
+            name.italic(),
             self.date.italic(),
         )
     }

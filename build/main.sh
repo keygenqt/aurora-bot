@@ -20,8 +20,8 @@ NAME='aurora-bot'
 VERSION=$(grep -m 1 version ./Cargo.toml | xargs | sed 's/version = //g')
 BUILD='target/release/aurora-bot'
 
-# Check first build clear PC
-if [ -z "$(ldconfig -p | grep libavfilter 2>/dev/null)" ]; then
+# Dependency
+if [ -z "$(cargo --version 2>/dev/null)" ]; then
     # Dependency Ubuntu
     if [ "$choice" = "deb" ] || [ "$choice" = "tar" ]; then
         sudo apt-get update
@@ -53,13 +53,12 @@ if [ -z "$(ldconfig -p | grep libavfilter 2>/dev/null)" ]; then
         libswscale-devel \
         libswresample-devel
     fi
-fi
-
-# Rust
-if [ -z "$(cargo --version 2>/dev/null)" ]; then
+    # Install rust
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
     source ~/.bashrc
 fi
+
+# Check update source
 if [ -z "$(cargo --version 2>/dev/null)" ]; then
     echo 'После установки rust выполните `source ~/.bashrc` и перезапустите скрипт'
     exit;

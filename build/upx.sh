@@ -16,4 +16,5 @@ if [ ! -d "upx" ]; then
     mv "$(ls | grep "upx-*")" upx
 fi
 
+chmod +x ./upx/upx
 ./upx/upx --best --lzma "$BUILD"

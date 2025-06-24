@@ -1,12 +1,13 @@
-## Updated: 06/08/2025 10:22:35 AM
+## Updated: 06/24/2025 21:34:32 PM
 
 ## Info
 
-- Last tag: 0.1.2
-- Released: 9
+- Last tag: 0.1.6
+- Released: 10
 
 ## Versions
 
+- Version: 0.1.6 (24/06/2025)
 - Version: 0.1.2 (08/06/2025)
 - Version: 0.1.1 (12/05/2025)
 - Version: 0.1.0 (30/04/2025)
@@ -16,6 +17,18 @@
 - Version: 0.0.3 (21/02/2025)
 - Version: 0.0.2 (15/02/2025)
 - Version: 0.0.1 (06/02/2025)
+
+### Version: 0.1.6 (24/06/2025)
+
+#### Bug
+
+- Output fixes.
+- Fix format FAQ.
+
+#### Change
+
+- Changed dependency handling.
+- Other improvements.
 
 ### Version: 0.1.2 (08/06/2025)
 

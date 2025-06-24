@@ -19,7 +19,7 @@ The application that simplifies interaction with the [Aurora OS](https://aurorao
 
 ![preview](data/architecture.png)
 
-> For use the client service, authorization in the application is required:<br/>
+> For use the client service, authorization in the application is required:
 > https://aurora-bot.keygenqt.com/book/telegram-bot/auth.html
 
 ### Install DEB

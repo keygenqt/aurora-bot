@@ -1,3 +1,4 @@
+use std::fs;
 use std::path::PathBuf;
 
 use dbus_crossroads::IfaceBuilder;
@@ -83,6 +84,9 @@ impl PsdkPackageSignIncoming {
         };
         if !command::psdk::rpm_sign(&model.chroot, path) {
             Err(tr!("подпись пакета не удалось"))?;
+        }
+        if path.to_string_lossy().contains("~temp_") {
+            let _ = fs::remove_file(path);
         }
         Ok(StateMessageOutgoing::new_success(tr!(
             "пакет {} успешно подписан",

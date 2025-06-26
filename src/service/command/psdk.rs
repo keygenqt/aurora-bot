@@ -6,6 +6,7 @@ use crate::tools::constants;
 use crate::tools::macros::tr;
 use crate::tools::single;
 use crate::tools::utils;
+use std::fs;
 use std::path::PathBuf;
 
 pub fn psdk_targets_exec(chroot: &String) -> Result<Vec<String>, Box<dyn std::error::Error>> {
@@ -31,7 +32,7 @@ pub fn target_package_install(
             "--no-gpg-checks",
             "in",
             "-y",
-            &path.to_string_lossy(),
+            &check_flatpak_file(&path).to_string_lossy(),
         ],
     ) {
         Ok(value) => value,
@@ -90,7 +91,14 @@ pub fn target_package_remove(
 }
 
 pub fn rpm_is_sign(chroot: &String, path: &PathBuf) -> bool {
-    let output = match exec::exec_wait_args_sudo(&chroot, ["rpmsign-external", "verify", &path.to_string_lossy()]) {
+    let output = match exec::exec_wait_args_sudo(
+        &chroot,
+        [
+            "rpmsign-external",
+            "verify",
+            &check_flatpak_file(&path).to_string_lossy(),
+        ],
+    ) {
         Ok(value) => value,
         Err(_) => return false,
     };
@@ -115,7 +123,7 @@ pub fn rpm_sign(chroot: &String, path: &PathBuf) -> bool {
             "--force",
             &format!("--key={}", path_key.unwrap().to_string_lossy()),
             &format!("--cert={}", path_cert.unwrap().to_string_lossy()),
-            &path.to_string_lossy(),
+            &check_flatpak_file(&path).to_string_lossy(),
         ],
     ) {
         Ok(value) => value,
@@ -185,4 +193,20 @@ pub fn add_sudoers_chroot_access(models: &Vec<PsdkInstalledModel>) -> Result<(),
     utils::add_file_sudoers(constants::MER_PSDK_CHROOT.into(), content_sudoers_mer_chroot)?;
     // All ok - sudoers added
     Ok(())
+}
+
+// Create temp file for psdk
+// psdk can't mount flatpak path files
+pub fn check_flatpak_file(path: &PathBuf) -> PathBuf {
+    if path.to_string_lossy().contains("user/1000") {
+        let fname = format!("~temp_{}", path.file_name().unwrap().to_str().unwrap());
+        let mut temp = utils::get_downloads_folder_path();
+        temp.push(fname);
+        match fs::copy(&path, &temp) {
+            Ok(_) => temp,
+            Err(_) => path.to_path_buf(),
+        }
+    } else {
+        path.to_path_buf()
+    }
 }

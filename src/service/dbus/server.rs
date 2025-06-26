@@ -76,7 +76,7 @@ use crate::tools::macros::print_success;
 use crate::tools::single;
 
 // gdbus call --timeout=99999 --session --dest com.keygenqt.aurora_bot --object-path /api --method com.keygenqt.aurora_bot.{KEY}
-// gdbus monitor --session --dest com.keygenqt.aurora_bot --object-path /api com.keygenqt.aurora_bot.listen
+// gdbus monitor --session --dest com.keygenqt.aurora_bot --object-path /api com.keygenqt.aurora_bot.Listen
 
 /// Common state client
 #[derive(Serialize, Clone)]

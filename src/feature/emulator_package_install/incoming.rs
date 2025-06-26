@@ -1,3 +1,4 @@
+use std::fs;
 use std::path::PathBuf;
 
 use dbus_crossroads::IfaceBuilder;
@@ -161,6 +162,10 @@ impl EmulatorPackageInstallIncoming {
         // Install by apm
         StateMessageOutgoing::new_state(tr!("установка пакета")).send(send_type);
         session.install_package(path_remote.clone(), package_name)?;
+        // Remove if temp for psdk
+        if path.to_string_lossy().contains("~temp_") {
+            let _ = fs::remove_file(path);
+        }
         // Success result
         Ok(StateMessageOutgoing::new_success(tr!("пакет успешно установлен")))
     }

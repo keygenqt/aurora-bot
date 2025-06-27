@@ -11,7 +11,7 @@ NAME="$1"
 VERSION="$2"
 BUILD="$3"
 
-DEB_FOLDER="${NAME}_${VERSION}-1_amd64"
+DEB_FOLDER="${NAME}_${VERSION}-1.amd64"
 
 # Create folders
 mkdir -p "$DEB_FOLDER"

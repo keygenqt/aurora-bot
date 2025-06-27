@@ -9,8 +9,8 @@ authors = ["Vitaliy Zarubin <keygenqt@yandex.ru"]
 license = "Apache-2.0"
 edition = "2024"
 
-[profile.release]
 # https://github.com/johnthagen/min-sized-rust#strip-symbols-from-binary
+[profile.release]
 opt-level = "z"
 strip = true
 lto = true

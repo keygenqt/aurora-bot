@@ -1,12 +1,13 @@
-## Updated: 06/24/2025 21:34:32 PM
+## Updated: 06/27/2025 19:28:20 PM
 
 ## Info
 
-- Last tag: 0.1.6
-- Released: 10
+- Last tag: 0.1.7
+- Released: 11
 
 ## Versions
 
+- Version: 0.1.7 (27/06/2025)
 - Version: 0.1.6 (24/06/2025)
 - Version: 0.1.2 (08/06/2025)
 - Version: 0.1.1 (12/05/2025)
@@ -17,6 +18,14 @@
 - Version: 0.0.3 (21/02/2025)
 - Version: 0.0.2 (15/02/2025)
 - Version: 0.0.1 (06/02/2025)
+
+### HEAD (27/06/2025)
+
+#### Bug
+
+- Fix sign package from flatpak
+- Fix install device package from flatpak
+- Fix install emulator package from flatpak
 
 ### Version: 0.1.6 (24/06/2025)
 

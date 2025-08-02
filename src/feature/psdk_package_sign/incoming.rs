@@ -1,4 +1,3 @@
-use std::fs;
 use std::path::PathBuf;
 
 use dbus_crossroads::IfaceBuilder;
@@ -74,7 +73,10 @@ impl PsdkPackageSignIncoming {
         );
     }
 
-    fn run(model: PsdkInstalledModel, path: &PathBuf) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
+    fn run(
+        model: PsdkInstalledModel,
+        path: &PathBuf,
+    ) -> Result<Box<dyn TraitOutgoing>, Box<dyn std::error::Error>> {
         if !path.is_file() {
             Err(tr!("необходимо указать путь к файлу"))?
         }
@@ -82,15 +84,15 @@ impl PsdkPackageSignIncoming {
             Some(value) => value,
             None => Err(tr!("необходимо указать путь к RPM пакету"))?,
         };
-        if !command::psdk::rpm_sign(&model.chroot, path) {
-            Err(tr!("подпись пакета не удалось"))?;
+        if path.to_string_lossy().contains("user/1000") {
+            Err(tr!("PSDK не может примонтировать этот файл"))?;
         }
-        if path.to_string_lossy().contains("~temp_") {
-            let _ = fs::remove_file(path);
+        if command::psdk::rpm_sign(&model.chroot, path).is_none() {
+            Err(tr!("подпись пакета не удалось"))?;
         }
         Ok(StateMessageOutgoing::new_success(tr!(
             "пакет {} успешно подписан",
-            package_name
+            package_name,
         )))
     }
 }

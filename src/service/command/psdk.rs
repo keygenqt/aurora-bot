@@ -19,6 +19,7 @@ pub fn target_package_install(
     path: &PathBuf,
     target: &PsdkTargetModel,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    let file_path = add_temp_file_flatpak_for_psdk(path);
     let output = match exec::exec_wait_args_sudo(
         &chroot,
         [
@@ -32,7 +33,7 @@ pub fn target_package_install(
             "--no-gpg-checks",
             "in",
             "-y",
-            &check_flatpak_file(&path).to_string_lossy(),
+            &file_path.to_string_lossy(),
         ],
     ) {
         Ok(value) => value,
@@ -91,12 +92,13 @@ pub fn target_package_remove(
 }
 
 pub fn rpm_is_sign(chroot: &String, path: &PathBuf) -> bool {
+    let file_path = add_temp_file_flatpak_for_psdk(path);
     let output = match exec::exec_wait_args_sudo(
         &chroot,
         [
             "rpmsign-external",
             "verify",
-            &check_flatpak_file(&path).to_string_lossy(),
+            &file_path.to_string_lossy(),
         ],
     ) {
         Ok(value) => value,
@@ -106,14 +108,15 @@ pub fn rpm_is_sign(chroot: &String, path: &PathBuf) -> bool {
     !lines.is_empty() && lines.last().unwrap().contains("successfully")
 }
 
-pub fn rpm_sign(chroot: &String, path: &PathBuf) -> bool {
+pub fn rpm_sign(chroot: &String, path: &PathBuf) -> Option<PathBuf> {
+    let file_path = add_temp_file_flatpak_for_psdk(path);
     let path_key = _get_regular_key();
     if path_key.is_none() {
-        return false;
+        return None;
     }
     let path_cert = _get_regular_cert();
     if path_cert.is_none() {
-        return false;
+        return None;
     }
     let _ = match exec::exec_wait_args_sudo(
         chroot,
@@ -123,13 +126,17 @@ pub fn rpm_sign(chroot: &String, path: &PathBuf) -> bool {
             "--force",
             &format!("--key={}", path_key.unwrap().to_string_lossy()),
             &format!("--cert={}", path_cert.unwrap().to_string_lossy()),
-            &check_flatpak_file(&path).to_string_lossy(),
+            &file_path.to_string_lossy(),
         ],
     ) {
         Ok(value) => value,
-        Err(_) => return false,
+        Err(_) => return None,
     };
-    rpm_is_sign(chroot, path)
+    if rpm_is_sign(chroot, &file_path) {
+        Some(file_path)
+    } else {
+        None
+    }
 }
 
 fn _get_regular_key() -> Option<PathBuf> {
@@ -197,7 +204,7 @@ pub fn add_sudoers_chroot_access(models: &Vec<PsdkInstalledModel>) -> Result<(),
 
 // Create temp file for psdk
 // psdk can't mount flatpak path files
-pub fn check_flatpak_file(path: &PathBuf) -> PathBuf {
+pub fn add_temp_file_flatpak_for_psdk(path: &PathBuf) -> PathBuf {
     if path.to_string_lossy().contains("user/1000") {
         let fname = format!("~temp_{}", path.file_name().unwrap().to_str().unwrap());
         let mut temp = utils::get_downloads_folder_path();
@@ -208,5 +215,12 @@ pub fn check_flatpak_file(path: &PathBuf) -> PathBuf {
         }
     } else {
         path.to_path_buf()
+    }
+}
+
+// Clean up after yourself
+pub fn del_temp_file_flatpak_for_psdk(path: &PathBuf) {
+    if path.to_string_lossy().contains("~temp_") && path.is_file() {
+        let _ = fs::remove_file(path);
     }
 }

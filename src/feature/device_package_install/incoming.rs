@@ -1,4 +1,3 @@
-use std::fs;
 use std::path::PathBuf;
 
 use dbus_crossroads::IfaceBuilder;
@@ -135,16 +134,21 @@ impl DevicePackageInstallIncoming {
             Some(value) => value,
             None => Err(tr!("для проверки и подписи пакета необходим установить Platform SDK"))?,
         };
-        if !command::psdk::rpm_is_sign(&psdk.chroot, path) && !command::psdk::rpm_sign(&psdk.chroot, path) {
-            Err(tr!("валидация пакета не удалось"))?;
-        }
+        let path = if !command::psdk::rpm_is_sign(&psdk.chroot, path) {
+            match command::psdk::rpm_sign(&psdk.chroot, path) {
+                Some(path) => path,
+                None => Err(tr!("подпись пакета не удалось"))?,
+            }
+        } else {
+            path.clone()
+        };
         // Get package name from rpm
-        let package_name = utils::get_package_name(path);
+        let package_name = utils::get_package_name(&path);
         if package_name.is_none() {
             Err(tr!("не удалось получить название пакета"))?;
         }
         // Get package name from rpm
-        if let Some(package_arch) = utils::get_package_arch(path) {
+        if let Some(package_arch) = utils::get_package_arch(&path) {
             if package_arch != model.arch.to_string() {
                 Err(tr!("неверная архитектура пакета"))?;
             }
@@ -155,14 +159,12 @@ impl DevicePackageInstallIncoming {
         let session = model.session_user()?;
         // Upload file
         StateMessageOutgoing::new_state(tr!("загружаем пакет...")).send(send_type);
-        let path_remote = &session.file_upload(path, StateMessageOutgoing::get_state_callback_file_small(send_type))?;
+        let path_remote = &session.file_upload(&path, StateMessageOutgoing::get_state_callback_file_small(send_type))?;
         // Install by apm
         StateMessageOutgoing::new_state(tr!("установка пакета")).send(send_type);
         session.install_package(path_remote.clone(), package_name)?;
         // Remove if temp for psdk
-        if path.to_string_lossy().contains("~temp_") {
-            let _ = fs::remove_file(path);
-        }
+        command::psdk::del_temp_file_flatpak_for_psdk(&path);
         // Success result
         Ok(StateMessageOutgoing::new_success(tr!("пакет успешно установлен")))
     }

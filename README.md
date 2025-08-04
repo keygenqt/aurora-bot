@@ -28,7 +28,7 @@ The application that simplifies interaction with the [Aurora OS](https://aurorao
 
 ```shell
 # Install
-sudo dpkg -i aurora-bot_0.1.7-1_amd64-noble.deb
+sudo dpkg -i aurora-bot_0.1.8-1_amd64-noble.deb
 sudo apt-get install -f
 # Enable services
 systemctl --user enable aurora-bot.client.service
@@ -44,7 +44,7 @@ systemctl --user start aurora-bot.dbus.service
 
 ```shell
 # Install
-sudo apt-get install aurora-bot-0.1.7-1.x86_64-alt11.rpm
+sudo apt-get install aurora-bot-0.1.8-1.x86_64-alt11.rpm
 # Enable services
 systemctl --user enable aurora-bot.client.service
 systemctl --user enable aurora-bot.dbus.service

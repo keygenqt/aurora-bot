@@ -17,7 +17,7 @@ The application that simplifies interaction with the [Aurora OS](https://aurorao
 
 ### Architecture
 
-![preview](data/architecture.jpg)
+![preview](data/architecture.png)
 
 > For use the client service, authorization in the application is required:
 > https://aurora-bot.keygenqt.com/book/telegram-bot/auth.html
@@ -55,7 +55,8 @@ systemctl --user start aurora-bot.dbus.service
 
 ### Install Cargo
 
-> [https://crates.io/crates/aurora-bot](https://crates.io/crates/aurora-bot).
+🔗 [https://crates.io/crates/aurora-bot](https://crates.io/crates/aurora-bot)
+
 > [Download](https://github.com/keygenqt/aurora-bot/tree/main/build/systemd) services to `/etc/systemd/user`.
 
 ```shell

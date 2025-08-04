@@ -1,12 +1,13 @@
-## Updated: 06/27/2025 19:28:20 PM
+## Updated: 08/04/2025 19:02:31 PM
 
 ## Info
 
-- Last tag: 0.1.7
-- Released: 11
+- Last tag: 0.1.8
+- Released: 12
 
 ## Versions
 
+- Version: 0.1.8 (04/08/2025)
 - Version: 0.1.7 (27/06/2025)
 - Version: 0.1.6 (24/06/2025)
 - Version: 0.1.2 (08/06/2025)
@@ -19,7 +20,7 @@
 - Version: 0.0.2 (15/02/2025)
 - Version: 0.0.1 (06/02/2025)
 
-### HEAD (27/06/2025)
+### Version: 0.1.8 (04/08/2025)
 
 #### Bug
 

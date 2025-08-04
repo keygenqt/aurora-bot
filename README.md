@@ -4,7 +4,7 @@
 
 The application that simplifies interaction with the [Aurora OS](https://auroraos.ru/) infrastructure for software development.
 
-![preview](data/preview.png)
+![preview](data/preview.jpg)
 
 ### Features
 

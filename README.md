@@ -4,7 +4,7 @@
 
 The application that simplifies interaction with the [Aurora OS](https://auroraos.ru/) infrastructure for software development.
 
-![preview](data/preview.jpg)
+![preview](data/preview.png)
 
 ### Features
 
@@ -17,7 +17,7 @@ The application that simplifies interaction with the [Aurora OS](https://aurorao
 
 ### Architecture
 
-![preview](data/architecture.png)
+![preview](data/architecture.jpg)
 
 > For use the client service, authorization in the application is required:
 > https://aurora-bot.keygenqt.com/book/telegram-bot/auth.html
